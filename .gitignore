@@ -1,18 +1,23 @@
-# Build and Release Folders
-bin-debug/
-bin-release/
-[Oo]bj/
-[Bb]in/
+# 依赖
+node_modules/
 
-# Other files and folders
-.settings/
+# 脚本运行产物（截图 / 审计报告 / 登录态）
+.design/
+auth.json
+*.zip
 
-# Executables
-*.swf
-*.air
-*.ipa
-*.apk
+# 构建与缓存
+dist/
+.tmp/
+*.log
+npm-debug.log*
 
-# Project files, i.e. `.project`, `.actionScriptProperties` and `.flexProperties`
-# should NOT be excluded as they contain compiler settings and other important
-# information for Eclipse / Flash Builder.
+# Python
+__pycache__/
+*.pyc
+
+# 系统与编辑器
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
