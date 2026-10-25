@@ -2,12 +2,68 @@
 
 > 把界面做对、做实，两条路都走：**已有界面**——按设计稿/截图还原，或把现存页面整改到位（后台管理端、移动 H5/小程序、多端一致性、Logo 与品牌资产）；**还没有界面**——从 0 生成一套能验收的骨架（令牌 + 组件 + 五类页面），再往上填真内容与业务状态。
 > 参考库是 **18 个真实站的实测数据 + 六份单站蒸馏**（营销 / 工具站 / 密版图墙 / 疏版图墙 / 陈列页 / 灵感库），外加**两份外部规则集蒸馏**（工艺底线 / 反模板清单）；按页面类型对到具体文件，见 [该抄哪份参考](#该抄哪份参考)。
+> 搜这些词应该能到这：设计稿转代码、照着截图还原、UI 还原、前端验收、截图对比、后台美化、移动端适配、设计令牌、Claude Code 技能（skill）。
 > 目标不是"改好看"，而是**让界面和它声称的样子一致，并且真的能用——改完能拿出证据**。
 
-`v1.8.0` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `9 个可执行脚本`
+`v1.9.0` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `9 个可执行脚本`
 
 ---
 
+## 30 秒安装
+
+技能就是一个 `SKILL.md` 加一堆参考文件——**Claude Code 和 DSH 都直接认这个格式**，装到对应目录就能用。
+
+**Windows（PowerShell）**
+
+```powershell
+iex ((irm https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/raw/master/install.ps1).TrimStart([char]0xFEFF))
+```
+
+> 那个 `.TrimStart([char]0xFEFF)` 不是装饰：脚本带 UTF-8 BOM（PowerShell 5.1 读无 BOM 的 UTF-8 会按 ANSI 解析，中文注释直接语法报错），而 `irm | iex` 拿到的字符串里 BOM 会变成一个不可见字符顶在 `<#` 前面，导致 `[CmdletBinding()]` 被判「意外属性」。嫌长就用下面这种：下载到本地再跑，文件保留 BOM，一切正常。
+>
+> ```powershell
+> irm https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/raw/master/install.ps1 -OutFile $env:TEMP\ff.ps1; & $env:TEMP\ff.ps1
+> ```
+
+**macOS / Linux（含 Git Bash）**
+
+```bash
+curl -fsSL https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/raw/master/install.sh | bash
+```
+
+默认同时装到 `~/.claude/skills/frontend-fidelity` 与 `~/.dsh/skills/frontend-fidelity`，已有的同名目录会被替换。想只装一边或换位置：
+
+```bash
+bash install.sh --target claude          # 只装 Claude Code
+bash install.sh --target dsh             # 只装 DSH
+bash install.sh --dir ~/my-skills        # 装到自定义目录
+bash install.sh --ref v1.8.0             # 锁定某个版本
+bash install.sh --dry-run                # 只看会装到哪，不动文件
+```
+
+**手动装也就三行**
+
+```bash
+git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fidelity.git \
+  ~/.claude/skills/frontend-fidelity
+```
+
+装完新开一个会话（旧会话不会重新加载技能），然后在项目里直接说「照这张截图还原这个页面」「后台太难看了，统一一下」，或说「验收一下前端改动」。
+
+## 它到底量大到什么程度
+
+18 个真实站在浏览器里逐元素量出来的，不是猜的：
+
+| 量的是什么 | 结果 |
+| --- | --- |
+| 正文字号 | 均值 **14.8px**（跨站 10–20px），行高比均值 **1.42** |
+| 主标题字号 | 均值 **72.6px**（36–140px），H1/正文比 **2.3–8.8 倍** |
+| 圆角 | 六种做法并存：单主力档 / 双轨 / 直角派 / 线性阶梯 / 七档无递进（反例） |
+| 阴影 | 五派：靠边框 / 发丝圈+内阴影 / 负扩散 / 全站零阴影 / 零阴影零边框 |
+| 动效 | 中位数 **1 个**——最克制的几站反而最显专业 |
+| 网格 | 三派图墙：密（5 列 gap 0）／疏（4 列列距 24）／活预览墙（3 列 gap 32） |
+
+全部原始数值、样本清单和失败样本在 [`references/design-evidence.md`](references/design-evidence.md)。
 ## 该抄哪份参考
 
 先看这张表：**按你手上的页面类型选一份，别从头读十六份。**
@@ -22,7 +78,7 @@
 | 灵感库 / 截图站：素材本身就是成品，界面要隐形 | [`references/uinotes-design.md`](references/uinotes-design.md) + [css-recipes §17](references/css-recipes.md) | 不画壳的截图墙、裁切露 1.8 张、48px 数字当标题、2/4/6/16/20/24 线性圆角阶梯 |
 | 后台 / 管理端：列表、表单、详情、空态、权限墙 | [`references/page-patterns.md`](references/page-patterns.md) + [`component-spec.md`](references/component-spec.md) + [`design-tokens.md`](references/design-tokens.md) | 七类页面骨架 + 11 类组件规格 + 三套人格令牌；单站样本没有后台，横向数据看 `design-evidence.md` B 组 |
 
-动效是另一条横切：动手加任何动画前读 [eferences/motion-spec.md](references/motion-spec.md)（四条底线、时长五档、四条缓动、编排、三档降级、自测四步），可粘贴片段在 [css-recipes §18](references/css-recipes.md)。
+动效是另一条横切：动手加任何动画前读 [`references/motion-spec.md`](references/motion-spec.md)（四条底线、时长五档、四条缓动、编排、三档降级、自测四步），可粘贴片段在 [css-recipes §18](references/css-recipes.md)。
 
 另有两份**不分页面类型、每次都要过**的：流程走到一半看 [`references/anti-slop.md`](references/anti-slop.md)（三档旋钮、hero 四条、三把锁、8 组 AI tell、34 条 pre-flight），最后一道手感看 [`references/craft-floor.md`](references/craft-floor.md)（九条 verify、深度三选一、浏览器原生表面、与本站语料的四条冲突裁决）。
 
@@ -37,6 +93,8 @@
 
 ## 目录
 
+- [30 秒安装](#30-秒安装)
+- [它到底量大到什么程度](#它到底量大到什么程度)
 - [该抄哪份参考](#该抄哪份参考)
 - [这是什么](#这是什么)
 - [适用与不适用](#适用与不适用)

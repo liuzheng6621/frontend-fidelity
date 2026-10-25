@@ -4,6 +4,21 @@
 `frontend-fidelity.zip`，由 `git archive` 从 Tag 快照生成，只含被 git 跟踪的文件
 （不含 `shots/`、`audit-report.json`、`.design/`）。
 
+## v1.9.0 - 2026-10-31
+
+让「装上」变成一行命令，并把实测数据摆到首屏。
+
+### 新增
+
+- **`install.sh`**（macOS / Linux / Git Bash）与 **`install.ps1`**（Windows PowerShell）：默认同时装到 `~/.claude/skills/frontend-fidelity` 与 `~/.dsh/skills/frontend-fidelity`，支持 `--target claude|dsh|both`、`--dir`、`--ref`、`--repo`、`--dry-run`。优先 `git clone --depth 1`，机器上没有 git 时回落到 Gitee / GitHub 的 archive zip。`install.ps1` 带 UTF-8 BOM——PowerShell 5.1 读无 BOM 的 UTF-8 脚本会按 ANSI 解析，中文注释里的字节会被误认成引号，直接语法报错。**代价**：`irm ... | iex` 拿到的字符串里 BOM 会变成不可见字符顶在 `<#` 之前，`[CmdletBinding()]` 被判「意外属性」；README 的 Windows 一行装因此写成 `iex ((irm ...).TrimStart([char]0xFEFF))`，并给了「先 `-OutFile` 再执行」的等价写法——两种都实测装出 16 份 references。
+- **README「30 秒安装」**：三行命令 + 五个常用参数 + 手动 clone 兜底 + 装完怎么触发（Claude Code / DSH 各自的入口）。
+- **README「它到底量大到什么程度」**：六行实测摘要表（正文 14.8px / H1 72.6px / 圆角六做法 / 阴影五派 / 动效中位数 1 / 图墙三派），链到 `design-evidence.md`。
+
+### 修改
+
+- README 开头补一行口语关键词（设计稿转代码、照着截图还原、UI 还原、前端验收、截图对比、后台美化、移动端适配、设计令牌、Claude Code 技能）——此前通篇术语，搜不到。
+- 修复 `references/motion-spec.md` 链接的 `eferences` 笔误。
+- `.gitattributes` 补 `*.sh text eol=lf` 与 `*.ps1 text eol=crlf`：安装脚本落地时不能带 CRLF，否则 bash 会因为 `\r` 报 `bad interpreter`。
 ## v1.8.0 - 2026-10-31
 
 补上原技能最薄弱的一块：**动效**。此前只有零散规则（craft-floor 的一条判据、anti-slop 的 MOTION 旋钮、避免清单四条），没有能照着做的数值，也没法验收。本版新增一份独立规格 + 可粘贴片段 + 五条验收。
