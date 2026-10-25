@@ -3,7 +3,7 @@
 > 把前端做对、做实，两条路都走：**已有界面**——按设计稿/截图还原，或把现存页面整改到位；**还没有界面**——从 0 生成一套骨架，再往上填内容与业务状态。
 > 目标不是"改好看"，而是**让界面和它声称的样子一致，并且真的能用——改完能拿出证据**。
 
-`v1.1.1` · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `9 个可执行脚本`
+`v1.2.0` · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `9 个可执行脚本`
 
 ---
 
@@ -31,6 +31,7 @@
 - [产物说明](#产物说明)
 - [视觉细则摘要](#视觉细则摘要)
 - [参考站蒸馏：wegic.ai](#参考站蒸馏wegicai)
+- [参考站蒸馏：即时设计 js.design](#参考站蒸馏即时设计-jsdesign)
 - [交付验收清单](#交付验收清单)
 - [CI 集成](#ci-集成)
 - [常见问题](#常见问题)
@@ -41,7 +42,7 @@
 
 ## 这是什么
 
-一个**把前端做对**的技能包，两条路都走：**先把已有界面整改/还原到位**，**也能从 0 生成一套能验收的骨架**。内含一份给 agent 读的操作手册（`SKILL.md`）+ 八份实测参考数据（`references/`）+ 九个能直接跑的脚本（`scripts/`）。
+一个**把前端做对**的技能包，两条路都走：**先把已有界面整改/还原到位**，**也能从 0 生成一套能验收的骨架**。内含一份给 agent 读的操作手册（`SKILL.md`）+ 九份实测参考数据（`references/`）+ 九个能直接跑的脚本（`scripts/`）。
 
 它解决的是这类问题：
 
@@ -86,8 +87,9 @@
 | --- | --- | --- |
 | `SKILL.md` | agent（模型） | 两种模式（整改 / 从 0 生成）+ 视觉系统细则 + 反模式清单，是执行指令 |
 | `README.md`（本文件） | 人 | 项目介绍、安装、脚本参数、产物、排错 |
-| `references/design-evidence.md` | 双方 | 13 个实测站点（10 营销/产品 + 3 后台）的字体/间距/圆角/密度数值 |
+| `references/design-evidence.md` | 双方 | 14 个实测站点（11 营销/产品 + 3 后台）的字体/间距/圆角/密度数值 |
 | `references/wegic-design.md` | 双方 | wegic.ai 单站全量蒸馏：完整令牌、塑料按钮、字阶节奏、迁移口径 |
+| `references/jsdesign-design.md` | 双方 | 即时设计 js.design 单站全量蒸馏：冷灰蓝底 + 负扩散阴影、130px 节奏、零 webfont、七处反例 |
 | `references/page-patterns.md` | agent | 选型表 + 七类页面骨架 + 空/错/无权限三变体 + 内容最低量 |
 | `references/component-spec.md` | agent | 11 类组件规格与禁忌（三档密度、尺寸、对齐、状态） |
 | `references/design-tokens.md` | agent | 三套人格预设、色阶生成数学、字阶、圆角阴影配对、暗色推导 |
@@ -190,8 +192,9 @@ frontend-fidelity/
 ├── LICENSE                       # MIT
 ├── CHANGELOG.md                  # 版本变更与发版说明
 ├── references/
-│   ├── design-evidence.md        # 13 个实测站点（10 营销/产品 + 3 后台）：字体、字阶、行高、间距、圆角、密度
+│   ├── design-evidence.md        # 14 个实测站点（11 营销/产品 + 3 后台）：字体、字阶、行高、间距、圆角、密度
 │   ├── wegic-design.md           # wegic.ai 单站全量蒸馏：完整令牌 + 塑料按钮 + 迁移口径
+│   ├── jsdesign-design.md        # 即时设计 js.design 单站全量蒸馏：冷灰蓝底 + 负扩散阴影 + 七处反例
 │   ├── page-patterns.md          # 从 0 生成：选型表 + 七类页面骨架 + 三变体 + 内容最低量
 │   ├── component-spec.md         # 11 类组件规格：三档密度、尺寸、对齐、禁忌
 │   ├── design-tokens.md          # 三套人格预设、色阶生成算法、字阶、圆角阴影配对、暗色推导
@@ -757,6 +760,45 @@ node scripts/probe-ref.mjs --url https://wegic.ai/zh-cn --out .tmp/ref --name we
 
 `probe-ref.mjs` 抓不到 `--wg-*` 令牌与逐字入场（真实标题是 `h1` 之后的逐字 `<span>`，`h1` 本身是 `sr-only`），
 补一次 `evaluate` 遍历 `getComputedStyle(document.documentElement)` 即可——具体步骤写在 `references/wegic-design.md` 第十节。
+---
+
+## 参考站蒸馏：即时设计 js.design
+
+2026-02 对 `https://js.design/` 做了一次完整采集（1440×900 / 390×844，读 `getComputedStyle` + 全量元素频次 + `document.fonts`，截 17 屏）。
+`https://js.design/workspace` 需要登录，直接访问只渲染空壳（body 高 900、无文本），所以这份数据全部来自公开产品站首页。
+
+它是 **wegic.ai 的反面**：那边是纯黑舞台 + 一件塑料制品，这边是冷灰蓝底板 + 一叠彩色纸卡。两份对照读，能看清「一页一处强调色」有两条完全不同的实现路径。
+
+- **[`references/jsdesign-design.md`](references/jsdesign-design.md)** — 单站全量：令牌表（冷灰蓝 `#f3f7fb` / 唯一实色 `#009dff` 64 处 / 三色阶段 pill）、三套阴影的职责分工、
+  字阶实测（52 / 44.564 / 40 / 37.05 / 32 / 30.797 / 24 / 19.5 / 15 / 14.846 / 13）、
+  区块高度节奏（130px 单位）、组件尺寸（主按钮 97×42、输入+按钮组 414×54、三色彩卡 1100×480、对比卡 537），
+  以及**七处它自己没做好的**。
+- **[`references/design-evidence.md`](references/design-evidence.md)** — 作为 A 组第 11 个样本并入跨站统计：
+  正文均值降到 **15.0**、H1 均值 **78.9**、浅色站变 **7/11**；并新增三类反例（13px 正文、H2/H3 倒挂、非整数尺寸）。
+- **[`references/css-recipes.md`](references/css-recipes.md) 第 13 节** — 可粘贴代码：八色网格渐变（含白雾罩对比度）、负扩散阴影三件套、分屏功能卡、输入+按钮同容器、阶段 pill、对比列、毛玻璃头部。
+- **[`SKILL.md`](SKILL.md)** — 参考文件节加了这份文档；跨站统计与「不要照搬」表补了 5 行硬约束。
+
+### 三招值得直接搬
+
+| 招式 | 一行做法 |
+| --- | --- |
+| **负扩散阴影替代边框** | `0 16px 16px -16px rgba(23,25,29,.2)` + `0 0 0 1px` 发丝环：阴影不外扩，卡片像贴住底板；大阴影 `0 50px 100px -20px` 只给浮起来的截图 |
+| **输入与提交同容器** | 外框 `r15` 白底 + 内钮 `r8` 品牌色，`focus-within` 把焦点环画在外框上 → 两个控件变成「一件事」 |
+| **颜色编码阶段** | 三列流程三色 pill（薄荷 `#83dde2` / 薰衣草 `#c0a3ff` / 珊瑚 `#f8857e`），颜色承载信息而不是装饰 |
+
+### 也别学它这四处
+
+13px 正文 266 处（中文可读临界）；满地非整数尺寸（22.2857 / 30.797 / 44.564，em 缩放的副产品，设计稿无法标注）；
+H2 `19.5px` 比 H3 `44.564px` 小 2.3 倍（读屏大纲倒挂）；hero 文字双份叠加且没有 `aria-hidden`（动画未收敛时能看到残影）。
+
+重新采集一次：
+
+```bash
+node scripts/probe-ref.mjs --url https://js.design/ --out .tmp/ref --name jsdesign --wait 5000
+```
+
+`probe-ref.mjs` 抓不到 `document.fonts.size = 0`（零网络字体）、非整数字号的来源（根字号 13px + em）、双份文字层——
+补一段 `evaluate` 即可，具体步骤写在 `references/jsdesign-design.md` 第十节。
 
 ---
 

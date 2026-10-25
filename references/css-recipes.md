@@ -484,3 +484,195 @@ p, td, th, li { letter-spacing: normal; }
   color: #fff;
 }
 ```
+## 13. 浅灰蓝底板 + 一叠彩纸卡（即时设计 js.design 风味，实测蒸馏）
+
+三个值撑起来的观感：底 `#f3f7fb`（冷到发蓝的白）、卡 `#fff` 圆角 22、阴影负扩散。
+品牌蓝 `#009dff` **全站只当一种实色用**（按钮 / 链接 / 自己那一列对比卡），渐变整页只出现一次。
+
+```css
+:root {
+  --js-ink: #000;
+  --js-ink-2: rgb(98 100 106);        /* 次文字，别用 #666 */
+  --js-ink-on-tint: rgb(36 48 66 / .86);
+  --js-paper: #fff;
+  --js-paper-cool: #f3f7fb;           /* 冷灰蓝底，整页一半是它 */
+  --js-brand: #009dff;
+  --js-brand-deep: #243042;           /* 深色 CTA / 深卡 */
+  --js-mint: #83dde2;
+  --js-lilac: #c0a3ff;
+  --js-coral: #f8857e;
+  --js-hairline: rgb(52 59 69 / .14);
+
+  --js-r-block: 22px;                 /* 区块级大卡（原站 22.2857，取整） */
+  --js-r-media: 15px;                 /* 浮动截图 / 输入容器 */
+  --js-r-btn: 8px;
+
+  /* 卡片三件套：负扩散 + 落影 + 发丝环，替代 border */
+  --js-shadow-card:
+    0 16px 16px -16px rgb(23 25 29 / .2),
+    0 14px 20px 0 rgb(23 25 29 / .03),
+    0 0 0 1px rgb(23 25 29 / .04);
+
+  /* 戏剧性浮空：只给设备/截图卡 */
+  --js-shadow-float:
+    0 50px 100px -20px rgb(50 50 93 / .25),
+    0 30px 60px -30px rgb(0 0 0 / .68);
+}
+```
+
+### 彩虹网格渐变（整页只许一处）
+
+原站是八色 stop 的 `-45deg` 线性渐变，本质是「廉价网格渐变」——
+真网格渐变要 SVG/多层 radial，这里用一条线就够了，因为它只铺 hero。
+
+```css
+.hero-mesh {
+  background: linear-gradient(-45deg,
+    #fff566, #a8ffca, #ffad61, #ff857a,
+    #fff, #ff5cc9, #6279ea, #66ffe6);
+  border-radius: var(--js-r-block);
+  /* 文字压在中间时必须保证对比度：中间加一层白雾 */
+  position: relative;
+}
+.hero-mesh::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(60% 55% at 50% 42%, rgb(255 255 255 / .72), transparent 70%);
+  pointer-events: none;
+}
+.hero-mesh > * { position: relative; }
+```
+
+> 别把它用在卡片上。八色线性渐变铺小面积会显脏；原站也只铺了 hero 一次。
+
+### 分屏功能卡（左文右彩）
+
+```css
+.split-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  background: var(--js-paper);
+  border-radius: var(--js-r-block);
+  box-shadow: var(--js-shadow-card);
+  overflow: hidden;
+}
+.split-card__text { padding: 56px 48px; }
+.split-card__title { font-size: 30px; font-weight: 700; line-height: 1.27; }  /* 原站 30.797/39 */
+.split-card__art {
+  padding: 40px;
+  background: linear-gradient(135deg, #cfeefe, #e6f7ff);
+  display: grid; place-items: center;
+}
+@media (max-width: 900px) {
+  .split-card { grid-template-columns: 1fr; }
+  .split-card__art { order: -1; }   /* 移动端图先出现，文字在后 */
+}
+```
+
+### 输入 + 按钮同容器（比两个独立控件强）
+
+```css
+.pill-form {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px;
+  background: #fff;
+  border-radius: var(--js-r-media);
+  box-shadow: var(--js-shadow-card);
+}
+.pill-form__input {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 42px;
+  padding: 0 14px;
+  border: 0;
+  background: transparent;
+  font-size: 15px;
+}
+.pill-form__input:focus { outline: none; }
+.pill-form:focus-within {            /* 焦点环画在外框上，不画在 input 上 */
+  box-shadow: var(--js-shadow-card), 0 0 0 3px rgb(0 157 255 / .35);
+}
+.pill-form__submit {
+  flex: 0 0 auto;
+  height: 42px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 8px;                /* 内钮圆角要比外框小，别同值 */
+  background: var(--js-brand);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 500;
+}
+```
+
+### 阶段 pill（颜色承载信息）
+
+```css
+.stage-pill {
+  display: inline-flex;
+  align-items: center;
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 999px;
+  font-size: 15px;
+  color: var(--js-ink-on-tint);
+}
+.stage-pill[data-stage="1"] { background: var(--js-mint); }
+.stage-pill[data-stage="2"] { background: var(--js-lilac); }
+.stage-pill[data-stage="3"] { background: var(--js-coral); }
+```
+
+三色只在三列流程里用；出现第四种颜色就该换编码方式（不是加色）。
+
+### 竞品对比列
+
+```css
+.compare {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+.compare__col {
+  padding: 32px 28px;
+  border-radius: var(--js-r-block);
+  background: var(--js-paper-cool);
+}
+.compare__col--self {
+  background: var(--js-brand);
+  color: #fff;
+}
+.compare__row {
+  display: flex; align-items: center; justify-content: space-between;
+  height: 58px;
+  border-top: 1px solid rgb(0 0 0 / .06);
+  font-size: 15px;
+}
+.compare__col--self .compare__row { border-top-color: rgb(255 255 255 / .24); }
+@media (max-width: 900px) {
+  .compare { grid-template-columns: 1fr; }   /* 窄屏不做横向滚动对比表 */
+}
+```
+
+### 毛玻璃头部（无边框无阴影）
+
+```css
+.site-head {
+  position: fixed; inset: 0 0 auto;
+  height: 88px;
+  background: rgb(255 255 255 / .94);
+  backdrop-filter: saturate(2.5) blur(14px);
+  /* 不加 border-bottom、不加 box-shadow：滚动时内容在玻璃下穿过就是分层 */
+}
+```
+
+> 有顶部促销条时，头部 `top` 要跟着促销条高度走（原站是 `top: 40px`），
+> 并且促销条可关——关掉后头部必须能回到 `top: 0`，别写死。
+
+### 三段自查
+
+- 整页渐变是否只剩一处？
+- 卡片阴影是否「负扩散 + 发丝环」三件套，而不是通用 `0 4px 12px rgba(0,0,0,.1)`？
+- 所有字号是否整数、圆角是否成阶梯？（原站这两条没过，见 `jsdesign-design.md` 第六节）
