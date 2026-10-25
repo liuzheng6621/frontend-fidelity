@@ -974,3 +974,159 @@ p, td, th, li { letter-spacing: normal; }
 - 标题必须单行，否则每张卡高度不同、行距就废了；
 - 计数与作者名别用 `#888`（3.54:1），用 `#6b6b6b`（4.9:1）；
 - 顶栏在长列表要 sticky，站酷没做，这是最容易被用户骂的一处。
+
+## 16. 风格卡：4:3 活预览 + 6px 四段色板条（StyleKit 风味）
+
+适用于**陈列一批彼此不同的东西**（设计风格、模板、主题、字体、配色、组件变体）：预览不截图，让每件东西用真 CSS 渲染成迷你 DOM，底下压一条 6px 四段色板。实测依据见 `references/stylekit-design.md`。
+
+```css
+/* ---- 令牌：只要五个色 + 三档圆角 ---- */
+:root {
+  --sk-bg: #fafafa;          /* 纸色，不用纯白 */
+  --sk-ink: #0a0a0a;
+  --sk-muted: #6b7280;       /* on #fafafa 4.6:1，再浅就不合格 */
+  --sk-line: #e5e5e5;        /* 全站唯一分隔手段：1px */
+  --sk-accent: #e63946;      /* 只出现在 hover / 选中 / 极小标记 */
+
+  --sk-r-frame: 0;           /* 陈列区：直角 */
+  --sk-r-control: 6px;       /* 控件：排序、下拉 */
+  --sk-r-round: 50%;         /* 图标按钮 */
+
+  --sk-font-head: "Playfair Display", "Songti SC", "Source Han Serif SC", serif;
+  --sk-font-body: "Albert Sans", system-ui, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --sk-font-mono: "Fragment Mono", ui-monospace, SFMono-Regular, monospace;
+}
+/* 中文标题必须显式落到一个衬线，否则 Windows 上掉成宋体、macOS 上是 Songti SC，两端两个骨架 */
+
+/* ---- 页头：81px + 一条线，不吸顶（图墙页吸顶交给你们项目自己决定） ---- */
+.sk-header {
+  height: 81px; display: flex; align-items: center; gap: 24px; padding: 0 32px;
+  background: var(--sk-bg); border-bottom: 1px solid var(--sk-line);
+}
+.sk-header__nav { display: flex; gap: 20px; font: 400 14px/1 var(--sk-font-body); color: var(--sk-muted); }
+
+/* ---- 页头块：eyebrow 0.18em → H1 1.0~1.25 行高 → 三格统计 ---- */
+.sk-eyebrow {
+  font: 400 11px/1.5 var(--sk-font-body);
+  letter-spacing: 0.18em; color: var(--sk-muted);
+}
+.sk-h1 {
+  margin: 12px 0 10px;
+  font: 500 36px/1.25 var(--sk-font-head);
+  letter-spacing: -0.02em; color: var(--sk-ink);
+}
+.sk-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.sk-stats > div { padding: 10px 12px; text-align: center; border-right: 1px solid var(--sk-line); }
+.sk-stats > div:last-child { border-right: 0; }
+.sk-stats dt { font: 400 10px/1 var(--sk-font-body); letter-spacing: 0.16em; text-transform: uppercase; color: var(--sk-muted); }
+.sk-stats dd { margin: 4px 0 0; font: 500 20px/1 var(--sk-font-body); font-variant-numeric: tabular-nums; }
+
+/* ---- 三层筛选：搜索 → 场景 chips(38) → 类型 chips(32) ---- */
+.sk-search {
+  width: 448px; height: 40px; padding: 0 12px 0 40px;
+  background: var(--sk-bg); border: 1px solid var(--sk-line); border-radius: var(--sk-r-frame);
+  font: 400 14px/1 var(--sk-font-body); color: var(--sk-ink);
+}
+.sk-search::placeholder { color: var(--sk-muted); }
+.sk-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.sk-chips a {
+  display: inline-flex; align-items: center; height: 38px; padding: 10px 16px;
+  border: 1px solid var(--sk-line); border-radius: var(--sk-r-frame);
+  font: 400 12px/1 var(--sk-font-body); letter-spacing: 0.025em; color: var(--sk-muted);
+}
+.sk-chips a[aria-current='true'] { background: var(--sk-ink); border-color: var(--sk-ink); color: var(--sk-bg); }
+.sk-chips--type a { height: 32px; padding: 6px 12px; font-size: 14px; }   /* 更细的筛选，控件更小 */
+
+/* ---- 结果行 + 排序（全站唯一 6px 圆角） ---- */
+.sk-result-row { display: flex; align-items: center; justify-content: space-between; padding: 16px 0; font-size: 14px; color: var(--sk-muted); }
+.sk-sort {
+  width: 144px; height: 44px; padding: 0 12px;
+  background: var(--sk-bg); border: 1px solid var(--sk-line); border-radius: var(--sk-r-control);
+  font: 400 14px/1 var(--sk-font-body); color: var(--sk-ink);
+}
+
+/* ---- 图墙：3 列 / gap 32 / 容器 1184 ---- */
+.sk-grid {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 32px; max-width: 1184px; margin: 0 auto;
+}
+
+/* ---- 风格卡：预览 4:3 + 色板 6px + 文本区 180px，三个数字定死 ---- */
+.sk-card {
+  position: relative; display: flex; flex-direction: column;
+  background: #fff; border: 1px solid var(--sk-line); border-radius: var(--sk-r-frame);
+  transition: border-color 160ms ease;
+}
+.sk-card:hover { border-color: var(--sk-ink); }          /* 第一笔 */
+.sk-card:hover .sk-card__title { color: var(--sk-accent); } /* 第二笔 */
+.sk-card:focus-within { outline: 2px solid var(--sk-ink); outline-offset: 2px; } /* 它自己漏了，必须补 */
+
+.sk-preview {
+  position: relative; overflow: hidden; background: var(--sk-bg);
+  aspect-ratio: 4 / 3; container-type: inline-size;
+}
+/* 迷你 DOM 按容器宽度整体缩放：卡片多宽，展品就多大，字永远不糊不裁 */
+.sk-preview > .mini {
+  position: absolute; inset: 0;
+  display: grid; place-content: center; gap: 8px; padding: 16px;
+  transform: scale(calc(100cqw / 371));
+  transform-origin: center;
+}
+.sk-card > a.cover { position: absolute; inset: 0; z-index: 10; }   /* 整卡可点 */
+
+/* 色板条：6px，永远四段，语义固定 = 底 / 字 / 强调 / 辅色 */
+.sk-palette { display: flex; height: 6px; }
+.sk-palette i { flex: 1 1 0; }
+
+.sk-card__body { padding: 20px; height: 180px; display: flex; flex-direction: column; gap: 8px; }
+.sk-card__title {
+  font: 500 16px/1.5 var(--sk-font-body); color: var(--sk-ink);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  transition: color 160ms ease;
+}
+.sk-card__en { font: 400 14px/1.4 var(--sk-font-body); color: var(--sk-muted); }
+.sk-card__desc {
+  font: 400 14px/1.625 var(--sk-font-body); color: var(--sk-muted);
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.sk-card__tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; }
+.sk-tag { padding: 2px 8px; border: 1px solid var(--sk-line); font: 400 10px/1.6 var(--sk-font-body); color: var(--sk-muted); }
+.sk-trait {
+  padding: 2px 8px; background: #f4f4f5;
+  font: 400 10px/1.6 var(--sk-font-mono); letter-spacing: 0.16em; text-transform: uppercase; color: var(--sk-muted);
+}
+
+/* 右上角两个圆钮：默认可见（移动端没有 hover），触控目标提到 32 */
+.sk-tools { position: absolute; top: 10px; right: 10px; z-index: 20; display: flex; gap: 6px; }
+.sk-tools button {
+  width: 32px; height: 32px; display: grid; place-items: center;
+  background: rgb(255 255 255 / .85); border: 0; border-radius: var(--sk-r-round); color: var(--sk-muted);
+}
+.sk-tools button:hover { background: #f4f4f5; color: var(--sk-ink); }
+
+/* ---- 整行箭头链接：一列"下一步去哪"，成本极低 ---- */
+.sk-rowlink {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px; border: 1px solid var(--sk-line);
+  font: 400 15px/1.4 var(--sk-font-body); color: var(--sk-ink);
+}
+.sk-rowlink:hover { border-color: var(--sk-ink); }
+
+/* ---- 移动端：2 列 + gap 12，筛选折成整行按钮 ---- */
+@media (max-width: 1024px) {
+  .sk-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; padding: 0 12px; }
+  .sk-chips { display: none; }            /* 11 个 chips 横排必翻车 */
+  .sk-filter-toggle { display: flex; }    /* 用一个整行"筛选"按钮替代 */
+  .sk-card__body { height: auto; padding: 12px; }
+  .sk-card__en { display: none; }         /* 只留中文名，一行放得下 */
+  .sk-search { width: 100%; }
+}
+```
+
+**落地注意**：
+- 预览区的小字**别靠缩字号**适配——用 `container-type: inline-size` + `scale(100cqw / 基准宽)` 整体缩放；否则 390 宽下字只有 6px 且被 `overflow: hidden` 切半行。
+- 预览的迷你 DOM 全部加 `aria-hidden="true"`：读屏不该念 149 次的 `ACTION` / `Read more`。
+- 三个数字定死（预览 `4:3`、色板 `6px`、文本区 `180px`），卡片才会**高度一致但内容各异**；少一个就会出现"参差的墙"。
+- hover 只做两笔（边框转 ink、标题转 accent）；卡片里已经有一整幅彩色预览，再加位移/阴影就是噪声。
+- 这套直角只给"陈列区"。管理后台请把 `--sk-r-control` 用到 4–6px 并给按钮同样的值，否则焦点环是尖角。
+- 色板条永远四段（底/字/强调/辅）；少于四色就把辅色留空给同色，**别变三段**——段数一致才像"统一的身份证"。

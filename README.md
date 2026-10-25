@@ -3,7 +3,7 @@
 > 把前端做对、做实，两条路都走：**已有界面**——按设计稿/截图还原，或把现存页面整改到位；**还没有界面**——从 0 生成一套骨架，再往上填内容与业务状态。
 > 目标不是"改好看"，而是**让界面和它声称的样子一致，并且真的能用——改完能拿出证据**。
 
-`v1.4.0` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `9 个可执行脚本`
+`v1.5.0` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `9 个可执行脚本`
 
 ---
 
@@ -34,6 +34,7 @@
 - [参考站蒸馏：即时设计 js.design](#参考站蒸馏即时设计-jsdesign)
 - [参考站蒸馏：UI 世界 uishijie](#参考站蒸馏ui-世界-uishijie)
 - [参考站蒸馏：站酷 ZCOOL](#参考站蒸馏站酷-zcool)
+- [参考站蒸馏：StyleKit 风格目录](#参考站蒸馏stylekit-风格目录)
 - [交付验收清单](#交付验收清单)
 - [CI 集成](#ci-集成)
 - [常见问题](#常见问题)
@@ -44,7 +45,7 @@
 
 ## 这是什么
 
-一个**把前端做对**的技能包，两条路都走：**先把已有界面整改/还原到位**，**也能从 0 生成一套能验收的骨架**。内含一份给 agent 读的操作手册（`SKILL.md`）+ 十一份实测参考数据（`references/`）+ 九个能直接跑的脚本（`scripts/`）。
+一个**把前端做对**的技能包，两条路都走：**先把已有界面整改/还原到位**，**也能从 0 生成一套能验收的骨架**。内含一份给 agent 读的操作手册（`SKILL.md`）+ 十二份实测参考数据（`references/`）+ 九个能直接跑的脚本（`scripts/`）。
 
 它解决的是这类问题：
 
@@ -89,11 +90,12 @@
 | --- | --- | --- |
 | `SKILL.md` | agent（模型） | 两种模式（整改 / 从 0 生成）+ 视觉系统细则 + 反模式清单，是执行指令 |
 | `README.md`（本文件） | 人 | 项目介绍、安装、脚本参数、产物、排错 |
-| `references/design-evidence.md` | 双方 | 16 个实测站点（13 A 组：11 营销/产品 + 2 内容站；另 3 后台）的字体/间距/圆角/密度数值 |
+| `references/design-evidence.md` | 双方 | 17 个实测站点（14 A 组：11 营销/产品 + 3 内容陈列站；另 3 后台）的字体/间距/圆角/密度数值 |
 | `references/wegic-design.md` | 双方 | wegic.ai 单站全量蒸馏：完整令牌、塑料按钮、字阶节奏、迁移口径 |
 | `references/jsdesign-design.md` | 双方 | 即时设计 js.design 单站全量蒸馏：冷灰蓝底 + 负扩散阴影、130px 节奏、零 webfont、七处反例 |
 | `references/uishijie-design.md` | 双方 | UI 世界（内容聚合站）单站全量蒸馏：零 gutter 图墙、卡片不画壳、四档字号、七处反例 |
 | `references/zcool-design.md` | 双方 | 站酷（内容社区频道页）单站全量蒸馏：疏版图墙、两级分类靠形状分层、`0.8px` 发丝、直角分页、七处反例 |
+| `references/stylekit-design.md` | 双方 | StyleKit（风格目录站）单站全量蒸馏：卡片即预览（活渲染、非截图）、6px 四段色板条、直角陈列区、衬线+无衬线+等宽三件套、两条 hover、详情页第二套版式、七处反例 |
 | `references/page-patterns.md` | agent | 选型表 + 七类页面骨架 + 空/错/无权限三变体 + 内容最低量 |
 | `references/component-spec.md` | agent | 11 类组件规格与禁忌（三档密度、尺寸、对齐、状态） |
 | `references/design-tokens.md` | agent | 三套人格预设、色阶生成数学、字阶、圆角阴影配对、暗色推导 |
@@ -198,11 +200,12 @@ frontend-fidelity/
 ├── LICENSE                       # MIT
 ├── CHANGELOG.md                  # 版本变更与发版说明
 ├── references/
-│   ├── design-evidence.md        # 16 个实测站点（13 A 组 + 3 后台）：字体、字阶、行高、间距、圆角、密度
+│   ├── design-evidence.md        # 17 个实测站点（14 A 组 + 3 后台）：字体、字阶、行高、间距、圆角、密度
 │   ├── wegic-design.md           # wegic.ai 单站全量蒸馏：完整令牌 + 塑料按钮 + 迁移口径
 │   ├── jsdesign-design.md        # 即时设计 js.design 单站全量蒸馏：冷灰蓝底 + 负扩散阴影 + 七处反例
 │   ├── uishijie-design.md        # UI 世界（内容聚合站）：零 gutter 图墙 + 卡片不画壳 + 七处反例
 │   ├── zcool-design.md           # 站酷（内容社区频道页）：疏版图墙 + 两级分类靠形状 + 七处反例
+│   ├── stylekit-design.md        # StyleKit（风格目录站）：卡片即预览 + 6px 四段色板 + 直角陈列区 + 七处反例
 │   ├── page-patterns.md          # 从 0 生成：选型表 + 七类页面骨架 + 三变体 + 内容最低量
 │   ├── component-spec.md         # 11 类组件规格：三档密度、尺寸、对齐、禁忌
 │   ├── design-tokens.md          # 三套人格预设、色阶生成算法、字阶、圆角阴影配对、暗色推导
@@ -892,6 +895,52 @@ node scripts/probe-ref.mjs --url https://www.zcool.com.cn/discover/17 --out ./ou
 **这个站 headless 一定被阿里云 WAF 拦成「滑动验证页面」**，必须 `headless: false` 的真实浏览器
 （挪到屏幕外 `--window-position=-2400,-2400` 也行），并在截图前移除 `#waf_nc_block` 浮层，
 完整步骤写在 `references/zcool-design.md` 第十节。
+
+## 参考站蒸馏：StyleKit 风格目录
+
+`https://www.stylekit.top/zh/styles`。语料里第一个**风格目录站**——149 种网页/UI 风格（131 视觉风格 + 18 布局模式），
+也是第一个「**卡片即预览**」样本：每张卡的预览区**不是截图**，而是用那个风格自己的 CSS 现场渲染的一套迷你界面
+（底 + 卡 + 标题 + 按钮），塞进固定 `4:3` 的裁切框。
+
+它真正值得学的是**陈列纪律**：三个数字定死（预览 `4:3`、色板 `6px`、文本区 `180px`）；
+圆角只给控件，陈列区一律 `0`；hover 只两笔；全站零阴影——唯一那条硬阴影长在展品内部，不属展柜。
+
+| 产出 | 位置 | 里面有什么 |
+|------|------|-----------|
+| 单站全量蒸馏 | `references/stylekit-design.md` | 完整令牌、三件套字体、版式节奏表、卡片六层结构、详情页第二套版式、七处没做好的 |
+| 可直接抄的 CSS | `references/css-recipes.md` §16 | `.sk-card` / `.sk-preview`（容器查询缩放）/ `.sk-palette` / `.sk-chips` / `.sk-stats` / `.sk-rowlink`，含移动端两列 |
+| 跨站统计 | `references/design-evidence.md` | 第 14 个 A 组样本：H1 均值 75.7→**72.6**、H1/正文比下探 **2.25**、字号均值 **14.9**、三件套分工与「第五种圆角做法（直角派）」首次入统计 |
+| 验收与结构 | `SKILL.md`、`references/review-rubric.md` | 新增「陈列一批彼此不同的东西」小节 8 条 + 4 条红旗 + 陈列类页面额外 6 条验收项 |
+
+### 三招值得直接搬
+
+| 招式 | 实测做法 | 为什么成立 |
+|------|----------|-----------|
+| **卡片即预览** | 每张卡用条目自己的 CSS 渲染迷你 DOM，外层 `aspect-ratio: 4/3` + `overflow: hidden` | 截图会糊、会过期、窄屏失真；活预览永远准，且**展品与展柜同一套语言** |
+| **6px 四段色板条** | 预览正下方 `display:flex; height:6px`，四段 `flex:1`，语义固定 背景/前景/强调/辅色 | 一行 CSS 给每张卡一张「身份证」；比六行标签有效，且天然对齐 |
+| **直角陈列 + 控件圆角** | 陈列区 `radius: 0`，控件 6px，图标钮 50% | 直角放大「内容整齐」的优势；前提是三个数字定死，否则参差变成排版事故 |
+
+### 也别学它这几处
+
+- **深色模式是半成品**：header 有 `切换到深色模式` 按钮，点了 `html.class` 仍是 `light`，`--background` 仍是 `#fafafa`。
+- **预览 DOM 没 `aria-hidden`**：149 张卡的迷你界面里有 `ACTION` / `Read more` 等真文本，读屏会念一百多遍。
+- **预览里的字太小且被裁**：桌面 10–12px，390 宽下变 6px 且被 `overflow: hidden` 切半行。该整体缩放，不该缩字号。
+- **无限滚动无出口**：只有「已显示 24 / 149」，没有「加载更多」，键盘与读屏用户很难到下一批，刷新即回第一张。
+- **图标按钮 24×24**：低于 44 触控下限，移动端也没变大。
+- **圆角被一个下拉破功**：全站 0 圆角，只有排序下拉是 6px，像是随手 `rounded-md` 留下的。
+- **上下两条固定带挤首屏**：促销条 40 + 移动端底部 tab 56，390×844 首屏有效高度只剩 ~700，且促销条关掉不记忆。
+
+### 重采
+
+```bash
+node scripts/probe-ref.mjs --url https://www.stylekit.top/zh/styles --out ./out --name stylekit --wait 6000
+```
+
+三个坑（细节见 `references/stylekit-design.md` 第十一节）：
+
+1. **整页长截图截到一半全白**——无限滚动懒挂载，要看下半页就分段 `window.scrollTo` 再截。
+2. **圆角会量出 `3.35544e+07px`**——那是 `rounded-full` 的 `calc(infinity * 1px)`，不是异常值。
+3. **深色模式点了没反应**——别为了凑「深色令牌表」去臆造，如实写「未取到」。
 
 ## 交付验收清单
 
