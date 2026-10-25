@@ -4,6 +4,22 @@
 `frontend-fidelity.zip`，由 `git archive` 从 Tag 快照生成，只含被 git 跟踪的文件
 （不含 `shots/`、`audit-report.json`、`.design/`）。
 
+## v1.7.0 - 2026-10-31
+
+第七版不是站点蒸馏，而是**两份外部规则集的蒸馏**：impeccable 的工艺底线（`craft-floor`）与 design-taste-frontend 的反模板清单。此前本站只有「别人长什么样」（18 站实测 + 6 份单站），缺「什么叫做错了」；这两份补的是判据，因此新增两个 references 而不是往站点表里加行。
+
+### 新增
+
+- **`references/craft-floor.md`**（11,827B / 十节，来源 impeccable `skill/reference/craft-floor.md`，Apache-2.0，**只蒸馏判据、未复制原文**）：九条「做完才看」的 verify（对比度 4.5/3 · 深度须同时有偏移与模糊 · 标题上间距 > 下间距 · 行宽 65–75ch / 展示 6rem / 字距下限 −0.04em · **一个有意识的动效时刻** + 指数 ease-out · 五态 + 键盘焦点 · **浏览器原生表面** · 文案 · 覆盖）；深度三选一（发丝圈 / 边距 / 阴影，禁幽灵卡）；四件原生表面 CSS（`::selection` / `caret-color` / `scrollbar` / `:focus-visible` + `text-underline-offset` + `tabular-nums`）；骨架层「默认别做」六条；表面禁令表十条；材质诚实；裁剪原则；**第八节与本站语料的四条冲突与裁决**（eyebrow 密度取 ⌈节数÷3⌉ 而非全禁 / serif 只在编辑·陈列气质用且中文补 `"Songti SC","Source Han Serif SC"` / 舞台可纯黑但文字表面不用纯值 / 阴影先定派别再定数值）。
+- **`references/anti-slop.md`**（22,319B / 十节，来源 design-taste-frontend 单文件技能 1,206 行，原文件未声明许可证，**规则重写、未复制原文与附录**）：Design Read 一句话 + 六信号；**三档旋钮**（VARIANCE / MOTION / DENSITY，基线 8/6/4，含与三套人格的对照值 rational 3–5/2–4/6–7、editorial 6–7/3–5/3–4、warm 6–8/5–7/4–5）；官方设计系统表（12 个）+ 一项目一系统；hero 四条硬规则；布局族与 Z 字上限；**三把锁**（主题 / 色 / 形状）；图片优先级（生成 → picsum seed → `{{TODO}}`）+ 禁 div 假截图；**8 组 AI tell**（hero 装饰条 / 编号 eyebrow / 装饰状态点 / 斜体降部被裁 / 通用人名与空动词 / 假预览 / 长列表评分条 / 动效含禁 `window.addEventListener('scroll')`）；中文站改写条款七条；**34 条 pre-flight**。
+- **`SKILL.md`**：参考文件节加两条（craft-floor / anti-slop）与用途说明；避免清单补 8 条（hero 版本号与装饰文字条、编号当标题、CTA 下方小字与信任微条、div 假 UI 预览、三把锁破功、scroll 事件驱动布局、多动效库混用、声明了动效却没真动）；「层级与阴影」补三条（深度必须偏移+模糊、卡片圆角 12–16、纯黑纯白可做底但不能做字/表面）。
+- **`references/review-rubric.md`**：第一节补九条（浏览器原生表面 / depth 三选一 / 三把锁 / hero 四条 / eyebrow 密度 / 每节内容形态 / 动效动机 / <768px 显式塌缩 / 真实图片）。
+- **`README.md`**：新增整节 `## 外部规则集蒸馏：工艺底线与反模板`（四块产出表 + 三招表 + 别照抄的三处 + 重取命令），TOC 与「该抄哪份参考」各补一条「这两份不分页面类型、每次都要过」，分工表、仓库结构树同步；参考数据 13 → 15 份。
+
+### 说明
+
+- 两份来源都不是实测站点，因此**没有**改动 `design-evidence.md` 的任何统计（仍是 18 站 / A 组 15 / B 组 3）。引用具体数值时一律回 `design-evidence.md`。
+- 冲突处理原则：实测语料优先于外部规则。凡是规则与 18 站实测相左的，裁决写进 `craft-floor.md` 第八节，并在正文标注「这条不采纳」的理由。
 ## v1.6.0 - 2026-10-30
 
 第六份单站蒸馏：**UI Notes（uinotes.com）**——真实产品 UI 截图灵感库，语料里第一个「隐形界面」样本（页面自己的视觉几乎消失，只剩别人的真机截图）。同时把 v1.5.2 讨论过的简介口径一并落进本版。

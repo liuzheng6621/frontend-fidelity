@@ -1,16 +1,16 @@
 # frontend-fidelity · 前端保真度
 
 > 把界面做对、做实，两条路都走：**已有界面**——按设计稿/截图还原，或把现存页面整改到位（后台管理端、移动 H5/小程序、多端一致性、Logo 与品牌资产）；**还没有界面**——从 0 生成一套能验收的骨架（令牌 + 组件 + 五类页面），再往上填真内容与业务状态。
-> 参考库是 **18 个真实站的实测数据 + 六份单站蒸馏**（营销 / 工具站 / 密版图墙 / 疏版图墙 / 陈列页 / 灵感库），按页面类型对到具体文件，见 [该抄哪份参考](#该抄哪份参考)。
+> 参考库是 **18 个真实站的实测数据 + 六份单站蒸馏**（营销 / 工具站 / 密版图墙 / 疏版图墙 / 陈列页 / 灵感库），外加**两份外部规则集蒸馏**（工艺底线 / 反模板清单）；按页面类型对到具体文件，见 [该抄哪份参考](#该抄哪份参考)。
 > 目标不是"改好看"，而是**让界面和它声称的样子一致，并且真的能用——改完能拿出证据**。
 
-`v1.6.0` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `9 个可执行脚本`
+`v1.7.0` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `9 个可执行脚本`
 
 ---
 
 ## 该抄哪份参考
 
-先看这张表：**按你手上的页面类型选一份，别从头读十三份。**
+先看这张表：**按你手上的页面类型选一份，别从头读十五份。**
 
 | 你在做什么 | 抄这份 | 从这里拿走什么 |
 | --- | --- | --- |
@@ -21,6 +21,8 @@
 | 目录 / 陈列页：一屏陈列一批**彼此不同**的东西 | [`references/stylekit-design.md`](references/stylekit-design.md) + [css-recipes §16](references/css-recipes.md) | 卡片即预览（真 CSS 不是截图）、6px 四段色板条、通体直角、hover 只两笔 |
 | 灵感库 / 截图站：素材本身就是成品，界面要隐形 | [`references/uinotes-design.md`](references/uinotes-design.md) + [css-recipes §17](references/css-recipes.md) | 不画壳的截图墙、裁切露 1.8 张、48px 数字当标题、2/4/6/16/20/24 线性圆角阶梯 |
 | 后台 / 管理端：列表、表单、详情、空态、权限墙 | [`references/page-patterns.md`](references/page-patterns.md) + [`component-spec.md`](references/component-spec.md) + [`design-tokens.md`](references/design-tokens.md) | 七类页面骨架 + 11 类组件规格 + 三套人格令牌；单站样本没有后台，横向数据看 `design-evidence.md` B 组 |
+
+另有两份**不分页面类型、每次都要过**的：流程走到一半看 [`references/anti-slop.md`](references/anti-slop.md)（三档旋钮、hero 四条、三把锁、8 组 AI tell、34 条 pre-flight），最后一道手感看 [`references/craft-floor.md`](references/craft-floor.md)（九条 verify、深度三选一、浏览器原生表面、与本站语料的四条冲突裁决）。
 
 六份单站蒸馏是**同一个十节结构**（StyleKit 那份多一节「详情页第二套版式」，共十一节）：气质 → 令牌 → 字阶 → 版式节奏 → 组件配方 → 它自己没做好的 → 能搬/不能搬 → 复现清单 → 与其他文件的关系 → 重采方法。要抄就抄「令牌 + 版式 + 组件」三节，第六节用来避免抄到毛病。
 
@@ -61,6 +63,7 @@
 - [参考站蒸馏：站酷 ZCOOL](#参考站蒸馏站酷-zcool)
 - [参考站蒸馏：StyleKit 风格目录](#参考站蒸馏stylekit-风格目录)
 - [参考站蒸馏：UI Notes 灵感库](#参考站蒸馏ui-notes-灵感库)
+- [外部规则集蒸馏：工艺底线与反模板](#外部规则集蒸馏工艺底线与反模板)
 - [交付验收清单](#交付验收清单)
 - [CI 集成](#ci-集成)
 - [常见问题](#常见问题)
@@ -71,7 +74,7 @@
 
 ## 这是什么
 
-一个**把前端做对**的技能包，两条路都走：**先把已有界面整改/还原到位**，**也能从 0 生成一套能验收的骨架**。内含一份给 agent 读的操作手册（`SKILL.md`）+ 十三份实测参考数据（`references/`）+ 九个能直接跑的脚本（`scripts/`）。
+一个**把前端做对**的技能包，两条路都走：**先把已有界面整改/还原到位**，**也能从 0 生成一套能验收的骨架**。内含一份给 agent 读的操作手册（`SKILL.md`）+ 十五份参考数据（13 份实测 + 2 份外部规则集蒸馏，`references/`）+ 九个能直接跑的脚本（`scripts/`）。
 
 它解决的是这类问题：
 
@@ -123,6 +126,8 @@
 | `references/zcool-design.md` | 双方 | 站酷（内容社区频道页）单站全量蒸馏：疏版图墙、两级分类靠形状分层、`0.8px` 发丝、直角分页、七处反例 |
 | `references/stylekit-design.md` | 双方 | StyleKit（风格目录站）单站全量蒸馏：卡片即预览（活渲染、非截图）、6px 四段色板条、直角陈列区、衬线+无衬线+等宽三件套、两条 hover、详情页第二套版式、七处反例 |
 | `references/uinotes-design.md` | 双方 | UI Notes（真实 UI 截图灵感库）单站全量蒸馏：隐形界面（0 壳 0 边 0 阴影）、240×520 截图带裁切露 1.8 张、48px 数字当标题、2/4/6/16/20/24 线性圆角阶梯、全站 `line-height: normal`、七处反例 |
+| `references/craft-floor.md` | 双方 | 工艺底线：九条 verify、深度三选一、四件浏览器原生表面、表面禁令、与本站语料的四条冲突裁决（来源：impeccable `craft-floor`，Apache-2.0） |
+| `references/anti-slop.md` | agent | 反模板：Design Read、三档旋钮与三套人格对照、hero 四条硬规则、三把锁、8 组 AI tell、中文站条款、34 条 pre-flight（来源：design-taste-frontend，规则重写） |
 | `references/page-patterns.md` | agent | 选型表 + 七类页面骨架 + 空/错/无权限三变体 + 内容最低量 |
 | `references/component-spec.md` | agent | 11 类组件规格与禁忌（三档密度、尺寸、对齐、状态） |
 | `references/design-tokens.md` | agent | 三套人格预设、色阶生成数学、字阶、圆角阴影配对、暗色推导 |
@@ -238,8 +243,10 @@ frontend-fidelity/
 │   ├── component-spec.md         # 11 类组件规格：三档密度、尺寸、对齐、禁忌
 │   ├── design-tokens.md          # 三套人格预设、色阶生成算法、字阶、圆角阴影配对、暗色推导
 │   ├── copy-and-content.md       # 文案规格：标题公式、按钮动词、空/错/载公式、占位写法
-│   ├── css-recipes.md            # 设计令牌 / 表格 / 骨架屏 / 空态 / 深色 / 塑料按钮的可复制片段
-│   └── review-rubric.md          # 交付前九节验收清单（含红旗清单）
+│   ├── css-recipes.md            # 设计令牌 / 表格 / 骨架屏 / 空态 / 深色 / 六个站的风味片段（第 12–17 节）
+│   ├── craft-floor.md            # 工艺底线：九条 verify + 深度三选一 + 原生表面 + 四条冲突裁决
+│   ├── anti-slop.md              # 反模板：三档旋钮 + hero 四条 + 三把锁 + 8 组 AI tell + 34 条 pre-flight
+│   └── review-rubric.md          # 交付前十节验收清单（含红旗清单）
 └── scripts/
     ├── scaffold.mjs              # 从 0 生成骨架：三套人格令牌 + 组件 CSS + 五类页面
     ├── screenshot.mjs            # 多视口 × 多主题全页截图
@@ -1010,6 +1017,42 @@ node scripts/screenshot.mjs --url https://uinotes.com/ --out ./shots --name un -
 2. **移动端测不到「重排」**——只会得到 `innerWidth = 1420`，这本身就是结论，别误判成脚本出错。
 3. **水印是烧进图片像素的**——不是 DOM 叠层也不是 `::after`，想提取只能裁图。
 
+## 外部规则集蒸馏：工艺底线与反模板
+
+参考站告诉我们「别人长什么样」，这两份外部规则集告诉我们「什么是做错了」。都不是本站实测，是**判据**——所以单独立两节，不带任何站点数值。
+
+| 产出 | 来源 | 拿走什么 | 怎么用 |
+| --- | --- | --- | --- |
+| [`references/craft-floor.md`](references/craft-floor.md)（11.8KB / 十节） | impeccable 的 `skill/reference/craft-floor.md`（Apache-2.0，**只蒸馏判据，未复制原文**） | 九条做完才看的 verify（对比度 4.5/3、深度须偏移+模糊、标题上间距 > 下间距、行宽 65–75ch、一个有意识的动效时刻、五态与键盘焦点、**浏览器原生表面**、文案、覆盖）；深度三选一（发丝/边距/阴影，禁幽灵卡）；四件原生表面 CSS；骨架层默认别做；表面禁令表；材质诚实；裁剪原则 | 交付前最后过一遍；把它当「手感」的底线，不是风格建议 |
+| [`references/anti-slop.md`](references/anti-slop.md)（22.3KB / 十节） | design-taste-frontend 的单文件技能（1,206 行；原文件未声明许可证，**规则重写，未复制原文与附录**） | Design Read 一句话；**三档旋钮**（VARIANCE / MOTION / DENSITY，基线 8/6/4）；官方设计系统怎么选；hero 四条硬规则；布局族与 Z 字上限；**三把锁**（主题/色/形状）；图片优先级；**8 组 AI tell**；中文站改写条款；**34 条 pre-flight** | 从 0 生成时第 2 步之后、第 6 步之前各过一遍；做重设计时先用它判断「现在这套是不是默认答案」 |
+
+### 三招值得直接搬
+
+| 招 | 为什么有效 |
+| --- | --- |
+| **深度三选一：发丝圈 / 边距 / 阴影** | 90% 的「廉价感」来自白底白卡靠一点模糊阴影分辨（幽灵卡）。三选一之后，同一层永远只有一种分界语言 |
+| **三把锁：主题锁 / 色锁 / 形状锁** | 「越做越丰富」的典型翻车是中途反色、加第二个强调色、圆角每节换一套。三把锁把这类改动挡在门外 |
+| **浏览器原生表面**（`::selection` / `caret-color` / `scrollbar` / `:focus-visible` / `text-underline-offset`） | 四行 CSS，手感立刻从「网页」变成「做过」；也是最能说明「这个人真的在用这个界面」的细节 |
+
+### 别照抄的地方
+
+- **impeccable 的「全禁 eyebrow」太绝对**：本站语料里 eyebrow 在 4 个营销站上都成立。裁决见 `craft-floor.md` 第八节——取「密度 ≤ ⌈节数 ÷ 3⌉」，产品站不用，全站只留 1–2 个。
+- **design-taste 的英文条款不能直搬中文站**：em-dash 全禁在中文里要改成「——」且一页 ≤ 2 处；衬线标题必须补 `"Songti SC","Source Han Serif SC"` 字体栈；别用「张三/李四」。第七节整节是中文改写条款。
+- **两份都不管「数据从哪来」**：`{{TODO: 要什么}}` 占位规范仍以 [`references/copy-and-content.md`](references/copy-and-content.md) 为准。
+
+### 重取
+
+```bash
+# 源头一：impeccable（Apache-2.0）
+sed -n '1,80p' 'E:\impeccable-main\impeccable-main\skill\reference\craft-floor.md'
+
+# 源头二：design-taste-frontend 单文件规则集
+wc -l 'E:\实验室打卡预约系统-交接包-20260910\实验室打卡预约系统\.claude\skills\design-taste-frontend\SKILL.md'
+```
+
+两份都是**别人写的规则**，不是实测。要引用具体数值时，一律回 `design-evidence.md`。
+
+---
 ## 交付验收清单
 
 完整版见 [`references/review-rubric.md`](references/review-rubric.md)（十节，含红旗清单）。摘要：
