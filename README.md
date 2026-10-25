@@ -3,12 +3,35 @@
 > 把前端做对、做实，两条路都走：**已有界面**——按设计稿/截图还原，或把现存页面整改到位；**还没有界面**——从 0 生成一套骨架，再往上填内容与业务状态。
 > 目标不是"改好看"，而是**让界面和它声称的样子一致，并且真的能用——改完能拿出证据**。
 
-`v1.5.0` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `9 个可执行脚本`
+`v1.5.1` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `9 个可执行脚本`
+
+---
+
+## 该抄哪份参考
+
+先看这张表：**按你手上的页面类型选一份，别从头读十二份。**
+
+| 你在做什么 | 抄这份 | 从这里拿走什么 |
+| --- | --- | --- |
+| 营销 / 产品落地页：黑底大字、按钮要有"实体感" | [`references/wegic-design.md`](references/wegic-design.md) + [css-recipes §12](references/css-recipes.md) | 纯黑舞台分三段、按钮 6 层内阴影做厚度、逐字入场、Damion 手写批注 |
+| 工具站 / SaaS 首页：浅色、彩色卡片、截图要"浮"起来 | [`references/jsdesign-design.md`](references/jsdesign-design.md) + [css-recipes §13](references/css-recipes.md) | 冷灰蓝底 `#f3f7fb`、负扩散 + 发丝环三件套阴影、八色渐变 hero、分屏卡 |
+| 作品墙 / 内容列表：要"密"，一屏塞满 | [`references/uishijie-design.md`](references/uishijie-design.md) + [css-recipes §14](references/css-recipes.md) | 5 列 grid 零 gutter、`aspect-ratio` 强制同比例、卡片不画壳、文字 tab 筛 8+ 分类 |
+| 作品墙 / 内容列表：要"疏"，有报头、有定版 | [`references/zcool-design.md`](references/zcool-design.md) + [css-recipes §15](references/css-recipes.md) | 4 列列距 24 行距 36、两级分类用形状区分、`0.8px` 发丝、直角分页、顶栏 sticky |
+| 目录 / 陈列页：一屏陈列一批**彼此不同**的东西 | [`references/stylekit-design.md`](references/stylekit-design.md) + [css-recipes §16](references/css-recipes.md) | 卡片即预览（真 CSS 不是截图）、6px 四段色板条、通体直角、hover 只两笔 |
+| 后台 / 管理端：列表、表单、详情、空态、权限墙 | [`references/page-patterns.md`](references/page-patterns.md) + [`component-spec.md`](references/component-spec.md) + [`design-tokens.md`](references/design-tokens.md) | 七类页面骨架 + 11 类组件规格 + 三套人格令牌；单站样本没有后台，横向数据看 `design-evidence.md` B 组 |
+
+五份单站蒸馏是**同一个十节结构**（StyleKit 那份多一节「详情页第二套版式」，共十一节）：气质 → 令牌 → 字阶 → 版式节奏 → 组件配方 → 它自己没做好的 → 能搬/不能搬 → 复现清单 → 与其他文件的关系 → 重采方法。要抄就抄「令牌 + 版式 + 组件」三节，第六节用来避免抄到毛病。
+
+两条读法上的提醒：
+
+1. **别把"他们的取舍"当规范。** 三份中文内容站（即时设计 / UI 世界 / 站酷）都用系统字体栈、正文 13–14px——那是它们要在一屏里塞更多东西的代价，不是推荐值。跨站统计的均值（正文 14.9px、H1 72.6px）在 [`design-evidence.md`](references/design-evidence.md)。
+2. **单站样本只证明"可以这么做"，不证明"必须这么做"。** 想要判断某个数值是不是行业常态，去 `design-evidence.md` 看 17 个站里出现了几次；只在单站出现一次的，一律当作那一家的个性。
 
 ---
 
 ## 目录
 
+- [该抄哪份参考](#该抄哪份参考)
 - [这是什么](#这是什么)
 - [适用与不适用](#适用与不适用)
 - [与 SKILL.md、frontend-design 的分工](#与-skillmdfrontend-design-的分工)

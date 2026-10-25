@@ -4,6 +4,18 @@
 `frontend-fidelity.zip`，由 `git archive` 从 Tag 快照生成，只含被 git 跟踪的文件
 （不含 `shots/`、`audit-report.json`、`.design/`）。
 
+## v1.5.1 - 2026-10-30
+
+只改文档：给 README 加一张**选型索引表**。此前十二份参考数据平铺在目录里，读的人得先点进各节才知道该抄哪份；现在按「你在做什么页面」直接对到文件与配方小节。代码零变更。
+
+### 新增
+
+- **`README.md` 顶部新增 `## 该抄哪份参考`**（插在目录之前，TOC 首条）：一张 6 行表把页面类型对到参考文件——营销落地页 → `wegic-design.md` + 配方 §12、工具站/SaaS 首页 → `jsdesign-design.md` + §13、密版作品墙 → `uishijie-design.md` + §14、疏版作品墙 → `zcool-design.md` + §15、目录/陈列页 → `stylekit-design.md` + §16、后台/管理端 → `page-patterns.md` + `component-spec.md` + `design-tokens.md`（并注明后台在单站样本里没有，横向数据走 `design-evidence.md` B 组）。
+- 表下补两条读法提醒：**别把「他们的取舍」当规范**（三份中文内容站都是系统字体栈 + 13–14px 正文，那是塞密度的代价）；**单站样本只证明「可以这么做」**，判断行业常态去 `design-evidence.md` 看 17 个站里出现几次。
+
+### 修改
+
+- `README.md` 版本号 `v1.5.0` → `v1.5.1`；目录加首条锚点；全文 EOL 归一为 CRLF（此前混了 68 行 LF）。
 ## v1.5.0 - 2026-10-29
 
 第五个单站蒸馏样本：**StyleKit 风格目录 stylekit.top/zh/styles**，语料里第一个**风格目录站**，
