@@ -1262,3 +1262,77 @@ p, td, th, li { letter-spacing: normal; }
 1. `.shot` 的 `object-fit: fill` 是原站选择（保证整屏可见）；**换成产品后台必须改 `cover`**。
 2. 裁切处一定要补一个出口（`.app-shots::after` 放「+3」或整卡 hover 显「查看全部」），否则就是原站第六节第 6 条病。
 3. `line-height: normal` 是这套气质的来源之一（全站只有 hero 说明段设了 30px）；中文长文本别照抄，后台正文用 1.5。
+## 18. 动效令牌与四个片段（可直接抄）
+
+> 规则与判据见 `motion-spec.md`；这里只给能贴进项目的代码。
+
+```css
+/* 令牌：时长与缓动只从这里取 */
+:root{
+  --dur-1:120ms;  /* hover / focus / 颜色 */
+  --dur-2:180ms;  /* 按下、开关、tooltip */
+  --dur-3:240ms;  /* 展开、抽屉、modal */
+  --dur-4:400ms;  /* 区块入场、页面转场 */
+  --dur-5:600ms;  /* 一次性叙事 */
+  --ease-out:cubic-bezier(.16,1,.3,1);
+  --ease-in:cubic-bezier(.4,0,1,1);
+  --ease-in-out:cubic-bezier(.65,0,.35,1);
+  --ease-spring:cubic-bezier(.34,1.56,.64,1);
+  --motion:1;                      /* 0 = 全部关闭（见降级） */
+}
+
+/* 1) 按下要有反馈：厚度归零，不加阴影 */
+.btn{ transition:transform var(--dur-1) var(--ease-out), box-shadow var(--dur-1) var(--ease-out); }
+.btn:active{ transform:translateY(1px); }
+
+/* 2) 入场：8px + 400ms + 50ms 交错，只演一次 */
+.reveal > *{
+  opacity:0; transform:translateY(8px);
+  transition:opacity calc(var(--dur-4) * var(--motion)) var(--ease-out),
+             transform calc(var(--dur-4) * var(--motion)) var(--ease-out);
+  transition-delay:calc(var(--i,0) * 50ms);
+}
+.reveal.is-in > *{ opacity:1; transform:none; }
+@media (prefers-reduced-motion:reduce){
+  .reveal > *{ opacity:1; transform:none; transition:none; }
+}
+
+/* 3) 视口入场：CSS 滚动驱动（不支持的浏览器直接显示） */
+@supports (animation-timeline: view()){
+  .reveal-fade{
+    animation:reveal-fade linear both;
+    animation-timeline:view();
+    animation-range:entry 10% cover 32%;
+  }
+}
+@keyframes reveal-fade{ from{ opacity:0; transform:translateY(8px) } to{ opacity:1; transform:none } }
+
+/* 4) 跑马灯：每页最多一个，hover / focus 可暂停 */
+.marquee{ overflow:hidden; mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent); }
+.marquee__track{ display:flex; gap:var(--s-6); width:max-content; animation:marquee 40s linear infinite; }
+.marquee:hover .marquee__track,
+.marquee:focus-within .marquee__track{ animation-play-state:paused; }
+@keyframes marquee{ to{ transform:translateX(-50%) } }
+@media (prefers-reduced-motion:reduce){ .marquee__track{ animation:none } }
+```
+
+```js
+/* 入场观察器：阈值 0.2、只演一次、演完取消观察 */
+const io = new IntersectionObserver((entries) => {
+  for (const e of entries) {
+    if (!e.isIntersecting) continue;
+    e.target.classList.add('is-in');
+    io.unobserve(e.target);
+  }
+}, { threshold: 0.2, rootMargin: '0px 0px -10% 0px' });
+document.querySelectorAll('.reveal').forEach((el, i) => {
+  el.querySelectorAll(':scope > *').forEach((child, j) => child.style.setProperty('--i', j));
+  io.observe(el);
+});
+```
+
+三条容易踩的：
+
+- `transition-delay` 只该给入场，**别给 hover**（会出现"划过去一格一格的"）。
+- 用 CSS 变量算时长（`calc(var(--dur-4) * var(--motion))`）比自己维护两套规则好，切低端机时只改一个属性。
+- `animation: … both` 会把 `transform` 留在终值上，若元素里有 `position: fixed` 子元素会被拖偏；遇到就换 `backwards` 或把动画放到内层包一层。

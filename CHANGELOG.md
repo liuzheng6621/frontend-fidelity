@@ -4,6 +4,25 @@
 `frontend-fidelity.zip`，由 `git archive` 从 Tag 快照生成，只含被 git 跟踪的文件
 （不含 `shots/`、`audit-report.json`、`.design/`）。
 
+## v1.8.0 - 2026-10-31
+
+补上原技能最薄弱的一块：**动效**。此前只有零散规则（craft-floor 的一条判据、anti-slop 的 MOTION 旋钮、避免清单四条），没有能照着做的数值，也没法验收。本版新增一份独立规格 + 可粘贴片段 + 五条验收。
+
+### 新增
+
+- **`references/motion-spec.md`**（11,616B / 十一节 / 193 行）：一 四条底线（只动 `transform`/`opacity`、每个动画一句话动机、可打断、三档降级）；二 **时长五档** 120/180/240/400/600（上限 800）+ **四条缓动**（进入 ease-out / 离开 ease-in / 双向 in-out / 回弹只给直接操作 / `linear` 只给跑马灯与真实进度）；三 位移与缩放允许量（hover 2–4px、图片 1.02–1.04、按下 1px、入场 8px 起 40px 封顶）；四 编排（交错 40–60ms、同组 ≤ 8、只演一次、≤ 1.2s 演完、一次一个主角）；五 滚动驱动（`IntersectionObserver` / CSS `animation-timeline`，禁 `scroll` 监听、禁劫持）；六 六类交互配方 + toast/数字/modal/拖拽；七 **三档降级**（`--motion` 系数 + `prefers-reduced-motion` + 低端机），并说明为什么只写 `.01ms` 是错的；八 性能预算（同屏 ≤ 12 元素动、`will-change` ≤ 3、禁大面积 `backdrop-filter` 动画）+ 自测四步；九 动效 AI tell 九条；十 与其它文件的关系；十一 来源。
+- **`references/css-recipes.md` §18「动效令牌与四个片段」**：`--dur-1..5` + 四条 `--ease-*` 令牌；四个可粘贴片段（按下厚度归零、入场 8px + stagger、CSS 滚动驱动 `animation-timeline`、可暂停跑马灯）；一段 `IntersectionObserver`（阈值 0.2、只演一次）；三条坑（`transition-delay` 别给 hover、用 `calc(var(--dur) * var(--motion))` 统一切换、`animation-fill-mode: both` 会把 `transform` 留在终值导致 `position: fixed` 子元素偏移）。
+- **`SKILL.md` 新增 `### 动效` 小节**：四条底线 + 五档时长表 + 九条硬规则（含位移允许量、交错上限、入场/视线实现方式、自测四步）；参考文件节加 `motion-spec.md` 条目。
+- **`references/review-rubric.md`**：第一节补五条（动效四问都有答案 / 按下有反馈且 hover 只两笔 / 无 `scroll` 监听 / 无限循环每页 ≤ 1 且可停 / 6× 节流不丢帧且无整块重绘）。
+
+### 修改
+
+- **`README.md`**：TOC、分工表、仓库结构树各加 `motion-spec.md`；「该抄哪份参考」补一句「动效是横切，动手前先读规格」；参考数据 15 → 16 份。
+
+### 说明
+
+- 语料侧证据是反过来的：18 站里动效最少的反而最显专业（UI Notes 全站 1 个、站酷 0 个、StyleKit 只两笔 hover），所以这份规格的重点是**加之前先证明值得**，不是教怎么加。
+- 时长/缓动分级是本站汇总值，不是某一家站点的原值；引用单站数值请回各自单站文档。
 ## v1.7.0 - 2026-10-31
 
 第七版不是站点蒸馏，而是**两份外部规则集的蒸馏**：impeccable 的工艺底线（`craft-floor`）与 design-taste-frontend 的反模板清单。此前本站只有「别人长什么样」（18 站实测 + 6 份单站），缺「什么叫做错了」；这两份补的是判据，因此新增两个 references 而不是往站点表里加行。

@@ -37,6 +37,11 @@
 - [ ] **动效都有动机**（层级 / 叙事 / 反馈 / 状态变化之一），能被一句话说清；`prefers-reduced-motion` 下全部塌缩
 - [ ] **multi-< 768px 显式塌缩**：每个多列网格都有对应断点，没有靠 `min-width` 硬撑
 - [ ] **图片是真图**（生成 / picsum / 真素材），没有 div 拼的假产品 UI；logo 墙只有 logo 且是真 SVG
+- [ ] **动效四问都有答案**：动机（层级/叙事/反馈/状态）？时长取自五档（120/180/240/400/600）？三档降级（完整/减弱/关闭）？只动 `transform`/`opacity`？
+- [ ] **按下有反馈、hover 只两笔**：`translateY(1px)` 或厚度归零；卡片 hover 不超过「色 + 缩放其一」
+- [ ] **没有 `window.addEventListener('scroll')` 驱动的布局或动画**；入场用 `IntersectionObserver`，进度用 `animation-timeline`
+- [ ] **无限循环每页 ≤ 1**，且 hover / focus / `prefers-reduced-motion` 能停；数字滚动只给真实数据且只滚一次
+- [ ] **6× CPU 节流下不掉帧、Paint flashing 无整块重绘**；`will-change` ≤ 3 且动画后撤销
 ## 二、内容与状态
 
 - [ ] 每个数据区都有 **加载 / 空 / 错 / 无权限** 四种状态，且文案不同

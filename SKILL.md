@@ -79,7 +79,7 @@ node scripts/run_checks.mjs
 | 「优化/美化/整改这个页面」「照这张截图做」「统一一下风格」「验收一下改动」 | **模式 A：整改与还原**（下面 1–5 步） | 已有代码，先截图再动手 |
 | 「从零做一个」「搭个后台/落地页」「先给我一套设计令牌」 | **模式 B：从 0 生成**（见「从 0 生成」一节） | 空目录，先选型再生成 |
 
-两条路最后过同一道闸：screenshot.mjs + udit.mjs + un_checks.mjs，退出码 0 才算完成。
+两条路最后过同一道闸：screenshot.mjs + udit.mjs + un_checks.mjs，退出码 0 才算完成。
 
 ## 工作流
 
@@ -238,6 +238,29 @@ node scripts/scaffold.mjs --persona warm --out preview --accent 20 --pages landi
   展品内部可以有自己的硬阴影（`6px 6px 0 0 #000`），但那是**展品**，不是展柜——
   **展柜一旦会浮起来，149 件展品就变成 149 个弹窗。**
 
+### 动效
+
+动效不是装饰，是**状态变化的证据**。四条底线 + 一张时长表，全部细节在 [`references/motion-spec.md`](references/motion-spec.md)。
+
+- **只动 `transform` 和 `opacity`**；`top/left/width/height/margin` 会重排，`backdrop-filter` 大面积动会掉帧。
+- **每个动画要能一句话说出动机**（层级 / 叙事 / 反馈 / 状态变化）。说不出就删。
+- **可打断**：hover、快速连点、往回滚时不能"排队演完"；不要用 `animation-delay` 堆队列。
+- **三档降级**：完整 / 减弱（`prefers-reduced-motion`）/ 关闭（低端机或用户手动，`--motion: 0`）。
+
+| 场景 | 时长 | 缓动 |
+| --- | --- | --- |
+| hover / focus / 颜色边框 | 120ms | ease-out |
+| 按下反馈 / 开关 / tooltip | 180ms | ease-out |
+| 展开收起 / 抽屉 / modal | 240ms | ease-in-out |
+| 区块入场 / 转场 | 400ms | ease-out |
+| 一次性叙事（hero 逐字） | 600ms | ease-out |
+
+- **进入用 ease-out，离开用 ease-in**，双向用 ease-in-out；`linear` 只给跑马灯和真实进度条；回弹只给直接操作，不给入场。
+- **位移 8px 起、40px 封顶**；卡片 hover 抬 2–4px、图片放大 1.02–1.04（容器 `overflow: hidden`）、按下 `translateY(1px)` 或厚度归零。
+- **交错 40–60ms、同组 ≤ 8 个、只演一次、≤ 1.2s 演完**；同一时刻只允许一个高注目动画。
+- **入场用 `IntersectionObserver`，进度/视差用 CSS `animation-timeline`**；禁止 `window.addEventListener('scroll')` 驱动布局，禁止滚动劫持（营销页要做得给出口）。
+- **无限循环每页 ≤ 1 个，且 hover / focus / reduced-motion 能停**；数字滚动只给真实数据且只滚一次。
+- 自测：6× CPU 节流录 5 秒看掉帧 → Paint flashing 看有没有整块重绘 → 系统开「减少动态效果」刷新页面应无位移无循环 → `audit.mjs --reduced-motion`。
 ## 页面结构
 
 ### 内容列表 / 图墙
@@ -479,7 +502,11 @@ node scripts/scaffold.mjs --persona warm --out preview --accent 20 --pages landi
   长度预算、中文标点与空格、三种人格语气、`{{TODO}}` 占位写法。**交付前用它清一遍假文案。**
 - `references/css-recipes.md` — 设计令牌、表格、骨架屏、空状态、深色模式的可复制片段；
   第 12–17 节是六个参考站的可粘贴风味（塑料按钮+发丝圈 / 浅灰蓝+彩纸卡 / 零 gutter 图墙 / 报头+等宽图版 / 风格卡+色板条 / 隐形界面+截图带）。
-- `references/craft-floor.md` — **工艺底线**（来源：impeccable 的 craft-floor，Apache-2.0，只蒸馏判据未复制原文）：
+- `references/motion-spec.md` — **动效规格**：四条底线（只动 transform/opacity、有动机、可打断、三档降级）、
+  时长五档（120/180/240/400/600，上限 800）与四条缓动（进入 ease-out / 离开 ease-in / 双向 in-out / 回弹只给直接操作）、
+  位移与缩放允许量、编排（交错 40–60ms、≤ 8 个、只演一次）、滚动驱动（IntersectionObserver / `animation-timeline` /
+  禁 scroll 事件 / 禁劫持）、六类交互配方、三档降级写法、性能预算（同屏 ≤ 12 元素动、will-change ≤ 3）、
+  自测四步、动效 AI tell。**要加任何动画之前先读第 1、2 节。**- `references/craft-floor.md` — **工艺底线**（来源：impeccable 的 craft-floor，Apache-2.0，只蒸馏判据未复制原文）：
   九条做完才看的验证（对比度 / 深度偏移+模糊 / 标题上间距 > 下间距 / 行宽 65–75ch / 一个有意识的动效时刻 /
   五态与键盘焦点 / **浏览器原生表面** / 文案 / 覆盖）、深度三选一（发丝·边距·阴影，禁幽灵卡）、
   四件原生表面 CSS（`::selection`、`caret-color`、`scrollbar`、`:focus-visible` + `text-underline-offset`）、
