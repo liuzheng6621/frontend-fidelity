@@ -66,8 +66,27 @@ function nameVariants(rel) {
   return [...new Set([base, pascal, camel])].filter((s) => s.length >= 3);
 }
 
+const USAGE = `用法（在目标项目根目录运行）:
+  node <skill>/scripts/hygiene.mjs                     # 默认扫 ./src
+  node <skill>/scripts/hygiene.mjs --src app --root .  # 指定源码目录与项目根
+  node <skill>/scripts/hygiene.mjs --src src --out hygiene.json
+
+选项:
+  --src <dir>      源码目录（默认 src，必填其存在）
+  --root <dir>     项目根（默认 src 的上一级；用来找 public/assets 与写报告）
+  --out <path>     机读报告，目录或 .json 路径（默认 hygiene.json）
+  --out-txt <path> 人读报告，目录或 .txt/.md 路径（默认 hygiene-summary.txt）
+  -h, --help       打印这段说明
+
+输出：控制台清单 + hygiene-summary.txt（人读）+ hygiene.json（机读）。
+注意：结果是**待确认项**，不是结论——删除任何文件前必须人工核实。`;
+
 async function main() {
   const args = parseArgs(process.argv, { src: 'src' });
+  if (args.help || args.h) {
+    console.log(USAGE);
+    return;
+  }
   const srcDir = path.resolve(String(args.src || 'src'));
   // 项目根：默认取 src 的上一级（src/ 与 public/、package.json 通常并列），--root 可覆盖
   const root = args.root && args.root !== true ? path.resolve(String(args.root)) : path.resolve(srcDir, '..');
@@ -89,7 +108,7 @@ async function main() {
     process.exit(2);
   }
   if (files.length === 0) {
-    console.error(`源码目录 ${srcDir} 为空，检查 --src 参数`);
+    console.error(`源码目录 ${srcDir} 为空或不存在，检查 --src 参数；node scripts/hygiene.mjs --help 看用法`);
     process.exit(2);
   }
 

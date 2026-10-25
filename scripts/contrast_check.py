@@ -659,6 +659,7 @@ def main() -> int:
     ap.add_argument("--bg", help="单独检查：背景色/变量")
     ap.add_argument("--tokens-only", action="store_true", help="只做令牌配对，不解析选择器")
     ap.add_argument("--strict", action="store_true", help="以 AA 正文 4.5 要求所有配对")
+    ap.add_argument("--all", action="store_true", help="打印全部配对（默认只列前 60 组）")
     ap.add_argument("--self-test", action="store_true")
     args = ap.parse_args()
 
@@ -745,7 +746,8 @@ def main() -> int:
     failures = [r for r in results if not r["pass"]]
 
     print(f"\n参与判定的配色对 {len(results)} 组（按对比度升序）：")
-    for r in results[:60]:
+    shown = results if args.all else results[:60]
+    for r in shown:
         tag = "info" if r.get("soft") else ("PASS" if r["pass"] else "FAIL")
         fg = " / ".join(r["fg"]) if isinstance(r["fg"], tuple) else str(r["fg"])
         print(
@@ -753,7 +755,7 @@ def main() -> int:
             f"{hex_of(r['fg_rgb'])} on {hex_of(r['bg_rgb'])}  [{r['mode']}] {fg}"
         )
     if len(results) > 60:
-        print(f"  ... 另有 {len(results) - 60} 组未显示")
+        print(f"  ... 另有 {len(results) - 60} 组未显示（--all 看全部）")
 
     soft_n = sum(1 for r in results if r.get("soft"))
     tail = f"（其中 {soft_n} 组是装饰性边框，只提示不判失败）" if soft_n else ""

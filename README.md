@@ -5,7 +5,7 @@
 > 搜这些词应该能到这：设计稿转代码、照着截图还原、UI 还原、前端验收、截图对比、后台美化、移动端适配、设计令牌、Claude Code 技能（skill）。
 > 目标不是"改好看"，而是**让界面和它声称的样子一致，并且真的能用——改完能拿出证据**。
 
-`v1.9.1` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `9 个可执行脚本`
+`v1.9.2` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `9 个可执行脚本`
 
 ---
 
@@ -591,12 +591,14 @@ python scripts/contrast_check.py --fg "#6b7280" --bg "#ffffff"   # 单点检查
 python scripts/contrast_check.py --tokens-only         # 只做令牌配对，跳过选择器解析
 python scripts/contrast_check.py --strict              # 所有配对一律按正文 4.5 要求
 python scripts/contrast_check.py --self-test           # 验证颜色解析
+python scripts/contrast_check.py src/ --all             # 列出全部配对（默认只列前 60 组）
 ```
 
 - 支持 `#hex`、`rgb()/rgba()`、`hsl()/hsla()`、`hwb()`、**`oklch()`、`oklab()`、`lab()`**、`color(srgb …)`、`color-mix(in oklab|srgb, A p%, B)`、`var()` 链（含 fallback，最多 8 层）。
 - 自动识别深色块：`.dark`、`[data-theme="dark"]`、`.theme-dark`、`@media (prefers-color-scheme: dark)`。
 - 两种配对：同元素 `color` + `background`（背景不透明时才算），以及按变量名角色配对。
 - 阈值：正文 **4.5:1**，UI 边界 / 图标 **3:1**。透明背景的配对跳过（无法判定，需人工）。
+- 装饰性发丝边框单独标 `info`、不计入失败；`--_*` 私有变量与色阶档位不参与配对，避免假失败。
 - **退出码：有未达标项为 1。**
 
 > Tailwind v4 默认把颜色输出成 `oklch()`，只认 hex 的旧工具在解析阶段就全军覆没——这是本脚本支持它的原因。

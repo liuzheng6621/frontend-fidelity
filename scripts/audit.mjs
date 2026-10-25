@@ -188,14 +188,21 @@ async function collectStructure(page, ctx) {
         const cs = getComputedStyle(el);
         if (el.tagName === 'A' && cs.display === 'inline' && el.closest('p, li, dd, figcaption, td')) continue;
         const m = Math.min(r.width, r.height);
-        if (m > 0 && m < 44 && tiny++ < 8) {
-          push(
-            'warn',
-            'small-tap-target',
-            `点击区域过小 ${Math.round(r.width)}×${Math.round(r.height)}（要求 ≥44×44）：「${(el.textContent || el.getAttribute('aria-label') || el.tagName).trim().slice(0, 20)}」`,
-            sel(el),
-          );
+        if (m > 0 && m < 44) {
+          tiny++;
+          // 逐条都报，但同一条页面最多列 20 个例子，剩下的汇总成一条（免得刷屏又不至于漏报）
+          if (tiny <= 20) {
+            push(
+              'warn',
+              'small-tap-target',
+              `点击区域过小 ${Math.round(r.width)}×${Math.round(r.height)}（要求 ≥44×44）：「${(el.textContent || el.getAttribute('aria-label') || el.tagName).trim().slice(0, 20)}」`,
+              sel(el),
+            );
+          }
         }
+      }
+      if (tiny > 20) {
+        push('warn', 'small-tap-target-more', `另有 ${tiny - 20} 个点击区小于 44×44（同类问题只列前 20 个）`, '');
       }
     }
 
