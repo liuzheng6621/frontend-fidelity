@@ -15,8 +15,10 @@
 - [快速开始](#快速开始)
 - [安装](#安装)
 - [仓库结构](#仓库结构)
-- [五步工作流](#五步工作流)
+- [五步工作流（模式 A：整改与还原）](#五步工作流模式-a整改与还原)
+- [从 0 生成（模式 B）](#从-0-生成模式-b)
 - [脚本手册](#脚本手册)
+  - [scaffold.mjs — 从 0 生成前端骨架](#scaffoldmjs--从-0-生成前端骨架)
   - [screenshot.mjs — 多视口 / 多主题全页截图](#screenshotmjs--多视口--多主题全页截图)
   - [audit.mjs — 结构 + WCAG + CLS 审计](#auditmjs--结构--wcag--cls-审计)
   - [auth.mjs — 导出登录态](#authmjs--导出登录态)
@@ -28,6 +30,7 @@
 - [参数与退出码速查](#参数与退出码速查)
 - [产物说明](#产物说明)
 - [视觉细则摘要](#视觉细则摘要)
+- [参考站蒸馏：wegic.ai](#参考站蒸馏wegicai)
 - [交付验收清单](#交付验收清单)
 - [CI 集成](#ci-集成)
 - [常见问题](#常见问题)
@@ -38,7 +41,7 @@
 
 ## 这是什么
 
-一个**面向改造**的前端技能包：一份给 agent 读的操作手册（`SKILL.md`）+ 三份实测参考数据（`references/`）+ 八个能直接跑的验收脚本（`scripts/`）。
+一个**把前端做对**的技能包，两条路都走：**先把已有界面整改/还原到位**，**也能从 0 生成一套能验收的骨架**。内含一份给 agent 读的操作手册（`SKILL.md`）+ 七份实测参考数据（`references/`）+ 九个能直接跑的脚本（`scripts/`）。
 
 它解决的是这类问题：
 
@@ -46,6 +49,7 @@
 - "照着这张截图做" —— 形状像了，字号、行高、间距、圆角全是拍脑袋定的。
 - "改完怎么验收" —— 只有一张新鲜截图，没有人证明它没坏、能点、对比度够、移动端不崩。
 - "颜色换了，深色主题还能用吗" —— 没人跑过深色。
+- "从零搭个后台 / 落地页" —— 骨架怎么排、状态缺哪些、字号间距定多少，全靠临场发挥。
 
 ### 三条不可妥协
 
@@ -67,11 +71,12 @@
 | 多端一致性（PC / H5 / 平板） | ✅ | 三个视口一起截图，差异一眼可见 |
 | Logo / 品牌视觉资产整合 | ✅ | `crop_logo.py` 裁边、方形化、导出；审计查拉伸与深色可见性 |
 | 深色模式补齐 | ✅ | 截图与审计都能强制三种主题约定 |
-| 从零创作营销落地页 / 品牌官网 | ❌ | 那属于 `frontend-design`：要的是原创视觉方向，不是"做对现有的" |
+| 从 0 生成后台 / 落地页骨架 | ✅ | `scaffold.mjs` 一次生成令牌 + 组件 + 五类页面，再往里填真内容 |
 | 纯逻辑 bug、接口联调 | ❌ | 没有视觉面，用测试和日志，不在这里 |
 | 大规模重构 / 换技术栈 | ❌ | 这是改造工具，不是迁移工具 |
+| 品牌视觉从零创作 / 海报插画 | ❌ | 那属于 `frontend-design` / `canvas-design`：要原创视觉方向，不是"做对现有的" |
 
-判据很简单：**目标界面已经存在（或已有稿子），要把它做对做全** → 用这个；**还没有界面，要发明一个** → 不用。
+判据：**已有界面要整改/还原** → 走模式 A（截图、量、改、验收）；**还没有界面，但要一个能用的骨架** → 走模式 B（选型、生成、填内容、验收）。**要一份原创视觉提案** → 那才轮到 `frontend-design`。
 
 ---
 
@@ -79,12 +84,12 @@
 
 | 文件 / 技能 | 给谁看 | 内容 |
 | --- | --- | --- |
-| `SKILL.md` | agent（模型） | 五步工作流 + 视觉系统细则 + 反模式清单，是执行指令 |
+| `SKILL.md` | agent（模型） | 两种模式（整改 / 从 0 生成）+ 视觉系统细则 + 反模式清单，是执行指令 |
 | `README.md`（本文件） | 人 | 项目介绍、安装、脚本参数、产物、排错 |
-| `references/design-evidence.md` | 双方 | 21 个真实站点实测出的字体/间距/圆角/密度数值 |
+| `references/design-evidence.md` | 双方 | 13 个实测站点（10 营销/产品 + 3 后台）的字体/间距/圆角/密度数值 |
 | `references/css-recipes.md` | 双方 | 可直接复制的设计令牌、表格、骨架屏、空态、深色片段 |
 | `references/review-rubric.md` | 双方 | 交付前逐项勾的验收清单（九节，含红旗） |
-| `frontend-design`（另一个技能） | agent | 从零创作：视觉方向、构图、原创性 |
+| `frontend-design`（另一个技能） | agent | 需要原创视觉方向时：构图、气质、品牌表达（不谈验收） |
 
 `SKILL.md` 与 `README.md` 内容有重叠是故意的：模型读前者能直接动手，人读后者能理解与排错。
 
@@ -122,6 +127,15 @@ node ~/.dsh/skills/frontend-fidelity/scripts/auth.mjs --url http://localhost:517
 # 之后所有脚本加 --storage-state auth.json
 ```
 
+如果是从零开始（模式 B），第一步不是截图而是生成骨架：
+
+```bash
+# 生成一套令牌 + 组件 + 后台四页（含深色令牌）
+node ~/.dsh/skills/frontend-fidelity/scripts/scaffold.mjs \
+  --persona rational --out src --pages landing,app,form,auth,states --dark
+```
+
+生成完再走上面的第 2 步之后的验收链路（`scaffold.mjs` 是纯 node，不依赖 playwright）。
 Windows 下把 `~/.dsh/skills/frontend-fidelity` 换成 `C:\Users\<你>\.dsh\skills\frontend-fidelity`，或直接把技能目录加进 PATH 后用相对路径。
 
 ---
@@ -147,7 +161,7 @@ git clone https://gitee.com/liu-everything_impossble/skill-frontend-fidelity.git
 ### 依赖
 
 ```bash
-# JS 脚本：screenshot / audit / auth / probe-ref 需要 playwright
+# JS 脚本：screenshot / audit / auth / probe-ref 需要 playwright；scaffold 是纯 node，不需要
 npm i -D playwright
 npx playwright install chromium      # 只装 chromium 就够
 
@@ -166,14 +180,20 @@ pip install pillow numpy             # numpy 可选，只影响大图裁切速�
 
 ```
 frontend-fidelity/
-├── SKILL.md                      # agent 操作手册：五步工作流 + 视觉细则 + 反模式
+├── SKILL.md                      # agent 操作手册：两种模式 + 五步整改 + 六步生成 + 视觉细则 + 反模式
 ├── README.md                     # 本文件：安装、脚本参数、产物、排错
 ├── LICENSE                       # MIT
 ├── references/
-│   ├── design-evidence.md        # 21 个真实站点实测：字体、字阶、行高、间距、圆角、密度
-│   ├── css-recipes.md            # 设计令牌 / 表格 / 骨架屏 / 空态 / 深色的可复制片段
+│   ├── design-evidence.md        # 13 个实测站点（10 营销/产品 + 3 后台）：字体、字阶、行高、间距、圆角、密度
+│   ├── wegic-design.md           # wegic.ai 单站全量蒸馏：完整令牌 + 塑料按钮 + 迁移口径
+│   ├── page-patterns.md          # 从 0 生成：选型表 + 七类页面骨架 + 三变体 + 内容最低量
+│   ├── component-spec.md         # 11 类组件规格：三档密度、尺寸、对齐、禁忌
+│   ├── design-tokens.md          # 三套人格预设、色阶生成算法、字阶、圆角阴影配对、暗色推导
+│   ├── copy-and-content.md       # 文案规格：标题公式、按钮动词、空/错/载公式、占位写法
+│   ├── css-recipes.md            # 设计令牌 / 表格 / 骨架屏 / 空态 / 深色 / 塑料按钮的可复制片段
 │   └── review-rubric.md          # 交付前九节验收清单（含红旗清单）
 └── scripts/
+    ├── scaffold.mjs              # 从 0 生成骨架：三套人格令牌 + 组件 CSS + 五类页面
     ├── screenshot.mjs            # 多视口 × 多主题全页截图
     ├── audit.mjs                 # 结构 + axe WCAG 2.1 A/AA + CLS + 动效
     ├── auth.mjs                  # 有头浏览器人工登录，导出 auth.json
@@ -188,7 +208,7 @@ frontend-fidelity/
 
 ---
 
-## 五步工作流
+## 五步工作流（模式 A：整改与还原）
 
 ### 1. 勘察（不看代码先看界面）
 
@@ -233,7 +253,92 @@ node scripts/probe-ref.mjs --url https://参考站.com --out .tmp/ref --name ref
 
 ---
 
+## 从 0 生成（模式 B）
+
+没有界面、要从零做一个，就别用「整改」那套（那套的起点是既有截图）。走这六步：
+
+| 步骤 | 用什么 | 产物 |
+| --- | --- | --- |
+| 1. 选型 | `references/page-patterns.md` 的选型表 | 页面清单 + 人格（rational / editorial / warm） |
+| 2. 生成骨架 | `scripts/scaffold.mjs` | 令牌 + 组件 CSS + 页面 HTML |
+| 3. 改令牌 | `references/design-tokens.md` | 品牌色阶、中性色温度、密度与圆角 |
+| 4. 填内容 | `references/copy-and-content.md` | 真文案，`{{TODO}}` 清零 |
+| 5. 补结构与状态 | `references/page-patterns.md` + `component-spec.md` | 筛选/分页/空态/错误态齐全 |
+| 6. 验收 | 与模式 A 相同 | 截图 + 审计全绿 |
+
+```bash
+# 1) 生成（后台形态）
+node scripts/scaffold.mjs --persona rational --out src --pages landing,app,form,auth,states --dark
+
+# 2) 起本地服务再体检（file:// 会被 CORS 干扰，审计结果不可信）
+node scripts/screenshot.mjs --url http://localhost:5173/ --out .design/after
+node scripts/audit.mjs --url http://localhost:5173/ --themes light,dark
+```
+
+三套人格的差别不只是换色：
+
+| | rational | editorial | warm |
+| --- | --- | --- | --- |
+| 适合 | SaaS、管理端、工具 | 内容站、出版、品牌 | 消费级、教育、社区 |
+| 控件高 | 32px | 40px | 44px |
+| 圆角 | 4/6/8/12 | 2/3/4/6 | 8/12/16/24 |
+| 标题字重 | 600 | 400（大字轻） | 700 |
+| 区块留白 | 56px | 112px | 64-80px |
+| 按钮 | 平面 + 发丝环 | 描边优先 | 厚度内阴影 |
+
+**生成物是起点，不是成品。** 骨架把「层级、间距、状态、可访问性」这些最容易漏的硬骨头钉死，视觉个性还得自己那一下——需要原创方向时转 `frontend-design`。
+
+---
+
 ## 脚本手册
+
+### scaffold.mjs — 从 0 生成前端骨架
+
+一次性产出设计令牌 + 组件样式 + 五类页面，拿到就能跑、能量、能改。**模式 B 的第一步**。
+
+```bash
+# 后台：令牌 + 组件 + 落地页/列表/表单/认证/状态页
+node scripts/scaffold.mjs --persona rational --out src --pages landing,app,form,auth,states
+
+# 换品牌色相 + 带深色令牌
+node scripts/scaffold.mjs --persona warm --accent 20 --dark --out preview --pages landing,form
+
+# 产品名替换标题里的占位
+node scripts/scaffold.mjs --name "南风工单" --out src --pages app,form
+```
+
+| 参数 | 说明 | 默认 |
+| --- | --- | --- |
+| `--persona` | `rational`（SaaS/后台，方正克制）／`editorial`（内容、品牌站，字重轻留白大）／`warm`（消费级、社区，暖色圆角厚） | `rational` |
+| `--out` | 输出目录 | `ui-scaffold` |
+| `--pages` | 逗号分隔：`landing,app,form,auth,states` | `landing,app` |
+| `--accent` | 覆盖品牌色相 0–360（不填用该人格默认） | 人格预设 |
+| `--dark` | 额外生成 `.dark` 令牌块（不给就等于没打算支持深色） | 关 |
+| `--name` | 产品名 | `示例产品` |
+| `--quiet` | 少打印 | 关 |
+| `--help` / `-h` | 打印用法后退出 | — |
+
+**产出**（平铺在 `--out` 目录，10 个文件）：
+
+```
+<out>/
+├── tokens.json          # 令牌源，可喂给设计系统或其他工具
+├── tokens.css           # 颜色/间距/字阶/圆角/阴影/动效变量，含可选 .dark
+├── base.css             # reset、排版、焦点环、::selection、reduced-motion
+├── components.css       # 按钮/表单/卡片/表格/标签/提示/空态/骨架/tabs/弹窗/toast + 外壳
+├── ui.js                # 主题切换（localStorage）、密码显隐、tabs 键盘、modal Esc
+└── *.html               # index / app / form / auth / states，按 --pages 决定
+```
+
+退出码：`0` 成功；`2` 参数错（未知人格 / 未知页面名，同时打印可选值）。
+
+**生成物已过 `audit.mjs` 的明暗双主题验证**：三套人格 × 五类页面 0 error / 0 axe 违规。
+但它只保证「层级、间距、状态、可访问性」这些硬骨头，文案全是 `{{TODO: ...}}` 占位——
+你的活是把它们换成真内容（见 `references/copy-and-content.md`），别直接当成品交付。
+
+页面骨架清单写在各 HTML 顶部的注释里，照着补删改比重写快。
+
+---
 
 ### screenshot.mjs — 多视口 / 多主题全页截图
 
@@ -476,7 +581,7 @@ node scripts/probe-ref.mjs --url https://example.com --no-shot # 不存截图
 | `--brief` | 关 | 只打印关键数值，不列 CSS 变量（JSON 仍写） |
 | `--no-shot` | – | 不存截图 |
 
-**输出**：字体栈与出现次数、字号分布、`h1/h2/h3/p/a/th/td/label/button/input` 的字号-行高比-字重-字距-大小写、底色与文字色（`oklch()` 也会被正确解析成 sRGB 十六进制）、圆角档位、间距频次、表格行高、控件高度、侧栏/顶栏尺寸、卡片靠阴影还是靠边框、图片 lazy 比例、动画数、CSS 变量名。
+**输出**：字体栈与出现次数、字号分布、`h1/h2/h3/p/a/th/td/label/button/input` 的字号-行高比-字重-字距-大小写、底色与文字色（`oklch()` 也会被正确解析成 sRGB 十六进制）、圆角档位、间距频次、表格行高、控件高度、侧栏/顶栏尺寸、卡片靠阴影还是靠边框、图片 lazy 比例、动画数、CSS 变量名，以及 **`:root` 上实际生效的自定义属性及其最终值**（`rootVars`，最多 120 项）——后者是遍历计算样式拿的，所以跨域样式表读不到、或被 JS 后注入的令牌也能量到（wegic.ai 的 `--wg-*` 就是这样测出来的）。
 
 > **只抄比例和关系，不抄像素。** 落地数值对照 `references/design-evidence.md` 的跨站统计：营销站的 96–140px 大标题搬到管理端就是错的，后台正文 13–14px、控件 32px、表格行高 53px 才是同行区间。
 
@@ -520,7 +625,7 @@ node scripts/probe-ref.mjs --url https://example.com --no-shot # 不存截图
 
 ## 视觉细则摘要
 
-`SKILL.md` 里有完整版，这里是需要反复查的部分。
+`SKILL.md` 里有完整版，这里是需要反复查的部分。最后两节是 wegic.ai 蒸馏出来的、能直接搬到项目里的招。
 
 ### 中文排版
 
@@ -610,6 +715,42 @@ node scripts/probe-ref.mjs --url https://example.com --no-shot # 不存截图
 - 中文里混半角标点，或全角用错。
 - 把设计稿像素值原样搬进 `px`（先确认稿子是几倍图）。
 - 只做浅色、只做 1440 宽、只做 happy path。
+
+---
+
+## 参考站蒸馏：wegic.ai
+
+2026-02 对 `https://wegic.ai/zh-cn` 做了一次完整采集（1440×900 / 390×844，读 `getComputedStyle` + `:root` 计算值 + `document.fonts`，截 14 屏），
+把它的设计语言拆成四块写进了技能：
+
+- **[`references/wegic-design.md`](references/wegic-design.md)** — 单站全量：完整 `--wg-*` 令牌表（背景三件套 / ink 与 white 双 ramp / 薄荷品牌色十档 / 语义色）、
+  圆角分工、按钮厚度的 6 层内阴影、字阶实测（86.4 / 56 / 48 / 40 / 36 / 34 / 28 / 20 / 15 / 13）、区块高度节奏、
+  组件尺寸（主按钮 126×48、暗卡 392×441、FAQ 行 64、感言卡 370×208），以及**「能搬什么 / 不能搬什么」对照表**。
+- **[`references/design-evidence.md`](references/design-evidence.md)** — Wegic 作为 A 组第 10 个样本并入跨站统计
+  （正文均值仍 15.2、H1 均值 82.8、圆角与间距频次、阴影两派）。
+- **[`references/css-recipes.md`](references/css-recipes.md) 第 12 节** — 可粘贴代码：塑料按钮（侧壁 4→2→0）、发丝圈、暗卡、暖白输入框、逐字入场（含静态回退）。
+- **[`SKILL.md`](SKILL.md)** — 视觉细则里新增三条硬规则：字距只对大标题微放、次级文字用「同色相 + alpha」派生、发丝圈与内阴影优先于 border；反例清单也补了三条。
+
+### 三招值得直接搬
+
+| 招式 | 一行做法 |
+| --- | --- |
+| **按钮有厚度** | `inset 0 -4px 0 rgba(0,0,0,.06)` 做侧壁，hover 改 `-2px`，active 归零 → 塑料键帽，不用渐变 |
+| **发丝圈代替 border** | `box-shadow: 0 0 0 1px rgba(0,0,0,.06)`：拐角不加粗、不占盒模型、不跳行高 |
+| **文字同色相分层** | 只留 `#000` + 十档 alpha；深色段落把 ink 换成 `rgba(255,255,255,α)`，两套主题天然成立 |
+
+### 也别学它这三处
+
+促销条的高饱和渐变 + 倒计时角标 + 移动端 15% OFF 弹窗（广告位，不是设计语言）；预载 7 款 `unloaded` 的字体；用 `mt-[1600px]` 撑滚动长度当「高级感」。
+
+重新采集一次：
+
+```bash
+node scripts/probe-ref.mjs --url https://wegic.ai/zh-cn --out .tmp/ref --name wegic
+```
+
+`probe-ref.mjs` 抓不到 `--wg-*` 令牌与逐字入场（真实标题是 `h1` 之后的逐字 `<span>`，`h1` 本身是 `sr-only`），
+补一次 `evaluate` 遍历 `getComputedStyle(document.documentElement)` 即可——具体步骤写在 `references/wegic-design.md` 第十节。
 
 ---
 
@@ -722,6 +863,12 @@ stages:
 **报告里的 `layout-shift` 只提示不拦** —— CLS 阈值 0.1 是经验值，图片/字体加载不稳定时抖动常见；先固定尺寸与 `aspect-ratio`，再复查。
 
 **能在 CI 里跑吗** —— 能，四个脚本都用退出码表达结论，见上面的 CI 集成。
+
+**生成出来的页面文案全是 `{{TODO}}`** —— 故意的。骨架保证结构与状态正确，内容必须你来（见 `references/copy-and-content.md`）。交付前跑 `grep -rn "{{TODO" src/`，要么清零，要么逐条列进交付说明。
+
+**`scaffold.mjs` 生成的东西能直接用吗** —— 当骨架用，当成品用会露怯：它没有品牌个性、没有真实数据、没有业务状态。改令牌（品牌色相/密度/圆角）比改样式省事得多。
+
+**`scaffold.mjs` 需要 playwright 吗** —— 不需要，纯 node 零依赖。只有截图与审计脚本需要。
 
 **Windows 下路径怎么写** —— 脚本内部用 `path` 处理，命令行里写 `E:/proj/src` 或 `E:\\proj\\src` 都行；含空格的路径要加引号。
 

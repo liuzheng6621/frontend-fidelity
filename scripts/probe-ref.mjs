@@ -119,6 +119,21 @@ function probe() {
     }
   }
 
+  // :root 上实际生效的自定义属性（含最终值）。样式表可能跨域读不到、也可能被
+  // JS 后注入，所以再遍历一次计算样式兜底——wegic.ai 的 --wg-* 只能这样拿到。
+  const rootVars = {};
+  {
+    const rootCS = getComputedStyle(document.documentElement);
+    for (let i = 0; i < rootCS.length && Object.keys(rootVars).length < 120; i++) {
+      const prop = rootCS[i];
+      if (!prop || !prop.startsWith('--')) continue;
+      const val = rootCS.getPropertyValue(prop).trim();
+      if (!val) continue;
+      rootVars[prop] = val.replace(/\s+/g, ' ').slice(0, 110);
+      inc(cssVars, prop);
+    }
+  }
+
   const lum = (hex) => {
     if (!hex || hex.length < 7) return 1;
     const v = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
@@ -178,6 +193,7 @@ function probe() {
     images: { total: document.images.length, lazy: [...document.images].filter((i) => i.loading === 'lazy').length },
     animations: document.getAnimations ? document.getAnimations().length : 0,
     cssVars: top(cssVars, 40),
+    rootVars,
   };
 }
 
@@ -225,5 +241,10 @@ console.log(`  卡片      共 ${data.cards.total}：阴影 ${data.cards.shadow}
 console.log(`  图片      ${data.images.total} 张，lazy ${data.images.lazy} 张；动画 ${data.animations} 个`);
 if (!brief) {
   console.log(`  令牌      ${data.cssVars.slice(0, 12).map((v) => v[0]).join(' ')}`);
+  const rv = Object.entries(data.rootVars || {});
+  if (rv.length) {
+    console.log(`  令牌值    ${rv.length} 个 :root 变量（JSON 里全量），前 8 项：`);
+    for (const [k, v] of rv.slice(0, 8)) console.log(`              ${k}: ${v}`);
+  }
 }
 console.log(`  JSON      ${jsonPath}`);

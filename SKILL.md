@@ -1,13 +1,14 @@
 ---
 name: frontend-fidelity
 description: >-
-  把已有界面做对、做实：按设计稿/截图还原页面，或对现存前端做视觉与可用性整改——
-  企业后台与管理端、移动 H5/小程序、多端一致性、Logo 与视觉资产整合。
+  把界面做对、做实：既能按设计稿/截图还原并整改已有界面，也能从 0 生成一套能验收的前端骨架——
+  企业后台与管理端、移动 H5/小程序、营销落地页、多端一致性、Logo 与视觉资产整合。
   当用户说「优化/美化这个页面」「照着这张截图做」「后台太难看了」「统一一下风格」
-  「这个按钮/表格/空状态不对」「移动端适配」「验收一下前端改动」「截图对比」时使用。
-  自带可运行的验收脚本：多视口多主题截图、结构与 WCAG 审计、对比度检查、
-  登录态导出、仓库残留清理、跑项目自带的质量门。
-  不用于：从零创作的营销落地页/品牌官网（那属于 frontend-design）、纯逻辑 bug 修复。
+  「这个按钮/表格/空状态不对」「移动端适配」「验收一下前端改动」「截图对比」
+  「从零做一个页面/后台/落地页」「搭个骨架」「先给我一套设计令牌」时使用。
+  自带可运行脚本：多视口多主题截图、结构与 WCAG 审计、对比度检查、登录态导出、
+  参考站实测探针、仓库残留清理、跑项目自带的质量门，以及 scaffold.mjs 一键生成骨架。
+  不用于：纯逻辑 bug 修复；插画/海报等纯视觉创作（那属于 canvas-design）。
 license: MIT
 ---
 
@@ -37,6 +38,7 @@ license: MIT
 | `scripts/crop_logo.py` | Logo 裁边、正方形化、导出尺寸 | 拿到品牌图之后 |
 | `scripts/hygiene.mjs` | 找无引用组件/资源/样式、重复路由 | 改版收尾、合并前 |
 | `scripts/run_checks.mjs` | 跑项目自带的 lint/typecheck/test/build | 交付前最后一步 |
+| `scripts/scaffold.mjs` | 从 0 生成骨架：三套人格令牌 + 组件 CSS + 五类页面 | 要从零做一个页面/后台/落地页时，先生成再改 |
 | `scripts/probe-ref.mjs` | 量任意参考站的真实字体/字阶/配色/圆角/间距/控件高度 | 想「像这个站」但说不清具体数值时 |
 
 最短可用流程（把 `<url>` 换掉）：
@@ -67,6 +69,15 @@ node scripts/run_checks.mjs
 `--themes light,dark`（dark 会同时打上 `.dark` 类、`data-theme="dark"` 与 `prefers-color-scheme`，
 三种切主题写法都能出图）、`--storage-state auth.json`、`--reduced-motion`、
 `--expect-text "订单列表"`（确认没被重定向到登录页）这些参数按需组合。详细参数见 `README.md`。
+
+## 先判断是哪一种活
+
+| 用户说的 | 走哪条 | 起点 |
+| --- | --- | --- |
+| 「优化/美化/整改这个页面」「照这张截图做」「统一一下风格」「验收一下改动」 | **模式 A：整改与还原**（下面 1–5 步） | 已有代码，先截图再动手 |
+| 「从零做一个」「搭个后台/落地页」「先给我一套设计令牌」 | **模式 B：从 0 生成**（见「从 0 生成」一节） | 空目录，先选型再生成 |
+
+两条路最后过同一道闸：screenshot.mjs + udit.mjs + un_checks.mjs，退出码 0 才算完成。
 
 ## 工作流
 
@@ -127,6 +138,43 @@ node scripts/probe-ref.mjs --url http://localhost:5173/orders --theme dark --nam
 未做与风险：<没改的、要产品/设计定的、已知局限>
 ```
 
+## 从 0 生成（模式 B）
+
+目标是**先拿到一个能跑、能量、能改的骨架**，不是一次成型。六步，每步都有产物。
+
+### 1. 选型（别跳过）
+
+用 `references/page-patterns.md` 第一节的表：一句话需求 → 页面类型 → 人格（`rational` 克制方正／`editorial` 字重轻留白大／`warm` 暖色圆角厚）。
+同时定下页面清单：营销站至少 1 页落地页；后台至少 3 页（列表 + 表单 + 状态页），认证页按需。
+拿不准才探参考站（`probe-ref.mjs`），别一上来探三个。
+
+### 2. 生成骨架
+
+```bash
+node scripts/scaffold.mjs --persona rational --out src --pages landing,app,form,auth,states
+node scripts/scaffold.mjs --persona warm --out preview --accent 20 --pages landing,form --dark
+```
+
+产出 `tokens.css / base.css / components.css / ui.js` + 五类页面。`--dark` 决定深色是不是一等公民（不留后路那种才有意义）。
+
+### 3. 改令牌，不是改样式
+
+按 `references/design-tokens.md` 修三处：品牌色阶（别手填 11 个 hex）、中性色温度 `--n-*`、密度与圆角 `--control-h` / `--r-*`。改完刷新，**所有页面一起变**才算对了。
+
+### 4. 换成真内容
+
+`references/copy-and-content.md`：标题公式、按钮动词表、空/错/载文案公式。生成物里所有 `{{TODO: ...}}` 必须清零或写进交付说明（`grep -rn "{{TODO" src/`）。
+
+### 5. 补结构、补状态
+
+按 `references/page-patterns.md` 的骨架表补区块（后台列表少筛选/分页/空态就是没做完）；按 `references/component-spec.md` 对齐控件规格（三档密度、按钮 4 层级、表格对齐）。
+
+### 6. 验收
+
+同模式 A：先起本地服务（`file://` 会被 CORS 干扰）→ 三视口双主题截图 → `audit.mjs` 0 error → `run_checks.mjs`。
+
+**生成物是起点不是成品**：骨架解决的是层级、间距、状态、可访问性这些容易漏的硬骨头；视觉个性还得自己那一下（见 `frontend-design`）。
+
 ## 视觉系统细则
 
 ### 中文排版（最容易露怯的地方）
@@ -140,7 +188,9 @@ node scripts/probe-ref.mjs --url http://localhost:5173/orders --theme dark --nam
   + `font-feature-settings: "tnum"`，否则表格里列不上。数量用 `<b>` 配等宽数字，比换字体安全。
 - 中英混排：`body { text-spacing-trim: space-all }` 是渐进增强，别依赖；手动在中英文之间留普通空格最稳。
 - 两端对齐（`text-align: justify`）在中英混排下会出现大字洞，中文长文用 `text-align: justify; text-justify: inter-ideograph` 也要谨慎，默认左对齐最安全。
-- 禁止用 `letter-spacing` 拉宽中文标题——中文字距天然均匀，拉开就散架。
+- 字距：正文、表格、按钮一律 `letter-spacing: normal`——中文字距天然均匀，拉开就散架。
+  只有 **≥40px 的短标题**可以微放 `+0.01~0.02em`（实测 wegic.ai 在 48px 标题上用 +0.015em），
+  且必须先看效果：放大字号本来就该「透气」，拉宽正文才是灾难。
 
 ### 色彩
 
@@ -148,6 +198,9 @@ node scripts/probe-ref.mjs --url http://localhost:5173/orders --theme dark --nam
 - 背景层次用极小的明度差（如 `#fff` / `#f8f8f7` / `#f1f1ef`），配 1px 边框分界；不要每层都加阴影。
 - 深色不是反色：底用 `#0f0f0f`–`#1a1a1a` 而非纯黑，文字用 `#e8e8e8` 而非纯白（纯白刺眼、纯黑吃阴影）；
   品牌色在深色下要降饱和或提亮，直接用浅色版的品牌色会刺眼。
+- **次级文字用「一个色相 + alpha」派生，不要另配三档灰**：`--ink: #000` 配 `.70 / .50 / .30 / .16 / .08` 五档透明度。
+  深浅两套主题天然成立（深色段落把 ink 换成 `rgba(255,255,255,α)` 即可），也不会出现「灰和黑互相打架」。
+  实测：wegic.ai 用十档 alpha；反面教材是它自己正文里又混进 43 处 `#4b5563`。**二选一，用到底。**
 - 语义色不要只有色相差：成功/警告/危险同时用图标或文字标签，色盲用户靠颜色区分会失败。
 - 所有前景/背景组合跑 `contrast_check.py`：正文 ≥4.5:1，大字与图标 ≥3:1。
 
@@ -164,6 +217,12 @@ node scripts/probe-ref.mjs --url http://localhost:5173/orders --theme dark --nam
 - 阴影只给浮起元素，且和浮起程度匹配：`0 1px 2px` 给卡片，
   `0 4px 12px rgba(0,0,0,.08)` 给下拉，`0 12px 32px rgba(0,0,0,.16)` 给弹窗。
 - 卡片不要又加阴影又加粗边框又加渐变——选一种分界方式。
+- **发丝圈优先于 border**：`box-shadow: 0 0 0 1px rgba(0,0,0,.06)` 比 `border: 1px solid` 均匀
+  （十字拐角不会变粗）、不占盒模型、不会让行高跳一像素。需要占位时才用 border。
+- **内阴影可以做「厚度」**：`inset 0 -4px 0 rgba(0,0,0,.06)` 是按钮侧壁，hover 改 `-2px`、active 归零，
+  再加一层 `inset 0 1px 4px 1px rgba(255,255,255,.2)` 做顶面鼓包——塑料键帽质感，不用渐变。
+- 纯黑底上 **2px 实边比 1px 边框 + 阴影更清楚**（实测 `#0e0e0e` 卡 + `2px solid #232323` + r20 + 无阴影）。
+- 渲染层级只允许三层固定结构：**一点落影 + 一圈内发丝高光 + 一圈外发丝环**。叠第四层就要问为什么。
 
 ## 页面结构
 
@@ -272,13 +331,30 @@ node scripts/probe-ref.mjs --url http://localhost:5173/orders --theme dark --nam
 - 中文里混杂半角标点，或全角标点用错（句号「。」、顿号「、」、书名号《》）。
 - 把设计稿的像素值原样搬进 `px`：先确认稿子是什么分辨率，再换算成相对值。
 - 只做浅色就交付；只做 1440 宽就交付；只做 happy path 就交付（空/错/载三态缺失）。
+- **用空白当内容**：靠 `margin-top: 1600px` 之类把页面撑长制造「高级感」（wegic 的 AI 段落就是这么干的）。
+  信息页与管理端里这等于让用户多滚三屏。
+- 预载一堆没用到的字体：把 `font-family` 当设计感来源，`document.fonts` 里一半是 `unloaded`。
+- 促销文案做成一套独立视觉（高饱和渐变条 + 倒计时角标 + 弹窗），和整站语言割裂——这是广告位，不是设计。
 
 ## 参考文件
 
-- `references/design-evidence.md` — 21 个真实站点（9 个获奖站 + shadcn/linear/cal.com 等后台）量出来的
+- `references/design-evidence.md` — 13 个实测成功的站点（10 个获奖营销/产品站 + shadcn/linear/cal.com 三个后台）量出来的
   字体、字阶、行高比、间距基数、圆角档位、表格密度、控件高度，以及「哪些能抄、哪些不能抄」。
   **不知道该定多少数值时先看这里，比凭感觉猜准。**
-- `references/css-recipes.md` — 设计令牌、表格、骨架屏、空状态、深色模式的可复制片段。
+- `references/wegic-design.md` — wegic.ai 单站全量蒸馏：完整 `--wg-*` 令牌、塑料按钮的 6 层内阴影、
+  字阶实测表（86.4/56/48/40/36/34/28/20/15/13）、区块高度节奏、「能搬什么 / 不能搬什么」迁移口径。
+  **做产品站、AI 工具站，或想给现有后台加「质感」时先读这份。**
+- `references/page-patterns.md` — **从 0 生成时的第一站**：一句话需求 → 页面类型 → 人格的选择表，
+  七类骨架（落地页/工具站首页/内容站/管理端列表/详情/表单/认证）各自的必备要素与尺寸区间，
+  空/错/无权限三变体，移动端差异，内容最低量要求。**先在这里定骨架，再写代码。**
+- `references/component-spec.md` — 11 类组件的规格卡：三档密度（32/36–40/44–48）、按钮 4 层级、
+  表单/表格/弹窗/提示/分页/空态各自的尺寸、对齐与禁忌。**写组件前对一遍，别自创尺寸。**
+- `references/design-tokens.md` — 三套人格预设（rational / editorial / warm）的完整令牌，
+  色阶生成算法（11 档 L%+S 系数）、间距、字阶（含行高）、圆角与阴影配对、暗色推导、命名约定。
+- `references/copy-and-content.md` — 文案规格：标题公式、按钮动词对照、空/错/载文案公式、
+  长度预算、中文标点与空格、三种人格语气、`{{TODO}}` 占位写法。**交付前用它清一遍假文案。**
+- `references/css-recipes.md` — 设计令牌、表格、骨架屏、空状态、深色模式的可复制片段；
+  第 12 节是上面这套「塑料按钮 + 发丝圈」的可粘贴代码。
 - `references/review-rubric.md` — 交付前逐项勾的验收清单（含脚本命令与判定标准）。
 - `README.md` — 脚本全部参数与常见问题。
 

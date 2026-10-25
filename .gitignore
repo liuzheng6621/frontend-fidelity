@@ -5,6 +5,9 @@ node_modules/
 .design/
 auth.json
 *.zip
+audit-report.json
+shots/
+manifest.json
 
 # 构建与缓存
 dist/
