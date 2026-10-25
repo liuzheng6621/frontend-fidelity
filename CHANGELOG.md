@@ -4,7 +4,7 @@
 `frontend-fidelity.zip`，由 `git archive` 从 Tag 快照生成，只含被 git 跟踪的文件
 （不含 `shots/`、`audit-report.json`、`.design/`）。
 
-## v1.2.0 - 2026-02-xx
+## v1.2.0 - 2026-10-25
 
 新增第二个单站蒸馏样本：**即时设计 js.design**，与 wegic.ai 构成两个极端对照。代码未变，全部是参考数据与硬规则。
 

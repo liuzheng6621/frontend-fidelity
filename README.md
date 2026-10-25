@@ -3,7 +3,7 @@
 > 把前端做对、做实，两条路都走：**已有界面**——按设计稿/截图还原，或把现存页面整改到位；**还没有界面**——从 0 生成一套骨架，再往上填内容与业务状态。
 > 目标不是"改好看"，而是**让界面和它声称的样子一致，并且真的能用——改完能拿出证据**。
 
-`v1.2.0` · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `9 个可执行脚本`
+`v1.2.0` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `9 个可执行脚本`
 
 ---
 
@@ -159,7 +159,9 @@ git clone https://gitee.com/liu-everything_impossble/skill-frontend-fidelity.git
 
 ### 方式二：下载 zip 解压
 
-从 Releases 下载 `frontend-fidelity.zip`，解压到同名目录即可，内容与 git 版本一致。
+从 [Releases](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) 下载 `frontend-fidelity.zip`，解压到同名目录即可，内容与 git 版本一致。
+包由 `git archive` 从 tag 生成，不含 `__pycache__`、截图目录与本地缓存。
+当前是 [v1.2.0](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/tag/v1.2.0)。
 
 ### 方式三：只取脚本
 
