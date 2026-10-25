@@ -1,16 +1,16 @@
 # frontend-fidelity · 前端保真度
 
 > 把界面做对、做实，两条路都走：**已有界面**——按设计稿/截图还原，或把现存页面整改到位（后台管理端、移动 H5/小程序、多端一致性、Logo 与品牌资产）；**还没有界面**——从 0 生成一套能验收的骨架（令牌 + 组件 + 五类页面），再往上填真内容与业务状态。
-> 参考库是 **17 个真实站的实测数据 + 五份单站蒸馏**（营销 / 工具站 / 密版图墙 / 疏版图墙 / 陈列页），按页面类型对到具体文件，见 [该抄哪份参考](#该抄哪份参考)。
+> 参考库是 **18 个真实站的实测数据 + 六份单站蒸馏**（营销 / 工具站 / 密版图墙 / 疏版图墙 / 陈列页 / 灵感库），按页面类型对到具体文件，见 [该抄哪份参考](#该抄哪份参考)。
 > 目标不是"改好看"，而是**让界面和它声称的样子一致，并且真的能用——改完能拿出证据**。
 
-`v1.5.1` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `9 个可执行脚本`
+`v1.6.0` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `9 个可执行脚本`
 
 ---
 
 ## 该抄哪份参考
 
-先看这张表：**按你手上的页面类型选一份，别从头读十二份。**
+先看这张表：**按你手上的页面类型选一份，别从头读十三份。**
 
 | 你在做什么 | 抄这份 | 从这里拿走什么 |
 | --- | --- | --- |
@@ -19,14 +19,15 @@
 | 作品墙 / 内容列表：要"密"，一屏塞满 | [`references/uishijie-design.md`](references/uishijie-design.md) + [css-recipes §14](references/css-recipes.md) | 5 列 grid 零 gutter、`aspect-ratio` 强制同比例、卡片不画壳、文字 tab 筛 8+ 分类 |
 | 作品墙 / 内容列表：要"疏"，有报头、有定版 | [`references/zcool-design.md`](references/zcool-design.md) + [css-recipes §15](references/css-recipes.md) | 4 列列距 24 行距 36、两级分类用形状区分、`0.8px` 发丝、直角分页、顶栏 sticky |
 | 目录 / 陈列页：一屏陈列一批**彼此不同**的东西 | [`references/stylekit-design.md`](references/stylekit-design.md) + [css-recipes §16](references/css-recipes.md) | 卡片即预览（真 CSS 不是截图）、6px 四段色板条、通体直角、hover 只两笔 |
+| 灵感库 / 截图站：素材本身就是成品，界面要隐形 | [`references/uinotes-design.md`](references/uinotes-design.md) + [css-recipes §17](references/css-recipes.md) | 不画壳的截图墙、裁切露 1.8 张、48px 数字当标题、2/4/6/16/20/24 线性圆角阶梯 |
 | 后台 / 管理端：列表、表单、详情、空态、权限墙 | [`references/page-patterns.md`](references/page-patterns.md) + [`component-spec.md`](references/component-spec.md) + [`design-tokens.md`](references/design-tokens.md) | 七类页面骨架 + 11 类组件规格 + 三套人格令牌；单站样本没有后台，横向数据看 `design-evidence.md` B 组 |
 
-五份单站蒸馏是**同一个十节结构**（StyleKit 那份多一节「详情页第二套版式」，共十一节）：气质 → 令牌 → 字阶 → 版式节奏 → 组件配方 → 它自己没做好的 → 能搬/不能搬 → 复现清单 → 与其他文件的关系 → 重采方法。要抄就抄「令牌 + 版式 + 组件」三节，第六节用来避免抄到毛病。
+六份单站蒸馏是**同一个十节结构**（StyleKit 那份多一节「详情页第二套版式」，共十一节）：气质 → 令牌 → 字阶 → 版式节奏 → 组件配方 → 它自己没做好的 → 能搬/不能搬 → 复现清单 → 与其他文件的关系 → 重采方法。要抄就抄「令牌 + 版式 + 组件」三节，第六节用来避免抄到毛病。
 
 两条读法上的提醒：
 
-1. **别把"他们的取舍"当规范。** 三份中文内容站（即时设计 / UI 世界 / 站酷）都用系统字体栈、正文 13–14px——那是它们要在一屏里塞更多东西的代价，不是推荐值。跨站统计的均值（正文 14.9px、H1 72.6px）在 [`design-evidence.md`](references/design-evidence.md)。
-2. **单站样本只证明"可以这么做"，不证明"必须这么做"。** 想要判断某个数值是不是行业常态，去 `design-evidence.md` 看 17 个站里出现了几次；只在单站出现一次的，一律当作那一家的个性。
+1. **别把"他们的取舍"当规范。** 四份中文内容站（即时设计 / UI 世界 / 站酷 / UI Notes）都用系统字体栈、正文 13–14px——那是它们要在一屏里塞更多东西的代价，不是推荐值。跨站统计的均值（正文 14.8px、H1 72.6px）在 [`design-evidence.md`](references/design-evidence.md)。
+2. **单站样本只证明"可以这么做"，不证明"必须这么做"。** 想要判断某个数值是不是行业常态，去 `design-evidence.md` 看 18 个站里出现了几次；只在单站出现一次的，一律当作那一家的个性。
 
 ---
 
@@ -59,6 +60,7 @@
 - [参考站蒸馏：UI 世界 uishijie](#参考站蒸馏ui-世界-uishijie)
 - [参考站蒸馏：站酷 ZCOOL](#参考站蒸馏站酷-zcool)
 - [参考站蒸馏：StyleKit 风格目录](#参考站蒸馏stylekit-风格目录)
+- [参考站蒸馏：UI Notes 灵感库](#参考站蒸馏ui-notes-灵感库)
 - [交付验收清单](#交付验收清单)
 - [CI 集成](#ci-集成)
 - [常见问题](#常见问题)
@@ -69,7 +71,7 @@
 
 ## 这是什么
 
-一个**把前端做对**的技能包，两条路都走：**先把已有界面整改/还原到位**，**也能从 0 生成一套能验收的骨架**。内含一份给 agent 读的操作手册（`SKILL.md`）+ 十二份实测参考数据（`references/`）+ 九个能直接跑的脚本（`scripts/`）。
+一个**把前端做对**的技能包，两条路都走：**先把已有界面整改/还原到位**，**也能从 0 生成一套能验收的骨架**。内含一份给 agent 读的操作手册（`SKILL.md`）+ 十三份实测参考数据（`references/`）+ 九个能直接跑的脚本（`scripts/`）。
 
 它解决的是这类问题：
 
@@ -114,12 +116,13 @@
 | --- | --- | --- |
 | `SKILL.md` | agent（模型） | 两种模式（整改 / 从 0 生成）+ 视觉系统细则 + 反模式清单，是执行指令 |
 | `README.md`（本文件） | 人 | 项目介绍、安装、脚本参数、产物、排错 |
-| `references/design-evidence.md` | 双方 | 17 个实测站点（14 A 组：11 营销/产品 + 3 内容陈列站；另 3 后台）的字体/间距/圆角/密度数值 |
+| `references/design-evidence.md` | 双方 | 18 个实测站点（15 A 组：11 营销/产品 + 4 内容陈列站；另 3 后台）的字体/间距/圆角/密度数值 |
 | `references/wegic-design.md` | 双方 | wegic.ai 单站全量蒸馏：完整令牌、塑料按钮、字阶节奏、迁移口径 |
 | `references/jsdesign-design.md` | 双方 | 即时设计 js.design 单站全量蒸馏：冷灰蓝底 + 负扩散阴影、130px 节奏、零 webfont、七处反例 |
 | `references/uishijie-design.md` | 双方 | UI 世界（内容聚合站）单站全量蒸馏：零 gutter 图墙、卡片不画壳、四档字号、七处反例 |
 | `references/zcool-design.md` | 双方 | 站酷（内容社区频道页）单站全量蒸馏：疏版图墙、两级分类靠形状分层、`0.8px` 发丝、直角分页、七处反例 |
 | `references/stylekit-design.md` | 双方 | StyleKit（风格目录站）单站全量蒸馏：卡片即预览（活渲染、非截图）、6px 四段色板条、直角陈列区、衬线+无衬线+等宽三件套、两条 hover、详情页第二套版式、七处反例 |
+| `references/uinotes-design.md` | 双方 | UI Notes（真实 UI 截图灵感库）单站全量蒸馏：隐形界面（0 壳 0 边 0 阴影）、240×520 截图带裁切露 1.8 张、48px 数字当标题、2/4/6/16/20/24 线性圆角阶梯、全站 `line-height: normal`、七处反例 |
 | `references/page-patterns.md` | agent | 选型表 + 七类页面骨架 + 空/错/无权限三变体 + 内容最低量 |
 | `references/component-spec.md` | agent | 11 类组件规格与禁忌（三档密度、尺寸、对齐、状态） |
 | `references/design-tokens.md` | agent | 三套人格预设、色阶生成数学、字阶、圆角阴影配对、暗色推导 |
@@ -224,12 +227,13 @@ frontend-fidelity/
 ├── LICENSE                       # MIT
 ├── CHANGELOG.md                  # 版本变更与发版说明
 ├── references/
-│   ├── design-evidence.md        # 17 个实测站点（14 A 组 + 3 后台）：字体、字阶、行高、间距、圆角、密度
+│   ├── design-evidence.md        # 18 个实测站点（15 A 组 + 3 后台）：字体、字阶、行高、间距、圆角、密度
 │   ├── wegic-design.md           # wegic.ai 单站全量蒸馏：完整令牌 + 塑料按钮 + 迁移口径
 │   ├── jsdesign-design.md        # 即时设计 js.design 单站全量蒸馏：冷灰蓝底 + 负扩散阴影 + 七处反例
 │   ├── uishijie-design.md        # UI 世界（内容聚合站）：零 gutter 图墙 + 卡片不画壳 + 七处反例
 │   ├── zcool-design.md           # 站酷（内容社区频道页）：疏版图墙 + 两级分类靠形状 + 七处反例
 │   ├── stylekit-design.md        # StyleKit（风格目录站）：卡片即预览 + 6px 四段色板 + 直角陈列区 + 七处反例
+│   ├── uinotes-design.md        # UI Notes（截图灵感库）：隐形界面 + 240×520 截图带裁切 + 数字当标题 + 七处反例
 │   ├── page-patterns.md          # 从 0 生成：选型表 + 七类页面骨架 + 三变体 + 内容最低量
 │   ├── component-spec.md         # 11 类组件规格：三档密度、尺寸、对齐、禁忌
 │   ├── design-tokens.md          # 三套人格预设、色阶生成算法、字阶、圆角阴影配对、暗色推导
@@ -966,9 +970,49 @@ node scripts/probe-ref.mjs --url https://www.stylekit.top/zh/styles --out ./out 
 2. **圆角会量出 `3.35544e+07px`**——那是 `rounded-full` 的 `calc(infinity * 1px)`，不是异常值。
 3. **深色模式点了没反应**——别为了凑「深色令牌表」去臆造，如实写「未取到」。
 
+## 参考站蒸馏：UI Notes 灵感库
+
+<https://uinotes.com/> —— 真实产品 UI 截图灵感库（477 个应用 / 180,158 张截图）。它是第六份单站样本，也是**「隐形界面」的极端案例**：站点自己的视觉几乎消失，只剩一排排别人的真机截图。
+
+产出四块：
+
+| 内容 | 文件 | 拿走什么 |
+| --- | --- | --- |
+| 单站全量蒸馏 | `references/uinotes-design.md` | 完整令牌、字阶（含全站 `line-height: normal`）、版式节奏表（56/72/680/110/56/440×626）、app 条目六层结构、截图带裁切、七处没做好的、12 条复现清单 |
+| 可粘贴 CSS | `references/css-recipes.md` §17 | `--un-*` 令牌 + `.un-header` / `.un-num` / `.un-wall` / `.un-filters` / `.un-grid` / `.app-item` / `.pill-mini` / `.app-shots` / `.shot` |
+| 跨站数据 | `references/design-evidence.md` A 组第 15 行 + 补充表 17 行 | 正文均值降到 **14.8px**、浅色站 11 个、webfont 反例涨到四个（全是中文站） |
+| 规则与验收 | `SKILL.md` 陈列节 + `review-rubric.md` 第九节 | 素材型陈列「不画壳」、裁切必须留出口、一个正方形尺寸走全场、线性圆角阶梯 |
+
+三招值得直接搬：
+
+| 招 | 怎么用 | 为什么有效 |
+| --- | --- | --- |
+| 数字当标题 | `477 个应用 180158 张截图` 用 48/500，数字单独上色 `#446bf8`，说明退到 18/30 | 有真实数量时，「看起来有货」最省力的做法；比形容词有效，也容易验收 |
+| 全站只有一个正方形尺寸 | 图标墙与 app 图标共用 80×80 / r24 | 墙 + 列表 + 详情三处视觉重量自动对齐 |
+| 无壳溢出裁切 | 列宽 440 里塞 1248 宽的截图带，外层 `overflow: hidden` 只露 1.8 张 | 密度靠裁出画框，不靠缩图；代价是必须给出口 |
+
+也别学它这三处：
+
+1. **viewport 锁 1420** 当移动端：390 屏整站缩到 27%，正文物理高度 ≈3.5px（比横向溢出更隐蔽）。
+2. **没有 h1、没有页脚**：最大的字是一个 `div`，底部只剩一个 `box: 0` 的隐藏「关于」链接。
+3. **裁切不留出口**：截图带裁到 1.8 张、hover 零反馈、无「还有 3 张」提示。
+
+重采命令：
+
+```bash
+node scripts/probe-ref.mjs --url https://uinotes.com/ --out ./out --name uinotes --wait 6000
+node scripts/screenshot.mjs --url https://uinotes.com/ --out ./shots --name un --full
+```
+
+三个坑（细节见 `references/uinotes-design.md` 第十节）：
+
+1. **长图会因懒加载截空**——未滚动时 `img.src` 为空（2×2 占位），先滚到底或分段截。
+2. **移动端测不到「重排」**——只会得到 `innerWidth = 1420`，这本身就是结论，别误判成脚本出错。
+3. **水印是烧进图片像素的**——不是 DOM 叠层也不是 `::after`，想提取只能裁图。
+
 ## 交付验收清单
 
-完整版见 [`references/review-rubric.md`](references/review-rubric.md)（九节，含红旗清单）。摘要：
+完整版见 [`references/review-rubric.md`](references/review-rubric.md)（十节，含红旗清单）。摘要：
 
 - [ ] 三视口（1440 / 768 / 390）都无横向滚动
 - [ ] 字号只用字阶值，圆角成套，留白成体系

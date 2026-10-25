@@ -1130,3 +1130,135 @@ p, td, th, li { letter-spacing: normal; }
 - hover 只做两笔（边框转 ink、标题转 accent）；卡片里已经有一整幅彩色预览，再加位移/阴影就是噪声。
 - 这套直角只给"陈列区"。管理后台请把 `--sk-r-control` 用到 4–6px 并给按钮同样的值，否则焦点环是尖角。
 - 色板条永远四段（底/字/强调/辅）；少于四色就把辅色留空给同色，**别变三段**——段数一致才像"统一的身份证"。
+---
+
+## 17. 隐形界面 + 真机截图带（UI Notes 风味，实测蒸馏）
+
+适用：灵感库 / 作品集 / 评测站——**页面本身尽量隐形，让素材当主角**。取自 uinotes.com（3 列 × 440、截图槽 240×520、全站 0 阴影）。
+
+```css
+:root{
+  /* 面 */
+  --un-bg:#fff;
+  --un-sunken:#f8f8f8;             /* 胶囊底、图片骨架 */
+  --un-banner:linear-gradient(90deg,#f7f0fc .05%,#faf1fc 41.67%,#e8e7fc 99.94%);
+  /* 墨 */
+  --un-ink:#282c3d;                /* 标题 */
+  --un-ink-strong:#24272e;         /* 导航、按钮底 */
+  --un-ink-num:#243043;            /* 大数字本体 */
+  --un-ink-2:#666;                 /* 胶囊字 */
+  --un-ink-3:#8e919e;              /* 副标、计数 */
+  --un-ink-4:#828282;              /* 说明段 */
+  /* 强调：只给数字 */
+  --un-accent:#446bf8;
+  /* 发丝 */
+  --un-line:#f1f2f4;
+  --un-line-warm:#f5f2eb;
+  /* 圆角阶梯（小→大） */
+  --un-r-xs:2px; --un-r-sm:4px; --un-r-md:6px;
+  --un-r-shot:16px; --un-r-pill:20px; --un-r-icon:24px;
+  /* 布局 */
+  --un-container:1376px;
+  --un-col:440px;
+  --un-gap:28px;
+}
+
+/* 页头：粘在促销条下面，透明，无边框 */
+.un-header{
+  position:sticky; top:56px; z-index:10;
+  height:72px; display:flex; align-items:center; gap:32px;
+  padding:0 32px; background:transparent;   /* 让 hero 渐变透上来 */
+  border:0; box-shadow:none;
+}
+.un-header__login{
+  margin-left:auto; height:40px; padding:0 20px;
+  border-radius:var(--un-r-pill); background:var(--un-ink-strong);
+  color:#fff; font-size:14px;
+}
+
+/* hero：数字当标题 */
+.un-hero{padding:64px 32px 0; background:var(--un-banner); text-align:center}
+.un-num{
+  margin:0; font-size:48px; font-weight:500; line-height:normal;
+  color:var(--un-ink-num);
+}
+.un-num b{color:var(--un-accent); font-weight:500}   /* 数字单独上色 */
+.un-hero__lede{
+  max-width:712px; margin:18px auto 0;
+  font-size:18px; line-height:30px; color:var(--un-ink-4);
+}
+
+/* 图标墙：行高 = 图标 + 间隙，两侧靠容器裁切（不要渐变遮罩） */
+.un-wall{overflow:hidden; height:110px}
+.un-wall__track{display:flex; gap:30px; height:110px; align-items:center; width:max-content}
+.un-wall__track img{width:80px; height:80px; border-radius:var(--un-r-icon); flex:0 0 auto}
+@media (prefers-reduced-motion:no-preference){
+  .un-wall__track{animation:un-scroll 40s linear infinite}
+  @keyframes un-scroll{to{transform:translateX(-50%)}}
+}
+
+/* 筛选条 */
+.un-filters{
+  height:56px; display:flex; align-items:center; gap:24px;
+  padding:0 32px; border-bottom:1px solid var(--un-line);
+  font-size:14px; color:var(--un-ink-2);
+}
+.un-filters__count{margin-left:auto; color:var(--un-ink-3)}
+
+/* 网格 */
+.un-grid{
+  display:grid; grid-template-columns:repeat(3,var(--un-col));
+  gap:40px var(--un-gap); justify-content:center;
+  max-width:var(--un-container); margin:0 auto; padding:40px 32px;
+}
+@media (max-width:1024px){ .un-grid{grid-template-columns:repeat(2,minmax(0,1fr))} }
+@media (max-width:640px){  .un-grid{grid-template-columns:minmax(0,1fr); gap:32px} }
+
+/* app 条目 */
+.app-item{display:grid; gap:10px; container-type:inline-size}
+.app-item__head{display:flex; align-items:flex-start; gap:12px; height:92px}
+.app-item__icon{
+  width:80px; height:80px; flex:0 0 auto;
+  border-radius:var(--un-r-icon); background:rgba(0,0,0,.024);
+  object-fit:cover;
+}
+.app-item__name{margin:0; font-size:20px; font-weight:500; color:var(--un-ink)}
+.app-item__tag{margin:25px 0 0; font-size:13px; color:var(--un-ink-3)}
+.app-item__stats{
+  margin-left:auto; display:flex; flex-direction:column;
+  align-items:flex-end; gap:8px;
+}
+
+/* 信息胶囊：内容宽度撑开、右对齐纵排 */
+.pill-mini{
+  display:inline-flex; align-items:center; height:32px; padding:0 12px;
+  border-radius:var(--un-r-md); background:var(--un-sunken);
+  font-size:13px; color:var(--un-ink-2); white-space:nowrap;
+}
+
+/* 截图带：固定宽容器裁切，故意只露 1.8 张 */
+.app-shots{
+  display:flex; gap:12px; overflow:hidden;
+  border-radius:var(--un-r-shot);
+}
+.shot{
+  flex:0 0 240px; height:520px; overflow:hidden;
+  border-radius:var(--un-r-shot); background:rgba(0,0,0,.024);
+}
+.shot img{width:100%; height:100%; object-fit:fill}  /* fill：宁可轻微变形也不裁掉整屏 */
+/* 移动端改成 4:3 缩略图，别再塞 9:19.5 长图 */
+@media (max-width:640px){
+  .app-shots{border-radius:12px}
+  .shot{flex-basis:calc((100% - 12px) / 2); height:auto; aspect-ratio:4/3}
+  .shot img{object-fit:cover}
+}
+
+/* 无限滚动的尾巴（配一个真正的「查看全部」出口，别只靠它） */
+.un-tail{padding:32px 0 48px; text-align:center; font-size:14px; color:var(--un-ink-3)}
+```
+
+三条使用提醒：
+
+1. `.shot` 的 `object-fit: fill` 是原站选择（保证整屏可见）；**换成产品后台必须改 `cover`**。
+2. 裁切处一定要补一个出口（`.app-shots::after` 放「+3」或整卡 hover 显「查看全部」），否则就是原站第六节第 6 条病。
+3. `line-height: normal` 是这套气质的来源之一（全站只有 hero 说明段设了 30px）；中文长文本别照抄，后台正文用 1.5。
