@@ -4,6 +4,23 @@
 `frontend-fidelity.zip`，由 `git archive` 从 Tag 快照生成，只含被 git 跟踪的文件
 （不含 `shots/`、`audit-report.json`、`.design/`）。
 
+## v1.3.0 - 2026-10-27
+
+第三个单站蒸馏样本：**UI 世界 uishijie.com**，也是语料里**第一个内容聚合站**。
+前两个样本都在讲「一屏放一件事」，这个样本讲「一屏放几十个同质东西」——代码未变，全部是参考数据与硬规则。
+
+### 新增
+
+- **`references/uishijie-design.md`**（13.7KB）：单站全量蒸馏——令牌（紫蓝渐变头部、四档字号 12/14/16/18、全站仅 1 处阴影、圆角只有 5px 与 `0 20 20 0`）、零 gutter 图墙节奏（5 列 × 300、`gap: 0`、卡片 padding 12 充当间距）、组件配方，以及**七处它自己没做好的**（移动端零适配、容器 1500 溢出、无 h1、`#7f7f7f` 3.9:1、hover 只给小字、float 布局、广告浮层压卡片）。
+- **`references/css-recipes.md` 第 14 节**：`.thumb-grid`（定宽列 + 居中，注释里给 `auto-fill` 响应式写法）、无壳 `.thumb`（`aspect-ratio` + `object-fit` + hover 缩放）、`.filter-row` 文字 tab、`.pager`，含 `≤1080px` 三列与 `≤640px` 两列。
+
+### 修改
+
+- `references/design-evidence.md`：uishijie 作为 A 组第 12 个样本并入统计（正文均值 15.0→**14.9px**、行高比 **1.446**、浅色站 7→**8**；H1 均值 78.9 并注明「11 站有 h1，它没有」）；新增「第四派：全站只 1 处阴影」「网格密度首次进统计」；招式补 4 条（不画壳 / 零 gutter / 同比例缩略图 / 文字 tab 筛分类）；反例表补 4 行（响应式完全没做、次级文字 3.9:1、hover 只给小字、无 h1）。
+- `SKILL.md`：参考文件节加这条文档；`## 页面结构` 下新增「### 内容列表 / 图墙」7 条；避免清单加三条（给图墙每张图套壳、`height: auto` 排缩略图、「PC 版直接缩小」当移动端）。
+- `references/review-rubric.md`：加 2 条验收（图墙比例/无壳/hover 给图；390px 下 `scrollWidth === innerWidth`）。
+- `README.md`：新增「参考站蒸馏：UI 世界 uishijie」整节；参考数据份数 九→十；分工表与仓库结构树同步。
+
 ## v1.2.0 - 2026-10-25
 
 新增第二个单站蒸馏样本：**即时设计 js.design**，与 wegic.ai 构成两个极端对照。代码未变，全部是参考数据与硬规则。

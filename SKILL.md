@@ -229,6 +229,19 @@ node scripts/scaffold.mjs --persona warm --out preview --accent 20 --pages landi
 
 ## 页面结构
 
+### 内容列表 / 图墙
+
+- **图墙里卡片不画壳**：图 + 一行标题 + 一两行副行，`background/border/radius/shadow` 都可以是 none。
+  25 张图各套一个壳 = 25 层阴影，噪声翻倍。**壳只留给「少而重要」的东西。**
+- **缩略图强制同比例**（`aspect-ratio` + `object-fit: cover`；设计稿预览用 `contain`）。
+  不给比例、靠 `height: auto`，用户传一张长图就整行塌。
+- **间距靠卡片 `padding`**：`grid gap: 0` + 卡片 `padding: 12px`，视觉间距 24px；
+  改密度只动一个变量。列宽至少给到 220px，别写死「5 列 300」。
+- **标题只给一行**（`nowrap` + ellipsis），副行两行封顶。行高要按行数算准，否则墙会错位。
+- **筛选放分类条**：分类 ≥6 个用文字 tab（选中只换色），≤5 个才用胶囊；右侧放「共 N 个」。
+- **hover 反馈给图**（缩放 1.02 / 描边 / 遮罩），别只给副行小字变色——用户靠图判断能不能点。
+- **移动端 ≤640px 两列**，禁止横向滚动。判断标准：`scrollWidth === innerWidth`。
+
 ### 列表/管理端
 
 - 三段式：**页头（标题 + 说明 + 主行动）→ 过滤区 → 数据区**。页头不要塞进卡片里，那是常见的一层多余嵌套。
@@ -345,10 +358,14 @@ node scripts/scaffold.mjs --persona warm --out preview --accent 20 --pages landi
 - **用 900 字重做中文标**：PingFang / 思源都没有 900，浏览器只能伪粗，字缘发糊。中文字重 400/500/700 封顶。
 - **滚动动画的双份文字层不隐藏**：非当前层必须 `aria-hidden="true"` + `opacity: 0`，
   否则动画未收敛时能看到两层残影，读屏还会读两遍。
+- **给图墙每张图套卡片壳**：图上加背景、圆角、阴影，一屏 20 张就是 20 个浮块（UI 世界 1 处阴影是对的）。
+- **靠 `height: auto` 排缩略图**：用户传一张长图整行塌，必须 `aspect-ratio` + `object-fit`。
+- **「PC 版直接缩小」当移动端**：`meta viewport` 有但布局写死 1500px，390 宽下每卡 64px、
+  还要横向滚（UI 世界实测）。验收标准就一条：`scrollWidth === innerWidth`。
 
 ## 参考文件
 
-- `references/design-evidence.md` — 14 个实测成功的站点（11 个获奖营销/产品站 + shadcn/linear/cal.com 三个后台）量出来的
+- `references/design-evidence.md` — 15 个实测成功的站点（12 个 A 组：营销/产品站 11 + 内容聚合站 1，另有 shadcn/linear/cal.com 三个后台）量出来的
   字体、字阶、行高比、间距基数、圆角档位、表格密度、控件高度，以及「哪些能抄、哪些不能抄」。
   **不知道该定多少数值时先看这里，比凭感觉猜准。**
 - `references/wegic-design.md` — wegic.ai 单站全量蒸馏：完整 `--wg-*` 令牌、塑料按钮的 6 层内阴影、
@@ -358,7 +375,13 @@ node scripts/scaffold.mjs --persona warm --out preview --accent 20 --pages landi
   冷灰蓝底 `#f3f7fb` + 白卡 `r22`、「负扩散 + 发丝环」三件套阴影、130px 区块节奏、零 @font-face 的系统字体栈、
   三色阶段 pill、输入+按钮同容器、竞品对比列；以及它自己**七处没做好的**（13px 正文、非整数尺寸、H2/H3 倒挂、
   900 伪粗、hero 文字双份叠加、促销条遮挡、对比表水分）。
-  **做中文工具站、SaaS 首页，或要「浅色 + 彩卡」这套气质时先读这份。**- `references/page-patterns.md` — **从 0 生成时的第一站**：一句话需求 → 页面类型 → 人格的选择表，
+  **做中文工具站、SaaS 首页，或要「浅色 + 彩卡」这套气质时先读这份。**
+- `references/uishijie-design.md` — UI 世界（内容/作品聚合站）单站全量蒸馏，语料里**唯一的内容站样本**：
+  零 gutter 的 5 列图墙（列宽 300、卡片 padding 12 充当间距）、**卡片不画壳**（无背景/边框/圆角/阴影）、
+  四档字号（12/14/16/18）、文字 tab 筛选、Bootstrap 式分页；以及它自己**七处没做好的**
+  （移动端零适配、容器 1500 溢出、无 h1、hover 只给小字、float 布局、表单无障碍、广告浮层压卡片）。
+  **做图墙、资源列表、模板库、社区信息流时先读这份；后台表格不要套它的密度。**
+- `references/page-patterns.md` — **从 0 生成时的第一站**：一句话需求 → 页面类型 → 人格的选择表，
   七类骨架（落地页/工具站首页/内容站/管理端列表/详情/表单/认证）各自的必备要素与尺寸区间，
   空/错/无权限三变体，移动端差异，内容最低量要求。**先在这里定骨架，再写代码。**
 - `references/component-spec.md` — 11 类组件的规格卡：三档密度（32/36–40/44–48）、按钮 4 层级、

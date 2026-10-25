@@ -3,7 +3,7 @@
 > 把前端做对、做实，两条路都走：**已有界面**——按设计稿/截图还原，或把现存页面整改到位；**还没有界面**——从 0 生成一套骨架，再往上填内容与业务状态。
 > 目标不是"改好看"，而是**让界面和它声称的样子一致，并且真的能用——改完能拿出证据**。
 
-`v1.2.0` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `9 个可执行脚本`
+`v1.3.0` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `9 个可执行脚本`
 
 ---
 
@@ -32,6 +32,7 @@
 - [视觉细则摘要](#视觉细则摘要)
 - [参考站蒸馏：wegic.ai](#参考站蒸馏wegicai)
 - [参考站蒸馏：即时设计 js.design](#参考站蒸馏即时设计-jsdesign)
+- [参考站蒸馏：UI 世界 uishijie](#参考站蒸馏ui-世界-uishijie)
 - [交付验收清单](#交付验收清单)
 - [CI 集成](#ci-集成)
 - [常见问题](#常见问题)
@@ -42,7 +43,7 @@
 
 ## 这是什么
 
-一个**把前端做对**的技能包，两条路都走：**先把已有界面整改/还原到位**，**也能从 0 生成一套能验收的骨架**。内含一份给 agent 读的操作手册（`SKILL.md`）+ 九份实测参考数据（`references/`）+ 九个能直接跑的脚本（`scripts/`）。
+一个**把前端做对**的技能包，两条路都走：**先把已有界面整改/还原到位**，**也能从 0 生成一套能验收的骨架**。内含一份给 agent 读的操作手册（`SKILL.md`）+ 十份实测参考数据（`references/`）+ 九个能直接跑的脚本（`scripts/`）。
 
 它解决的是这类问题：
 
@@ -87,9 +88,10 @@
 | --- | --- | --- |
 | `SKILL.md` | agent（模型） | 两种模式（整改 / 从 0 生成）+ 视觉系统细则 + 反模式清单，是执行指令 |
 | `README.md`（本文件） | 人 | 项目介绍、安装、脚本参数、产物、排错 |
-| `references/design-evidence.md` | 双方 | 14 个实测站点（11 营销/产品 + 3 后台）的字体/间距/圆角/密度数值 |
+| `references/design-evidence.md` | 双方 | 15 个实测站点（12 A 组：11 营销/产品 + 1 内容站；另 3 后台）的字体/间距/圆角/密度数值 |
 | `references/wegic-design.md` | 双方 | wegic.ai 单站全量蒸馏：完整令牌、塑料按钮、字阶节奏、迁移口径 |
 | `references/jsdesign-design.md` | 双方 | 即时设计 js.design 单站全量蒸馏：冷灰蓝底 + 负扩散阴影、130px 节奏、零 webfont、七处反例 |
+| `references/uishijie-design.md` | 双方 | UI 世界（内容聚合站）单站全量蒸馏：零 gutter 图墙、卡片不画壳、四档字号、七处反例 |
 | `references/page-patterns.md` | agent | 选型表 + 七类页面骨架 + 空/错/无权限三变体 + 内容最低量 |
 | `references/component-spec.md` | agent | 11 类组件规格与禁忌（三档密度、尺寸、对齐、状态） |
 | `references/design-tokens.md` | agent | 三套人格预设、色阶生成数学、字阶、圆角阴影配对、暗色推导 |
@@ -161,7 +163,7 @@ git clone https://gitee.com/liu-everything_impossble/skill-frontend-fidelity.git
 
 从 [Releases](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) 下载 `frontend-fidelity.zip`，解压到同名目录即可，内容与 git 版本一致。
 包由 `git archive` 从 tag 生成，不含 `__pycache__`、截图目录与本地缓存。
-当前是 [v1.2.0](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/tag/v1.2.0)。
+当前是 [v1.3.0](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/tag/v1.3.0)。
 
 ### 方式三：只取脚本
 
@@ -194,9 +196,10 @@ frontend-fidelity/
 ├── LICENSE                       # MIT
 ├── CHANGELOG.md                  # 版本变更与发版说明
 ├── references/
-│   ├── design-evidence.md        # 14 个实测站点（11 营销/产品 + 3 后台）：字体、字阶、行高、间距、圆角、密度
+│   ├── design-evidence.md        # 15 个实测站点（12 A 组 + 3 后台）：字体、字阶、行高、间距、圆角、密度
 │   ├── wegic-design.md           # wegic.ai 单站全量蒸馏：完整令牌 + 塑料按钮 + 迁移口径
 │   ├── jsdesign-design.md        # 即时设计 js.design 单站全量蒸馏：冷灰蓝底 + 负扩散阴影 + 七处反例
+│   ├── uishijie-design.md        # UI 世界（内容聚合站）：零 gutter 图墙 + 卡片不画壳 + 七处反例
 │   ├── page-patterns.md          # 从 0 生成：选型表 + 七类页面骨架 + 三变体 + 内容最低量
 │   ├── component-spec.md         # 11 类组件规格：三档密度、尺寸、对齐、禁忌
 │   ├── design-tokens.md          # 三套人格预设、色阶生成算法、字阶、圆角阴影配对、暗色推导
@@ -804,6 +807,44 @@ node scripts/probe-ref.mjs --url https://js.design/ --out .tmp/ref --name jsdesi
 
 ---
 
+## 参考站蒸馏：UI 世界 uishijie
+
+语料里**唯一的内容聚合站**（11 424 个作品、25 张/页、476 页）。它解决的是另一个问题：
+**一屏要放几十个「同质但不相同」的东西时，怎么排才不乱。**
+
+| 产出 | 位置 | 里面有什么 |
+|------|------|-----------|
+| 单站全量蒸馏 | `references/uishijie-design.md` | 完整令牌、四档字阶、图墙节奏、组件配方、七处没做好的 |
+| 可直接抄的 CSS | `references/css-recipes.md` §14 | `.thumb-grid` / `.thumb` / `.filter-row` / `.pager`，含响应式两列 |
+| 跨站统计 | `references/design-evidence.md` | 第 12 个 A 组样本，正文均值 14.9px、网格密度首次进表 |
+| 验收与结构 | `SKILL.md`、`references/review-rubric.md` | 「内容列表 / 图墙」一节 + 2 条验收项 |
+
+### 三招值得直接搬
+
+| 招式 | 实测做法 | 为什么成立 |
+|------|----------|-----------|
+| **卡片不画壳** | 25 张图同屏，`background/border/radius/shadow` 全为 none，只有图 + 标题 + 两行副行 | 25 个壳 = 25 层阴影；分组靠图的边界。壳只留给「少而重要」的东西 |
+| **零 gutter，padding 当间距** | `grid gap: 0`，卡片 `padding: 12px`，列宽 300 | 视觉间距 24px，但改密度只动一个变量；`gap` 一改就要重排列数 |
+| **缩略图强制同比例** | 275×190（≈1.45）+ `object-fit: cover` | 用户上传来源再杂，墙也不会参差；设计稿预览类改 `contain` |
+
+### 也别学它这几处
+
+- **移动端零适配**：`meta viewport` 有，布局仍写死 1500px —— 390 宽下每卡 64px，还要横向滚。
+- **容器 1500px**：在 1440 视口就溢出，搜索按钮被推出屏幕。
+- **没有 `<h1>`**：唯一的 `<h2>` 里塞着 8 个分类导航，读屏无法按标题结构跳转。
+- **次级文字 `#7f7f7f`**：12px 落在 3.9:1，同站另一个灰 `#5a5a5a` 却是 6.7:1 —— 随手取的两种灰。
+- **hover 只给小字变色**：缩略图零反馈，用户看不出哪块能点。
+- **float 排图墙**：能跑，但没有任何响应式与等高能力。
+
+### 重采
+
+```bash
+node scripts/probe-ref.mjs --url http://www.uishijie.com/ui/ --out ./out --name uishijie
+```
+
+页面是服务端渲染的普通 HTML，没有登录墙，直接抓即可；`document.fonts.size === 0`（全系统字体栈），
+`height: auto` 的缩略图与 float 布局要靠 `getBoundingClientRect` 量，具体步骤写在
+`references/uishijie-design.md` 第十节。
 ## 交付验收清单
 
 完整版见 [`references/review-rubric.md`](references/review-rubric.md)（九节，含红旗清单）。摘要：

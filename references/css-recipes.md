@@ -676,3 +676,109 @@ p, td, th, li { letter-spacing: normal; }
 - 整页渐变是否只剩一处？
 - 卡片阴影是否「负扩散 + 发丝环」三件套，而不是通用 `0 4px 12px rgba(0,0,0,.1)`？
 - 所有字号是否整数、圆角是否成阶梯？（原站这两条没过，见 `jsdesign-design.md` 第六节）
+---
+
+## 14. 零 gutter 图墙（UI 世界 uishijie 风味，实测蒸馏）
+
+内容/资源列表专用：25 张缩略图一屏、卡片不画壳、间距来自卡片内边距。
+**不要用在后台表格或表单区**（那里需要 24px gutter 与明确的卡片边界）。
+
+```css
+/* ---------- 令牌 ---------- */
+:root{
+  --tw-col: 300px;            /* 列宽（原站写死，这里给可覆写） */
+  --tw-pad: 12px;             /* 卡片内边距 = 视觉间距的一半 */
+  --tw-ratio: 1.45;           /* 缩略图统一比例，内容图 1.45 / 手机 0.46 / 网页全屏 1.6 */
+  --tw-title: 14px;   --tw-title-lh: 30px;
+  --tw-meta: 12px;    --tw-meta-lh: 24px;
+  --tw-ink-title: #333;
+  --tw-ink-meta: #6b6b6b;     /* 原站用 #7f7f7f = 3.9:1，不合格；这个是 4.9:1 */
+  --tw-stat: #ff3300;
+  --tw-stat-hover: #f13608;
+  --tw-brand: #0d6efd;
+}
+
+/* ---------- 图墙：gap 为 0，间距全靠卡片 padding ---------- */
+.thumb-grid{
+  list-style: none; margin: 0; padding: 0;
+  display: grid;
+  grid-template-columns: repeat(5, var(--tw-col));   /* 固定列宽 = 原站做法 */
+  /* 想要响应式就换成下面这行，并把列宽下限调到 220px：
+     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); */
+  justify-content: center;                            /* 别学原站不居中导致横向溢出 */
+}
+
+/* ---------- 卡片：不画壳 ---------- */
+.thumb{
+  padding: var(--tw-pad) var(--tw-pad) 0;
+  background: none; border: 0; box-shadow: none;      /* 壳体一律不要 */
+  display: block; color: inherit; text-decoration: none;
+}
+.thumb__media{
+  display: block; width: 100%; aspect-ratio: var(--tw-ratio);
+  overflow: hidden; background: #f2f2f2;              /* 加载前占位，防跳动 */
+}
+.thumb__media img{
+  width: 100%; height: 100%; object-fit: cover;       /* 设计稿预览类改 contain */
+  display: block; transition: transform .18s ease;
+}
+.thumb:hover .thumb__media img{ transform: scale(1.02); }   /* 原站漏掉的反馈 */
+.thumb:focus-visible{ outline: 2px solid var(--tw-brand); outline-offset: 2px; }
+
+.thumb__title{
+  margin: 0; font-size: var(--tw-title); font-weight: 700; line-height: var(--tw-title-lh);
+  color: var(--tw-ink-title);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;   /* 只给一行 */
+}
+.thumb__meta{
+  margin: 0; font-size: var(--tw-meta); line-height: var(--tw-meta-lh);
+  color: var(--tw-ink-meta);
+}
+.thumb__meta a{ color: var(--tw-brand); text-decoration: none; }
+.thumb__stat{ color: var(--tw-stat); font-variant-numeric: tabular-nums; }
+.thumb:hover .thumb__stat{ color: var(--tw-stat-hover); }
+
+/* ---------- 分类条：纯文字 tab，选中只换色 ---------- */
+.filter-row{
+  display: flex; align-items: center; gap: 0;
+  border-bottom: 1px solid #e5e5e5;
+}
+.filter-row a{
+  padding: 20px; font-size: 16px; font-weight: 500; color: #5a5a5a;
+  text-decoration: none;
+}
+.filter-row a[aria-current="page"]{ color: var(--tw-brand); }
+.filter-row__count{ margin-left: auto; font-size: 14px; color: #6b6b6b; }
+
+/* ---------- 分页：可见页数 + 总数 ---------- */
+.pager{ display: flex; gap: 4px; justify-content: center; list-style: none; padding: 24px 0; }
+.pager a, .pager span{
+  min-width: 34px; height: 34px; padding: 0 10px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid #e5e5e5; border-radius: 5px; font-size: 14px;
+  color: #333; text-decoration: none; font-variant-numeric: tabular-nums;
+}
+.pager [aria-current="page"]{ background: var(--tw-brand); border-color: var(--tw-brand); color: #fff; }
+.pager .is-disabled{ color: #b0b0b0; pointer-events: none; }
+.pager__gap{ border: 0; }
+
+/* ---------- ≤640px 强制重排（原站最大的缺陷） ---------- */
+@media (max-width: 640px){
+  .thumb-grid{ grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .thumb__title{ font-size: 13px; line-height: 20px; white-space: normal; }
+  .filter-row{ overflow-x: auto; scrollbar-width: none; }
+  .filter-row a{ padding: 14px 12px; font-size: 14px; white-space: nowrap; }
+  .filter-row__count{ display: none; }
+}
+@media (max-width: 1080px){
+  .thumb-grid{ grid-template-columns: repeat(3, minmax(0,1fr)); }
+}
+```
+
+### 用法要点
+
+- **`aspect-ratio` 是这套的命门**：不给比例、靠 `height: auto`，用户上传的长图会把整行撑歪。
+- **网格 `gap: 0`**：视觉间距 = 卡片 `padding`，这样「间距」跟着卡片走，改一处就统一。
+- **列表页的卡片不画壳**，但**同一产品的功能区要有壳**——两套密度的边界用一条分隔线或底色差交代，
+  别在同一个视觉区里混着用（见 `uishijie-design.md` 第七节的混合口径）。
+- 分页只在 `>1 页` 时渲染，并给出总条数（「共 11424 个作品」这类规模感不要虚标）。
