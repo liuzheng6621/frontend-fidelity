@@ -4,6 +4,15 @@
 `frontend-fidelity.zip`，由 `git archive` 从 Tag 快照生成，只含被 git 跟踪的文件
 （不含 `shots/`、`audit-report.json`、`.design/`）。
 
+## v1.1.1 - 2026-10-25
+
+文档修正，代码与 v1.1.0 完全一致。
+
+- 开头定位改为两条路：原文只写「把**已有**的前端界面做对、做实」，与「从 0 生成」能力不符。
+- 「与 SKILL.md、frontend-design 的分工」表补齐 8 份 references（原表只列了 3 份）。
+- 仓库结构树补上 `CHANGELOG.md`。
+- 「七份实测参考数据」修正为八份。
+
 ## v1.1.0 — 2026-10-25
 
 从「只会整改」扩成「既能整改、也能从 0 生成」。
