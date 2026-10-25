@@ -86,6 +86,12 @@ async function main() {
   try {
     pkg = JSON.parse(await readFile(path.join(root, 'package.json'), 'utf8'));
   } catch (e) {
+    if (e.code === 'ENOENT') {
+      // 静态站（例如 scaffold.mjs 的生成物）本来就没有 package.json：
+      // 这不是失败，但也不算跑过质量门——说清跳过原因，改用 audit.mjs + contrast_check.py 验收。
+      console.log('\u00b7 没有 package.json：跳过项目自带质量门（静态站请用 audit.mjs + contrast_check.py 验收）。');
+      process.exit(0);
+    }
     console.error(`读不到 package.json：${e.message}`);
     process.exit(2);
   }

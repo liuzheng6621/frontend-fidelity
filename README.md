@@ -5,7 +5,7 @@
 > 搜这些词应该能到这：设计稿转代码、照着截图还原、UI 还原、前端验收、截图对比、后台美化、移动端适配、设计令牌、Claude Code 技能（skill）。
 > 目标不是"改好看"，而是**让界面和它声称的样子一致，并且真的能用——改完能拿出证据**。
 
-`v1.9.0` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `9 个可执行脚本`
+`v1.9.1` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `9 个可执行脚本`
 
 ---
 
@@ -177,7 +177,8 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 
 | 文件 / 技能 | 给谁看 | 内容 |
 | --- | --- | --- |
-| `SKILL.md` | agent（模型） | 两种模式（整改 / 从 0 生成）+ 视觉系统细则 + 反模式清单，是执行指令 |
+| `SKILL.md` | agent（模型） | 入口：两种模式（整改 / 从 0 生成）+ 工作流 + 质量门 + 细则路由 + 十个速查数字（283 行，细则已下沉） |
+| `references/visual-system.md` | 双方 | 视觉与结构细则完整版（从 SKILL.md 下沉）：中文排版、色彩、间距、阴影五派、动效、页面结构、控件 8 状态、响应式、深色、可访问性、反模式清单 |
 | `README.md`（本文件） | 人 | 项目介绍、安装、脚本参数、产物、排错 |
 | `references/design-evidence.md` | 双方 | 18 个实测站点（15 A 组：11 营销/产品 + 4 内容陈列站；另 3 后台）的字体/间距/圆角/密度数值 |
 | `references/wegic-design.md` | 双方 | wegic.ai 单站全量蒸馏：完整令牌、塑料按钮、字阶节奏、迁移口径 |
@@ -186,7 +187,7 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 | `references/zcool-design.md` | 双方 | 站酷（内容社区频道页）单站全量蒸馏：疏版图墙、两级分类靠形状分层、`0.8px` 发丝、直角分页、七处反例 |
 | `references/stylekit-design.md` | 双方 | StyleKit（风格目录站）单站全量蒸馏：卡片即预览（活渲染、非截图）、6px 四段色板条、直角陈列区、衬线+无衬线+等宽三件套、两条 hover、详情页第二套版式、七处反例 |
 | `references/uinotes-design.md` | 双方 | UI Notes（真实 UI 截图灵感库）单站全量蒸馏：隐形界面（0 壳 0 边 0 阴影）、240×520 截图带裁切露 1.8 张、48px 数字当标题、2/4/6/16/20/24 线性圆角阶梯、全站 `line-height: normal`、七处反例 |
-| eferences/motion-spec.md | 双方 | 动效规格：时长五档与四条缓动、位移允许量、编排、滚动驱动、六类交互配方、三档降级、性能预算、自测四步、动效 AI tell |
+| `references/motion-spec.md` | 双方 | 动效规格：时长五档与四条缓动、位移允许量、编排、滚动驱动、六类交互配方、三档降级、性能预算、自测四步、动效 AI tell |
 | `references/craft-floor.md` | 双方 | 工艺底线：九条 verify、深度三选一、四件浏览器原生表面、表面禁令、与本站语料的四条冲突裁决（来源：impeccable `craft-floor`，Apache-2.0） |
 | `references/anti-slop.md` | agent | 反模板：Design Read、三档旋钮与三套人格对照、hero 四条硬规则、三把锁、8 组 AI tell、中文站条款、34 条 pre-flight（来源：design-taste-frontend，规则重写） |
 | `references/page-patterns.md` | agent | 选型表 + 七类页面骨架 + 空/错/无权限三变体 + 内容最低量 |
@@ -308,6 +309,7 @@ frontend-fidelity/
 │   ├── motion-spec.md            # 动效规格：四条底线 + 时长五档 + 四条缓动 + 编排 + 三档降级 + 自测
 │   ├── craft-floor.md            # 工艺底线：九条 verify + 深度三选一 + 原生表面 + 四条冲突裁决
 │   ├── anti-slop.md              # 反模板：三档旋钮 + hero 四条 + 三把锁 + 8 组 AI tell + 34 条 pre-flight
+│   ├── visual-system.md         # 视觉与结构细则完整版（从 SKILL.md 下沉的 15 节）
 │   └── review-rubric.md          # 交付前十节验收清单（含红旗清单）
 └── scripts/
     ├── scaffold.mjs              # 从 0 生成骨架：三套人格令牌 + 组件 CSS + 五类页面
@@ -353,7 +355,7 @@ node scripts/probe-ref.mjs --url https://参考站.com --out .tmp/ref --name ref
 
 ### 4. 验收（必须跑，见上面的最短流程）
 
-判据：`audit.mjs` 退出码 0；深色主题单独跑过；对比度无未达标；`run_checks.mjs` 全绿；`hygiene.mjs` 的每一条待确认项都有取舍记录。
+判据：`audit.mjs` 退出码 0；深色主题单独跑过；对比度无未达标；`run_checks.mjs` 全绿（有 `package.json` 时）；`hygiene.mjs` 的每一条待确认项都有取舍记录。
 
 ### 5. 交付说明（写给人看）
 
@@ -449,7 +451,7 @@ node scripts/scaffold.mjs --name "南风工单" --out src --pages app,form
 
 退出码：`0` 成功；`2` 参数错（未知人格 / 未知页面名，同时打印可选值）。
 
-**生成物已过 `audit.mjs` 的明暗双主题验证**：三套人格 × 五类页面 0 error / 0 axe 违规。
+**生成物已过 `audit.mjs` 的明暗双主题验证**：三套人格 × 五类页面 0 error / 0 warn / 0 axe 违规（v1.9.1 复跑）。
 但它只保证「层级、间距、状态、可访问性」这些硬骨头，文案全是 `{{TODO: ...}}` 占位——
 你的活是把它们换成真内容（见 `references/copy-and-content.md`），别直接当成品交付。
 
@@ -1126,7 +1128,7 @@ wc -l 'E:\实验室打卡预约系统-交接包-20260910\实验室打卡预约�
 - [ ] `audit.mjs` 退出码 0，残留 warn 每条都有解释
 - [ ] 深色主题单独跑过截图与审计
 - [ ] `contrast_check.py` 无未达标（正文 ≥ 4.5:1，大字/图标 ≥ 3:1）
-- [ ] `run_checks.mjs` 全绿：lint / typecheck / test / build
+- [ ] `run_checks.mjs` 全绿：lint / typecheck / test / build（**仅当项目有 `package.json`**；静态站/生成物跳过，用 `audit.mjs` + `contrast_check.py` 代替）
 - [ ] `hygiene.mjs` 待确认项逐条看过并记录取舍
 - [ ] Tab 键走查到底，焦点顺序正确、焦点态可见
 - [ ] 弹窗：焦点移入、Esc 关闭、关闭后焦点回到触发元素

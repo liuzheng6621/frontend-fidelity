@@ -4,6 +4,17 @@
 `frontend-fidelity.zip`，由 `git archive` 从 Tag 快照生成，只含被 git 跟踪的文件
 （不含 `shots/`、`audit-report.json`、`.design/`）。
 
+## v1.9.1 - 2026-11-02
+
+修掉外部代码评审提出的 7 处问题（4 个 P1 会让质量门假通过，3 个 P2 会误导照文档操作的人）：
+
+- **对比度门不再假通过**：`scripts/contrast_check.py` 的位置参数现在支持目录（递归找 `*.css`），路径写错或目录里没 CSS 直接退出 2；此前传目录会静默输出「0 组」并退出 0。
+- **点击区阈值统一到 44**：`scripts/audit.mjs` 的 `small-tap-target` 从 32 改成 44，与 `SKILL.md`、`references/review-rubric.md` 同口径；同时按 WCAG 2.5.8 豁免正文行内文字链接，复选框/单选框改量包裹它的 `label`。
+- **模式 B 的验收闭环**：`scripts/run_checks.mjs` 在没有 `package.json` 时明确提示「跳过项目自带质量门」并退出 0（不再退出 2）；`SKILL.md` 的模式 B 第 6 步改为「截图 + 审计 + 对比度」三件，不再要求对静态生成物跑 run_checks。
+- **生成器不再自己违规**：`scripts/scaffold.mjs` 去掉装饰 eyebrow（撞 anti-slop 的 eyebrow 密度与状态文案禁令）、去掉「无需信用卡」式 CTA 微文案、`outline: none` 改成 `:focus-visible` 可见轮廓、移动端 `.btn`/`.nav-item`/`.btn--icon`/`.check`/页脚链接一律 ≥44，三套人格 × 五页 × 双主题复跑后 **0 error / 0 warn / 0 axe**。
+- **入口瘦身**：`SKILL.md` 从 528 行 / 45KB 压到 283 行 / 22KB——视觉与结构细则整段下沉到新文件 `references/visual-system.md`（299 行），入口只留「判断走哪条路 → 工作流 → 质量门 → 细则路由 → 十个速查数字」。
+- **修掉破坏性笔误**：`SKILL.md` 的 `udit.mjs` / `un_checks.mjs` 改回 `audit.mjs` / `run_checks.mjs`；`craft-floor.md` 条目不再粘在上一行行尾；`scaffold.mjs` 收尾提示原来是「file:// 有 CORS 噪声」紧跟一条 `file:///` 截图命令，现在统一改成走 `http://127.0.0.1`。
+
 ## v1.9.0 - 2026-10-31
 
 让「装上」变成一行命令，并把实测数据摆到首屏。

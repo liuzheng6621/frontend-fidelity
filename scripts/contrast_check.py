@@ -649,9 +649,35 @@ def main() -> int:
         return self_test()
 
     root = Path(args.dir).resolve()
-    files = [Path(p) for p in args.files] if args.files else discover_css(root)
+    if args.files:
+        # 位置参数可以是文件，也可以是目录（目录递归找 *.css）。
+        # 传错路径必须报错退出：否则会静默输出「0 组」骗过质量门。
+        files, bad = [], []
+        for raw in args.files:
+            p = Path(raw).resolve()
+            if p.is_dir():
+                found = discover_css(p)
+                files += found
+                if not found:
+                    bad.append(f"{raw}（目录里没有 CSS）")
+            elif p.is_file():
+                files.append(p)
+            else:
+                bad.append(f"{raw}（不存在）")
+        if bad:
+            print("这些路径用不了：" + "；".join(bad))
+            print("用法：contrast_check.py <theme.css | css 目录> [--json out.json]")
+            return 2
+        dedup, seen_paths = [], set()
+        for f in files:
+            if f not in seen_paths:
+                seen_paths.add(f)
+                dedup.append(f)
+        files = dedup
+    else:
+        files = discover_css(root)
     if not files:
-        print(f"没有找到 CSS 文件（查找目录 {root}）。用法：contrast_check.py <theme.css>")
+        print(f"没有找到 CSS 文件（查找目录 {root}）。用法：contrast_check.py <theme.css | css 目录>")
         return 2
     print(f"扫描 {len(files)} 个 CSS 文件：")
     for f in files[:20]:

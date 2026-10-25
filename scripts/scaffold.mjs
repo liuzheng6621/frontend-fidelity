@@ -524,10 +524,10 @@ const componentsCss = `/* components.css —— 8 个状态都在这里面，别
 .textarea { padding: var(--s-2) var(--pad-x); min-height: 96px; resize: vertical; line-height: 1.5; }
 .input::placeholder, .textarea::placeholder { color: var(--ink-4); }
 .input:hover, .textarea:hover, .select:hover { border-color: var(--ink-4); }
-.input:focus, .textarea:focus, .select:focus {
-  outline: none;
+.input:focus-visible, .textarea:focus-visible, .select:focus-visible {
+  outline: 2px solid var(--brand-ink);
+  outline-offset: 1px;
   border-color: var(--brand);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 22%, transparent);
 }
 .input[aria-invalid="true"], .textarea[aria-invalid="true"] {
   border-color: var(--danger);
@@ -612,7 +612,6 @@ const componentsCss = `/* components.css —— 8 个状态都在这里面，别
 .tag--danger { background: var(--danger-bg); color: var(--danger-ink); }
 .tag--info { background: var(--info-bg); color: var(--info-ink); }
 .tag--brand { background: var(--brand-50); color: var(--brand-ink); }
-.dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
 
 /* ---------------- 提示 ---------------- */
 .alert {
@@ -849,17 +848,6 @@ const componentsCss = `/* components.css —— 8 个状态都在这里面，别
 }
 .site-nav a:hover { color: var(--ink); }
 .hero { padding-block: calc(var(--section) * 1.1) var(--section); }
-.hero__eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--s-2);
-  font-size: var(--t-xs);
-  font-weight: var(--fw-ui);
-  color: var(--brand-ink);
-  background: var(--brand-50);
-  padding: 6px var(--s-2);
-  border-radius: var(--r-pill);
-}
 .hero__title {
   margin-top: var(--s-4);
   font-size: clamp(var(--t-2xl), 5vw, var(--t-4xl));
@@ -1009,10 +997,14 @@ const componentsCss = `/* components.css —— 8 个状态都在这里面，别
 @media (max-width: 640px) {
   .form-grid { grid-template-columns: 1fr; }
   .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .nav-item, .btn--sm { min-height: 36px; }
+  .nav-item, .btn, .btn--sm, .input, .select, .brand, .skip-link { min-height: 44px; }
+  .nav-item { min-width: 44px; justify-content: center; }
+  .btn--icon { min-width: 44px; }
+  .check { min-height: 44px; display: inline-flex; align-items: center; }
+  .skip-link { display: inline-flex; align-items: center; }
   .sticky-bar { position: static; }
   .check input { width: 20px; height: 20px; }
-  .site-footer__links a, .auth a, .auth__foot a, a.help { display: inline-flex; align-items: center; min-height: 32px; padding-block: 6px; }
+  .site-footer__links a, .auth a, .auth__foot a, a.help { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 44px; padding-block: 10px; padding-inline: 12px; }
   .tag { height: 24px; }
   .table { min-width: 560px; }
   .hero { padding-block: var(--s-8) var(--s-6); }
@@ -1075,14 +1067,12 @@ const landingHtml = head('首页') + shellNote(['nav', 'hero', 'evidence', 'feat
 
 <main id="main">
   <section class="hero container">
-    <span class="hero__eyebrow"><span class="dot"></span>{{TODO: 一句话价值主张的标签，如「新版本 v2 已发布」}}</span>
     <h1 class="hero__title">把{{TODO: 主语}}从{{TODO: 现状}}变成{{TODO: 结果}}</h1>
     <p class="hero__lede">{{TODO: 两句话说清为谁解决什么：第一句说场景，第二句说结果。不要形容词堆砌。}}</p>
     <div class="hero__actions">
       <a class="btn btn--primary btn--lg" href="./auth.html">免费开始</a>
       <a class="btn btn--secondary btn--lg" href="#flow">看怎么用</a>
     </div>
-    <p class="tiny" style="margin-top:var(--s-3)">无需信用卡 · {{TODO: 具体承诺，如「5 分钟接入」}}</p>
   </section>
 
   <section class="band" aria-label="客户与数据">
@@ -1657,9 +1647,11 @@ if (!quiet) {
   console.log('');
   console.log('接着做三件事：');
   console.log('  1) 打开页面看骨架，再把 {{TODO: ...}} 换成真内容');
-  console.log('  2) 先起本地服务再体检（file:// 会报 CORS 噪声）：');
-  console.log('     npx serve . 或 python -m http.server 8000，再 node scripts/audit.mjs --url http://127.0.0.1:8000/app.html');
-  console.log('  3) node scripts/screenshot.mjs --url file:///' + rel + '/index.html --out .shots');
+  console.log('  2) 起本地服务再体检（file:// 会报 CORS 噪声，截图与审计都走 http）：');
+  console.log('     npx serve . 或 python -m http.server 8000');
+  console.log('     node scripts/audit.mjs --url http://127.0.0.1:8000/app.html --themes light,dark');
+  console.log('     node scripts/screenshot.mjs --url http://127.0.0.1:8000/index.html --out .shots --themes light,dark');
+  console.log('  3) 生成物是纯静态页、没有 package.json：不必跑 run_checks.mjs，上面两条加 contrast_check.py 就是验收。');
   console.log('');
   console.log('改 tokens.css 换品牌：--brand-* 换色，--r-* 换圆角，--control-h 换密度。');
   console.log('页面里不该出现硬编码颜色和像素字号。');

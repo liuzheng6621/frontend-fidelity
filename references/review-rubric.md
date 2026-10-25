@@ -57,15 +57,15 @@
 ```bash
 node <skill>/scripts/screenshot.mjs --url <url> --out .design/after --themes light,dark
 node <skill>/scripts/audit.mjs --url <url> --themes light,dark --expect-text "<目标页特征文案>"
-python <skill>/scripts/contrast_check.py <css 目录或文件> --json contrast.json
+python <skill>/scripts/contrast_check.py <css 目录或文件> --json contrast.json   # 传目录会递归找 *.css；路径写错直接退出 2，不会假通过
 node <skill>/scripts/hygiene.mjs
-node <skill>/scripts/run_checks.mjs
+node <skill>/scripts/run_checks.mjs    # 仅当项目有 package.json；静态站（scaffold 生成物）会明确提示跳过并退出 0
 ```
 
 - [ ] `audit.mjs` 退出码 0（error 清零；残留 warn 每条都有解释）
 - [ ] 深色主题单独跑过截图与审计，不是「浅色过了就完事」
 - [ ] `contrast_check.py` 无未达标项：正文 ≥4.5:1，大字/图标 ≥3:1
-- [ ] `run_checks.mjs` 全绿：lint / typecheck / test / build
+- [ ] `run_checks.mjs` 全绿：lint / typecheck / test / build（**仅当项目有 `package.json`**；静态站跳过）
 - [ ] `hygiene.mjs` 的待确认项逐条看过并记录取舍（不要静默忽略）
 - [ ] `before/` 与 `after/` 截图都留了，能指给评审看
 - [ ] 若按参考站/设计稿的调性做：`probe-ref.mjs` 量过对方数值，关键取值能在
@@ -89,7 +89,7 @@ node <skill>/scripts/run_checks.mjs
 ## 五、响应式与移动端
 
 - [ ] 390px 宽：单手可达区（屏幕下 1/3）放了主要操作
-- [ ] 390px 宽：点击区 ≥44×44px（`audit.mjs` 的 `small-tap-target`）
+- [ ] 390px 宽：点击区 ≥44×44px（`audit.mjs` 的 `small-tap-target` 按 44 卡；正文里的行内文字链接按 WCAG 2.5.8 豁免，复选框按包裹它的 `label` 量）
 - [ ] 表格在窄屏变成卡片列表或精简列，没有硬缩到看不清
 - [ ] 输入框聚焦时键盘不遮挡字段（滚动到可见）
 - [ ] 底部固定元素避开了安全区：`env(safe-area-inset-bottom)`

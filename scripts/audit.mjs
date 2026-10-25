@@ -172,17 +172,24 @@ async function collectStructure(page, ctx) {
       }
     }
 
-    // 8. 移动端点击区域过小：图标可以小，但可点区域应接近 44px
+    // 8. 移动端点击区域过小：SKILL.md 与 review-rubric.md 都写死 ≥44×44，这里同口径
     if (viewport === 'mobile') {
       let tiny = 0;
       for (const el of interactive) {
-        const r = el.getBoundingClientRect();
+        // 复选框/单选框的真实点击区是包裹它的 label，量 label 才对
+        const box = el.tagName === 'INPUT' && /^(checkbox|radio)$/i.test(el.type)
+          ? (el.closest('label') || el)
+          : el;
+        const r = box.getBoundingClientRect();
+        // 正文里的行内文字链接按 WCAG 2.5.8 豁免：给它加 padding 只会打乱行高
+        const cs = getComputedStyle(el);
+        if (el.tagName === 'A' && cs.display === 'inline' && el.closest('p, li, dd, figcaption, td')) continue;
         const m = Math.min(r.width, r.height);
-        if (m > 0 && m < 32 && tiny++ < 8) {
+        if (m > 0 && m < 44 && tiny++ < 8) {
           push(
             'warn',
             'small-tap-target',
-            `点击区域过小 ${Math.round(r.width)}×${Math.round(r.height)}：「${(el.textContent || el.getAttribute('aria-label') || el.tagName).trim().slice(0, 20)}」`,
+            `点击区域过小 ${Math.round(r.width)}×${Math.round(r.height)}（要求 ≥44×44）：「${(el.textContent || el.getAttribute('aria-label') || el.tagName).trim().slice(0, 20)}」`,
             sel(el),
           );
         }
