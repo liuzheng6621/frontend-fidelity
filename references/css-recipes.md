@@ -782,3 +782,195 @@ p, td, th, li { letter-spacing: normal; }
 - **列表页的卡片不画壳**，但**同一产品的功能区要有壳**——两套密度的边界用一条分隔线或底色差交代，
   别在同一个视觉区里混着用（见 `uishijie-design.md` 第七节的混合口径）。
 - 分页只在 `>1 页` 时渲染，并给出总条数（「共 11424 个作品」这类规模感不要虚标）。
+---
+
+## 15. 报头 + 等宽图版（站酷 ZCOOL 风味）
+
+来自 `zcool-design.md` 的实测：4 列 283px、列距 24、行距 36、缩略图强制 4:3、卡片不画壳、
+两级分类用**形状**区分（56px 文字 tab / 31px 胶囊）、橙色只给主行动。
+站酷自己踩的坑（移动端不重排、顶栏不 fixed、hover 太弱、`#888` 只到 3.54:1）已经在下面补齐。
+
+```css
+/* 令牌：颜色与几何 */
+:root {
+  --zc-ink:        #282828;   /* 主文字 */
+  --zc-ink-2:      #555555;   /* 次 */
+  --zc-ink-3:      #6b6b6b;   /* 弱：站酷原值 #888 只有 3.54:1，这里提到 4.9:1 */
+  --zc-line:       #ededed;   /* 分隔线（站酷用 0.8px，高 DPI 不稳，这里统一 1px） */
+  --zc-fill:       #f2f2f2;   /* 未选中胶囊底 */
+  --zc-active:     #222222;   /* 选中胶囊 / 直角分页选中 */
+  --zc-accent:     #ff5e3b;   /* 品牌橙：只给主行动 */
+  --zc-r-btn:      10px;      /* 顶栏按钮 */
+  --zc-r-pill:     16px;      /* 胶囊（不是 999px，四角要有一点硬度） */
+  --zc-col:        283px;     /* 参考列宽，实际用 1fr */
+  --zc-gap-x:      24px;
+  --zc-gap-y:      36px;
+  --zc-topbar:     56px;
+}
+
+/* 顶栏：白底、无阴影、无下边框；长列表里必须 sticky（站酷没做，这是要补的一条） */
+.site-topbar {
+  position: sticky; top: 0; z-index: 20;
+  height: var(--zc-topbar);
+  display: flex; align-items: center; gap: 24px;
+  padding: 0 30px;
+  background: #fff;
+}
+.site-topbar__nav { display: flex; gap: 20px; font-size: 14px; color: var(--zc-ink); }
+.site-topbar__nav a { color: inherit; text-decoration: none; }
+.site-topbar__spacer { margin-inline-start: auto; }
+
+/* 一个品牌色按钮 + 一个同尺寸幽灵按钮（站酷：注册 76×36 #FF5E3B r10 14/500，登录同尺寸透明） */
+.btn-brand {
+  height: 36px; padding: 2px 12px; min-width: 76px;
+  border: 0; border-radius: var(--zc-r-btn);
+  background: var(--zc-accent); color: #fff;
+  font: 500 14px/1 var(--font-sans, system-ui); cursor: pointer;
+}
+.btn-ghost {
+  height: 36px; padding: 2px 12px; min-width: 76px;
+  border: 0; border-radius: var(--zc-r-btn);
+  background: transparent; color: #191919; font: 400 14px/1 inherit; cursor: pointer;
+}
+.btn-brand:hover { filter: brightness(1.06); }
+.btn-brand:active { transform: translateY(1px); }
+
+/* 一级分类：文字 tab，56px 高，选中是 3px 短下划线 —— 形状与二级胶囊明确不同 */
+.cat-tabs {
+  display: flex; align-items: center; gap: 0;
+  height: var(--zc-topbar);
+  border-block-end: 1px solid var(--zc-line);
+  overflow-x: auto; scrollbar-width: none;
+}
+.cat-tabs::-webkit-scrollbar { display: none; }
+.cat-tabs a {
+  position: relative; flex: 0 0 auto;
+  display: grid; place-items: center;
+  height: 100%; padding: 0 24px;
+  font-size: 16px; color: var(--zc-ink); text-decoration: none;
+}
+.cat-tabs a[aria-current='page'] { color: var(--zc-active); font-weight: 500; }
+.cat-tabs a[aria-current='page']::after {
+  content: ''; position: absolute; inset-block-end: 8px;
+  width: 28px; height: 3px; border-radius: 2px;
+  background: var(--zc-active);
+}
+
+/* 二级分类：胶囊 31px 高，圆角 16，选中深底白字 */
+.cat-pills {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  padding: 20px 20px 0;
+}
+.cat-pills a {
+  height: 31px; padding: 6px 16px;
+  display: inline-grid; place-items: center;
+  border-radius: var(--zc-r-pill);
+  background: var(--zc-fill); color: var(--zc-active);
+  font-size: 14px; text-decoration: none; white-space: nowrap;
+}
+.cat-pills a[aria-current='page'] { background: var(--zc-active); color: #fff; }
+
+/* 图墙：等宽 4 列（不做瀑布），列距 24 / 行距 36 */
+.feed-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  column-gap: var(--zc-gap-x);
+  row-gap: var(--zc-gap-y);
+  padding: 0 30px;
+}
+
+/* 卡片：不画壳。图即边界，圆角/背景/阴影/内边距全为 0 */
+.feed-card { display: block; text-decoration: none; color: inherit; }
+.feed-card__cover {
+  position: relative; display: block;
+  aspect-ratio: 4 / 3;            /* 关键：强制同比例，墙不会参差 */
+  overflow: hidden; border-radius: 0;
+}
+.feed-card__cover img {
+  width: 100%; height: 100%;
+  object-fit: cover; display: block;
+  transition: transform .35s cubic-bezier(.33, 1, .68, 1), filter .35s;
+}
+/* hover 要真的给反馈（站酷只加一层浅遮罩，等于没反应） */
+.feed-card:hover .feed-card__cover img { transform: scale(1.03); filter: brightness(.94); }
+
+/* 右下角计数：13px 图标 + 12px 数字，压在图上 */
+.feed-card__status {
+  position: absolute; inset-block-end: 8px; inset-inline-end: 8px;
+  display: inline-flex; align-items: center; gap: 2px;
+  height: 24px; padding: 0 6px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, .45); color: #fff;
+  font-size: 12px; backdrop-filter: blur(2px);
+}
+
+/* 标题行：14/400、单行截断、与图只隔 8px（图和标题是一件事） */
+.feed-card__title {
+  display: flex; align-items: baseline; gap: 8px;
+  margin: 8px 0 0;
+}
+.feed-card__title span {
+  flex: 1 1 auto; min-width: 0;
+  font-size: 14px; font-weight: 400; line-height: 19px;
+  color: var(--zc-ink);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.feed-card__title b {
+  flex: 0 0 auto;
+  font-size: 12px; font-weight: 400; color: var(--zc-ink-3);
+}
+
+/* 作者行：20px 高，头像 20 圆 —— 高度对齐才像一条细线 */
+.feed-card__user {
+  display: flex; align-items: center; gap: 6px;
+  height: 20px; margin-top: 4px;
+  font-size: 14px; color: var(--zc-ink-3);
+}
+.feed-card__user img { width: 20px; height: 20px; border-radius: 50%; object-fit: cover; }
+
+/* 工具行：左排序 + 右筛选，两簇分居两端（同形状，靠位置区分语义） */
+.feed-toolbar {
+  display: flex; align-items: center; gap: 8px;
+  padding: 12px 30px 16px;
+}
+.feed-toolbar__right { margin-inline-start: auto; display: flex; gap: 8px; }
+.select-mini {
+  height: 32px; padding: 0 10px;
+  border: 1px solid #e5e5e5; border-radius: 8px;
+  background: #fff; color: #333; font-size: 14px;
+}
+
+/* 分页：直角 40×38，全站唯一直角 —— 用形状说明「这是导航不是内容」 */
+.pager-square {
+  display: flex; justify-content: center; gap: 8px;
+  padding: 24px 0 56px;
+}
+.pager-square a {
+  display: inline-grid; place-items: center;
+  width: 40px; height: 38px;
+  border-radius: 0;
+  color: var(--zc-ink-2); font-size: 14px; text-decoration: none;
+}
+.pager-square a[aria-current='page'] { background: var(--zc-active); color: #fff; }
+.pager-square a:hover { background: var(--zc-fill); }
+.pager-square a[aria-current='page']:hover { background: var(--zc-active); }
+
+/* 响应式：站酷完全没做（390 下 scrollWidth 仍 1200），这里必须两列 + 不横滚 */
+@media (max-width: 1080px) {
+  .feed-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 0 20px; }
+  .cat-tabs a { padding: 0 16px; font-size: 15px; }
+}
+@media (max-width: 760px) {
+  .feed-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 12px; row-gap: 20px; padding: 0 12px; }
+  .feed-toolbar { padding: 8px 12px 12px; flex-wrap: wrap; }
+  .cat-pills { padding: 12px 12px 0; }
+  .site-topbar { padding: 0 12px; gap: 12px; }
+  .site-topbar__nav { display: none; }   /* 移动端把导航收进抽屉，别留一屏文字 */
+}
+```
+
+**落地注意**：
+- 列宽永远用 `1fr`，`283px` 只是「4 列在 1200 容器里」的换算结果；
+- 标题必须单行，否则每张卡高度不同、行距就废了；
+- 计数与作者名别用 `#888`（3.54:1），用 `#6b6b6b`（4.9:1）；
+- 顶栏在长列表要 sticky，站酷没做，这是最容易被用户骂的一处。

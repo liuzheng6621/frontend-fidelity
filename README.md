@@ -3,7 +3,7 @@
 > 把前端做对、做实，两条路都走：**已有界面**——按设计稿/截图还原，或把现存页面整改到位；**还没有界面**——从 0 生成一套骨架，再往上填内容与业务状态。
 > 目标不是"改好看"，而是**让界面和它声称的样子一致，并且真的能用——改完能拿出证据**。
 
-`v1.3.0` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `9 个可执行脚本`
+`v1.4.0` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `9 个可执行脚本`
 
 ---
 
@@ -33,6 +33,7 @@
 - [参考站蒸馏：wegic.ai](#参考站蒸馏wegicai)
 - [参考站蒸馏：即时设计 js.design](#参考站蒸馏即时设计-jsdesign)
 - [参考站蒸馏：UI 世界 uishijie](#参考站蒸馏ui-世界-uishijie)
+- [参考站蒸馏：站酷 ZCOOL](#参考站蒸馏站酷-zcool)
 - [交付验收清单](#交付验收清单)
 - [CI 集成](#ci-集成)
 - [常见问题](#常见问题)
@@ -43,7 +44,7 @@
 
 ## 这是什么
 
-一个**把前端做对**的技能包，两条路都走：**先把已有界面整改/还原到位**，**也能从 0 生成一套能验收的骨架**。内含一份给 agent 读的操作手册（`SKILL.md`）+ 十份实测参考数据（`references/`）+ 九个能直接跑的脚本（`scripts/`）。
+一个**把前端做对**的技能包，两条路都走：**先把已有界面整改/还原到位**，**也能从 0 生成一套能验收的骨架**。内含一份给 agent 读的操作手册（`SKILL.md`）+ 十一份实测参考数据（`references/`）+ 九个能直接跑的脚本（`scripts/`）。
 
 它解决的是这类问题：
 
@@ -88,10 +89,11 @@
 | --- | --- | --- |
 | `SKILL.md` | agent（模型） | 两种模式（整改 / 从 0 生成）+ 视觉系统细则 + 反模式清单，是执行指令 |
 | `README.md`（本文件） | 人 | 项目介绍、安装、脚本参数、产物、排错 |
-| `references/design-evidence.md` | 双方 | 15 个实测站点（12 A 组：11 营销/产品 + 1 内容站；另 3 后台）的字体/间距/圆角/密度数值 |
+| `references/design-evidence.md` | 双方 | 16 个实测站点（13 A 组：11 营销/产品 + 2 内容站；另 3 后台）的字体/间距/圆角/密度数值 |
 | `references/wegic-design.md` | 双方 | wegic.ai 单站全量蒸馏：完整令牌、塑料按钮、字阶节奏、迁移口径 |
 | `references/jsdesign-design.md` | 双方 | 即时设计 js.design 单站全量蒸馏：冷灰蓝底 + 负扩散阴影、130px 节奏、零 webfont、七处反例 |
 | `references/uishijie-design.md` | 双方 | UI 世界（内容聚合站）单站全量蒸馏：零 gutter 图墙、卡片不画壳、四档字号、七处反例 |
+| `references/zcool-design.md` | 双方 | 站酷（内容社区频道页）单站全量蒸馏：疏版图墙、两级分类靠形状分层、`0.8px` 发丝、直角分页、七处反例 |
 | `references/page-patterns.md` | agent | 选型表 + 七类页面骨架 + 空/错/无权限三变体 + 内容最低量 |
 | `references/component-spec.md` | agent | 11 类组件规格与禁忌（三档密度、尺寸、对齐、状态） |
 | `references/design-tokens.md` | agent | 三套人格预设、色阶生成数学、字阶、圆角阴影配对、暗色推导 |
@@ -196,10 +198,11 @@ frontend-fidelity/
 ├── LICENSE                       # MIT
 ├── CHANGELOG.md                  # 版本变更与发版说明
 ├── references/
-│   ├── design-evidence.md        # 15 个实测站点（12 A 组 + 3 后台）：字体、字阶、行高、间距、圆角、密度
+│   ├── design-evidence.md        # 16 个实测站点（13 A 组 + 3 后台）：字体、字阶、行高、间距、圆角、密度
 │   ├── wegic-design.md           # wegic.ai 单站全量蒸馏：完整令牌 + 塑料按钮 + 迁移口径
 │   ├── jsdesign-design.md        # 即时设计 js.design 单站全量蒸馏：冷灰蓝底 + 负扩散阴影 + 七处反例
 │   ├── uishijie-design.md        # UI 世界（内容聚合站）：零 gutter 图墙 + 卡片不画壳 + 七处反例
+│   ├── zcool-design.md           # 站酷（内容社区频道页）：疏版图墙 + 两级分类靠形状 + 七处反例
 │   ├── page-patterns.md          # 从 0 生成：选型表 + 七类页面骨架 + 三变体 + 内容最低量
 │   ├── component-spec.md         # 11 类组件规格：三档密度、尺寸、对齐、禁忌
 │   ├── design-tokens.md          # 三套人格预设、色阶生成算法、字阶、圆角阴影配对、暗色推导
@@ -845,6 +848,51 @@ node scripts/probe-ref.mjs --url http://www.uishijie.com/ui/ --out ./out --name 
 页面是服务端渲染的普通 HTML，没有登录墙，直接抓即可；`document.fonts.size === 0`（全系统字体栈），
 `height: auto` 的缩略图与 float 布局要靠 `getBoundingClientRect` 量，具体步骤写在
 `references/uishijie-design.md` 第十节。
+
+## 参考站蒸馏：站酷 ZCOOL
+
+`https://www.zcool.com.cn/discover/17`（UI 频道头版）。与 UI 世界同属「内容站」组，但走的是相反的一极：
+**UI 世界是「密」——5 列、`gap: 0`、25 张/页；站酷是「疏」——4 列、列距 24、行距 36、8 张/屏。**
+两个样本合起来才能说明：图墙的密度是**选择**，不是唯一解。
+
+它真正值得学的是**版面纪律**：全站只有 4 档字号（14 / 12 / 16 / 40）、两级分类靠形状分层、
+卡片一律不画壳、所有发丝都是 `0.8px`。
+
+| 产出 | 位置 | 里面有什么 |
+|------|------|-----------|
+| 单站全量蒸馏 | `references/zcool-design.md` | 完整令牌、四档字阶、版式节奏表、组件配方、七处没做好的 |
+| 可直接抄的 CSS | `references/css-recipes.md` §15 | `.site-topbar` / `.cat-tabs` / `.cat-pills` / `.feed-grid` / `.feed-card` / `.pager-square`，含响应式三列与两列 |
+| 跨站统计 | `references/design-evidence.md` | 第 13 个 A 组样本；网格密度「疏密两派」、`0.8px` 发丝、顶栏 sticky 三条新证据 |
+| 验收与结构 | `SKILL.md`、`references/review-rubric.md` | 图墙节补「等宽不做瀑布」「两级分类靠形状」「顶栏 sticky」+ 4 条验收项 |
+
+### 三招值得直接搬
+
+| 招式 | 实测做法 | 为什么成立 |
+|------|----------|-----------|
+| **两级分类用形状分层** | 一级 56px 文字 tab（选中 28×3px 短下划线），二级 31px 胶囊 r16 | 两排并列时靠高度与轮廓一眼分出父子级；靠颜色深浅区分在色弱用户那里直接失效 |
+| **等宽网格 + 三个数字定版** | 卡片 283×264 = 图 283×212（4:3）+ 标题 19px + 作者 20px，列距 24、行距 36 | 三个数字定死，整页节奏自然出现；标题只给一行，换行就整版歪 |
+| **胶囊用 16 不用 999** | 子分类胶囊 `border-radius: 16px` | 内容社区要一点硬度；999 会变成气泡感，和「作品」的气质冲突 |
+
+### 也别学它这几处
+
+- **移动端零适配**：390 宽下 `scrollWidth` 仍是 1200，卡片 283 宽横向铺开（和 UI 世界一处不差）。
+- **顶栏不 `sticky`**：56px 静态顶栏，滚两屏后分类、排序、搜索全丢，只能滚回顶部。
+- **hover 太弱**：只把 `image-mask` 从 `height: 0` 展开，图本身不缩放 —— 用户判断不了能不能点。
+- **标题截断不给 `title`**：单行 ellipsis 后信息不可恢复，站酷和 UI 世界都漏了这条。
+- **`0.8px` 当固定发丝**：DPR1 或小数缩放下会发虚，统一 `1px` + ≤8% 黑更稳。
+- **次级灰随手取**：`#888`（3.54:1）、`#999`（2.85:1）都不合格，用 `#6b6b6b`（4.9:1）。
+- **banner 与容器错位**：banner 宽 1265、容器 1205，左右各差 30 —— 通栏图和内容区对齐要单独确认。
+
+### 重采
+
+```bash
+node scripts/probe-ref.mjs --url https://www.zcool.com.cn/discover/17 --out ./out --name zcool --wait 6000
+```
+
+**这个站 headless 一定被阿里云 WAF 拦成「滑动验证页面」**，必须 `headless: false` 的真实浏览器
+（挪到屏幕外 `--window-position=-2400,-2400` 也行），并在截图前移除 `#waf_nc_block` 浮层，
+完整步骤写在 `references/zcool-design.md` 第十节。
+
 ## 交付验收清单
 
 完整版见 [`references/review-rubric.md`](references/review-rubric.md)（九节，含红旗清单）。摘要：
