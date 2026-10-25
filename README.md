@@ -3,7 +3,7 @@
 > 把**已有**的前端界面做对、做实：按设计稿/截图还原页面，或对现存前端做视觉与可用性整改。
 > 目标不是"改好看"，而是**让界面和它声称的样子一致，并且真的能用——改完能拿出证据**。
 
-`MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `8 个可执行脚本`
+`v1.1.0` · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `9 个可执行脚本`
 
 ---
 
@@ -889,7 +889,7 @@ stages:
 
 ## 许可与第三方
 
-MIT，见 [`LICENSE`](LICENSE)。
+MIT，见 [`LICENSE`](LICENSE)。版本变更与发版说明见 [`CHANGELOG.md`](CHANGELOG.md)。
 
 第三方例外：`scripts/vendor/axe.min.js` 是 [axe-core](https://github.com/dequelabs/axe-core) 4.14.0，按 **MPL-2.0** 分发，文件头的许可声明不要删。除此之外所有内容为原创。
 
