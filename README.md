@@ -37,7 +37,7 @@ curl -fsSL https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/ra
 bash install.sh --target claude          # 只装 Claude Code
 bash install.sh --target dsh             # 只装 DSH
 bash install.sh --dir ~/my-skills        # 装到自定义目录
-bash install.sh --ref v1.8.0             # 锁定某个版本
+bash install.sh --ref v1.9.1             # 锁定某个版本
 bash install.sh --dry-run                # 只看会装到哪，不动文件
 ```
 
@@ -1008,7 +1008,7 @@ node scripts/probe-ref.mjs --url https://www.zcool.com.cn/discover/17 --out ./ou
 |------|------|-----------|
 | 单站全量蒸馏 | `references/stylekit-design.md` | 完整令牌、三件套字体、版式节奏表、卡片六层结构、详情页第二套版式、七处没做好的 |
 | 可直接抄的 CSS | `references/css-recipes.md` §16 | `.sk-card` / `.sk-preview`（容器查询缩放）/ `.sk-palette` / `.sk-chips` / `.sk-stats` / `.sk-rowlink`，含移动端两列 |
-| 跨站统计 | `references/design-evidence.md` | 第 14 个 A 组样本：H1 均值 75.7→**72.6**、H1/正文比下探 **2.25**、字号均值 **14.9**、三件套分工与「第五种圆角做法（直角派）」首次入统计 |
+| 跨站统计 | `references/design-evidence.md` | 新增 A 组样本后：H1 均值 75.7→**72.6**、H1/正文比下探 **2.25**、字号均值 **14.9**、三件套分工与「第五种圆角做法（直角派）」首次入统计 |
 | 验收与结构 | `SKILL.md`、`references/review-rubric.md` | 新增「陈列一批彼此不同的东西」小节 8 条 + 4 条红旗 + 陈列类页面额外 6 条验收项 |
 
 ### 三招值得直接搬

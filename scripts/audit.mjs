@@ -178,7 +178,10 @@ async function collectStructure(page, ctx) {
       for (const el of interactive) {
         // 复选框/单选框的真实点击区是包裹它的 label，量 label 才对
         const box = el.tagName === 'INPUT' && /^(checkbox|radio)$/i.test(el.type)
-          ? (el.closest('label') || el)
+          ? (el.closest('label')
+             // <input id=x> + <label for=x> 也是合法写法，别把兄弟 label 漏掉
+             || (el.id ? document.querySelector(`label[for="${CSS.escape(el.id)}"]`) : null)
+             || el)
           : el;
         const r = box.getBoundingClientRect();
         // 正文里的行内文字链接按 WCAG 2.5.8 豁免：给它加 padding 只会打乱行高

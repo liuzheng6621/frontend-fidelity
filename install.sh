@@ -36,7 +36,7 @@ while [ $# -gt 0 ]; do
 done
 
 # 要装的文件（不含 .git / 截图 / 产物）
-FILES="SKILL.md README.md LICENSE CHANGELOG.md .gitattributes references scripts"
+FILES="SKILL.md README.md LICENSE CHANGELOG.md .gitattributes references scripts install.sh install.ps1"
 
 resolve_dests() {
   if [ -n "$DEST" ]; then echo "$DEST"; return; fi
@@ -88,4 +88,4 @@ echo
 echo "下一步："
 echo "  · Claude Code：在项目里说「照这张截图还原页面」，或运行 /skills 查看"
 echo "  · DSH：新开一个会话即可看到 frontend-fidelity（旧会话不重新加载技能）"
-echo "  · 自检：node \"\$HOME/.claude/skills/$NAME/scripts/audit.mjs\" --url <your-url>"
+echo "  · 自检：node \"$dest/scripts/audit.mjs\" --url <your-url>"

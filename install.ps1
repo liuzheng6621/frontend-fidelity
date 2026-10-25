@@ -21,7 +21,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $Name  = 'frontend-fidelity'
-$items = @('SKILL.md','README.md','LICENSE','CHANGELOG.md','.gitattributes','references','scripts')
+$items = @('SKILL.md','README.md','LICENSE','CHANGELOG.md','.gitattributes','references','scripts','install.sh','install.ps1')
 
 function Get-Bases {
   if ($Dir) { return @($Dir) }
@@ -92,7 +92,7 @@ try {
   Write-Host '下一步：'
   Write-Host '  · Claude Code：在项目里说「照这张截图还原页面」，或运行 /skills 查看'
   Write-Host '  · DSH：新开一个会话即可看到 frontend-fidelity（旧会话不重新加载技能）'
-  Write-Host "  · 自检：node `"$HOME\.claude\skills\$Name\scripts\audit.mjs`" --url <your-url>"
+  Write-Host "  · 自检：node `"$dest\scripts\audit.mjs`" --url <your-url>"
 }
 finally {
   Remove-Item $tmp -Recurse -Force -ErrorAction SilentlyContinue
