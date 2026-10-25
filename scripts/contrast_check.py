@@ -495,6 +495,9 @@ def token_pairs(light: dict[str, str], dark: dict[str, str]):
     for mode, table in (("light", light), ("dark", dark)):
         if not table:
             continue
+
+        # --_fg 这类是 color-mix 内部私有变量，不对应任何真实的前景/背景搭配
+        table = {k: v for k, v in table.items() if not re.match(r"^--?_", k)}
         ons = {k: v for k, v in table.items() if ON_ROLE.search(k)}
         texts = {
             k: v
@@ -544,7 +547,13 @@ def token_pairs(light: dict[str, str], dark: dict[str, str]):
                     re.search(rf"(^|[-_]){re.escape(base)}([-_]|$)", k, re.I)
                     or (base in ("brand", "primary", "accent") and BG_ROLE.search(k) is None and k.endswith(base))
                 )
+                # 色阶档位（-50 / -100 … -950）不是「品牌底」，on-X 压上去也不是真实场景
+                and not re.search(r"[-_](50|100|200|300|400|500|600|700|800|900|950)$", k)
             }
+            # 优先配 fill / solid / strong 这类真正的填充色
+            pref = {k: v for k, v in cands.items() if re.search(r"[-_](fill|solid|strong)$", k, re.I)}
+            if pref:
+                cands = pref
             for bname, bval in list(cands.items())[:6]:
                 bg = parse_color(resolve(bval, table))
                 if not bg or bg[3] < 0.999:
@@ -564,6 +573,11 @@ def token_pairs(light: dict[str, str], dark: dict[str, str]):
             ucol = parse_color(resolve(uval, table))
             if not ucol:
                 continue
+            # 发丝边框默认是装饰，不属于「唯一分界」，只提示不判失败；
+            # 带 strong/focus/active/checked/selected 的才算真边界。
+            soft = bool(
+                re.search(r"(^|[-_])(border|hairline|divider|line|edge|stroke)([-_]|$)", uname, re.I)
+            ) and not re.search(r"(strong|focus|active|checked|selected|control)", uname, re.I)
             for bname, bval in bg_pick.items():
                 bg = parse_color(resolve(bval, table))
                 if not bg or bg[3] < 0.999:
@@ -576,6 +590,7 @@ def token_pairs(light: dict[str, str], dark: dict[str, str]):
                         "fg": (uname, bname),
                         "fg_rgb": over(ucol, bg[:3]) if ucol[3] < 1 else ucol[:3],
                         "bg_rgb": bg[:3],
+                        "soft": soft,
                         "source": f"{mode} 主题令牌",
                     }
                 )
@@ -589,7 +604,9 @@ def discover_css(root: Path) -> list[Path]:
     skip = {"node_modules", "dist", "build", ".git", "coverage", ".next", ".nuxt", "out"}
     found = []
     for p in root.rglob("*.css"):
-        if any(part in skip for part in p.parts):
+        # 只跳过生成物目录（相对 root 的层级），别因为 root 自己的名字叫 out/dist 就整棵跳过
+        rel_dirs = p.relative_to(root).parts[:-1]
+        if any(part in skip for part in rel_dirs):
             continue
         found.append(p)
         if len(found) >= 40:
@@ -715,6 +732,10 @@ def main() -> int:
     results = []
     for p in unique:
         r = contrast(p["fg_rgb"], p["bg_rgb"])
+        if p.get("soft"):
+            # 装饰性边框：给人看数值，不参与失败判定
+            results.append({**p, "ratio": round(r, 2), "required": 0, "pass": True})
+            continue
         required = AA_NORMAL if p["mode"] in ("token", "element", "on") else AA_UI
         if args.strict:
             required = AA_NORMAL
@@ -725,7 +746,7 @@ def main() -> int:
 
     print(f"\n参与判定的配色对 {len(results)} 组（按对比度升序）：")
     for r in results[:60]:
-        tag = "PASS" if r["pass"] else "FAIL"
+        tag = "info" if r.get("soft") else ("PASS" if r["pass"] else "FAIL")
         fg = " / ".join(r["fg"]) if isinstance(r["fg"], tuple) else str(r["fg"])
         print(
             f"  {tag:4s} {r['ratio']:5.2f}:1 (需 {r['required']})  "
@@ -734,7 +755,9 @@ def main() -> int:
     if len(results) > 60:
         print(f"  ... 另有 {len(results) - 60} 组未显示")
 
-    print(f"\n合计：{len(results)} 组，{len(failures)} 组未达标")
+    soft_n = sum(1 for r in results if r.get("soft"))
+    tail = f"（其中 {soft_n} 组是装饰性边框，只提示不判失败）" if soft_n else ""
+    print(f"\n合计：{len(results)} 组，{len(failures)} 组未达标{tail}")
     if failures:
         print("优先修最低的几组；正文永远按 4.5 要求，大标题/图标才可放宽到 3.0。")
         print("深色主题不要靠「反色」偷懒——两套主题要各自校验。")

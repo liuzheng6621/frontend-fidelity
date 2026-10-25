@@ -64,7 +64,7 @@ node <skill>/scripts/run_checks.mjs    # 仅当项目有 package.json；静态�
 
 - [ ] `audit.mjs` 退出码 0（error 清零；残留 warn 每条都有解释）
 - [ ] 深色主题单独跑过截图与审计，不是「浅色过了就完事」
-- [ ] `contrast_check.py` 无未达标项：正文 ≥4.5:1，大字/图标 ≥3:1
+- [ ] `contrast_check.py` 无未达标项：正文 ≥4.5:1，大字/图标 ≥3:1（发丝边框只打 `info` 不计入失败；`--_*` 私有变量不参与配对）
 - [ ] `run_checks.mjs` 全绿：lint / typecheck / test / build（**仅当项目有 `package.json`**；静态站跳过）
 - [ ] `hygiene.mjs` 的待确认项逐条看过并记录取舍（不要静默忽略）
 - [ ] `before/` 与 `after/` 截图都留了，能指给评审看

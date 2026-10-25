@@ -269,7 +269,7 @@ const vars = () => {
   L.push('  --ink: ' + P.ink + ';');
   L.push('  --ink-2: color-mix(in srgb, var(--ink) 74%, transparent);');
   L.push('  --ink-3: color-mix(in srgb, var(--ink) 64%, transparent);');
-  L.push('  --ink-4: color-mix(in srgb, var(--ink) 50%, transparent);');
+  L.push('  --ink-4: color-mix(in srgb, var(--ink) 61%, transparent);');
   L.push('  --surface-hover: color-mix(in srgb, var(--ink) 4%, var(--bg));');
   L.push('  --skeleton: color-mix(in srgb, var(--ink) 8%, var(--bg));');
   Object.entries(semantic).forEach(([k, v]) => {
@@ -314,7 +314,7 @@ const darkVars = () => {
   d.push('  --ink: rgb(255 255 255 / .92);');
   d.push('  --ink-2: rgb(255 255 255 / .78);');
   d.push('  --ink-3: rgb(255 255 255 / .62);');
-  d.push('  --ink-4: rgb(255 255 255 / .46);');
+  d.push('  --ink-4: rgb(255 255 255 / .58);');
   d.push('  --surface-hover: rgb(255 255 255 / .06);');
   d.push('  --skeleton: rgb(255 255 255 / .08);');
   // 语义色在深色底上要换成亮字 + 透明底，否则对比度掉到 2 以下

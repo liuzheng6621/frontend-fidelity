@@ -13,6 +13,7 @@
 - **模式 B 的验收闭环**：`scripts/run_checks.mjs` 在没有 `package.json` 时明确提示「跳过项目自带质量门」并退出 0（不再退出 2）；`SKILL.md` 的模式 B 第 6 步改为「截图 + 审计 + 对比度」三件，不再要求对静态生成物跑 run_checks。
 - **生成器不再自己违规**：`scripts/scaffold.mjs` 去掉装饰 eyebrow（撞 anti-slop 的 eyebrow 密度与状态文案禁令）、去掉「无需信用卡」式 CTA 微文案、`outline: none` 改成 `:focus-visible` 可见轮廓、移动端 `.btn`/`.nav-item`/`.btn--icon`/`.check`/页脚链接一律 ≥44，三套人格 × 五页 × 双主题复跑后 **0 error / 0 warn / 0 axe**。
 - **入口瘦身**：`SKILL.md` 从 528 行 / 45KB 压到 283 行 / 22KB——视觉与结构细则整段下沉到新文件 `references/visual-system.md`（299 行），入口只留「判断走哪条路 → 工作流 → 质量门 → 细则路由 → 十个速查数字」。
+- **对比度门自己也不再误报**：`contrast_check.py` 的令牌配对规则补齐三条——跳过 `--_*` 这类 `color-mix` 内部私有变量；`--on-brand` 只与填充色（`--brand-fill` 等）配对、不再和 `--brand-50…300` 色阶比；发丝边框（`--border`/`--hairline`/`--divider`）默认按装饰处理，只打 `info` 不计入失败（只有带 `strong`/`focus`/`active` 的才算真边界）。同时 `discover_css()` 改成只看相对目录层级——此前路径里只要出现 `out`/`dist` 这类目录名，整棵 CSS 树会被跳过。生成物最弱的文字档 `--ink-4` 从 50% 提到 61%（深色 .46 → .58），三套人格的对比度门现在都是 **0 组未达标**。
 - **修掉破坏性笔误**：`SKILL.md` 的 `udit.mjs` / `un_checks.mjs` 改回 `audit.mjs` / `run_checks.mjs`；`craft-floor.md` 条目不再粘在上一行行尾；`scaffold.mjs` 收尾提示原来是「file:// 有 CORS 噪声」紧跟一条 `file:///` 截图命令，现在统一改成走 `http://127.0.0.1`。
 
 ## v1.9.0 - 2026-10-31
