@@ -4,6 +4,43 @@
 `frontend-fidelity.zip`，由 `git archive` 从 Tag 快照生成，只含被 git 跟踪的文件
 （不含 `shots/`、`audit-report.json`、`.design/`）。
 
+## v1.13.0 - 2026-11-07
+
+主题：**用 20 站 + 8 份单站蒸馏的结论，重做模式 B（从 0 生成）的架构**。改的不是文案，是生成器本身的形状：深度从「一个数字」变成「一种语言」，人格从三套扩到五套，页面从五类扩到六类，并把对比度门搬到生成期。
+
+### 架构改动（`scripts/scaffold.mjs`，60,066B → 76,4xxB）
+
+- **深度语言三派**：persona 的 `depth: 0 | 3` 换成 `hairline | soft | hard`。`DEPTH` 表给出每种语言的 rest / hover / active 三件套 + 位移量 + 按钮厚度，由 `depth.css` 统一消费。发丝派（shadcn/linear）只加深环不动位；软影派（Stripe/Apple/Wegic）上浮 2px、按下落 1px；硬影派（猫叫兽/Neo-Brutalist）4px→6px→2px，靠位移代替模糊。「像不像某个站」第一次变成选型问题，而不是手调阴影。
+- **两套新人格**：`print`（印刷品：近墨黑品牌色、2px 圆角、38px 控件、400/700/800 字重、`paper: true` 让 body 画方格纸、硬阴影、100/160/240 线性动效）与 `magazine`（杂志目录：衬线 `--font-display`、电光蓝 `#2e54ff`、1108 容器、96px 区块留白、发丝环）。两套都明确不适合后台。
+- **新页面族 `catalog`（陈列目录页）**：左栏 sticky 目录（搜索 + 分组 + 计数）+ 面包屑 + 刊头 + 药丸筛选 + 计数行 + 3 列图版 + 分页 + 空态；`catalog.css` 独立成文件，`--pages catalog` 才生成。
+- **生成期就体检**：写盘后自动算三组关键对比度（正文 `--ink`/`--bg` ≥ 12、`--on-brand`/`--brand-fill` ≥ 4.5、`--brand-ink`/`--bg` ≥ 4.5），摘要打印 `对比度自检：19.8:1 / 4.6:1 / 6.3:1  全部达标`；不达标逐条列出并指路。同时打印深度语言与五档动效阶梯。
+- **动效令牌化**：`--dur-1..5`（每套人格按 fast/base 推五档，上限 600）+ `--ease-out/in/in-out/spring` + `--motion` 开关；`prefers-reduced-motion` 下 `--motion: 0`，全站一处归零。
+- **浏览器原生表面补齐**：`caret-color`/`accent-color` 跟品牌色、`scrollbar-gutter: stable`、细滚动条按墨色 24% 上色。
+- **卡片四件套跟随深度语言**：`.card`/`.tile`（含 hover/focus-within/active）统一走 `--card-shadow*` 与位移变量，卡片不再自己写阴影。
+
+### 验证
+
+- 五套人格 × 六类页面 × 明暗双主题 = **30 组 `audit.mjs` 全部 0 错误 / 0 警告 / 0 类 axe / 0 console / 0 HTTP**。
+- 生成期自检五套全过：rational 19.8/4.6/6.3、editorial 16.7/6.4/8.1、warm 16.6/5.1/5.0、print 18.0/4.8/6.0、magazine 19.8/6.6/8.6。
+- 令牌对比度门（`contrast_check.py` 传目录）四套各 **113 组 / 0 组未达标（14 组装饰性边框只提示）**。
+- 每套人格产出 13 个文件（tokens.json / tokens.css / base.css / components.css / depth.css / catalog.css / ui.js + 6 页）。
+
+### 这一版自己踩的 6 个坑（都已修）
+
+1. 新加的 `depth.css` / `catalog.css` 忘了进 `head()` 的 `<link>` → 样式全丢，catalog 报 12 错误 + 6 类 axe。
+2. `<label class="sr-only">` 被判「文本被裁切」→ 改 `aria-label`（和 app.html 的表格 caption 同源处理）。
+3. catalog 移动端一堆 32–36px 点击区 → `≤640px` 统一拉到 44。
+4. 面包屑链接只靠颜色区分 → axe `link-in-text-block`，必须带下划线。
+5. 缩略图硬编码 `var(--hairline)` 不跟深度语言 → 改 `var(--card-shadow)`，并把 hover 作用在缩略图上（否则硬阴影会连文字一起框住）。
+6. `print` 的 11px 小字触发 `font-too-small` → 提到 12px。
+
+### 参考文件
+
+- `references/page-patterns.md`：新增 §2.9 陈列目录页骨架（9 行要素表 + 三条硬规则）。
+- `references/design-tokens.md`：新增 §2.0 print / magazine 两套预设、§2.1 深度语言三派对照表。
+- `references/motion-spec.md`：新增「二·补三 生成器给出的阶梯」（五档 × 三套人格 + `--motion` 开关）。
+- `references/craft-floor.md`：令牌落地条目补「一个页面只准一派深度」。
+- `SKILL.md` / `README.md`：脚本表、用法、人格差异表、产出清单、验证口径对齐到五套人格 / 六类页面。
 ## v1.12.0 - 2026-11-06
 
 新增第九份单站蒸馏：Muzli 灵感库（`muz.li/inspiration/motion-design/`）。这一站和前面几个内容站几乎相反——**在页面外壳上做文章，卡片轻到几乎没有**，正好补上「目录型内容站怎么搭壳」这一格；顺带修掉了 `css-recipes.md` 的节号空洞（§20 缺失）与 CHANGELOG 里 v1.11.0 条目被错放到文末的问题。

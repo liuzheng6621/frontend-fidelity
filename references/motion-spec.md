@@ -93,6 +93,21 @@ function replay(el, cls = 'is-playing') {
   el.classList.add(cls);
 }
 ```
+## 二·补三、生成器给出的阶梯（--persona 之后别再手调）
+
+`scaffold.mjs` 会按人格把时长压成五档并写进 `--dur-1..5`：
+
+| 档 | 用途 | rational | warm | print |
+| --- | --- | --- | --- | --- |
+| `--dur-1` | 按下 / 状态翻转 | 120 | 180 | 100 |
+| `--dur-2` | hover 位移、描边 | 160 | 240 | 130 |
+| `--dur-3` | 卡片阴影、图层切换 | 200 | 300 | 160 |
+| `--dur-4` | 面板 / 抽屉 / 入场 | 320 | 480 | 256 |
+| `--dur-5` | 大块转场上限 | 600 | 600 | 600 |
+
+同时输出四条缓动（`--ease-out / in / in-out / spring`）与一个开关 **`--motion`**（`1` / `0`）。
+写动效时用 `calc(var(--dur-3) * var(--motion))`——`prefers-reduced-motion` 下生成器把 `--motion` 置 0，
+一次切换全站归零，不必在每个动画上重写降级块。
 ## 三、位移与缩放：小即是好
 
 | 动作 | 允许的量 |

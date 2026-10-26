@@ -8,7 +8,7 @@
 - 本文 = **底线与判据**（做完之前必须过，含着色规范、阴影判据、浏览器表面）。
 - `references/review-rubric.md` = **验收清单**（逐条打勾，含红旗）。
 - `references/design-evidence.md` = **实测证据**（17 站量出来的数），本文的判据要在那里对得上。
-- `references/design-tokens.md` = 三套人格的令牌落地。
+- `references/design-tokens.md` = 五套人格的令牌落地，含**深度语言三派**（hairline / soft / hard）：卡片一个页面只准一派，混用就是廉价感的来源。
 
 一条总则：**底线只保下限，不替你选方向。**九节全绿只说明「不像没做完」，不说明「好看」。方向感在 `page-patterns.md`（骨架）与各站蒸馏文档（气质）。
 

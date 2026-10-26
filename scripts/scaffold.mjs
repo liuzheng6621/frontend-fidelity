@@ -11,8 +11,11 @@
  *   tokens.css       颜色/间距/字阶/圆角/阴影/动效 变量，含可选 .dark
  *   base.css         reset + 排版 + 焦点 + 减少动效 + 容器
  *   components.css   按钮/表单/卡片/表格/标签/提示/空态/骨架/tabs/弹窗/toast/应用外壳
+ *   depth.css        卡片四件套（hover / focus-within / active），随 --depth 换语言
+ *   catalog.css      陈列页（左栏目录 + 3 列图版 + 药丸筛选 + 分页）
  *   ui.js            主题切换 + tabs + 弹窗焦点管理（无依赖）
  *   index.html       营销落地页（--pages landing）
+ *   catalog.html     陈列目录页（--pages catalog）
  *   app.html         管理端列表页（--pages app）
  *   form.html        表单页（--pages form）
  *   auth.html        认证页（--pages auth）
@@ -67,7 +70,7 @@ const PERSONAS = {
     raised: '#ffffff',
     border: '#e6e6e6',
     ink: '#0a0a0a',
-    depth: 0,
+    depth: 'hairline',
     shadowTint: null,
     dur: { fast: 120, base: 200, slow: 280 },
     container: 1280,
@@ -93,7 +96,7 @@ const PERSONAS = {
     raised: '#ffffff',
     border: '#e2ddd6',
     ink: '#0b1b2b',
-    depth: 0,
+    depth: 'hairline',
     shadowTint: null,
     dur: { fast: 160, base: 240, slow: 280 },
     container: 1080,
@@ -119,13 +122,68 @@ const PERSONAS = {
     raised: '#ffffff',
     border: '#f0e2d2',
     ink: '#221c14',
-    depth: 3,
+    depth: 'soft',
     shadowTint: true,
     dur: { fast: 200, base: 240, slow: 280 },
     container: 1140,
     section: 96,
     spaceStep: 4,
     density: 'comfortable',
+  },
+  print: {
+    label: '印刷 / 规格书',
+    ref: 'luckymaomi UI 风格库（方格纸底、墨黑 1px 边、4px 4px 0 硬阴影、2px 圆角、超重标题）',
+    neutral: { hue: 220, sat: 6 },
+    accentHue: 220,
+    accentSat: 12,
+    control: 38,
+    controlSm: 32,
+    radius: { xs: 2, sm: 2, md: 2, lg: 4, xl: 4, pill: 999 },
+    type: { xs: 12, sm: 12, base: 13, lg: 16, xl: 20, '2xl': 28, '3xl': 40, '4xl': 56 },
+    lh: { xs: 1.5, sm: 1.5, base: 1.6, lg: 1.5, xl: 1.35, '2xl': 1.25, '3xl': 1.15, '4xl': 1.05 },
+    weights: { body: 400, ui: 700, head: 800 },
+    tracking: { base: 'normal', head: '-0.01em' },
+    bg: '#f3f4f6',
+    surface: '#ffffff',
+    raised: '#ffffff',
+    border: '#bdc3cf',
+    ink: '#090a0d',
+    depth: 'hard',
+    shadowTint: null,
+    dur: { fast: 100, base: 160, slow: 240 },
+    container: 1208,
+    section: 72,
+    spaceStep: 4,
+    density: 'regular',
+    paper: true,
+    display: 'inherit',
+  },
+  magazine: {
+    label: '杂志 / 目录',
+    ref: 'Muzli 灵感库（Instrument Serif 48 刊头 + Poppins 正文 + 220 sticky 目录 + 3 列图版 + 一个电光蓝）',
+    neutral: { hue: 240, sat: 5 },
+    accentHue: 232,
+    accentSat: 100,
+    control: 40,
+    controlSm: 34,
+    radius: { xs: 4, sm: 4, md: 6, lg: 8, xl: 12, pill: 999 },
+    type: { xs: 12, sm: 13, base: 15, lg: 16, xl: 21, '2xl': 30, '3xl': 38, '4xl': 48 },
+    lh: { xs: 1.55, sm: 1.55, base: 1.6, lg: 1.5, xl: 1.3, '2xl': 1.2, '3xl': 1.15, '4xl': 1.0 },
+    weights: { body: 400, ui: 500, head: 500 },
+    tracking: { base: 'normal', head: '-0.01em' },
+    bg: '#ffffff',
+    surface: '#f7f7f8',
+    raised: '#ffffff',
+    border: '#e6e6e8',
+    ink: '#0a0a0a',
+    depth: 'hairline',
+    shadowTint: null,
+    dur: { fast: 150, base: 200, slow: 240 },
+    container: 1108,
+    section: 96,
+    spaceStep: 4,
+    density: 'regular',
+    display: 'Georgia, "Times New Roman", "Songti SC", "Source Han Serif SC", serif',
   },
 };
 
@@ -251,8 +309,40 @@ const shadow = P.shadowTint
       sh3: '0 12px 32px rgb(0 0 0 / .16)',
     };
 
-const vars = () => {
-  const L = [];
+/* 深度语言三派：一个站点只许用一种（见 references/craft-floor.md §2、luckymaomi-catalog.md） */
+const DEPTH = {
+  hairline: {
+    rest: 'var(--hairline)',
+    hover: '0 0 0 1px color-mix(in srgb, var(--ink) 45%, transparent)',
+    active: 'var(--hairline)',
+    hx: '0px', hy: '0px', press: '0px',
+    btnDepth: 0,
+  },
+  soft: {
+    rest: 'var(--sh-1), var(--hairline)',
+    hover: 'var(--sh-2), var(--hairline)',
+    active: 'var(--sh-1), var(--hairline)',
+    hx: '0px', hy: '-2px', press: '1px',
+    btnDepth: 2,
+  },
+  hard: {
+    rest: '4px 4px 0 var(--ink)',
+    hover: '6px 6px 0 var(--ink)',
+    active: '2px 2px 0 var(--ink)',
+    hx: '-1px', hy: '-1px', press: '2px',
+    btnDepth: 0,
+  },
+};
+const D = DEPTH[P.depth] || DEPTH.hairline;
+const durLadder = [
+  P.dur.fast,
+  Math.round((P.dur.fast + P.dur.base) / 2),
+  P.dur.base,
+  Math.round(P.dur.base * 1.6),
+  600,
+];
+
+const vars = () => {  const L = [];
   Object.entries(brand).forEach(([k, v]) => L.push(`  --brand-${k}: ${v};`));
   L.push('  --brand: ' + brand[500] + ';');
   L.push('  --brand-600: ' + brand[600] + ';');
@@ -290,7 +380,7 @@ const vars = () => {
   L.push(`  --pad-x: ${Math.round(P.control / 2.6)}px;`);
   L.push(`  --container: ${P.container}px;`);
   L.push(`  --section: ${P.section}px;`);
-  L.push(`  --btn-depth: ${P.depth}px;`);
+  L.push(`  --btn-depth: ${D.btnDepth}px;`);   // 只给 warm 的塑料侧壁用；hard 深度改用硬阴影
   L.push('  --ease: cubic-bezier(.33, 1, .68, 1);');
   L.push(`  --dur-fast: ${P.dur.fast}ms;`);
   L.push(`  --dur-base: ${P.dur.base}ms;`);
@@ -299,6 +389,21 @@ const vars = () => {
   L.push('  --sh-1: ' + shadow.sh1 + ';');
   L.push('  --sh-2: ' + shadow.sh2 + ';');
   L.push('  --sh-3: ' + shadow.sh3 + ';');
+  L.push('  --card-shadow: ' + D.rest + ';');
+  L.push('  --card-shadow-hover: ' + D.hover + ';');
+  L.push('  --card-shadow-active: ' + D.active + ';');
+  L.push('  --card-hx: ' + D.hx + ';');
+  L.push('  --card-hy: ' + D.hy + ';');
+  L.push('  --card-press: ' + D.press + ';');
+  L.push('  --depth: ' + P.depth + ';');
+  durLadder.forEach((ms, i) => L.push(`  --dur-${i + 1}: ${ms}ms;`));
+  L.push('  --ease-out: cubic-bezier(.16, 1, .3, 1);');
+  L.push('  --ease-in: cubic-bezier(.4, 0, 1, 1);');
+  L.push('  --ease-in-out: cubic-bezier(.65, 0, .35, 1);');
+  L.push('  --ease-spring: cubic-bezier(.34, 1.56, .64, 1);');
+  L.push('  --motion: 1;');
+  L.push('  --font-display: ' + (P.display || 'inherit') + ';');
+  L.push('  --paper-line: color-mix(in srgb, var(--ink) 7%, transparent);');
   L.push('  --font-sans: ' + tokens.fonts.sans + ';');
   L.push('  --font-mono: ' + tokens.fonts.mono + ';');
   return L.join('\n');
@@ -399,6 +504,11 @@ button { cursor: pointer; }
   border-radius: var(--r-xs);
 }
 
+body { caret-color: var(--brand); accent-color: var(--brand); }
+html { scrollbar-gutter: stable; }
+@supports (scrollbar-width: thin) {
+  html { scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--ink) 24%, transparent) transparent; }
+}
 ::selection { background: color-mix(in srgb, var(--brand) 22%, transparent); }
 
 .num { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
@@ -429,6 +539,7 @@ button { cursor: pointer; }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  :root { --motion: 0; }
   *, *::before, *::after {
     animation-duration: .01ms !important;
     animation-iteration-count: 1 !important;
@@ -1014,7 +1125,213 @@ const componentsCss = `/* components.css —— 8 个状态都在这里面，别
 `;
 /* ------------------------------------------------------------------ HTML */
 
-const head = (title, extra = '') => `<!doctype html>
+/* 深度语言 + 卡片四件套：由 --depth 与令牌驱动，页面里不要重写 */
+const depthCss = `/* depth.css —— 卡片四件套（hover / focus-within / active）跟随 --depth */
+
+${P.paper ? `body {
+  background-image:
+    linear-gradient(var(--paper-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--paper-line) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+` : ''}
+.card:not(.card--flat),
+.tile {
+  box-shadow: var(--card-shadow);
+  transition:
+    box-shadow var(--dur-3) var(--ease-out),
+    translate var(--dur-2) var(--ease-out),
+    border-color var(--dur-2) var(--ease-in-out);
+}
+.card:not(.card--flat):hover,
+.card:not(.card--flat):focus-within,
+.tile:hover,
+.tile:focus-within {
+  box-shadow: var(--card-shadow-hover);
+  translate: var(--card-hx) var(--card-hy);
+}
+.card:not(.card--flat):active,
+.tile:active {
+  box-shadow: var(--card-shadow-active);
+  translate: 0 var(--card-press);
+  transition-duration: var(--dur-1);
+}
+@media (hover: none) {
+  .card:not(.card--flat):hover,
+  .tile:hover { translate: 0 0; }
+}
+`;
+
+/* catalog.css —— 左栏目录 + 3 列图版（Muzli / 站酷 / UI 世界三派的交集） */
+const catalogCss = `/* catalog.css */
+
+.cat { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: var(--s-8); align-items: start; }
+.cat__rail { position: sticky; top: var(--s-5); max-height: calc(100vh - var(--s-6)); overflow: auto; }
+.cat__rail-search {
+  width: 100%;
+  height: var(--control-h-sm);
+  margin-bottom: var(--s-4);
+  padding-inline: var(--s-3);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: var(--t-sm);
+}
+.cat__group { margin-bottom: var(--s-5); }
+.cat__group-title {
+  font-size: var(--t-xs);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: var(--s-2);
+}
+.cat__nav-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-2);
+  min-height: 34px;
+  padding: 0 var(--s-3);
+  border-radius: var(--r-sm);
+  color: var(--ink-2);
+  text-decoration: none;
+  font-size: var(--t-sm);
+}
+.cat__nav-item:hover { background: var(--surface-hover); color: var(--ink); }
+.cat__nav-item[aria-current="page"] {
+  background: color-mix(in srgb, var(--brand) 10%, transparent);
+  color: var(--ink);
+  font-weight: var(--fw-ui);
+}
+.cat__nav-count { font-size: var(--t-xs); color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.cat__main { min-width: 0; }
+.cat__crumbs { font-size: var(--t-xs); color: var(--ink-3); margin-bottom: var(--s-3); }
+.cat__crumbs a { color: var(--ink-2); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px; }
+.cat__title {
+  font-family: var(--font-display);
+  font-size: var(--t-4xl);
+  line-height: var(--lh-4xl);
+  letter-spacing: var(--track-head);
+  margin-bottom: var(--s-3);
+  text-wrap: balance;
+}
+.cat__lede { font-size: var(--t-lg); color: var(--ink-2); max-width: 60ch; margin-bottom: var(--s-2); }
+.cat__meta { font-size: var(--t-sm); color: var(--ink-3); margin-bottom: var(--s-4); }
+.cat__meta strong { color: var(--brand-ink); font-weight: var(--fw-ui); }
+.cat__pills { display: flex; flex-wrap: wrap; gap: var(--s-2); margin-bottom: var(--s-4); }
+.cat__pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--control-h-sm);
+  padding: 0 var(--s-4);
+  border: 1px solid var(--border);
+  border-radius: var(--r-pill);
+  background: transparent;
+  color: var(--ink-2);
+  font-size: var(--t-sm);
+  text-decoration: none;
+}
+.cat__pill:hover { border-color: var(--ink-4); color: var(--ink); }
+.cat__pill[aria-current="true"] { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+.cat__count {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  padding-bottom: var(--s-3);
+  border-bottom: 1px solid var(--border);
+  margin-bottom: var(--s-5);
+  font-size: var(--t-sm);
+  color: var(--ink-3);
+}
+.cat__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-6) var(--s-5); }
+.cat__card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  min-width: 0;
+  text-decoration: none;
+  color: inherit;
+  border-radius: var(--r-md);
+}
+.cat__thumb {
+  position: relative;
+  display: block;
+  aspect-ratio: 16 / 10;
+  border-radius: var(--r-sm);
+  background: var(--skeleton);
+  box-shadow: var(--card-shadow);
+  transition:
+    box-shadow var(--dur-3) var(--ease-out),
+    translate var(--dur-2) var(--ease-out);
+  overflow: hidden;
+}
+.cat__card:hover .cat__thumb,
+.cat__card:focus-within .cat__thumb {
+  box-shadow: var(--card-shadow-hover);
+  translate: var(--card-hx) var(--card-hy);
+}
+.cat__card:active .cat__thumb {
+  box-shadow: var(--card-shadow-active);
+  translate: 0 var(--card-press);
+  transition-duration: var(--dur-1);
+}
+@media (hover: none) {
+  .cat__card:hover .cat__thumb { translate: 0 0; }
+}
+.cat__thumb img { width: 100%; height: 100%; object-fit: cover; }
+.cat__badge {
+  position: absolute;
+  inset-inline-end: var(--s-2);
+  inset-block-start: var(--s-2);
+  padding: 2px var(--s-2);
+  border-radius: var(--r-xs);
+  background: var(--ink);
+  color: var(--bg);
+  font-size: var(--t-xs);
+  font-weight: var(--fw-ui);
+}
+.cat__card-title {
+  font-size: var(--t-base);
+  font-weight: var(--fw-ui);
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.cat__card:hover .cat__card-title { color: var(--brand-ink); }
+.cat__card-meta { font-size: var(--t-xs); color: var(--ink-3); }
+.cat__pager { display: flex; gap: var(--s-2); align-items: center; margin-top: var(--s-6); }
+.cat__pager a, .cat__pager span {
+  min-width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  color: var(--ink-2);
+  font-size: var(--t-sm);
+  text-decoration: none;
+}
+.cat__pager [aria-current="page"] { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+@media (max-width: 1080px) {
+  .cat { grid-template-columns: minmax(0, 1fr); }
+  .cat__rail { position: static; max-height: none; }
+  .cat__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .cat__grid { grid-template-columns: minmax(0, 1fr); }
+  .cat__title { font-size: var(--t-3xl); line-height: var(--lh-3xl); }
+  /* 触屏下限 44：搜索、目录项、药丸、分页都要够大 */
+  .cat__rail-search { height: 44px; }
+  .cat__nav-item { min-height: 44px; }
+  .cat__pill { min-height: 44px; padding-inline: var(--s-4); }
+  .cat__pager a, .cat__pager span { min-width: 44px; height: 44px; }
+}
+`;const head = (title, extra = '') => `<!doctype html>
 <html lang="zh-CN" data-theme="light">
 <head>
 <meta charset="utf-8">
@@ -1025,6 +1342,8 @@ const head = (title, extra = '') => `<!doctype html>
 <link rel="stylesheet" href="tokens.css">
 <link rel="stylesheet" href="base.css">
 <link rel="stylesheet" href="components.css">
+<link rel="stylesheet" href="depth.css">
+<link rel="stylesheet" href="catalog.css">
 ${extra}</head>
 <body>
 `;
@@ -1530,6 +1849,140 @@ const statesHtml = head('状态示例') + shellNote(['empty', 'error', 'loading'
 ` + tail();
 /* ------------------------------------------------------------------ ui.js */
 
+const catalogHtml = head('目录') + shellNote(['site-header', 'rail', 'breadcrumb', 'display-title', 'lede', 'meta', 'pills', 'count-row', 'card-grid', 'pager']) + `<a class="skip-link" href="#main">跳到主内容</a>
+
+<header class="site-header">
+  <div class="container site-header__in">
+    <a class="brand" href="./index.html">
+      <span class="brand__mark" aria-hidden="true">${NAME.slice(0, 1)}</span>
+      <span>${NAME}</span>
+    </a>
+    <nav class="site-nav" aria-label="主导航">
+      <a href="./catalog.html" aria-current="page">目录</a>
+      <a href="#todo">分类</a>
+      <a href="#todo">合集</a>
+      <a href="./app.html">控制台</a>
+    </nav>
+    <div style="margin-inline-start:auto; display:flex; gap:var(--s-2)">
+      <a class="btn btn--ghost" href="./auth.html">登录</a>
+      <a class="btn btn--primary" href="./auth.html">免费开始</a>
+    </div>
+  </div>
+</header>
+
+<main id="main" class="container" style="padding-block:var(--s-6)">
+  <div class="cat">
+    <aside class="cat__rail">
+      <input id="cat-search" class="cat__rail-search" type="search" aria-label="{{TODO: 搜索什么}}" placeholder="{{TODO: 搜索名称、场景、关键词}}">
+      <nav aria-label="目录分组">
+        <div class="cat__group">
+          <p class="cat__group-title">{{TODO: 分组一}}</p>
+          <a class="cat__nav-item" href="#" aria-current="page">全部<span class="cat__nav-count">{{TODO: 128}}</span></a>
+          <a class="cat__nav-item" href="#">{{TODO: 子项}}<span class="cat__nav-count">{{TODO: 42}}</span></a>
+          <a class="cat__nav-item" href="#">{{TODO: 子项}}<span class="cat__nav-count">{{TODO: 31}}</span></a>
+          <a class="cat__nav-item" href="#">{{TODO: 子项}}<span class="cat__nav-count">{{TODO: 17}}</span></a>
+        </div>
+        <div class="cat__group">
+          <p class="cat__group-title">{{TODO: 分组二}}</p>
+          <a class="cat__nav-item" href="#">{{TODO: 子项}}<span class="cat__nav-count">{{TODO: 24}}</span></a>
+          <a class="cat__nav-item" href="#">{{TODO: 子项}}<span class="cat__nav-count">{{TODO: 12}}</span></a>
+        </div>
+      </nav>
+    </aside>
+
+    <div class="cat__main">
+      <p class="cat__crumbs"><a href="./index.html">首页</a> / <a href="#">目录</a> / {{TODO: 当前分类}}</p>
+      <h1 class="cat__title">{{TODO: 目录标题，一句话说清这一页收什么}}</h1>
+      <p class="cat__lede">{{TODO: 一到两句：谁在这里找什么，为什么是你来收。别写"精选优质"这种空话。}}</p>
+      <p class="cat__meta"><strong>{{TODO: 5 项}}</strong> 是最近两周新增 · 最后更新 {{TODO: 2026-11-06}}</p>
+
+      <div class="cat__pills" role="tablist" aria-label="分类筛选">
+        <a class="cat__pill" href="#" role="tab" aria-selected="true" aria-current="true">{{TODO: 全部}}</a>
+        <a class="cat__pill" href="#" role="tab">{{TODO: 分类 A}}</a>
+        <a class="cat__pill" href="#" role="tab">{{TODO: 分类 B}}</a>
+        <a class="cat__pill" href="#" role="tab">{{TODO: 分类 C}}</a>
+        <a class="cat__pill" href="#" role="tab">{{TODO: 分类 D}}</a>
+      </div>
+
+      <div class="cat__count">
+        <span>显示 1–9 / 共 {{TODO: 128}} 个</span>
+        <label class="tiny" for="cat-sort">排序
+          <select id="cat-sort" class="select" style="height:var(--control-h-sm); width:auto; margin-inline-start:var(--s-2)">
+            <option>{{TODO: 推荐}}</option>
+            <option>最新</option>
+            <option>最热</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="cat__grid">
+        <a class="cat__card" href="#todo">
+          <span class="cat__thumb"><span class="cat__badge">{{TODO: 新}}</span></span>
+          <span class="cat__card-title">{{TODO: 条目名称，一行到两行}}</span>
+          <span class="cat__card-meta">{{TODO: 分类}} · {{TODO: 作者}}</span>
+        </a>
+        <a class="cat__card" href="#todo">
+          <span class="cat__thumb"></span>
+          <span class="cat__card-title">{{TODO: 条目名称}}</span>
+          <span class="cat__card-meta">{{TODO: 分类}} · {{TODO: 更新时间}}</span>
+        </a>
+        <a class="cat__card" href="#todo">
+          <span class="cat__thumb"></span>
+          <span class="cat__card-title">{{TODO: 条目名称}}</span>
+          <span class="cat__card-meta">{{TODO: 分类}} · {{TODO: 更新时间}}</span>
+        </a>
+        <a class="cat__card" href="#todo">
+          <span class="cat__thumb"></span>
+          <span class="cat__card-title">{{TODO: 条目名称}}</span>
+          <span class="cat__card-meta">{{TODO: 分类}} · {{TODO: 更新时间}}</span>
+        </a>
+        <a class="cat__card" href="#todo">
+          <span class="cat__thumb"></span>
+          <span class="cat__card-title">{{TODO: 条目名称}}</span>
+          <span class="cat__card-meta">{{TODO: 分类}} · {{TODO: 更新时间}}</span>
+        </a>
+        <a class="cat__card" href="#todo">
+          <span class="cat__thumb"></span>
+          <span class="cat__card-title">{{TODO: 条目名称}}</span>
+          <span class="cat__card-meta">{{TODO: 分类}} · {{TODO: 更新时间}}</span>
+        </a>
+        <a class="cat__card" href="#todo">
+          <span class="cat__thumb"></span>
+          <span class="cat__card-title">{{TODO: 条目名称}}</span>
+          <span class="cat__card-meta">{{TODO: 分类}} · {{TODO: 更新时间}}</span>
+        </a>
+        <a class="cat__card" href="#todo">
+          <span class="cat__thumb"></span>
+          <span class="cat__card-title">{{TODO: 条目名称}}</span>
+          <span class="cat__card-meta">{{TODO: 分类}} · {{TODO: 更新时间}}</span>
+        </a>
+        <a class="cat__card" href="#todo">
+          <span class="cat__thumb"></span>
+          <span class="cat__card-title">{{TODO: 条目名称}}</span>
+          <span class="cat__card-meta">{{TODO: 分类}} · {{TODO: 更新时间}}</span>
+        </a>
+      </div>
+
+      <nav class="cat__pager" aria-label="分页">
+        <span aria-current="page">1</span>
+        <a href="#">2</a>
+        <a href="#">3</a>
+        <a href="#">下一页</a>
+      </nav>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container site-footer__in">
+    <p class="tiny">© 2026 {{TODO: 主体}}</p>
+    <div class="site-footer__links">
+      <a href="#">隐私</a>
+      <a href="#">条款</a>
+    </div>
+  </div>
+</footer>
+` + tail();
 const uiJs = `// ui.js —— 主题切换 / 密码显隐 / tabs 键盘 / 弹窗（无依赖，约 2KB）
 (function () {
   var root = document.documentElement;
@@ -1609,12 +2062,13 @@ const uiJs = `// ui.js —— 主题切换 / 密码显隐 / tabs 键盘 / 弹窗
 
 const pageMap = {
   landing: 'index.html',
+  catalog: 'catalog.html',
   app: 'app.html',
   form: 'form.html',
   auth: 'auth.html',
   states: 'states.html',
 };
-const built = { landing: landingHtml, app: appHtml, form: formHtml, auth: authHtml, states: statesHtml };
+const built = { landing: landingHtml, catalog: catalogHtml, app: appHtml, form: formHtml, auth: authHtml, states: statesHtml };
 const unknown = pages.filter((x) => !pageMap[x]);
 if (unknown.length) {
   console.error(`未知页面：${unknown.join(', ')}（可选：${Object.keys(pageMap).join(' / ')}）`);
@@ -1625,6 +2079,8 @@ const files = [
   ['tokens.css', tokensCss],
   ['base.css', baseCss],
   ['components.css', componentsCss],
+  ['depth.css', depthCss],
+  ['catalog.css', catalogCss],
   ['ui.js', uiJs],
 ];
 for (const k of pages) files.push([pageMap[k], built[k]]);
@@ -1637,12 +2093,24 @@ for (const [name, body] of files) {
   total += bytes;
   if (!quiet) console.log('  + ' + name.padEnd(16) + String(bytes).padStart(7) + ' B');
 }
+/* 生成期自检：能算出来的对比度就不要留给"待会儿再看" */
+const contrastChecks = [
+  { name: '正文 --ink / --bg', v: contrast(P.ink, P.bg), min: 12 },
+  { name: '--on-brand / --brand-fill', v: contrast(onBrand, brandFill), min: 4.5 },
+  { name: '--brand-ink / --bg', v: contrast(brandInk, P.bg), min: 4.5 },
+];
+const failed = contrastChecks.filter((c) => c.v < c.min);
+
 if (!quiet) {
   const rel = outDir.split(path.sep).join('/');
   console.log('');
   console.log('人格：' + P.label + '（--persona ' + personaKey + '）  参照：' + P.ref);
   console.log('密度：' + P.density + '  控件高：' + P.control + 'px  圆角：' + [P.radius.sm, P.radius.md, P.radius.lg, P.radius.xl].join('/') + 'px');
   console.log('品牌色相：' + accentHue + ' 度  →  --brand ' + brand[500]);
+  console.log('深度语言：' + P.depth + '（卡片 hover 位移 ' + D.hx + ' / ' + D.hy + '，按下 ' + D.press + '）  动效阶梯：' + durLadder.join(' / ') + 'ms');
+  console.log('对比度自检：' + (failed.length
+    ? failed.map((c) => c.name + ' = ' + c.v.toFixed(2) + ':1，要求 ≥ ' + c.min).join('；') + '  ← 先修这个'
+    : contrastChecks.map((c) => c.v.toFixed(1) + ':1').join(' / ') + '  全部达标'));
   console.log('输出：' + outDir + '（' + files.length + ' 个文件，' + (total / 1024).toFixed(1) + ' KB）');
   console.log('');
   console.log('接着做三件事：');

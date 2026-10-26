@@ -41,7 +41,7 @@ license: MIT
 | `scripts/crop_logo.py` | Logo 裁边、正方形化、导出尺寸 | 拿到品牌图之后 |
 | `scripts/hygiene.mjs` | 找无引用组件/资源/样式、重复路由 | 改版收尾、合并前 |
 | `scripts/run_checks.mjs` | 跑项目自带的 lint/typecheck/test/build | 交付前最后一步 |
-| `scripts/scaffold.mjs` | 从 0 生成骨架：三套人格令牌 + 组件 CSS + 五类页面 | 要从零做一个页面/后台/落地页时，先生成再改 |
+| `scripts/scaffold.mjs` | 从 0 生成骨架：五套人格（含印刷/杂志）+ 深度三派 + 六类页面 + 生成期对比度自检 | 要从零做一个页面/后台/落地页/陈列目录时，先生成再改 |
 | `scripts/probe-ref.mjs` | 量任意参考站的真实字体/字阶/配色/圆角/间距/控件高度 | 想「像这个站」但说不清具体数值时 |
 
 最短可用流程（把 `<url>` 换掉）：
@@ -155,11 +155,13 @@ node scripts/probe-ref.mjs --url http://localhost:5173/orders --theme dark --nam
 ### 2. 生成骨架
 
 ```bash
-node scripts/scaffold.mjs --persona rational --out src --pages landing,app,form,auth,states
+node scripts/scaffold.mjs --persona rational --out src --pages landing,catalog,app,form,auth,states
 node scripts/scaffold.mjs --persona warm --out preview --accent 20 --pages landing,form --dark
+node scripts/scaffold.mjs --persona print --pages catalog                    # 方格纸 + 硬阴影
+node scripts/scaffold.mjs --persona magazine --pages catalog                 # 衬线刊头 + 电光蓝
 ```
 
-产出 `tokens.css / base.css / components.css / ui.js` + 五类页面。`--dark` 决定深色是不是一等公民（不留后路那种才有意义）。
+产出 `tokens.css / base.css / components.css / depth.css / catalog.css / ui.js` + 六类页面，摘要里还会打印**深度语言**（hairline / soft / hard）、动效阶梯与**生成期对比度自检**（三组关键配对，不达标会直接指出来）。`--dark` 决定深色是不是一等公民（不留后路那种才有意义）。
 
 ### 3. 改令牌，不是改样式
 
@@ -194,6 +196,7 @@ node scripts/scaffold.mjs --persona warm --out preview --accent 20 --pages landi
 | 卡片 hover 怎么“活”起来、聚光描边 | `references/holynova-motion.md` + `references/css-recipes.md` §19 |
 | 要「印刷品」气质：方格纸底、墨黑框、硬阴影、元数据黑条 | `references/luckymaomi-catalog.md` + `references/css-recipes.md` §20 |
 | 要「杂志目录」气质：左栏目录 + 3 列图版 + 衬线刊头 + 一个电光蓝 | `references/muzli-gallery.md` + `references/css-recipes.md` §21 |
+| 要做「一批彼此不同东西」的索引（风格库 / 模板库 / 灵感库 / 案例墙） | `references/page-patterns.md` §2.9 + `node scripts/scaffold.mjs --pages catalog` |
 | 图墙 / 管理端列表 / 三态 / 表单 / 登录墙 | 页面结构 |
 | Logo、图片、图标 | Logo 与品牌、图片与视觉资产 |
 | 按钮 8 个状态、点击区尺寸 | 控件与状态 |
@@ -256,7 +259,7 @@ node scripts/scaffold.mjs --persona warm --out preview --accent 20 --pages landi
   空/错/无权限三变体，移动端差异，内容最低量要求。**先在这里定骨架，再写代码。**
 - `references/component-spec.md` — 11 类组件的规格卡：三档密度（32/36–40/44–48）、按钮 4 层级、
   表单/表格/弹窗/提示/分页/空态各自的尺寸、对齐与禁忌。**写组件前对一遍，别自创尺寸。**
-- `references/design-tokens.md` — 三套人格预设（rational / editorial / warm）的完整令牌，
+- `references/design-tokens.md` — 五套人格预设（rational / editorial / warm / print / magazine）的完整令牌，深度语言三派（发丝 / 软影 / 硬影）怎么配，
   色阶生成算法（11 档 L%+S 系数）、间距、字阶（含行高）、圆角与阴影配对、暗色推导、命名约定。
 - `references/visual-system.md` — **视觉与结构细则的完整版**（从本文件下沉）：中文排版、色彩与色阶、间距节奏、
   层级与阴影五派、动效、页面结构（图墙/列表/三态/表单/登录墙）、Logo 与图片、控件 8 状态、响应式、

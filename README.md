@@ -1,11 +1,11 @@
 # frontend-fidelity · 前端保真度
 
-> 把界面做对、做实，两条路都走：**已有界面**——按设计稿/截图还原，或把现存页面整改到位（后台管理端、移动 H5/小程序、多端一致性、Logo 与品牌资产）；**还没有界面**——从 0 生成一套能验收的骨架（令牌 + 组件 + 五类页面），再往上填真内容与业务状态。
+> 把界面做对、做实，两条路都走：**已有界面**——按设计稿/截图还原，或把现存页面整改到位（后台管理端、移动 H5/小程序、多端一致性、Logo 与品牌资产）；**还没有界面**——从 0 生成一套能验收的骨架（令牌 + 组件 + 六类页面），再往上填真内容与业务状态。
 > 参考库是 **20 个真实站的实测数据 + 八份单站蒸馏**（营销 / 工具站 / 密版图墙 / 疏版图墙 / 陈列页 / 灵感库 / 风格库 / 杂志目录），外加**两份外部规则集蒸馏**（工艺底线 / 反模板清单）；按页面类型对到具体文件，见 [该抄哪份参考](#该抄哪份参考)。
 > 搜这些词应该能到这：设计稿转代码、照着截图还原、UI 还原、前端验收、截图对比、后台美化、移动端适配、设计令牌、Claude Code 技能（skill）。
 > 目标不是"改好看"，而是**让界面和它声称的样子一致，并且真的能用——改完能拿出证据**。
 
-`v1.12.0` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `9 个可执行脚本`
+`v1.13.0` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `9 个可执行脚本`
 
 ---
 
@@ -76,7 +76,7 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 | 作品墙 / 内容列表：要"疏"，有报头、有定版 | [`references/zcool-design.md`](references/zcool-design.md) + [css-recipes §15](references/css-recipes.md) | 4 列列距 24 行距 36、两级分类用形状区分、`0.8px` 发丝、直角分页、顶栏 sticky |
 | 目录 / 陈列页：一屏陈列一批**彼此不同**的东西 | [`references/stylekit-design.md`](references/stylekit-design.md) + [css-recipes §16](references/css-recipes.md) | 卡片即预览（真 CSS 不是截图）、6px 四段色板条、通体直角、hover 只两笔 |
 | 灵感库 / 截图站：素材本身就是成品，界面要隐形 | [`references/uinotes-design.md`](references/uinotes-design.md) + [css-recipes §17](references/css-recipes.md) | 不画壳的截图墙、裁切露 1.8 张、48px 数字当标题、2/4/6/16/20/24 线性圆角阶梯 |
-| 后台 / 管理端：列表、表单、详情、空态、权限墙 | [`references/page-patterns.md`](references/page-patterns.md) + [`component-spec.md`](references/component-spec.md) + [`design-tokens.md`](references/design-tokens.md) | 七类页面骨架 + 11 类组件规格 + 三套人格令牌；单站样本没有后台，横向数据看 `design-evidence.md` B 组 |
+| 后台 / 管理端：列表、表单、详情、空态、权限墙 | [`references/page-patterns.md`](references/page-patterns.md) + [`component-spec.md`](references/component-spec.md) + [`design-tokens.md`](references/design-tokens.md) | 八类页面骨架 + 11 类组件规格 + 五套人格令牌；单站样本没有后台，横向数据看 `design-evidence.md` B 组 |
 
 动效是另一条横切：动手加任何动画前读 [`references/motion-spec.md`](references/motion-spec.md)（四条底线、时长五档、四条缓动、编排、三档降级、自测四步），可粘贴片段在 [css-recipes §18](references/css-recipes.md)。想让一批卡片"被指针点亮"，直接抄 [`references/holynova-motion.md`](references/holynova-motion.md) + [css-recipes §19](references/css-recipes.md)（聚光描边 + hover 四件套，实测单站）。
 
@@ -167,7 +167,7 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 | 多端一致性（PC / H5 / 平板） | ✅ | 三个视口一起截图，差异一眼可见 |
 | Logo / 品牌视觉资产整合 | ✅ | `crop_logo.py` 裁边、方形化、导出；审计查拉伸与深色可见性 |
 | 深色模式补齐 | ✅ | 截图与审计都能强制三种主题约定 |
-| 从 0 生成后台 / 落地页骨架 | ✅ | `scaffold.mjs` 一次生成令牌 + 组件 + 五类页面，再往里填真内容 |
+| 从 0 生成后台 / 落地页骨架 | ✅ | `scaffold.mjs` 一次生成令牌 + 组件 + 六类页面，再往里填真内容 |
 | 纯逻辑 bug、接口联调 | ❌ | 没有视觉面，用测试和日志，不在这里 |
 | 大规模重构 / 换技术栈 | ❌ | 这是改造工具，不是迁移工具 |
 | 品牌视觉从零创作 / 海报插画 | ❌ | 那属于 `frontend-design` / `canvas-design`：要原创视觉方向，不是"做对现有的" |
@@ -198,7 +198,7 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 | `references/anti-slop.md` | agent | 反模板：Design Read、三档旋钮与三套人格对照、hero 四条硬规则、三把锁、8 组 AI tell、中文站条款、34 条 pre-flight（来源：design-taste-frontend，规则重写） |
 | `references/page-patterns.md` | agent | 选型表 + 七类页面骨架 + 空/错/无权限三变体 + 内容最低量 |
 | `references/component-spec.md` | agent | 11 类组件规格与禁忌（三档密度、尺寸、对齐、状态） |
-| `references/design-tokens.md` | agent | 三套人格预设、色阶生成数学、字阶、圆角阴影配对、暗色推导 |
+| `references/design-tokens.md` | agent | 五套人格预设（含印刷 / 杂志）、深度语言三派、色阶生成数学、字阶、圆角阴影配对、暗色推导 |
 | `references/copy-and-content.md` | 双方 | 标题公式、按钮动词表、空/错/载文案、`{{TODO}}` 占位规范 |
 | `references/css-recipes.md` | 双方 | 可直接复制的设计令牌、表格、骨架屏、空态、深色片段 |
 | `references/review-rubric.md` | 双方 | 交付前逐项勾的验收清单（九节，含红旗） |
@@ -309,7 +309,7 @@ frontend-fidelity/
 │   ├── uinotes-design.md        # UI Notes（截图灵感库）：隐形界面 + 240×520 截图带裁切 + 数字当标题 + 七处反例
 │   ├── page-patterns.md          # 从 0 生成：选型表 + 七类页面骨架 + 三变体 + 内容最低量
 │   ├── component-spec.md         # 11 类组件规格：三档密度、尺寸、对齐、禁忌
-│   ├── design-tokens.md          # 三套人格预设、色阶生成算法、字阶、圆角阴影配对、暗色推导
+│   ├── design-tokens.md          # 五套人格预设、深度三派、色阶生成算法、字阶、圆角阴影配对、暗色推导
 │   ├── copy-and-content.md       # 文案规格：标题公式、按钮动词、空/错/载公式、占位写法
 │   ├── css-recipes.md            # 设计令牌 / 表格 / 骨架屏 / 空态 / 深色 / 六个站的风味片段（第 12–17 节）
 │   ├── motion-spec.md            # 动效规格：四条底线 + 时长五档 + 四条缓动 + 编排 + 三档降级 + 自测
@@ -321,7 +321,7 @@ frontend-fidelity/
 │   ├── visual-system.md         # 视觉与结构细则完整版（从 SKILL.md 下沉的 15 节）
 │   └── review-rubric.md          # 交付前十节验收清单（含红旗清单）
 └── scripts/
-    ├── scaffold.mjs              # 从 0 生成骨架：三套人格令牌 + 组件 CSS + 五类页面
+    ├── scaffold.mjs              # 从 0 生成骨架：五套人格 + 深度三派 + 六类页面 + 生成期对比度自检
     ├── screenshot.mjs            # 多视口 × 多主题全页截图
     ├── audit.mjs                 # 结构 + axe WCAG 2.1 A/AA + CLS + 动效
     ├── auth.mjs                  # 有头浏览器人工登录，导出 auth.json
@@ -396,14 +396,14 @@ node scripts/probe-ref.mjs --url https://参考站.com --out .tmp/ref --name ref
 
 ```bash
 # 1) 生成（后台形态）
-node scripts/scaffold.mjs --persona rational --out src --pages landing,app,form,auth,states --dark
+node scripts/scaffold.mjs --persona rational --out src --pages landing,catalog,app,form,auth,states --dark
 
 # 2) 起本地服务再体检（file:// 会被 CORS 干扰，审计结果不可信）
 node scripts/screenshot.mjs --url http://localhost:5173/ --out .design/after
 node scripts/audit.mjs --url http://localhost:5173/ --themes light,dark
 ```
 
-三套人格的差别不只是换色：
+五套人格的差别不只是换色（前三个是主线，后两个专给「陈列一批东西」的页面）：
 
 | | rational | editorial | warm |
 | --- | --- | --- | --- |
@@ -413,6 +413,15 @@ node scripts/audit.mjs --url http://localhost:5173/ --themes light,dark
 | 标题字重 | 600 | 400（大字轻） | 700 |
 | 区块留白 | 56px | 112px | 64-80px |
 | 按钮 | 平面 + 发丝环 | 描边优先 | 厚度内阴影 |
+后两套人格专门给陈列页：
+
+| | print | magazine |
+| --- | --- | --- |
+| 适合 | 风格库、规格书、作品索引 | 灵感库、杂志目录、编辑推荐 |
+| 控件高 | 38px | 40px（小号 34） |
+| 圆角 | 2/2/2/4/4 | 4/4/6/8/12 |
+| 深度 | 4px 实心硬阴影 | 发丝环 |
+| 特征 | body 方格纸 + 墨黑细边 | 衬线刊头 + 电光蓝只指路 |
 
 **生成物是起点，不是成品。** 骨架把「层级、间距、状态、可访问性」这些最容易漏的硬骨头钉死，视觉个性还得自己那一下——需要原创方向时转 `frontend-design`。
 
@@ -422,7 +431,7 @@ node scripts/audit.mjs --url http://localhost:5173/ --themes light,dark
 
 ### scaffold.mjs — 从 0 生成前端骨架
 
-一次性产出设计令牌 + 组件样式 + 五类页面，拿到就能跑、能量、能改。**模式 B 的第一步**。
+一次性产出设计令牌 + 组件样式 + 六类页面，拿到就能跑、能量、能改。**模式 B 的第一步**。
 
 ```bash
 # 后台：令牌 + 组件 + 落地页/列表/表单/认证/状态页
@@ -437,16 +446,16 @@ node scripts/scaffold.mjs --name "南风工单" --out src --pages app,form
 
 | 参数 | 说明 | 默认 |
 | --- | --- | --- |
-| `--persona` | `rational`（SaaS/后台，方正克制）／`editorial`（内容、品牌站，字重轻留白大）／`warm`（消费级、社区，暖色圆角厚） | `rational` |
+| `--persona` | `rational`（SaaS/后台，方正克制）／`editorial`（内容、品牌站，字重轻留白大）／`warm`（消费级、社区，暖色圆角厚）／`print`（印刷品：方格纸 + 墨框 + 4px 硬阴影）／`magazine`（杂志目录：衬线刊头 + 电光蓝 + 无壳图版） | `rational` |
 | `--out` | 输出目录 | `ui-scaffold` |
-| `--pages` | 逗号分隔：`landing,app,form,auth,states` | `landing,app` |
+| `--pages` | 逗号分隔：`landing,catalog,app,form,auth,states` | `landing,app` |
 | `--accent` | 覆盖品牌色相 0–360（不填用该人格默认） | 人格预设 |
 | `--dark` | 额外生成 `.dark` 令牌块（不给就等于没打算支持深色） | 关 |
 | `--name` | 产品名 | `示例产品` |
 | `--quiet` | 少打印 | 关 |
 | `--help` / `-h` | 打印用法后退出 | — |
 
-**产出**（平铺在 `--out` 目录，10 个文件）：
+**产出**（平铺在 `--out` 目录：6 个 CSS/JS + 各页面，全量 13 个文件）：
 
 ```
 <out>/
@@ -454,13 +463,15 @@ node scripts/scaffold.mjs --name "南风工单" --out src --pages app,form
 ├── tokens.css           # 颜色/间距/字阶/圆角/阴影/动效变量，含可选 .dark
 ├── base.css             # reset、排版、焦点环、::selection、reduced-motion
 ├── components.css       # 按钮/表单/卡片/表格/标签/提示/空态/骨架/tabs/弹窗/toast + 外壳
+├── depth.css            # 深度三派（发丝 / 软影 / 硬影）的卡片四件套；print 额外画方格纸
+├── catalog.css          # 陈列目录页：左栏目录 + 药丸筛选 + 3 列图版 + 分页
 ├── ui.js                # 主题切换（localStorage）、密码显隐、tabs 键盘、modal Esc
-└── *.html               # index / app / form / auth / states，按 --pages 决定
+└── *.html               # index / catalog / app / form / auth / states，按 --pages 决定
 ```
 
 退出码：`0` 成功；`2` 参数错（未知人格 / 未知页面名，同时打印可选值）。
 
-**生成物已过 `audit.mjs` 的明暗双主题验证**：三套人格 × 五类页面 0 error / 0 warn / 0 axe 违规（v1.9.1 复跑）。
+**生成物已过 `audit.mjs` 的明暗双主题验证**：五套人格 × 六类页面 × 明暗 = 30 组，0 error / 0 warn / 0 axe 违规（v1.13.0 复跑）；令牌对比度门每个 113 组 / 0 组未达标。
 但它只保证「层级、间距、状态、可访问性」这些硬骨头，文案全是 `{{TODO: ...}}` 占位——
 你的活是把它们换成真内容（见 `references/copy-and-content.md`），别直接当成品交付。
 
