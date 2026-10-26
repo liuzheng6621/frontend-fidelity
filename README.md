@@ -5,7 +5,7 @@
 > 搜这些词应该能到这：设计稿转代码、照着截图还原、UI 还原、前端验收、截图对比、后台美化、移动端适配、设计令牌、Claude Code 技能（skill）。
 > 目标不是"改好看"，而是**让界面和它声称的样子一致，并且真的能用——改完能拿出证据**。
 
-`v1.13.0` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `9 个可执行脚本`
+`v1.13.1` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `9 个可执行脚本`
 
 ---
 
@@ -37,7 +37,7 @@ curl -fsSL https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/ra
 bash install.sh --target claude          # 只装 Claude Code
 bash install.sh --target dsh             # 只装 DSH
 bash install.sh --dir ~/my-skills        # 装到自定义目录
-bash install.sh --ref v1.9.1             # 锁定某个版本
+bash install.sh --ref v1.13.1            # 锁定某个版本
 bash install.sh --dry-run                # 只看会装到哪，不动文件
 ```
 
@@ -52,7 +52,7 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 
 ## 它到底量大到什么程度
 
-18 个真实站在浏览器里逐元素量出来的，不是猜的：
+20 个真实站在浏览器里逐元素量出来的，不是猜的：
 
 | 量的是什么 | 结果 |
 | --- | --- |
@@ -87,7 +87,7 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 两条读法上的提醒：
 
 1. **别把"他们的取舍"当规范。** 四份中文内容站（即时设计 / UI 世界 / 站酷 / UI Notes）都用系统字体栈、正文 13–14px——那是它们要在一屏里塞更多东西的代价，不是推荐值。跨站统计的均值（正文 14.8px、H1 72.6px）在 [`design-evidence.md`](references/design-evidence.md)。
-2. **单站样本只证明"可以这么做"，不证明"必须这么做"。** 想要判断某个数值是不是行业常态，去 `design-evidence.md` 看 18 个站里出现了几次；只在单站出现一次的，一律当作那一家的个性。
+2. **单站样本只证明"可以这么做"，不证明"必须这么做"。** 想要判断某个数值是不是行业常态，去 `design-evidence.md` 看 20 个站里出现了几次；只在单站出现一次的，一律当作那一家的个性。
 
 ---
 
@@ -183,7 +183,7 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 | `SKILL.md` | agent（模型） | 入口：两种模式（整改 / 从 0 生成）+ 工作流 + 质量门 + 细则路由 + 十个速查数字（283 行，细则已下沉） |
 | `references/visual-system.md` | 双方 | 视觉与结构细则完整版（从 SKILL.md 下沉）：中文排版、色彩、间距、阴影五派、动效、页面结构、控件 8 状态、响应式、深色、可访问性、反模式清单 |
 | `README.md`（本文件） | 人 | 项目介绍、安装、脚本参数、产物、排错 |
-| `references/design-evidence.md` | 双方 | 18 个实测站点（15 A 组：11 营销/产品 + 4 内容陈列站；另 3 后台）的字体/间距/圆角/密度数值 |
+| `references/design-evidence.md` | 双方 | 20 个实测站点（17 A 组：11 营销/产品 + 6 内容陈列站；另 3 后台）的字体/间距/圆角/密度数值 |
 | `references/wegic-design.md` | 双方 | wegic.ai 单站全量蒸馏：完整令牌、塑料按钮、字阶节奏、迁移口径 |
 | `references/jsdesign-design.md` | 双方 | 即时设计 js.design 单站全量蒸馏：冷灰蓝底 + 负扩散阴影、130px 节奏、零 webfont、七处反例 |
 | `references/uishijie-design.md` | 双方 | UI 世界（内容聚合站）单站全量蒸馏：零 gutter 图墙、卡片不画壳、四档字号、七处反例 |
@@ -300,7 +300,7 @@ frontend-fidelity/
 ├── LICENSE                       # MIT
 ├── CHANGELOG.md                  # 版本变更与发版说明
 ├── references/
-│   ├── design-evidence.md        # 18 个实测站点（15 A 组 + 3 后台）：字体、字阶、行高、间距、圆角、密度
+│   ├── design-evidence.md        # 20 个实测站点（17 A 组 + 3 后台）：字体、字阶、行高、间距、圆角、密度
 │   ├── wegic-design.md           # wegic.ai 单站全量蒸馏：完整令牌 + 塑料按钮 + 迁移口径
 │   ├── jsdesign-design.md        # 即时设计 js.design 单站全量蒸馏：冷灰蓝底 + 负扩散阴影 + 七处反例
 │   ├── uishijie-design.md        # UI 世界（内容聚合站）：零 gutter 图墙 + 卡片不画壳 + 七处反例
@@ -320,6 +320,8 @@ frontend-fidelity/
 │   ├── anti-slop.md              # 反模板：三档旋钮 + hero 四条 + 三把锁 + 8 组 AI tell + 34 条 pre-flight
 │   ├── visual-system.md         # 视觉与结构细则完整版（从 SKILL.md 下沉的 15 节）
 │   └── review-rubric.md          # 交付前十节验收清单（含红旗清单）
+├── package.json                  # 只声明 devDependency playwright 与 npm run selfcheck
+├── .github/workflows/           # CI：语法 + 生成 + 对比度（装了浏览器时再跑 30 组审计）
 └── scripts/
     ├── scaffold.mjs              # 从 0 生成骨架：五套人格 + 深度三派 + 六类页面 + 生成期对比度自检
     ├── screenshot.mjs            # 多视口 × 多主题全页截图
@@ -471,7 +473,7 @@ node scripts/scaffold.mjs --name "南风工单" --out src --pages app,form
 
 退出码：`0` 成功；`2` 参数错（未知人格 / 未知页面名，同时打印可选值）。
 
-**生成物已过 `audit.mjs` 的明暗双主题验证**：五套人格 × 六类页面 × 明暗 = 30 组，0 error / 0 warn / 0 axe 违规（v1.13.0 复跑）；令牌对比度门每个 113 组 / 0 组未达标。
+**生成物已过 `audit.mjs` 的明暗双主题验证**：五套人格 × 六类页面 × 明暗 = 30 组，0 error / 0 warn / 0 axe 违规（v1.13.1 复跑，`node scripts/selfcheck.mjs` 一条命令可复现）；令牌对比度门每个 113 组 / 0 组未达标。
 但它只保证「层级、间距、状态、可访问性」这些硬骨头，文案全是 `{{TODO: ...}}` 占位——
 你的活是把它们换成真内容（见 `references/copy-and-content.md`），别直接当成品交付。
 
@@ -479,6 +481,29 @@ node scripts/scaffold.mjs --name "南风工单" --out src --pages app,form
 
 ---
 
+### selfcheck.mjs — 一键自检（改技能本身之后跑这个）
+
+```bash
+node scripts/selfcheck.mjs              # 全跑（没有 playwright 时自动跳过审计）
+node scripts/selfcheck.mjs --skip-audit # 只跑语法 + 生成 + 对比度 + 文档数字，秒级，CI 用
+npm run selfcheck                       # 同上，走 package.json 里的脚本
+node scripts/selfcheck.mjs --keep       # 保留临时目录，方便看生成物
+```
+
+四步，任何一步失败都以非 0 退出：
+
+| 步骤 | 做什么 | 失败含义 |
+| --- | --- | --- |
+| 语法 | `node --check` 所有 `scripts/*.mjs`、`python -m py_compile` 所有 `scripts/*.py` | 改脚本时手滑了 |
+| 生成 | 五套人格 × 六类页面（含 `--dark`）各生成一遍，检查 13 个产物文件齐 | `scaffold.mjs` 坏了 |
+| 对比度 | 对每套生成物跑 `contrast_check.py`，有未达标即失败 | 令牌改暗了/改浅了 |
+| 审计 | 内置静态服务 + `audit.mjs --themes light,dark`，30 组都要 `0 错误 / 0 警告` | 生成物出现了 a11y 回归 |
+
+第五步「文档数字」也在里面：以 `references/design-evidence.md` 的「采集成功 N 个站 / A 组 N」为准，
+检查 README、SKILL 里所有「N 个真实站」「N 个实测站点」「A 组 N」是否一致——这类数字最容易悄悄漂
+（本项目已经漂过三次）。
+
+CI 在 `.github/workflows/selfcheck.yml`：推 PR 时跑 fast 路径（不装浏览器），手动触发跑完整 30 组审计。
 ### screenshot.mjs — 多视口 / 多主题全页截图
 
 **用途**：一次拍齐 3 视口 × 2 主题，自动滚动触发懒加载，记录 console 错误与 CLS。

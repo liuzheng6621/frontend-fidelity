@@ -1319,7 +1319,19 @@ const catalogCss = `/* catalog.css */
 .cat__pager [aria-current="page"] { background: var(--ink); border-color: var(--ink); color: var(--bg); }
 @media (max-width: 1080px) {
   .cat { grid-template-columns: minmax(0, 1fr); }
-  .cat__rail { position: static; max-height: none; }
+  /* 平板：侧栏横过来排成两列，别把图版推到第二屏之外 */
+  .cat__rail {
+    position: static;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--s-4) var(--s-5);
+    max-height: none;
+    overflow: visible;
+  }
+  .cat__rail-search { grid-column: 1 / -1; }
+  /* 分组外包了一层 div；display: contents 让分组直接落进上面的两列 */
+  .cat__rail > nav, .cat__rail > div { display: contents; }
+  .cat__group { margin: 0; }
   .cat__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 640px) {

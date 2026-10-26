@@ -42,6 +42,7 @@ license: MIT
 | `scripts/hygiene.mjs` | 找无引用组件/资源/样式、重复路由 | 改版收尾、合并前 |
 | `scripts/run_checks.mjs` | 跑项目自带的 lint/typecheck/test/build | 交付前最后一步 |
 | `scripts/scaffold.mjs` | 从 0 生成骨架：五套人格（含印刷/杂志）+ 深度三派 + 六类页面 + 生成期对比度自检 | 要从零做一个页面/后台/落地页/陈列目录时，先生成再改 |
+| `scripts/selfcheck.mjs` | 一键自检：语法 + 五套人格各生成 6 页 + 对比度 + 30 组审计 | 动过技能本身（脚本/人格/文档数字）之后 |
 | `scripts/probe-ref.mjs` | 量任意参考站的真实字体/字阶/配色/圆角/间距/控件高度 | 想「像这个站」但说不清具体数值时 |
 
 最短可用流程（把 `<url>` 换掉）：

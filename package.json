@@ -1,0 +1,24 @@
+{
+  "name": "frontend-fidelity",
+  "version": "1.13.1",
+  "private": true,
+  "description": "把界面做对、做实：按设计稿/截图还原与整改，或从 0 生成一套能验收的前端骨架。配套可运行脚本：多视口多主题截图、WCAG 审计、对比度检查、参考站探针、一键自检。",
+  "homepage": "https://gitee.com/liu-everything_impossble/skill-frontend-fidelity",
+  "repository": {
+    "type": "git",
+    "url": "https://gitee.com/liu-everything_impossble/skill-frontend-fidelity.git"
+  },
+  "license": "MIT",
+  "type": "module",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "selfcheck": "node scripts/selfcheck.mjs",
+    "selfcheck:fast": "node scripts/selfcheck.mjs --skip-audit",
+    "scaffold": "node scripts/scaffold.mjs --help",
+    "audit": "node scripts/audit.mjs",
+    "shot": "node scripts/screenshot.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.48.0"
+  }
+}

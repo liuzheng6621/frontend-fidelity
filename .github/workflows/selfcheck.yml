@@ -1,0 +1,39 @@
+name: selfcheck
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  fast:
+    name: 语法 + 生成 + 对比度（不装浏览器）
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: 自检
+        run: python -m pip install --quiet --upgrade pip && node scripts/selfcheck.mjs --skip-audit
+
+  audit:
+    name: 五套人格 × 六页 × 明暗（真跑 axe）
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: npm ci || npm install --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - name: 自检（含 30 组审计）
+        run: node scripts/selfcheck.mjs

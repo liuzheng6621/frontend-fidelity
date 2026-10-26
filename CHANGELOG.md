@@ -4,6 +4,29 @@
 `frontend-fidelity.zip`，由 `git archive` 从 Tag 快照生成，只含被 git 跟踪的文件
 （不含 `shots/`、`audit-report.json`、`.design/`）。
 
+## v1.13.1 - 2026-11-07
+
+一次「还有没有可优化点」的实测审计，修掉三处真错，并补上让这类错不再复发的门。
+
+### 修掉的真问题
+
+- **`install.sh` 的回退下载地址是死的**：没装 git 时它去 `releases/download/<ref>/frontend-fidelity.zip`，而默认 `REF=master`，实测该地址 **404**（发布包只按 tag 发布）。改成按 ref 分流：`v*` 走发布包，其余走源码归档包（Gitee `repository/archive/<ref>.zip`、GitHub `archive/<ref>.zip`，实测 302 可达）；补 `unzip` 存在性检查；解包后按「唯一顶层目录」改名，兼容归档包与发布包不同的顶层目录名。`install.ps1` 本来就是 archive 形式，无需改。
+- **四处站点计数陈旧**：README（三处）与 `references/craft-floor.md`（一处）还写着「18 个真实站 / A 组 15」，实际 `references/design-evidence.md` 已是 20 站 / A 组 17。
+- **`scripts/selfcheck.mjs` 自己的三处毛病**：`hasCmd()` 用 `shell:true` 在 Node ≥22 触发 `DEP0190` 弃用警告，被 CI 与 pwsh 当成失败；用 ESM `import()` 探 playwright 不认 `NODE_PATH`，永远判「没装」；审计循环用 `spawnSync` 卡住事件循环，内置静态服务发不出响应、审计只能干等。
+
+### 新增
+
+- **`scripts/selfcheck.mjs`**（纯 node，零依赖）：五步——①语法（`node --check` 全部 `.mjs`、`python -m py_compile` 全部 `.py`）；②五套人格 × 六类页面（含 `--dark`）各生成一遍并检查 13 个产物文件；③每套跑 `contrast_check.py`，有未达标即失败；④有 playwright 时起内置静态服务跑 30 组审计，要求 `0 错误 / 0 警告`；⑤**文档数字一致**——以 `design-evidence.md` 为唯一事实源，检查 README/SKILL/craft-floor 里的「N 个真实站」「N 个实测站点」「A 组 N」。flags：`--skip-audit`、`--personas`、`--keep`。
+- **`package.json`**：private，`engines.node >= 18`，devDependency `playwright`，`npm run selfcheck` / `selfcheck:fast` / `scaffold` / `audit` / `shot`。
+- **`.github/workflows/selfcheck.yml`**：`fast` job 跑 `--skip-audit`（不装浏览器，秒级）；`audit` job 装 chromium 后跑完整 30 组，`workflow_dispatch` 也可手动触发。
+- 文档：SKILL 脚本表加 `selfcheck.mjs` 行；README 结构树补 `package.json` 与 `.github/workflows/`，新增「selfcheck.mjs — 一键自检」小节（含五步表格与「这类数字已经漂过三次」的说明）；安装示例里的 `--ref` 从 v1.9.1 更新到 v1.13.1。
+
+### 已知但这次没动的
+
+- GitHub 与 Gitee 的历史是分叉的（GitHub 端因为 git-over-https 不通，是用 Contents API 逐文件提交出来的），GitHub 只能当镜像看。
+- 没有 npm / npx 分发入口（技能不是 npm 包，装法只有 clone / 发布包 / 一行 `irm`）。
+- README 98.5KB、`references/` 合计 401KB，全量加载成本偏高——按需读的路由表能缓解，但体积本身就是个待解问题。
+
 ## v1.13.0 - 2026-11-07
 
 主题：**用 20 站 + 8 份单站蒸馏的结论，重做模式 B（从 0 生成）的架构**。改的不是文案，是生成器本身的形状：深度从「一个数字」变成「一种语言」，人格从三套扩到五套，页面从五类扩到六类，并把对比度门搬到生成期。

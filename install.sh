@@ -6,7 +6,7 @@
 #   bash install.sh --target claude          # 只装到 ~/.claude/skills
 #   bash install.sh --target dsh             # 只装到 ~/.dsh/skills
 #   bash install.sh --dir ~/my-skills        # 装到自定义目录
-#   bash install.sh --ref v1.8.0             # 装某个 tag
+#   bash install.sh --ref v1.13.1            # 装某个 tag
 #   bash install.sh --dry-run                # 只看会装到哪，不动文件
 #
 # 可用环境变量覆盖：FF_REPO / FF_REF / FF_TARGET
@@ -67,10 +67,22 @@ if command -v git >/dev/null 2>&1; then
   fi
 else
   base="${REPO%.git}"
-  url="$base/releases/download/$REF/frontend-fidelity.zip"
-  echo "  （没有 git，改用发布包：$url）"
+  # tag（v 开头）走发布包；分支/主干走源码归档包（发布包里没有 master 这种名字）
+  case "$REF" in
+    v*) url="$base/releases/download/$REF/frontend-fidelity.zip" ;;
+    *)  case "$base" in
+          *gitee.com/*) url="$base/repository/archive/$REF.zip" ;;
+          *)            url="$base/archive/$REF.zip" ;;
+        esac ;;
+  esac
+  echo "  （没有 git，改用它：$url）"
   curl -fsSL "$url" -o "$tmp/pkg.zip" || { echo "下载失败：$url" >&2; exit 1; }
-  ( cd "$tmp" && unzip -q pkg.zip && mv frontend-fidelity src )
+  command -v unzip >/dev/null 2>&1 || { echo "需要 unzip 解包，或改装 git 后重试" >&2; exit 1; }
+  ( cd "$tmp" && unzip -q pkg.zip )
+  # 归档包与发布包的顶层目录名不同（skill-xxx-master / frontend-fidelity），取唯一的那个
+  top="$(find "$tmp" -mindepth 1 -maxdepth 1 -type d ! -name src | head -n 1)"
+  [ -n "$top" ] || { echo "解包后没找到目录：$url" >&2; exit 1; }
+  mv "$top" "$tmp/src"
 fi
 
 for base in $(resolve_dests); do
