@@ -10,7 +10,7 @@
 取 `h1/h2/p/th/td/label/button/input` 首个实例的字号·行高比·字重、统计圆角与 gap 频次、
 量测侧栏/表头/表格行高/控件高度、读取 CSS 变量命名。原始 JSON 未随包分发，重跑即可再生。
 
-**采集成功 18 个站**（A 组 15：11 个营销/产品站 + 4 个内容陈列站，B 组 3 后台），另有 1 个失败不计入。
+**采集成功 19 个站**（A 组 16：11 个营销/产品站 + 5 个内容陈列站，B 组 3 后台），另有 1 个失败不计入。
 
 **A 组：Awwwards 商业/科技/电商/UI 分类获奖站 + Wegic / 即时设计（两个中文产品站）**
 
@@ -164,11 +164,30 @@
 | cal.com | light #f4f4f4 | 14/1.4 | — | — | — | 34 | — | 8·16·12·4·100 | 无 |
 | preview.pro.ant.design | — | 采集失败（SPA 登录跳转/超时），不计入统计 | | | | | | | |
 
-## 二、跨站统计（15 个 A 组站：11 营销/产品 + 4 内容陈列站）
+**A 组补充：猫叫兽 UI 风格库 luckymaomi.github.io/ui 的完整实测**（2026-11-05 单独采集，数据见 `references/luckymaomi-catalog.md`）
 
-- 主题：**浅色 11 / 深色 3 / 黑白交替 1**（Wegic）。浅色仍是企业站默认，深色是差异化选择而非标配；
+| 维度 | 实测值 |
+|---|---|
+| 站点性质 | 设计风格目录站 + 动效库 + 规格页 + showcase（143 风格 / 57 动效 / 3 层 IA） |
+| 前提 | 根域名 `https://luckymaomi.github.io/` 是 GitHub Pages 404（12 元素），真实内容在 `/ui/` |
+| 主题 | light；`body #f3f4f6` + 两条 1px 渐变铺成**方格纸底板**（`--grid-line #090a0d13`） |
+| 令牌 | `:root` 26 个：`--bg/--surface/--surface-muted/--ink #090a0d/--muted #454b57/--line #090a0d/--line-soft #bdc3cf/--signal #ff4538/--highlight #ffe100/--hard-shadow 4px 4px 0/--radius-control 2px/--radius-panel 2px` |
+| 字体 | **实测只有 Inter（891 处）**；`--font-body-active`/`--display`/`--mono` 三个角色变量中前两个同值，mono 声明但无生效文本 → 单字体站 |
+| 字阶 | 76/950（页标题）、40/950（区块）、**18/400**（卡片标题 143 个同规格）、13/400（正文 438 处）、12、11/750；**无 14px、页面无 h1** |
+| 容器 | header **65**、`main` 宽 **1408**、页头区 **230**、卡片网格 3 列 × **457×477** |
+| 卡片 | `border 1px #bdc3cf`、`radius 2`、**静止零阴影**；预览为每风格一张 **静态 SVG**（1200×630 画布、零动画标签），显示 16:9 |
+| hover | 只三件事：`border-color → #090a0d`、`box-shadow → 4px 4px 0 #090a0d`、**`transform` 不变** |
+| 过渡 | 全站只有 **3 条 transition，全部 100ms linear**（translate/border-color/background/box-shadow）；无 cubic-bezier、无 scroll 监听 |
+| 动效库 | 10 域 57 条（入场 9/悬停 5/文字 7/加载 4/滚动 4/背景 2/微交互 6/转场 4/指针 12/离场 4），条目元数据统一为 **「触发时机 · 时长」** 黑条，目录**不放动图** |
+| 动效详情 | `h1 76/950` + 真实组件演示 + `.animation-replay`（44×44，点击=删类→回流→加类，重跑纯 CSS `@keyframes`，加载时不自动播） |
+| showcase | 每风格一页 6–7 段满版（`border-4 border-black`、`scroll-mt-16`），**把规格印成四格条**（0px 圆角 / 8px 阴影 / 150ms 过渡）；自带 keyframes 只有两条：`brutal-march`（`background-position 0→32px`，600ms linear infinite）+ `brutal-stamp`（`scale 1.4 rotate -6° → .96 rotate 1° → 1`，60% 过冲帧） |
+| 降级 | `prefers-reduced-motion: reduce` → `transition/animation-duration: .001ms`、`iteration-count: 1`、`scroll-behavior: auto` |
+| 反面 | 目录页与动效页**无 h1**；三个字体角色指向同一栈（声明即承诺）；中文正文 13px（低于 14.8 均值）；100ms 也用在按钮上；shell 100ms vs showcase 150ms 两个值；色板黑块 + 黑边会糊；静态 SVG 无法证明可用性 |
+## 二、跨站统计（16 个 A 组站：11 营销/产品 + 5 内容陈列站）
+
+- 主题：**浅色 12 / 深色 3 / 黑白交替 1**（Wegic）。浅色仍是企业站默认，深色是差异化选择而非标配；
   黑白交替是产品站的做法（黑段叙事、白段放证据），对后台没有参考价值。
-- 正文字号：均值 **14.8px**（10,12,12,13,13,14,14,14,15,15,16,16,18,20,20）；正文行高比均值 **1.42**（1.15–1.60）。
+- 正文字号：均值 **14.7px**（10,12,12,13,13,13,14,14,14,15,15,16,16,18,20,20）；正文行高比均值 **1.42**（1.15–1.60）。
 - H1：均值 **72.6px**（36–140，13 站有 h1；UI 世界没有 h1——h2 被拿去装导航；**UI Notes 连语义标题都删了**，最大的字是一个 div；**StyleKit 把 H1 压到 36px**——目录站不需要向下的海报级主标，页面主角是那 149 张卡），行高比 **0.80–1.51** ——大标题压到小于 1 的行高是普遍做法，但也有 1.5 的（即时设计 40/1.51）；内容站把 h1 压到 **40** 也是常规做法（站酷「UI」频道名 40/1.10）。
 - **H1 / 正文 字号比：2.3 – 8.8 倍**（营销站语境；内容站下限一路下探：站酷 40/14 = 2.9、**StyleKit 36/16 = 2.25**——页面主角不是标题时，标题就该退回 2 倍出头；后台绝不能照搬，见第四节）。
 - 主字体：Manrope×2、Inter×2、Geist、Outfit、DM Sans、Season Sans、Ivar Text、IBM Plex Mono ——

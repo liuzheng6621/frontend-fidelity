@@ -245,3 +245,23 @@
 - 五份参考数据：`design-evidence.md`（13 个真实站点实测）、`css-recipes.md`、`review-rubric.md`
   与两份姊妹技能协作说明。
 - 内置 axe-core 4.14.0（`scripts/vendor/axe.min.js`，MPL-2.0），WCAG 检查离线可跑。
+## v1.11.0 - 2026-11-05
+
+新增第 8 份单站蒸馏：猫叫兽 UI 风格库（`luckymaomi.github.io/ui/`），主题是「印刷品外壳 + 三层展示体系」，视角从「卡片长什么样」扩到「动效与展示怎么组织」。
+
+### 新增
+
+- `references/luckymaomi-catalog.md`（十一节 / 24.4KB）：26 个 `:root` 令牌全表（墨黑边框 `#090a0d`、`--hard-shadow: 4px 4px 0`、圆角只 2px 一档、`--grid-line`）、方格纸底板写法、六档字阶（76/950、40/950、18/400、13/400、12、11/750）、卡片六段结构与全部尺寸（457×477 / 16:9 静态 SVG 预览 / 徽标 36×25 / 色板行 25×14 / 按钮 38 高）、hover 三件事（描黑 + 落硬阴影 + transform 不变）、**动效预算（全站仅 3 条 transition，全部 100ms linear）**、动效库 10 域 57 条及其「触发时机 · 时长」元数据、单条动效详情页的重放实现（删类 → 强制回流 → 加类）、showcase 页的两条 keyframes（`brutal-march` 背景位移跑马灯、`brutal-stamp` 盖章过冲）、三层展示 IA、七处别照抄、十步复现清单、重采方法与三个坑。
+- `references/css-recipes.md` §21「方格纸规格书」：`--lm-*` 令牌、`.paper-grid`、`.hard-card`（含 `:active` 用 `translate` 压缩影，避免覆盖外部 `transform`）、`.meta-bar`、`.spec-strip`、`.compact-item`、`.animation-stage` + `.animation-replay`（44×44 可点）、`march`/`stamp` 两条 keyframes、`prefers-reduced-motion` 与 `(hover: none)` 两档兜底、四条使用说明（硬/软阴影不能同页、100ms 只给状态切换、`translate` 而非 `transform`、超重字重在中文字体上会掉档）。
+- `references/design-evidence.md`：A 组第 16 行 + 16 行补充表（站点性质 / 前提 404 / 令牌 / 单字体实测 / 字阶 / 容器 / 卡片 / hover / 过渡 / 动效库 / 动效详情 / showcase / 降级 / 反面）；正文均值 14.8 → **14.7px**（16 个值）、浅色 11 → **12** 站、二节标题改「16 个 A 组站」。
+
+### 修改
+
+- `references/motion-spec.md`（11.9KB → 14.5KB）新增两节：**二·补「三份实测的时长口径」**（手感派 spring 220–300ms / 弹性派 400ms / **印刷派 linear 100ms**，并给出印刷派的三个成立条件与「整站统一」要求）、**二·补二「动效索引的元数据约定」**（条目第二行固定写「触发时机 · 时长」，六种时机的标准写法，目录不放动图，详情页必须可重放并给出 `replay()` 实现）。
+- `SKILL.md`（23,881B）：参考文件节新增 `luckymaomi-catalog.md` 条目、实测站数 18 → **19**（A 组 15 → 16）；「细则去哪找」路由表加「要『印刷品』气质」一行；速查数字里动效那条补「印刷派例外：状态切换 100ms linear、按钮 160ms」。
+- `README.md`（86.6KB → 91.4KB）：TOC 与「该抄哪份参考」分工表各加一行、仓库结构树加一行、新增整节「参考站蒸馏：猫叫兽 UI 风格库（印刷品外壳 + 三层展示体系）」（四块产出表 + 三招表 + 五处也别学 + 重采命令 + 坑）、份数 18 → 19、元信息 `v1.10.0` → `v1.11.0`。
+
+### 未动
+
+- `scripts/` 与四个质量门脚本本轮未改（无新判据）。
+- 跨站统计里 H1 均值与「有 h1 的站数」不变（本站规格页与 showcase 页有 h1，但目录页没有，计入「14 站有 h1」）。

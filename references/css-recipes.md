@@ -1468,3 +1468,155 @@ grid?.addEventListener('pointermove', (e) => {
 4. reduced-motion 下把浮出按钮**直接常显**，不要让它依赖 hover 才出现。
 
 实测参照：holynova 的 23 条 transition 中位移 220ms / 颜色 200ms / 阴影 300ms、主缓动 `cubic-bezier(.16,1,.3,1)`、只有 3 个 keyframes；完整数值与七处别照抄见 [`holynova-motion.md`](holynova-motion.md)。
+## 21. 方格纸规格书（猫叫兽 UI 风格库，实测蒸馏）
+
+一套「印刷品」外壳：方格纸底板、墨黑 1px 边框、`4px 4px 0` 硬阴影、元数据黑条、100ms 线性过渡。
+和 §16（StyleKit 的发丝线 + 直角）是两派，**不要混用**。
+
+```css
+:root{
+  --lm-bg: #f3f4f6;
+  --lm-surface: #fff;
+  --lm-surface-muted: #e4e7ed;
+  --lm-ink: #090a0d;
+  --lm-muted: #454b57;
+  --lm-line: #090a0d;          /* 结构边框＝墨 */
+  --lm-line-soft: #bdc3cf;     /* 弱分隔、卡片静止边框 */
+  --lm-signal: #ff4538;        /* 唯一强调色 */
+  --lm-highlight: #ffe100;     /* 荧光笔黄，作底不作字 */
+  --lm-hard-shadow: 4px 4px 0 var(--lm-line);
+  --lm-radius: 2px;            /* 只有一档 */
+  --lm-grid-line: #090a0d13;
+  --lm-dur-state: 100ms;       /* 只在「印刷派」气质下用这个短档 */
+  --lm-dur-btn: 160ms;         /* 按钮单独给一档，别跟着 100ms */
+}
+
+/* 方格纸底板：两条 1px 渐变叠成网格，比 SVG 贴图省一个请求 */
+.paper-grid{
+  background-color: var(--lm-bg);
+  background-image:
+    linear-gradient(var(--lm-grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--lm-grid-line) 1px, transparent 1px);
+  background-size: 32px 32px;
+  color: var(--lm-ink);
+}
+
+/* 硬阴影卡：hover 不位移，只「描黑 + 落阴影」 */
+.hard-card{
+  background: var(--lm-surface);
+  border: 1px solid var(--lm-line-soft);
+  border-radius: var(--lm-radius);
+  transition: translate var(--lm-dur-state) linear,
+              border-color var(--lm-dur-state) linear,
+              background var(--lm-dur-state) linear,
+              box-shadow var(--lm-dur-state) linear;
+}
+.hard-card:hover,
+.hard-card:focus-within{          /* 键盘也要有同一份反馈 */
+  border-color: var(--lm-line);
+  box-shadow: var(--lm-hard-shadow); /* transform 保持 none */
+}
+.hard-card:active{
+  box-shadow: 2px 2px 0 var(--lm-line);   /* 按下时阴影缩短＝真的压下去 */
+  translate: 2px 2px;                     /* 用 translate 而不是 transform，避免覆盖外部 transform */
+}
+
+/* 元数据黑条：把「触发时机 · 时长」这类参数做成反白条 */
+.meta-bar{
+  display: block;
+  background: var(--lm-ink);
+  color: var(--lm-surface);
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: .02em;
+  line-height: 1.9;
+  padding-inline: 8px;
+  border-radius: var(--lm-radius);
+}
+
+/* 规格条：把设计参数当内容印出来（0px 圆角 / 8px 阴影 / 150ms 过渡） */
+.spec-strip{
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0,1fr));
+  border: 2px solid var(--lm-line);
+  background: var(--lm-surface);
+}
+.spec-strip > div{
+  padding: 18px 16px;
+  border-right: 2px solid var(--lm-line);
+}
+.spec-strip > div:last-child{ border-right: 0; }
+.spec-strip b{ display:block; font-size: 28px; font-weight: 950; line-height: 1; }
+.spec-strip span{ display:block; margin-top: 6px; font-size: 11px; font-weight: 700;
+  letter-spacing: .08em; text-transform: uppercase; color: var(--lm-muted); }
+
+/* 索引条目（动效库/图标库/组件库通用）：名称 + 黑条元数据 + 一句话 */
+.compact-item{
+  display: block;
+  padding: 14px 16px 16px;
+  background: var(--lm-surface);
+  border: 1px solid var(--lm-line-soft);
+  border-radius: var(--lm-radius);
+  color: inherit;
+  text-decoration: none;
+  transition: translate var(--lm-dur-state) linear,
+              border-color var(--lm-dur-state) linear,
+              box-shadow var(--lm-dur-state) linear;
+}
+.compact-item h3{ font-size: 18px; font-weight: 400; line-height: 1.25; }
+.compact-item p{ margin-top: 8px; font-size: 13px; line-height: 1.6; color: var(--lm-muted); }
+.compact-item:hover{ border-color: var(--lm-line); box-shadow: var(--lm-hard-shadow); }
+
+/* 详情页的演示台 + 重放按钮 */
+.animation-stage{
+  display: grid;
+  place-items: center;
+  min-height: 280px;
+  padding: 24px;
+  background: var(--lm-surface);
+  border: 1px solid var(--lm-line-soft);
+  border-radius: var(--lm-radius);
+}
+.animation-replay{
+  display: inline-flex; align-items: center; gap: 6px;
+  min-height: 44px; min-width: 44px;      /* 触屏可点 */
+  padding: 0 14px;
+  background: var(--lm-ink); color: var(--lm-surface);
+  border: 0; border-radius: var(--lm-radius);
+  font-size: 13px; font-weight: 700;
+  transition: translate var(--lm-dur-btn) var(--ease-out, ease),
+              background var(--lm-dur-btn) linear, color var(--lm-dur-btn) linear;
+}
+.animation-replay:hover{ translate: -1px -1px; }
+.animation-replay:active{ translate: 0 0; box-shadow: inset 0 2px 0 rgba(0,0,0,.35); }
+
+/* 两条「印刷派」keyframes */
+@keyframes march {                 /* 二值条纹跑马灯：挪背景不挪元素，装饰专用 */
+  from{ background-position: 0 0; }
+  to  { background-position: 32px 0; }
+}
+@keyframes stamp {                 /* 盖章入场：过冲那一帧决定手感 */
+  0%  { transform: scale(1.4) rotate(-6deg); opacity: 0; }
+  60% { transform: scale(.96) rotate(1deg);  opacity: 1; }
+  100%{ transform: scale(1)   rotate(0);     opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce){
+  *, ::before, ::after{
+    scroll-behavior: auto !important;
+    transition-duration: .001ms !important;
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+@media (hover: none){              /* 触屏：hover 才出现的操作必须常显 */
+  .compact-item .hover-only{ opacity: 1; transform: none; }
+}
+```
+
+四条使用说明：
+
+1. **`.hard-card` 与 `.soft-card`（§19 聚光卡）不能同页混用**。硬阴影是印刷、软阴影是射灯，同一屏出现就会被读成「两种工艺」。
+2. **100ms 只给「状态切换」**（边框、底色、阴影、1–2px 位移）；按钮给 160ms，入场按 `motion-spec.md` 的五档（120/180/240/400/600）。
+3. **`.hard-card:active` 用 `translate` 属性**，不要写 `transform`——外部若已有 `transform` 会被覆盖；`translate` 与 `transform` 可叠加。
+4. **超重字重（950）在中文字体上会掉档**。Inter 没有中文字形，中文回退到 Noto Sans SC / 思源后最多 900；要么显式用支持 900 的中文变量字体，要么接受回退并把字号再放大一档。

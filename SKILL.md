@@ -192,6 +192,7 @@ node scripts/scaffold.mjs --persona warm --out preview --accent 20 --pages landi
 | 要不要投影、圆角给谁、卡片分层 | 层级与阴影 |
 | 动效时长与缓动、编排、降级 | 动效（完整规格见 `references/motion-spec.md`） |
 | 卡片 hover 怎么“活”起来、聚光描边 | `references/holynova-motion.md` + `references/css-recipes.md` §19 |
+| 要「印刷品」气质：方格纸底、墨黑框、硬阴影、元数据黑条 | `references/luckymaomi-catalog.md` + `references/css-recipes.md` §21 |
 | 图墙 / 管理端列表 / 三态 / 表单 / 登录墙 | 页面结构 |
 | Logo、图片、图标 | Logo 与品牌、图片与视觉资产 |
 | 按钮 8 个状态、点击区尺寸 | 控件与状态 |
@@ -206,12 +207,12 @@ node scripts/scaffold.mjs --persona warm --out preview --accent 20 --pages landi
 - 间距基数 4，常用 8 / 12 / 16 / 24 / 32 / 48 / 64 / 96；区块上下留白不等（上 < 下更常见）。
 - 阴影选一派用到底：靠边框 / 发丝圈+内阴影 / 负扩散 / 全站零阴影 / 零阴影零边框；同屏不混。
 - 图墙选一派：密（5 列 gap 0）/ 疏（4 列列距 24）/ 活预览（3 列 gap 32）；同屏不混。
-- 动效 120 / 180 / 240 / 400 / 600，上限 800，只动 `transform` 与 `opacity`；卡片 hover 要四件套一起变（位移 + 边框 + 阴影 + 媒体压暗），只变一样会显得“抖了一下”。
+- 动效 120 / 180 / 240 / 400 / 600，上限 800（**印刷派例外：状态切换 100ms linear、按钮 160ms**，见 `motion-spec.md` 二·补），只动 `transform` 与 `opacity`；卡片 hover 要四件套一起变（位移 + 边框 + 阴影 + 媒体压暗），只变一样会显得“抖了一下”。
 - 移动端 390 宽：无横向滚动、点击区 ≥44×44、底部避开安全区。
 
 ## 参考文件
 
-- `references/design-evidence.md` — 18 个实测成功的站点（15 个 A 组：营销/产品站 11 + 内容陈列站 4，另有 shadcn/linear/cal.com 三个后台）量出来的
+- `references/design-evidence.md` — 19 个实测成功的站点（16 个 A 组：营销/产品站 11 + 内容陈列站 5，另有 shadcn/linear/cal.com 三个后台）量出来的
   字体、字阶、行高比、间距基数、圆角档位、表格密度、控件高度，以及「哪些能抄、哪些不能抄」。
   **不知道该定多少数值时先看这里，比凭感觉猜准。**
 - `references/wegic-design.md` — wegic.ai 单站全量蒸馏：完整 `--wg-*` 令牌、塑料按钮的 6 层内阴影、
@@ -244,6 +245,11 @@ node scripts/scaffold.mjs --persona warm --out preview --accent 20 --pages landi
   全站 `line-height: normal`；以及它自己**七处没做好的**（viewport 锁 1420 整站缩小、无 h1、无页脚、
   无限滚动无出口、裁切无提示、水印烧进像素、促销条与主体两套色系）。
   **做灵感库、作品陈列、评测画廊、截图站时先读这份；它也是「素材比界面重要」时的对照底线。**
+- `references/luckymaomi-catalog.md` — 猫叫兽 UI 风格库（`luckymaomi.github.io/ui/`）单站全量蒸馏，
+  **「印刷品外壳 + 三层展示体系」样本**：方格纸底板（两条 1px 渐变）、26 个令牌（墨黑边框 + `4px 4px 0` 硬阴影 + 2px 圆角一档）、
+  76/950 与 40/950 的超重标题配 18/400 卡片标题、hover 只「描黑 + 落硬阴影」不位移、**全站 3 条 transition 全 100ms linear**；
+  动效库 10 域 57 条用「触发时机 · 时长」黑条当索引、目录不放动图、详情页用「删类→回流→加类」重放纯 CSS 动画；
+  展示三层 = 目录（静态 SVG 预览）→ 规格页（规则 + 组件预览）→ showcase（真做一页 6–7 段，把规格印成四格条）。
 - `references/page-patterns.md` — **从 0 生成时的第一站**：一句话需求 → 页面类型 → 人格的选择表，
   七类骨架（落地页/工具站首页/内容站/管理端列表/详情/表单/认证）各自的必备要素与尺寸区间，
   空/错/无权限三变体，移动端差异，内容最低量要求。**先在这里定骨架，再写代码。**

@@ -123,6 +123,7 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 - [参考站蒸馏：站酷 ZCOOL](#参考站蒸馏站酷-zcool)
 - [参考站蒸馏：StyleKit 风格目录](#参考站蒸馏stylekit-风格目录)
 - [参考站蒸馏：UI Notes 灵感库](#参考站蒸馏ui-notes-灵感库)
+- [参考站蒸馏：猫叫兽 UI 风格库](#参考站蒸馏猫叫兽-ui-风格库印刷品外壳--三层展示体系)
 - [动效单站蒸馏：holynova 聚光卡](#动效单站蒸馏holynova-聚光卡)
 - [外部规则集蒸馏：工艺底线与反模板](#外部规则集蒸馏工艺底线与反模板)
 - [交付验收清单](#交付验收清单)
@@ -135,7 +136,7 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 
 ## 这是什么
 
-一个**把前端做对**的技能包，两条路都走：**先把已有界面整改/还原到位**，**也能从 0 生成一套能验收的骨架**。内含一份给 agent 读的操作手册（`SKILL.md`）+ 十八份参考数据（7 份单站蒸馏 + 8 份通用规格 + 1 份跨站实测 + 2 份外部规则集，`references/`）+ 九个能直接跑的脚本（`scripts/`）。
+一个**把前端做对**的技能包，两条路都走：**先把已有界面整改/还原到位**，**也能从 0 生成一套能验收的骨架**。内含一份给 agent 读的操作手册（`SKILL.md`）+ 十九份参考数据（8 份单站蒸馏 + 8 份通用规格 + 1 份跨站实测 + 2 份外部规则集，`references/`）+ 九个能直接跑的脚本（`scripts/`）。
 
 它解决的是这类问题：
 
@@ -190,6 +191,7 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 | `references/uinotes-design.md` | 双方 | UI Notes（真实 UI 截图灵感库）单站全量蒸馏：隐形界面（0 壳 0 边 0 阴影）、240×520 截图带裁切露 1.8 张、48px 数字当标题、2/4/6/16/20/24 线性圆角阶梯、全站 `line-height: normal`、七处反例 |
 | `references/motion-spec.md` | 双方 | 动效规格：时长五档与四条缓动、位移允许量、编排、滚动驱动、六类交互配方、三档降级、性能预算、自测四步、动效 AI tell |
 | `references/holynova-motion.md` | 双方 | 单站动效蒸馏（案例）：23 条 transition / 3 个 keyframes / 1 条主缓动、实测 9 档时长（归并 6 档）、聚光描边卡（mask 抠 1px 环）、hover 四件套与按下回落、批量入场、reduced-motion 连装饰层关、七处别照抄 |
+| `references/luckymaomi-catalog.md` | 双方 | 单站全量：印刷品外壳（方格纸 / 墨黑框 / 硬阴影 / 元数据黑条）+ 三层展示体系（目录→规格页→showcase）+ 动效库 10 域 57 条的元数据与重放；含 100ms linear 的适用条件与七处反面 |
 | `references/craft-floor.md` | 双方 | 工艺底线：九条 verify、深度三选一、四件浏览器原生表面、表面禁令、与本站语料的四条冲突裁决（来源：impeccable `craft-floor`，Apache-2.0） |
 | `references/anti-slop.md` | agent | 反模板：Design Read、三档旋钮与三套人格对照、hero 四条硬规则、三把锁、8 组 AI tell、中文站条款、34 条 pre-flight（来源：design-taste-frontend，规则重写） |
 | `references/page-patterns.md` | agent | 选型表 + 七类页面骨架 + 空/错/无权限三变体 + 内容最低量 |
@@ -310,6 +312,7 @@ frontend-fidelity/
 │   ├── css-recipes.md            # 设计令牌 / 表格 / 骨架屏 / 空态 / 深色 / 六个站的风味片段（第 12–17 节）
 │   ├── motion-spec.md            # 动效规格：四条底线 + 时长五档 + 四条缓动 + 编排 + 三档降级 + 自测
 │   ├── holynova-motion.md       # 单站动效案例：23 条 transition + 3 个 keyframes + 聚光描边卡 + hover 四件套
+│   ├── luckymaomi-catalog.md   # 印刷品外壳：方格纸底 + 墨黑框 + 硬阴影 + 元数据黑条 + 三层展示体系
 │   ├── craft-floor.md            # 工艺底线：九条 verify + 深度三选一 + 原生表面 + 四条冲突裁决
 │   ├── anti-slop.md              # 反模板：三档旋钮 + hero 四条 + 三把锁 + 8 组 AI tell + 34 条 pre-flight
 │   ├── visual-system.md         # 视觉与结构细则完整版（从 SKILL.md 下沉的 15 节）
@@ -1086,6 +1089,49 @@ node scripts/screenshot.mjs --url https://uinotes.com/ --out ./shots --name un -
 2. **移动端测不到「重排」**——只会得到 `innerWidth = 1420`，这本身就是结论，别误判成脚本出错。
 3. **水印是烧进图片像素的**——不是 DOM 叠层也不是 `::after`，想提取只能裁图。
 
+## 参考站蒸馏：猫叫兽 UI 风格库（印刷品外壳 + 三层展示体系）
+
+<https://luckymaomi.github.io/ui/> 是一个设计风格目录站：**143 个风格样本、57 条动效、2895 个元素、文档高 21,593**。
+它在语料里的位置很特殊——和 StyleKit 是同一条赛道（把风格当货陈列），但气质完全相反：StyleKit 是「射灯下的样品」（活预览 + 发丝线 + 通体直角），
+这站是「钉在图板上的图纸」（静态 SVG 预览 + 墨黑 1px 框 + `4px 4px 0` 硬阴影 + 方格纸底板）。两派都成立，**混用必然廉价**。
+
+> 前提：根域名 `https://luckymaomi.github.io/` 是 GitHub Pages 404（只渲染 12 个元素），真实内容在 `/ui/`。仓库公开、无 LICENSE 声明，本文只记录量出来的数值与做法。
+
+四块产出：
+
+| 产出 | 内容 |
+|---|---|
+| [`references/luckymaomi-catalog.md`](references/luckymaomi-catalog.md)（24.4KB / 十一节） | 26 个令牌全表、字阶六档（76/950·40/950·18/400·13·12·11）、卡片六段结构（457×477 / 16:9 静态 SVG / 徽标 36×25 / 色板行 25×14）、hover 三件事、动效预算（3 条 transition 全 100ms linear）、动效库 10 域 57 条的元数据与重放机制、showcase 两层 keyframes、三层 IA、七处别照抄 |
+| [`references/css-recipes.md`](references/css-recipes.md) §21 | `.paper-grid`（两条 1px 渐变方格纸）、`.hard-card`（hover 描黑 + 硬阴影 + `:active` 用 `translate` 压缩影）、`.meta-bar`（元数据黑条）、`.spec-strip`（把规格印成四格）、`.compact-item`、`.animation-stage` + `.animation-replay`、`march`/`stamp` 两条 keyframes |
+| [`references/motion-spec.md`](references/motion-spec.md) 二·补 / 二·补二 | **三种时长口径**（手感派 spring 220–300ms / 弹性派 400ms / **印刷派 linear 100ms**）与「动效索引用『触发时机 · 时长』当第二行」的元数据约定 + 重放实现 |
+| [`references/design-evidence.md`](references/design-evidence.md) | A 组第 16 行 + 16 行补充表；正文均值 14.8 → **14.7px**、浅色 11 → **12** 站 |
+
+三招值得直接搬：
+
+| 招 | 怎么做 | 为什么有效 |
+|---|---|---|
+| 方格纸底板 | `body` 铺两条 1px 渐变（`--grid-line: #090a0d13`），`background-size: 32px 32px` | 3 行 CSS 就把「制图桌 / 规格书」气质立住；白卡片不需要阴影就浮起来了 |
+| hover 只「描黑 + 落硬阴影」 | `border-color → #090a0d`；`box-shadow → 4px 4px 0 #090a0d`；**`transform` 保持 `none`** | 印刷派的反饋靠「线变实、影子落下」，比抬 4px 省 GPU，也不会有「抖一下」的廉价感 |
+| 动效库的索引方式 | 条目第二行固定是黑条「触发时机 · 时长」（加载时 · 600ms / 悬停时 · 200ms / 持续播放 · 2s）；目录**不放动图**，演的动作留到详情页 | 用户找动效问的是「有没有入场、别太慢」，不是「有没有 ease-out-back」；57 个动图会把索引页变成马戏团 |
+
+也别学它这几处：
+
+1. **目录页与动效页都没有 `h1`**（143 个卡片标题都是 `h2`，文档大纲缺顶级标题）。
+2. **三个字体角色变量指向同一栈**，等宽变量声明了却没有生效文本——「预留插槽」别当成设计决策。
+3. **100ms linear 也用在按钮上**（按钮该 150–200ms），且 shell 100ms 与 showcase 页 150ms 两个值并存。
+4. **色板小方块靠 1px 黑边**，遇到纯黑色块就糊在一起（应改用 `inset` 发丝 + 外描边）。
+5. **静态 SVG 预览只能「像」不能「是」**，所以卡片必须配「真实展示」入口，且它比「规则详情」更该被强调。
+
+重采命令：
+
+```bash
+node .tools/probe-lm1.mjs   # 结构 / 26 令牌 / 卡片 / 字号分布
+node .tools/probe-lm2.mjs   # 卡片 hover 前后、按钮、header
+node .tools/probe-lm3.mjs   # 动效目录 / 风格规格页 / showcase 三页一次过
+node .tools/probe-lm6.mjs   # 10 域条目（时机·时长）、单条详情重放、showcase keyframes
+```
+
+坑：根域名 404；全站只有一份 31KB Tailwind 产物（`@keyframes` 为 0），动效与 showcase 的 keyframes 在各自页面样式里，必须逐页采。
 ## 动效单站蒸馏：holynova 聚光卡
 
 <https://holynova.github.io/> 是一个作品集详情页（暗底 `#09090b`、431 元素、**0 canvas、0 video**）。它不进跨站视觉统计——只回答一个问题：**不用任何动效库，怎么让一批卡片"活着"。**
