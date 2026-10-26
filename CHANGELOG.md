@@ -4,6 +4,47 @@
 `frontend-fidelity.zip`，由 `git archive` 从 Tag 快照生成，只含被 git 跟踪的文件
 （不含 `shots/`、`audit-report.json`、`.design/`）。
 
+## v1.12.0 - 2026-11-06
+
+新增第九份单站蒸馏：Muzli 灵感库（`muz.li/inspiration/motion-design/`）。这一站和前面几个内容站几乎相反——**在页面外壳上做文章，卡片轻到几乎没有**，正好补上「目录型内容站怎么搭壳」这一格；顺带修掉了 `css-recipes.md` 的节号空洞（§20 缺失）与 CHANGELOG 里 v1.11.0 条目被错放到文末的问题。
+
+### 新增
+
+- `references/muzli-gallery.md`（20.3KB / 十一节）：左栏 sticky 目录 220 + 主区 3 列（348×309、`gap:40/32`）、**衬线刊头**（Instrument Serif 48/1.0，与 Poppins 296:9）、**无壳卡片**（图 4px 圆角 + `0 0 0 1px rgba(0,0,0,.05)` 发丝环、本体零边框零阴影）、35px tag 药丸（当前项黑底）、`New` 徽标（11.2/600 `#2e54ff`）、页脚主色 10% 面板、面包屑 + 「N 条新增 · 最后更新」行；另含信息架构（51 张卡全部外链 `me.muz.li` 带 UTM）、动效实测（10 个 keyframes 无一作用在卡片、静止 `getAnimations()` = 0）、七处没做好、能搬/不能搬、十步复现、重采四坑。
+- `references/css-recipes.md` §21「杂志目录式灵感库」：`.mz-shell` / `.mz-rail` / `.mz-h1` / `.mz-pills` / `.mz-grid` + `.mz-card` / `.mz-badge` / `.mz-footer`，并补上原站缺的三笔（hover 环加深 + 图微提亮 + 标题下划线、`:focus-visible`）。
+
+### 修改
+
+- `references/design-evidence.md`（44.7KB → 50.2KB）：A 组第 17 行 + 16 行补充表；样本头 19 → **20 站**（A 组 17：11 营销/产品 + 6 内容陈列）；正文均值 14.7 → **14.6px**（17 值）、H1 均值 72.6 → **70.8px**（14 站有 h1）、浅色 12 → **13** 站；招式 40–42（衬线只当刊头 / 图版靠图片边界分组 / 页脚用主色 10%）；反例 +3 行（卡片零 hover 零 focus、广告与内容同构、两套过滤语义）。
+- `SKILL.md`（24.1KB → 25.2KB）：参考文件节站数 19 → **20**（A 组 16 → 17）+ 新增 `muzli-gallery.md` 条目；「细则去哪找」加「要『杂志目录』气质」一行；开头的参考库口径改为「20 个真实站 + 八份单站蒸馏」。
+- `README.md`（91.4KB → 95.8KB）：元信息 `v1.9.2` → **`v1.12.0`**（此前两轮版本号替换都没命中，一并修好）、开头引用块改「20 个真实站 + 八份单站蒸馏」、TOC/分工表/结构树各加一行、新增整节「参考站蒸馏：Muzli 灵感库（杂志目录式陈列）」、`当前是 v1.3.0` 的过期链接改到 v1.12.0。
+- `references/css-recipes.md`：**节号补齐**——原「§21 方格纸规格书」→ **§20**、「§22 杂志目录式灵感库」→ **§21**，`SKILL.md` / `README.md` / `CHANGELOG.md` 的指针同步（此前 §20 是空洞）。
+- `CHANGELOG.md`：v1.11.0 条目从文末移到顶部（此前被追加在 v1.0.0 之后）。
+
+### 未动
+
+- `scripts/` 与四个质量门脚本本轮未改（无新判据）。
+## v1.11.0 - 2026-11-05
+
+新增第 8 份单站蒸馏：猫叫兽 UI 风格库（`luckymaomi.github.io/ui/`），主题是「印刷品外壳 + 三层展示体系」，视角从「卡片长什么样」扩到「动效与展示怎么组织」。
+
+### 新增
+
+- `references/luckymaomi-catalog.md`（十一节 / 24.4KB）：26 个 `:root` 令牌全表（墨黑边框 `#090a0d`、`--hard-shadow: 4px 4px 0`、圆角只 2px 一档、`--grid-line`）、方格纸底板写法、六档字阶（76/950、40/950、18/400、13/400、12、11/750）、卡片六段结构与全部尺寸（457×477 / 16:9 静态 SVG 预览 / 徽标 36×25 / 色板行 25×14 / 按钮 38 高）、hover 三件事（描黑 + 落硬阴影 + transform 不变）、**动效预算（全站仅 3 条 transition，全部 100ms linear）**、动效库 10 域 57 条及其「触发时机 · 时长」元数据、单条动效详情页的重放实现（删类 → 强制回流 → 加类）、showcase 页的两条 keyframes（`brutal-march` 背景位移跑马灯、`brutal-stamp` 盖章过冲）、三层展示 IA、七处别照抄、十步复现清单、重采方法与三个坑。
+- `references/css-recipes.md` §20「方格纸规格书」：`--lm-*` 令牌、`.paper-grid`、`.hard-card`（含 `:active` 用 `translate` 压缩影，避免覆盖外部 `transform`）、`.meta-bar`、`.spec-strip`、`.compact-item`、`.animation-stage` + `.animation-replay`（44×44 可点）、`march`/`stamp` 两条 keyframes、`prefers-reduced-motion` 与 `(hover: none)` 两档兜底、四条使用说明（硬/软阴影不能同页、100ms 只给状态切换、`translate` 而非 `transform`、超重字重在中文字体上会掉档）。
+- `references/design-evidence.md`：A 组第 16 行 + 16 行补充表（站点性质 / 前提 404 / 令牌 / 单字体实测 / 字阶 / 容器 / 卡片 / hover / 过渡 / 动效库 / 动效详情 / showcase / 降级 / 反面）；正文均值 14.8 → **14.7px**（16 个值）、浅色 11 → **12** 站、二节标题改「16 个 A 组站」。
+
+### 修改
+
+- `references/motion-spec.md`（11.9KB → 14.5KB）新增两节：**二·补「三份实测的时长口径」**（手感派 spring 220–300ms / 弹性派 400ms / **印刷派 linear 100ms**，并给出印刷派的三个成立条件与「整站统一」要求）、**二·补二「动效索引的元数据约定」**（条目第二行固定写「触发时机 · 时长」，六种时机的标准写法，目录不放动图，详情页必须可重放并给出 `replay()` 实现）。
+- `SKILL.md`（23,881B）：参考文件节新增 `luckymaomi-catalog.md` 条目、实测站数 18 → **19**（A 组 15 → 16）；「细则去哪找」路由表加「要『印刷品』气质」一行；速查数字里动效那条补「印刷派例外：状态切换 100ms linear、按钮 160ms」。
+- `README.md`（86.6KB → 91.4KB）：TOC 与「该抄哪份参考」分工表各加一行、仓库结构树加一行、新增整节「参考站蒸馏：猫叫兽 UI 风格库（印刷品外壳 + 三层展示体系）」（四块产出表 + 三招表 + 五处也别学 + 重采命令 + 坑）、份数 18 → 19、元信息 `v1.10.0` → `v1.11.0`。
+
+### 未动
+
+- `scripts/` 与四个质量门脚本本轮未改（无新判据）。
+- 跨站统计里 H1 均值与「有 h1 的站数」不变（本站规格页与 showcase 页有 h1，但目录页没有，计入「14 站有 h1」）。
+
 ## v1.10.0 - 2026-11-04
 
 新增一份**单站动效蒸馏**（holynova），并把"卡片怎么活起来"从原则落成可粘贴的片段。这是第一次以动效为唯一主题做的站点分析，补充 `motion-spec.md`（规则）缺的"照它做长什么样"。
@@ -245,23 +286,3 @@
 - 五份参考数据：`design-evidence.md`（13 个真实站点实测）、`css-recipes.md`、`review-rubric.md`
   与两份姊妹技能协作说明。
 - 内置 axe-core 4.14.0（`scripts/vendor/axe.min.js`，MPL-2.0），WCAG 检查离线可跑。
-## v1.11.0 - 2026-11-05
-
-新增第 8 份单站蒸馏：猫叫兽 UI 风格库（`luckymaomi.github.io/ui/`），主题是「印刷品外壳 + 三层展示体系」，视角从「卡片长什么样」扩到「动效与展示怎么组织」。
-
-### 新增
-
-- `references/luckymaomi-catalog.md`（十一节 / 24.4KB）：26 个 `:root` 令牌全表（墨黑边框 `#090a0d`、`--hard-shadow: 4px 4px 0`、圆角只 2px 一档、`--grid-line`）、方格纸底板写法、六档字阶（76/950、40/950、18/400、13/400、12、11/750）、卡片六段结构与全部尺寸（457×477 / 16:9 静态 SVG 预览 / 徽标 36×25 / 色板行 25×14 / 按钮 38 高）、hover 三件事（描黑 + 落硬阴影 + transform 不变）、**动效预算（全站仅 3 条 transition，全部 100ms linear）**、动效库 10 域 57 条及其「触发时机 · 时长」元数据、单条动效详情页的重放实现（删类 → 强制回流 → 加类）、showcase 页的两条 keyframes（`brutal-march` 背景位移跑马灯、`brutal-stamp` 盖章过冲）、三层展示 IA、七处别照抄、十步复现清单、重采方法与三个坑。
-- `references/css-recipes.md` §21「方格纸规格书」：`--lm-*` 令牌、`.paper-grid`、`.hard-card`（含 `:active` 用 `translate` 压缩影，避免覆盖外部 `transform`）、`.meta-bar`、`.spec-strip`、`.compact-item`、`.animation-stage` + `.animation-replay`（44×44 可点）、`march`/`stamp` 两条 keyframes、`prefers-reduced-motion` 与 `(hover: none)` 两档兜底、四条使用说明（硬/软阴影不能同页、100ms 只给状态切换、`translate` 而非 `transform`、超重字重在中文字体上会掉档）。
-- `references/design-evidence.md`：A 组第 16 行 + 16 行补充表（站点性质 / 前提 404 / 令牌 / 单字体实测 / 字阶 / 容器 / 卡片 / hover / 过渡 / 动效库 / 动效详情 / showcase / 降级 / 反面）；正文均值 14.8 → **14.7px**（16 个值）、浅色 11 → **12** 站、二节标题改「16 个 A 组站」。
-
-### 修改
-
-- `references/motion-spec.md`（11.9KB → 14.5KB）新增两节：**二·补「三份实测的时长口径」**（手感派 spring 220–300ms / 弹性派 400ms / **印刷派 linear 100ms**，并给出印刷派的三个成立条件与「整站统一」要求）、**二·补二「动效索引的元数据约定」**（条目第二行固定写「触发时机 · 时长」，六种时机的标准写法，目录不放动图，详情页必须可重放并给出 `replay()` 实现）。
-- `SKILL.md`（23,881B）：参考文件节新增 `luckymaomi-catalog.md` 条目、实测站数 18 → **19**（A 组 15 → 16）；「细则去哪找」路由表加「要『印刷品』气质」一行；速查数字里动效那条补「印刷派例外：状态切换 100ms linear、按钮 160ms」。
-- `README.md`（86.6KB → 91.4KB）：TOC 与「该抄哪份参考」分工表各加一行、仓库结构树加一行、新增整节「参考站蒸馏：猫叫兽 UI 风格库（印刷品外壳 + 三层展示体系）」（四块产出表 + 三招表 + 五处也别学 + 重采命令 + 坑）、份数 18 → 19、元信息 `v1.10.0` → `v1.11.0`。
-
-### 未动
-
-- `scripts/` 与四个质量门脚本本轮未改（无新判据）。
-- 跨站统计里 H1 均值与「有 h1 的站数」不变（本站规格页与 showcase 页有 h1，但目录页没有，计入「14 站有 h1」）。

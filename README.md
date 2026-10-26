@@ -1,11 +1,11 @@
 # frontend-fidelity · 前端保真度
 
 > 把界面做对、做实，两条路都走：**已有界面**——按设计稿/截图还原，或把现存页面整改到位（后台管理端、移动 H5/小程序、多端一致性、Logo 与品牌资产）；**还没有界面**——从 0 生成一套能验收的骨架（令牌 + 组件 + 五类页面），再往上填真内容与业务状态。
-> 参考库是 **18 个真实站的实测数据 + 六份单站蒸馏**（营销 / 工具站 / 密版图墙 / 疏版图墙 / 陈列页 / 灵感库），外加**两份外部规则集蒸馏**（工艺底线 / 反模板清单）；按页面类型对到具体文件，见 [该抄哪份参考](#该抄哪份参考)。
+> 参考库是 **20 个真实站的实测数据 + 八份单站蒸馏**（营销 / 工具站 / 密版图墙 / 疏版图墙 / 陈列页 / 灵感库 / 风格库 / 杂志目录），外加**两份外部规则集蒸馏**（工艺底线 / 反模板清单）；按页面类型对到具体文件，见 [该抄哪份参考](#该抄哪份参考)。
 > 搜这些词应该能到这：设计稿转代码、照着截图还原、UI 还原、前端验收、截图对比、后台美化、移动端适配、设计令牌、Claude Code 技能（skill）。
 > 目标不是"改好看"，而是**让界面和它声称的样子一致，并且真的能用——改完能拿出证据**。
 
-`v1.9.2` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `9 个可执行脚本`
+`v1.12.0` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `9 个可执行脚本`
 
 ---
 
@@ -124,6 +124,7 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 - [参考站蒸馏：StyleKit 风格目录](#参考站蒸馏stylekit-风格目录)
 - [参考站蒸馏：UI Notes 灵感库](#参考站蒸馏ui-notes-灵感库)
 - [参考站蒸馏：猫叫兽 UI 风格库](#参考站蒸馏猫叫兽-ui-风格库印刷品外壳--三层展示体系)
+- [参考站蒸馏：Muzli 灵感库](#参考站蒸馏muzli-灵感库杂志目录式陈列)
 - [动效单站蒸馏：holynova 聚光卡](#动效单站蒸馏holynova-聚光卡)
 - [外部规则集蒸馏：工艺底线与反模板](#外部规则集蒸馏工艺底线与反模板)
 - [交付验收清单](#交付验收清单)
@@ -136,7 +137,7 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 
 ## 这是什么
 
-一个**把前端做对**的技能包，两条路都走：**先把已有界面整改/还原到位**，**也能从 0 生成一套能验收的骨架**。内含一份给 agent 读的操作手册（`SKILL.md`）+ 十九份参考数据（8 份单站蒸馏 + 8 份通用规格 + 1 份跨站实测 + 2 份外部规则集，`references/`）+ 九个能直接跑的脚本（`scripts/`）。
+一个**把前端做对**的技能包，两条路都走：**先把已有界面整改/还原到位**，**也能从 0 生成一套能验收的骨架**。内含一份给 agent 读的操作手册（`SKILL.md`）+ 二十份参考数据（9 份单站蒸馏 + 8 份通用规格 + 1 份跨站实测 + 2 份外部规则集，`references/`）+ 九个能直接跑的脚本（`scripts/`）。
 
 它解决的是这类问题：
 
@@ -192,6 +193,7 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 | `references/motion-spec.md` | 双方 | 动效规格：时长五档与四条缓动、位移允许量、编排、滚动驱动、六类交互配方、三档降级、性能预算、自测四步、动效 AI tell |
 | `references/holynova-motion.md` | 双方 | 单站动效蒸馏（案例）：23 条 transition / 3 个 keyframes / 1 条主缓动、实测 9 档时长（归并 6 档）、聚光描边卡（mask 抠 1px 环）、hover 四件套与按下回落、批量入场、reduced-motion 连装饰层关、七处别照抄 |
 | `references/luckymaomi-catalog.md` | 双方 | 单站全量：印刷品外壳（方格纸 / 墨黑框 / 硬阴影 / 元数据黑条）+ 三层展示体系（目录→规格页→showcase）+ 动效库 10 域 57 条的元数据与重放；含 100ms linear 的适用条件与七处反面 |
+| `references/muzli-gallery.md` | 双方 | 单站全量：左栏 sticky 目录 + 3 列图版（348×309）+ 衬线刊头（Instrument Serif 48/1.0）+ 电光蓝 #2e54ff + 无壳卡片 + 35px tag 药丸 + 页脚主色 10% 面板；含「零 hover」这处反面 |
 | `references/craft-floor.md` | 双方 | 工艺底线：九条 verify、深度三选一、四件浏览器原生表面、表面禁令、与本站语料的四条冲突裁决（来源：impeccable `craft-floor`，Apache-2.0） |
 | `references/anti-slop.md` | agent | 反模板：Design Read、三档旋钮与三套人格对照、hero 四条硬规则、三把锁、8 组 AI tell、中文站条款、34 条 pre-flight（来源：design-taste-frontend，规则重写） |
 | `references/page-patterns.md` | agent | 选型表 + 七类页面骨架 + 空/错/无权限三变体 + 内容最低量 |
@@ -265,7 +267,7 @@ git clone https://gitee.com/liu-everything_impossble/skill-frontend-fidelity.git
 
 从 [Releases](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) 下载 `frontend-fidelity.zip`，解压到同名目录即可，内容与 git 版本一致。
 包由 `git archive` 从 tag 生成，不含 `__pycache__`、截图目录与本地缓存。
-当前是 [v1.3.0](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/tag/v1.3.0)。
+当前是 [v1.12.0](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/tag/v1.12.0)。
 
 ### 方式三：只取脚本
 
@@ -313,6 +315,7 @@ frontend-fidelity/
 │   ├── motion-spec.md            # 动效规格：四条底线 + 时长五档 + 四条缓动 + 编排 + 三档降级 + 自测
 │   ├── holynova-motion.md       # 单站动效案例：23 条 transition + 3 个 keyframes + 聚光描边卡 + hover 四件套
 │   ├── luckymaomi-catalog.md   # 印刷品外壳：方格纸底 + 墨黑框 + 硬阴影 + 元数据黑条 + 三层展示体系
+│   ├── muzli-gallery.md        # 杂志目录式陈列：左栏目录 + 3 列图版 + 衬线刊头 + 电光蓝 + 零 hover（反面）
 │   ├── craft-floor.md            # 工艺底线：九条 verify + 深度三选一 + 原生表面 + 四条冲突裁决
 │   ├── anti-slop.md              # 反模板：三档旋钮 + hero 四条 + 三把锁 + 8 组 AI tell + 34 条 pre-flight
 │   ├── visual-system.md         # 视觉与结构细则完整版（从 SKILL.md 下沉的 15 节）
@@ -1102,7 +1105,7 @@ node scripts/screenshot.mjs --url https://uinotes.com/ --out ./shots --name un -
 | 产出 | 内容 |
 |---|---|
 | [`references/luckymaomi-catalog.md`](references/luckymaomi-catalog.md)（24.4KB / 十一节） | 26 个令牌全表、字阶六档（76/950·40/950·18/400·13·12·11）、卡片六段结构（457×477 / 16:9 静态 SVG / 徽标 36×25 / 色板行 25×14）、hover 三件事、动效预算（3 条 transition 全 100ms linear）、动效库 10 域 57 条的元数据与重放机制、showcase 两层 keyframes、三层 IA、七处别照抄 |
-| [`references/css-recipes.md`](references/css-recipes.md) §21 | `.paper-grid`（两条 1px 渐变方格纸）、`.hard-card`（hover 描黑 + 硬阴影 + `:active` 用 `translate` 压缩影）、`.meta-bar`（元数据黑条）、`.spec-strip`（把规格印成四格）、`.compact-item`、`.animation-stage` + `.animation-replay`、`march`/`stamp` 两条 keyframes |
+| [`references/css-recipes.md`](references/css-recipes.md) §20 | `.paper-grid`（两条 1px 渐变方格纸）、`.hard-card`（hover 描黑 + 硬阴影 + `:active` 用 `translate` 压缩影）、`.meta-bar`（元数据黑条）、`.spec-strip`（把规格印成四格）、`.compact-item`、`.animation-stage` + `.animation-replay`、`march`/`stamp` 两条 keyframes |
 | [`references/motion-spec.md`](references/motion-spec.md) 二·补 / 二·补二 | **三种时长口径**（手感派 spring 220–300ms / 弹性派 400ms / **印刷派 linear 100ms**）与「动效索引用『触发时机 · 时长』当第二行」的元数据约定 + 重放实现 |
 | [`references/design-evidence.md`](references/design-evidence.md) | A 组第 16 行 + 16 行补充表；正文均值 14.8 → **14.7px**、浅色 11 → **12** 站 |
 
@@ -1132,6 +1135,44 @@ node .tools/probe-lm6.mjs   # 10 域条目（时机·时长）、单条详情重
 ```
 
 坑：根域名 404；全站只有一份 31KB Tailwind 产物（`@keyframes` 为 0），动效与 showcase 的 keyframes 在各自页面样式里，必须逐页采。
+## 参考站蒸馏：Muzli 灵感库（杂志目录式陈列）
+
+`https://muz.li/inspiration/motion-design/` 是 Muzli 的单个专题页：56 张卡、左栏目录、3 列图版、衬线刊头，**卡片零 hover**。它跟前面几个内容站的做法几乎相反——那些在卡片上做文章，这一份在**页面外壳**上做文章（导航、刊头、药丸、页脚），卡片本身轻到几乎不存在。
+
+**四块产出**
+
+| 产出 | 落在哪 | 里面有什么 |
+| --- | --- | --- |
+| 单站全量蒸馏 | [`references/muzli-gallery.md`](references/muzli-gallery.md)（20.3KB / 十一节） | 气质四特征 · 令牌（电光蓝 `#2e54ff` + 一个黑的四档 alpha + 4/6/999 三档圆角）· 字阶（Instrument Serif 48/1.0 刊头 + Poppins 正文，296:9）· 版式节奏（65 / 220 / 1108 / 348×309 / 896 / 584）· 组件配方（无壳卡片、35px 药丸、New 徽标、左栏、页脚 10% 面板）· 信息架构（目录 → 外链自家社区带 UTM → SEO 长文 + All collections）· 动效（10 个 keyframes 无一作用在卡片）· 七处没做好 · 能搬/不能搬 · 十步复现 · 重采四坑 |
+| 可粘贴配方 | [`references/css-recipes.md`](references/css-recipes.md) §21 | `.mz-shell`（左栏 220 + 主区）、`.mz-rail`（sticky + 自己滚动）、`.mz-h1`（衬线 48/1.05）、`.mz-pills` / `.mz-pill[aria-current]`、`.mz-grid` + `.mz-card`（图 `aspect-ratio: 348/230` + 4px + 发丝环）、`.mz-badge`、`.mz-footer`；**并补上原站缺的三笔**：hover 环加深 + 图微提亮 + 标题下划线、`:focus-visible` |
+| 跨站统计 | [`references/design-evidence.md`](references/design-evidence.md) | A 组第 17 行 + 16 行补充表；正文均值 **14.7 → 14.6px**、H1 均值 **72.6 → 70.8px**（14 站有 h1）、浅色 12 → **13** 站；招式 40–42；反例 +3 行（卡片零 hover / 广告与内容同构 / 两套过滤语义） |
+| 入口路由 | [`SKILL.md`](SKILL.md) | 「细则去哪找」加一行「要杂志目录气质：左栏目录 + 3 列图版 + 衬线刊头 + 一个电光蓝」 |
+
+**三招值得直接搬**
+
+| 招式 | 为什么 |
+| --- | --- |
+| 衬线只当刊头 | 9 处 Instrument Serif 全在标题，296 处 Poppins 干活。中文替身 `"Source Han Serif SC","Songti SC"`，行高给 1.1，别继承 1.0 |
+| 图版靠图片自己的边界分组 | 卡片本体零边框零阴影，只给图 4px 圆角 + `0 0 0 1px rgba(0,0,0,.05)` 发丝环。比每张卡套框干净，还省一层阴影 |
+| 页脚用主色 10% 当底 | `rgba(46,84,255,.1)`：不引入第三个颜色，也不让页脚变成「黑底白字」的第二个世界 |
+
+**也别学它四处**
+
+1. **卡片零 hover、零 focus 可视**——可点却看不出可点，键盘也拿不到焦点；这是缺陷，不是克制。
+2. **广告卡与内容卡同构**（同 348×308 格子，只靠 11px `Sponsored` 区分）。
+3. **左栏是站内跳转、顶部药丸是站内过滤**——两个入口两种语义。
+4. **卡题 14px 偏小 + 图靠裁没有 `aspect-ratio`**：348×230 的卡里 14/500，长标题折到 3 行。
+
+**重采（Nuxt，等 `load` 会超时）**
+
+```powershell
+node E:\SKIl.1\.tools\probe-muz1.mjs   # 结构 / 变量 / 卡片 / 字体 / 字号
+node E:\SKIl.1\.tools\probe-muz2.mjs   # hover 前后 / 左栏 / 移动端 / 懒加载
+node E:\SKIl.1\.tools\probe-muz4.mjs   # 长文区 / All collections / 页脚面板
+node E:\SKIl.1\.tools\probe-muz6.mjs   # 卡片外链目标与 UTM（51 张全指 me.muz.li）
+```
+
+三坑：①`probe-ref.mjs` 默认 45s 等 `load`，这一页必超时，要 `domcontentloaded` + `waitForSelector('article')`；②`article` 里混着广告卡，数卡片会多 1–5 个；③**hover 无变化是结论不是漏测**（连测三次，`transform/filter/box-shadow/color` 全同）。
 ## 动效单站蒸馏：holynova 聚光卡
 
 <https://holynova.github.io/> 是一个作品集详情页（暗底 `#09090b`、431 元素、**0 canvas、0 video**）。它不进跨站视觉统计——只回答一个问题：**不用任何动效库，怎么让一批卡片"活着"。**

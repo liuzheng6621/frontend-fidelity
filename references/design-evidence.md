@@ -10,7 +10,7 @@
 取 `h1/h2/p/th/td/label/button/input` 首个实例的字号·行高比·字重、统计圆角与 gap 频次、
 量测侧栏/表头/表格行高/控件高度、读取 CSS 变量命名。原始 JSON 未随包分发，重跑即可再生。
 
-**采集成功 19 个站**（A 组 16：11 个营销/产品站 + 5 个内容陈列站，B 组 3 后台），另有 1 个失败不计入。
+**采集成功 20 个站**（A 组 17：11 个营销/产品站 + 6 个内容陈列站，B 组 3 后台），另有 1 个失败不计入。
 
 **A 组：Awwwards 商业/科技/电商/UI 分类获奖站 + Wegic / 即时设计（两个中文产品站）**
 
@@ -31,6 +31,8 @@
 | 13 | **zcool.com.cn/discover/17（站酷 UI 频道）** | 内容社区/频道头版 | light `#ffffff` | PingFang 系统栈（`HYWenHei-GEW` 排栈尾，未下载） | **40/1.10/700**（唯一 h1） | **14/1.36/400**（934 处） | 16·12·10·8·4·50% | #FF5E3B 橙（**只给注册/关注 2 处**） |
 | 14 | **stylekit.top/zh/styles（StyleKit 风格目录）** | 风格目录/工具站 | light `#fafafa`（纸色） | **Playfair Display 衬线标题 + Albert Sans 正文 + Fragment Mono 标签（三件套分工）** | **36/1.25/500**（-0.02em，目录页不强推大字） | **16/24/400** | **0（陈列区）**·6（控件）·50% | #e63946 绯红（**只给 hover 与极小标记**） |
 | 15 | **uinotes.com（UI Notes）** | 真实 UI 截图灵感库（477 app / 180,158 张） | light（hero 三停渐变 `#f7f0fc→#faf1fc→#e8e7fc`） | Avenir 系统栈（零 webfont） | **无 h1**（h1/h2/p 语义全空，最大的字是 div） | **13 / 1.15 / 400**（全站 `line-height: normal`） | 24（图标 80）·16（截图槽 240×520）·6（胶囊）·4（搜索）·20（登录胶囊）·2（促销小钮） | #446bf8 靛蓝（**只给首页两个数字**） |
+| 16 | **luckymaomi.github.io/ui（猫叫兽 UI 风格库）** | 风格目录/规格书站（143 风格 / 57 动效 / 三层 IA） | light（`#f3f4f6` + 方格纸 `--grid-line #090a0d13`） | **Inter 单字体**（body/display/mono 三角色变量前两个同栈，mono 声明无生效文本） | 目录页**无 h1**；子页 76/1.0/950 | **13 / 1.35 / 400**（438 处） | 2px（control 与 panel 同档） | `#090a0d` 墨黑 + `--signal #ff4538` |
+| 17 | **muz.li/inspiration/motion-design（Muzli Inspiration）** | 灵感聚合/杂志目录站（56 卡，卡片外链自家社区） | light `#ffffff`（页脚主色 10% 面板）；无深色 | **Instrument Serif 衬线刊头 + Poppins 正文**（296 : 9） | 48 / 1.0 / 400 衬线 | 16 / 1.5 / 400（卡片 14 / 21） | 4px 图 / 6px 输入 / 999 药丸 | `#2e54ff` 电光蓝（全站唯一彩色） |
 
 **A 组补充：wegic.ai 的完整实测**（2026-02 单独采集，数据见 `references/wegic-design.md`）
 
@@ -183,21 +185,40 @@
 | showcase | 每风格一页 6–7 段满版（`border-4 border-black`、`scroll-mt-16`），**把规格印成四格条**（0px 圆角 / 8px 阴影 / 150ms 过渡）；自带 keyframes 只有两条：`brutal-march`（`background-position 0→32px`，600ms linear infinite）+ `brutal-stamp`（`scale 1.4 rotate -6° → .96 rotate 1° → 1`，60% 过冲帧） |
 | 降级 | `prefers-reduced-motion: reduce` → `transition/animation-duration: .001ms`、`iteration-count: 1`、`scroll-behavior: auto` |
 | 反面 | 目录页与动效页**无 h1**；三个字体角色指向同一栈（声明即承诺）；中文正文 13px（低于 14.8 均值）；100ms 也用在按钮上；shell 100ms vs showcase 150ms 两个值；色板黑块 + 黑边会糊；静态 SVG 无法证明可用性 |
-## 二、跨站统计（16 个 A 组站：11 营销/产品 + 5 内容陈列站）
+**A 组补充：Muzli Inspiration muz.li/inspiration/motion-design 的完整实测**（2026-11-06 单独采集，数据见 `references/muzli-gallery.md`）
 
-- 主题：**浅色 12 / 深色 3 / 黑白交替 1**（Wegic）。浅色仍是企业站默认，深色是差异化选择而非标配；
+| 维度 | 实测 |
+|---|---|
+| 站点性质 | 灵感聚合站的单个专题页（56 张卡，其中 1 张广告）；Nuxt SSR |
+| 前提 | `probe-ref.mjs` 默认等 `load` 会 **45s 超时**；必须 `domcontentloaded` + `waitForSelector('article')` |
+| 主题 | light `#ffffff`；页脚大面板 `rgba(46,84,255,.1)`；无深色 |
+| 令牌 | Tailwind + 少量 `:root`（`--gradient-color-1/2` 是营销位的渐变变量）；强调色手工写 `#2e54ff` |
+| 字体 | **Poppins 296 处 / Instrument Serif 9 处**；衬线只出现在 H1(48)、长文 H2(38.4)、区块标题(30)、页脚 logo |
+| 字阶 | 48/1.0/400 衬线 → 38.4/48/500 衬线 → 30/36/400 衬线 → 16/24/400 → **14/21/500 卡题** → 14/16 描述 → 12.8 面包屑与栏目标签 → **11.2/600 徽标**；全是 0.8rem 的倍数（非整数污染） |
+| 容器 | header **65**（`position:fixed`、`backdrop-filter:blur(10px)`、无边框无阴影）；左栏 **220**（sticky，可滚动）+ 主区 **1108**（3×348，`gap:40px 32px`） |
+| 卡片 | **无壳**（`border:0; box-shadow:none; background:transparent`）；图 348×230（1.513）+ `border-radius:4px` + `0 0 0 1px rgba(0,0,0,.05)` 发丝环 + `object-position:50% 0%`；标题 14/500 lh21 `padding:16px 16px 0`；描述 14/16 `rgba(0,0,0,.7)` 单行省略 |
+| hover | **实测三次全部无变化**（transform / filter / box-shadow / 标题色 全同）；`:focus-visible` 也无额外样式 |
+| 过渡 | 默认 **0.15s ease-in-out**，只属于 chrome（导航、下拉、抽屉、`a.uhover::before` 的 scale）；`.cta` 0.3s；渐变变量 0.15s；滚动条 0.25s |
+| 动效 | `@keyframes` 共 **10 个**（pulse/spin/warp 15s/scrollGrid/slideIn/bounce-in/return-bar-in .3s/fadeIn .35s 与 .15s），**没有一个作用在卡片上**；静止 `getAnimations()` = **0** |
+| 组件 | tag 药丸 35 高 / 999 / 当前项黑底白字 / 未选白底 1px `rgba(0,0,0,.12)`；`New` 徽标 41×21、11.2/600、`#2e54ff`、`padding:2px 8px`；CTA 103×36 蓝底 999；搜索框 220×40 r6 `rgba(0,0,0,.043)` |
+| 信息架构 | 目录页 = 面包屑 + 衬线刊头 + 副标 + 「5 new in the last two weeks · Last update」+ tag 药丸 + 3 列卡；**51 张内容卡全部外链 `me.muz.li/...?utm_source=website&utm_medium=collection&utm_campaign=<专题>`**，站内零详情页；网格之下是长文（896 宽）+「All collections」两列内链 |
+| 响应式 | 390 视口 **2 列**（173px，`gap:20px 12px`）、header 仍 65、左栏折叠、无底部 tab bar；`scrollWidth === innerWidth === 390` ✅ |
+| 反面 | 卡片零 hover 零 focus；广告卡混在内容卡里（只靠 `Sponsored` 小字）；卡题 14px 偏小；图靠裁没有 `aspect-ratio`；字号全是 0.8rem 倍数；左栏是站内跳转而顶部药丸是站内过滤（两个入口两种语义）；56 卡后接长文，无「加载更多」无分页 |
+## 二、跨站统计（17 个 A 组站：11 营销/产品 + 6 内容陈列站）
+
+- 主题：**浅色 13 / 深色 3 / 黑白交替 1**（Wegic）。浅色仍是企业站默认，深色是差异化选择而非标配；
   黑白交替是产品站的做法（黑段叙事、白段放证据），对后台没有参考价值。
-- 正文字号：均值 **14.7px**（10,12,12,13,13,13,14,14,14,15,15,16,16,18,20,20）；正文行高比均值 **1.42**（1.15–1.60）。
-- H1：均值 **72.6px**（36–140，13 站有 h1；UI 世界没有 h1——h2 被拿去装导航；**UI Notes 连语义标题都删了**，最大的字是一个 div；**StyleKit 把 H1 压到 36px**——目录站不需要向下的海报级主标，页面主角是那 149 张卡），行高比 **0.80–1.51** ——大标题压到小于 1 的行高是普遍做法，但也有 1.5 的（即时设计 40/1.51）；内容站把 h1 压到 **40** 也是常规做法（站酷「UI」频道名 40/1.10）。
+- 正文字号：均值 **14.6px**（10,12,12,13,13,13,14,14,14,14,15,15,16,16,18,20,20）；正文行高比均值 **1.42**（1.15–1.60）。
+- H1：均值 **70.8px**（36–140，14 站有 h1；UI 世界没有 h1——h2 被拿去装导航；**UI Notes 连语义标题都删了**，最大的字是一个 div；**StyleKit 把 H1 压到 36px**、**Muzli 48px**——目录站不需要向下的海报级主标，页面主角是那些卡），行高比 **0.80–1.51** ——大标题压到小于 1 的行高是普遍做法，但也有 1.5 的（即时设计 40/1.51）；内容站把 h1 压到 **40** 也是常规做法（站酷「UI」频道名 40/1.10）。
 - **H1 / 正文 字号比：2.3 – 8.8 倍**（营销站语境；内容站下限一路下探：站酷 40/14 = 2.9、**StyleKit 36/16 = 2.25**——页面主角不是标题时，标题就该退回 2 倍出头；后台绝不能照搬，见第四节）。
-- 主字体：Manrope×2、Inter×2、Geist、Outfit、DM Sans、Season Sans、Ivar Text、IBM Plex Mono ——
+- 主字体：Manrope×2、Inter×2、Geist、Outfit、DM Sans、Season Sans、Ivar Text、IBM Plex Mono、Poppins（Muzli）——
   多数是无衬线/几何/新怪诞，**14 站里 11 站自带 webfont**（系统栈只作 fallback）。
   四个反例都是中文站：**即时设计 `document.fonts.size = 0`、UI 世界、站酷、UI Notes（Avenir 系统栈）**——一份 @font-face 都没有，
   中文渲染完全交给 PingFang/微软雅黑。这不是偷懒：中文 webfont 动辄几 MB，工具站与内容站把首屏速度排在品牌字前面，
   **中文站才成立的取舍**，英文站照抄会失去个性。
 - **第二字体是等宽（mono）的有 6/12**：Suisse Intl Mono、Geist Mono、IBM Plex Mono、TheGoodMonolith、Berkeley Mono、Fragment Mono（StyleKit）。
   用途统一：编号、标签、元信息、版本号、时间戳。
-  另有一派**第二字体用手写/衬线做「批注层」**：Wegic 的 Damion（4 处 eyebrow）、banham 的 Ivar Headline。
+  另有一派**第二字体用手写/衬线做「批注层」**：Wegic 的 Damion（4 处 eyebrow）、banham 的 Ivar Headline、Muzli 的 Instrument Serif（296 处 Poppins vs 9 处衬线，衬线只当刊头）。
 - **三件套分工第一次出现**（StyleKit）：**衬线写标题、无衬线排正文、等宽只做标签与数值**（Playfair Display + Albert Sans + Fragment Mono）。
   它把「第二字体」升级成「三种角色各管一段」——标题靠衬线拿到编辑感，正文靠无衬线保证可读，等宽只出现在 hex、特征词、数字上。
   代价是**中文标题没有任何中文衬线兜底**（落系统宋体），复现时必须自己补 `"Songti SC", "Source Han Serif SC"`。
@@ -328,6 +349,11 @@
     右对齐、间隔 8、宽度由内容撑开。不用表格也能把「版本 + 数量」放整齐。
 39. **数字必须 `tabular-nums`（复用）**：UI Notes 的大数字与计数若不设等宽数字，加载 66 个应用时会左右跳。
 
+40. **衬线只当刊头**（Muzli）：`Instrument Serif` 48/1.0 只出现在 H1、长文 H2(38.4)、区块标题(30)、页脚 logo，
+    296 处 Poppins 对应 9 处衬线。中文替身 `"Source Han Serif SC","Songti SC"` 必须自己补，行高给 1.1（别继承 1.0）。
+41. **图版靠图片自己的边界分组**（Muzli）：卡片本体 `border:0; box-shadow:none; background:transparent`，
+    只给图片 `border-radius:4px` + `0 0 0 1px rgba(0,0,0,.05)` 发丝环——比每张卡套一个框干净，且省一层阴影。
+42. **页脚用主色 10% 当底**（Muzli）：`background: rgba(46,84,255,.1)`，不引入第三个颜色，也不让页脚变成「黑底白字」的第二个世界。
 ## 四、不要照搬的（营销站 ≠ 后台）
 
 | 指标 | 获奖营销站 | 管理端/后台 | 推断依据 |
@@ -349,6 +375,9 @@
 | 顶栏固定 | 有站顶栏**不 sticky**（站酷，56px 静态），长图墙滚下去分类与排序全丢 | 图墙/列表页把顶栏 + 筛选条并成一个 sticky 块（总高 ≤112px） | 内容站滚动深度大，筛选是高频操作 |
 | 发丝宽 | 有站把 `0.8px` 当固定发丝（站酷：分隔线 / 按钮描边 / 圆图标钮） | 统一 **1px + 低对比色**（≤8% 黑）；`.5px` 只在 DPR≥2 时用 | 小数宽度在 DPR1 或小数缩放下会发虚 |
 | 截断 | 有站单行截断但**没给 `title`**（站酷、UI 世界） | 任何 `text-overflow: ellipsis` 都配 `title` 或 tooltip | 截断后信息不可恢复 |
+| 卡片交互 | 有站**卡片零 hover 零 focus**（Muzli：transform/filter/shadow/色 全不变，`:focus-visible` 无样式） | 可点就有反馈：环加深 + 图微提亮 + 标题下划线，并给 `:focus-visible` | 可点却看不出可点，是最伤的一种「省事」 |
+| 广告位 | 有站把广告做成和内容卡同构（Muzli：348×308 同格子，只靠 `Sponsored` 11px 小字区分） | 广告与内容必须在**形状或底色**上分开，别只靠一个小字标签 | 用户把广告当内容点，损失的是信任 |
+| 过滤入口 | 有站同时给「左栏站内跳转目录」与「顶部站内过滤药丸」两套入口（Muzli） | 一个页面只保留一种浏览语义：要么全是跳转，要么全是过滤 | 两个入口两种行为，用户会以为坏了 |
 | 深色开关 | 有站**有按钮无效果**（StyleKit：点了 `html.class` 仍 `light`） | 深色要么真做（令牌成套 + 持久化），要么不放入口 | 有开关不生效比没有更伤信任 |
 | 预览小字 | 有站预览区用 **10px 真文字**，移动端变 6px 且被 `overflow: hidden` 裁断（StyleKit） | 预览类元素用 `container-type` + `scale()` 整体缩放，别缩字号 | 小字在窄屏直接不可读 |
 | 无限滚动 | 有站无分页也无「加载更多」，只显示「已显示 N/M」（StyleKit） | 无限滚动必须留可见出口（加载更多/分页），并支持回溯 | 键盘与读屏用户触发不到下一批 |

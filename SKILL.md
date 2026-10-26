@@ -8,7 +8,7 @@ description: >-
   「从零做一个页面/后台/落地页」「搭个骨架」「先给我一套设计令牌」时使用。
   自带可运行脚本：多视口多主题截图、结构与 WCAG 审计、对比度检查、登录态导出、
   参考站实测探针、仓库残留清理、跑项目自带的质量门，以及 scaffold.mjs 一键生成骨架。
-  参考库是 18 个真实站的实测数据 + 六份单站蒸馏（营销页 / 工具站 / 密版图墙 / 疏版图墙 / 陈列页 / 灵感库），
+  参考库是 20 个真实站的实测数据 + 八份单站蒸馏（营销页 / 工具站 / 密版图墙 / 疏版图墙 / 陈列页 / 灵感库 / 风格库 / 杂志目录），
   外加动效规格、工艺底线、反模板清单与视觉细则层（含浏览器原生表面、三把锁、动效五档与三档降级），
   按页面类型对到具体文件与配方小节。
   不用于：纯逻辑 bug 修复；插画/海报等纯视觉创作（那属于 canvas-design）。
@@ -192,7 +192,8 @@ node scripts/scaffold.mjs --persona warm --out preview --accent 20 --pages landi
 | 要不要投影、圆角给谁、卡片分层 | 层级与阴影 |
 | 动效时长与缓动、编排、降级 | 动效（完整规格见 `references/motion-spec.md`） |
 | 卡片 hover 怎么“活”起来、聚光描边 | `references/holynova-motion.md` + `references/css-recipes.md` §19 |
-| 要「印刷品」气质：方格纸底、墨黑框、硬阴影、元数据黑条 | `references/luckymaomi-catalog.md` + `references/css-recipes.md` §21 |
+| 要「印刷品」气质：方格纸底、墨黑框、硬阴影、元数据黑条 | `references/luckymaomi-catalog.md` + `references/css-recipes.md` §20 |
+| 要「杂志目录」气质：左栏目录 + 3 列图版 + 衬线刊头 + 一个电光蓝 | `references/muzli-gallery.md` + `references/css-recipes.md` §21 |
 | 图墙 / 管理端列表 / 三态 / 表单 / 登录墙 | 页面结构 |
 | Logo、图片、图标 | Logo 与品牌、图片与视觉资产 |
 | 按钮 8 个状态、点击区尺寸 | 控件与状态 |
@@ -212,7 +213,7 @@ node scripts/scaffold.mjs --persona warm --out preview --accent 20 --pages landi
 
 ## 参考文件
 
-- `references/design-evidence.md` — 19 个实测成功的站点（16 个 A 组：营销/产品站 11 + 内容陈列站 5，另有 shadcn/linear/cal.com 三个后台）量出来的
+- `references/design-evidence.md` — 20 个实测成功的站点（17 个 A 组：营销/产品站 11 + 内容陈列站 6，另有 shadcn/linear/cal.com 三个后台）量出来的
   字体、字阶、行高比、间距基数、圆角档位、表格密度、控件高度，以及「哪些能抄、哪些不能抄」。
   **不知道该定多少数值时先看这里，比凭感觉猜准。**
 - `references/wegic-design.md` — wegic.ai 单站全量蒸馏：完整 `--wg-*` 令牌、塑料按钮的 6 层内阴影、
@@ -284,7 +285,13 @@ node scripts/scaffold.mjs --persona warm --out preview --accent 20 --pages landi
 - `references/review-rubric.md` — 交付前逐项勾的验收清单（含脚本命令与判定标准）。
 - `README.md` — 脚本全部参数与常见问题。
 
-## 许可
+
+- `references/muzli-gallery.md` — Muzli Inspiration（`muz.li/inspiration/motion-design/`）单站全量蒸馏：
+  **左栏 sticky 目录（220）+ 主区 3 列（348×309，gap 40/32）**、**衬线刊头**（Instrument Serif 48/1.0，与 Poppins 296:9）、
+  **卡片无壳**（图 4px 圆角 + `0 0 0 1px rgba(0,0,0,.05)` 发丝环、本体零边框零阴影）、**35px tag 药丸**（当前项黑底）、
+  `New` 徽标（11.2/600 电光蓝 `#2e54ff`）、**页脚用主色 10% 面板**、面包屑 + 「N 条新增 · 最后更新」行；
+  以及它的三处反面：**卡片零 hover 零 focus**、广告卡与内容卡同构、左栏跳转与顶部过滤两套语义。
+  **做灵感库、专题目录、杂志式陈列、带左栏导航的内容站时先读这份；它的「零 hover」是缺陷，别当风格抄。**## 许可
 
 MIT，见根目录 `LICENSE`。第三方例外：`scripts/vendor/axe.min.js` 是
 [axe-core](https://github.com/dequelabs/axe-core) 4.14.0，按 **MPL-2.0** 分发，

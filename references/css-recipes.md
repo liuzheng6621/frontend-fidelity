@@ -1468,7 +1468,7 @@ grid?.addEventListener('pointermove', (e) => {
 4. reduced-motion 下把浮出按钮**直接常显**，不要让它依赖 hover 才出现。
 
 实测参照：holynova 的 23 条 transition 中位移 220ms / 颜色 200ms / 阴影 300ms、主缓动 `cubic-bezier(.16,1,.3,1)`、只有 3 个 keyframes；完整数值与七处别照抄见 [`holynova-motion.md`](holynova-motion.md)。
-## 21. 方格纸规格书（猫叫兽 UI 风格库，实测蒸馏）
+## 20. 方格纸规格书（猫叫兽 UI 风格库，实测蒸馏）
 
 一套「印刷品」外壳：方格纸底板、墨黑 1px 边框、`4px 4px 0` 硬阴影、元数据黑条、100ms 线性过渡。
 和 §16（StyleKit 的发丝线 + 直角）是两派，**不要混用**。
@@ -1620,3 +1620,132 @@ grid?.addEventListener('pointermove', (e) => {
 2. **100ms 只给「状态切换」**（边框、底色、阴影、1–2px 位移）；按钮给 160ms，入场按 `motion-spec.md` 的五档（120/180/240/400/600）。
 3. **`.hard-card:active` 用 `translate` 属性**，不要写 `transform`——外部若已有 `transform` 会被覆盖；`translate` 与 `transform` 可叠加。
 4. **超重字重（950）在中文字体上会掉档**。Inter 没有中文字形，中文回退到 Noto Sans SC / 思源后最多 900；要么显式用支持 900 的中文变量字体，要么接受回退并把字号再放大一档。
+
+## 21. 杂志目录式灵感库（Muzli 风味，实测蒸馏）
+
+原站：`muz.li/inspiration/motion-design/`，白纸 + 衬线刊头 + 电光蓝 + 无壳卡片 + **卡片零 hover**。完整实测见 `muzli-gallery.md`。
+
+```css
+:root{
+  --mz-accent: #2e54ff;
+  --mz-accent-panel: rgba(46,84,255,.1);
+  --mz-ink-80: rgba(0,0,0,.8);
+  --mz-ink-70: rgba(0,0,0,.7);
+  --mz-ink-65: rgba(0,0,0,.65);
+  --mz-hairline: rgba(0,0,0,.12);
+  --mz-ring: 0 0 0 1px rgba(0,0,0,.05);
+  --mz-field: rgba(0,0,0,.043);
+  --mz-r-img: 4px;
+  --mz-r-field: 6px;
+  --mz-r-pill: 999px;
+  --mz-header-h: 65px;
+  --mz-rail-w: 220px;
+  --mz-col: 348px;
+  --mz-font-display: "Instrument Serif", Georgia, "Songti SC", "Source Han Serif SC", serif;
+  --mz-font-body: Poppins, "Noto Sans SC", "Microsoft YaHei", system-ui, sans-serif;
+}
+
+/* 外壳：左栏 + 3 列主区 */
+.mz-shell{
+  display: grid;
+  grid-template-columns: var(--mz-rail-w) minmax(0, 1fr);
+  gap: 48px;
+  max-width: 1440px; margin: 0 auto; padding: calc(var(--mz-header-h) + 88px) 32px 80px;
+  font-family: var(--mz-font-body);
+}
+
+/* 左栏目录：sticky + 自己滚动 */
+.mz-rail{
+  position: sticky; top: calc(var(--mz-header-h) + 88px);
+  align-self: start; max-height: calc(100vh - 160px); overflow: auto;
+}
+.mz-rail__search{
+  width: 100%; height: 40px; padding: 8px 11.2px;
+  border: 1px solid transparent; border-radius: var(--mz-r-field);
+  background: var(--mz-field); font: 400 14px/1 var(--mz-font-body);
+}
+.mz-rail__group-title{
+  margin: 24px 0 8px; font: 600 12px/1 var(--mz-font-body);
+  letter-spacing: .08em; text-transform: uppercase; color: var(--mz-ink-65);
+}
+.mz-rail__item{
+  display: flex; align-items: center; justify-content: space-between;
+  height: 34px; padding: 0 8px; border-radius: 6px;
+  font: 400 15px/1 var(--mz-font-body); color: var(--mz-ink-65); text-decoration: none;
+}
+.mz-rail__item:hover{ background: rgba(0,0,0,.035); color: #000; }
+.mz-rail__item[aria-current="page"]{ background: rgba(0,0,0,.045); color: #000; }
+
+/* 刊头：面包屑 → 衬线 H1 → 副标 → 活跃度行 */
+.mz-crumbs{ display: flex; gap: 8px; font-size: 13px; color: var(--mz-ink-65); }
+.mz-crumbs a{ color: var(--mz-accent); text-decoration: none; }
+.mz-h1{
+  margin: 12px 0 16px; max-width: 760px;
+  font: 400 48px/1.05 var(--mz-font-display); color: #000;   /* 单行时行高可 1.0；会换行给 1.05 */
+}
+.mz-lede{ margin: 0; max-width: 760px; font: 400 16px/1.5 var(--mz-font-body); color: var(--mz-ink-80); }
+.mz-meta{ margin-top: 16px; font-size: 14px; color: var(--mz-ink-65); }
+.mz-meta b{ color: var(--mz-accent); font-weight: 600; }
+
+/* 药丸行：当前项黑底 */
+.mz-pills{ display: flex; flex-wrap: wrap; gap: 8px; margin: 24px 0 0; }
+.mz-pill{
+  display: inline-flex; align-items: center; height: 35px; padding: 0 14px;
+  border: 1px solid var(--mz-hairline); border-radius: var(--mz-r-pill);
+  background: #fff; color: var(--mz-ink-80);
+  font: 400 14px/1 var(--mz-font-body); text-decoration: none; white-space: nowrap;
+}
+.mz-pill[aria-current="true"]{ background: #000; border-color: #000; color: #fff; }
+
+/* 网格 + 无壳卡片 */
+.mz-grid{
+  display: grid; gap: 40px 32px; margin-top: 46px;
+  grid-template-columns: repeat(3, minmax(0, var(--mz-col)));
+}
+.mz-card{ background: transparent; border: 0; box-shadow: none; }
+.mz-card > a{ display: block; color: #000; text-decoration: none; }
+.mz-card img{
+  display: block; width: 100%; aspect-ratio: 348 / 230;   /* 原站没写，补上防跳动 */
+  object-fit: cover; object-position: 50% 0%;
+  border-radius: var(--mz-r-img); box-shadow: var(--mz-ring);
+  transition: box-shadow .15s ease-out, filter .15s ease-out;
+}
+.mz-card h3{ margin: 0; padding: 16px 0 0; font: 500 16px/1.35 var(--mz-font-body); }
+.mz-card p{
+  margin: 6px 0 0; font: 400 14px/1.4 var(--mz-font-body); color: var(--mz-ink-70);
+  overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+}
+
+/* 原站缺的三笔：hover / focus / 键盘可达 —— 一定要补 */
+.mz-card > a:hover img{ box-shadow: 0 0 0 1px rgba(0,0,0,.22); filter: brightness(1.02); }
+.mz-card > a:hover h3{ text-decoration: underline; text-underline-offset: 3px; }
+.mz-card > a:focus-visible{ outline: 2px solid var(--mz-accent); outline-offset: 4px; border-radius: var(--mz-r-img); }
+
+/* New 徽标 */
+.mz-badge{
+  position: absolute; left: 8px; top: 8px; padding: 2px 8px;
+  border-radius: var(--mz-r-pill); background: var(--mz-accent); color: #fff;
+  font: 600 11px/1.6 var(--mz-font-body); letter-spacing: .02em;
+}
+
+/* 页脚：主色 10% 面板，不引入第三个世界 */
+.mz-footer{ margin-top: 96px; padding: 80px 160px; background: var(--mz-accent-panel); }
+.mz-footer__title{ font: 400 30px/1.2 var(--mz-font-display); margin: 0 0 32px; }
+
+@media (max-width: 1100px){
+  .mz-shell{ grid-template-columns: 1fr; gap: 32px; padding-inline: 20px; }
+  .mz-rail{ position: static; max-height: none; }   /* 或收成顶部横向药丸行 */
+  .mz-grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 20px; }
+}
+@media (max-width: 640px){
+  .mz-grid{ gap: 20px 12px; }
+  .mz-h1{ font-size: 32px; }
+  .mz-footer{ padding: 40px 20px; }
+}
+```
+
+**使用说明（三条）**
+
+1. **衬线只在三个位置**：刊头（48）、长文大标（38）、区块标题（30）。正文一律无衬线——中文站把 `--mz-font-display` 换成 `"Source Han Serif SC","Songti SC"`，行高给到 1.1，别继承 1.0。
+2. **字号必须归整**：原站 38.4/30/15.2/14.4/12.8/11.2 都是 `0.8rem` 的倍数，抄进来会污染令牌表；按 38/30/15/14/13/11 落。
+3. **原站零 hover 是缺陷不是风格**：`.mz-card` 的三笔（环加深、图微提亮、标题下划线 + `:focus-visible`）必须补；但**只给图片加过渡**，别让整块卡片位移——这一页的气质是「图版」，不是「可拖动卡片」。
