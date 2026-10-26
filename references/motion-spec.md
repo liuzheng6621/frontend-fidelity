@@ -180,7 +180,8 @@
 
 - `craft-floor.md` 第一节第 5 条（「一个有意识的动效时刻 + 指数 ease-out」）是这份文件的判据源头，第八节的四条裁决在此同样适用。
 - `anti-slop.md` 第二节的 `MOTION_INTENSITY` 旋钮决定**要不要做**（> 4 必须真动，≤ 2 只留 hover），这份文件决定**怎么做**。
-- `css-recipes.md` §18 是这里所有规则的可复制片段。
+- `css-recipes.md` §18 是这里所有规则的可复制片段；§19 是"聚光描边卡"这一具体招式的完整片段。
+- `holynova-motion.md` 是**案例**（单站 23 条 transition / 3 个 keyframes / 1 条主缓动）：这份文件说"该不该、多长"，那份文件给"长什么样、实测多少"。
 - `review-rubric.md` 的动效四问（动机 / 时长 / 降级 / 重绘）来自这里。
 - 语料侧证据：`design-evidence.md` 的「动画数量」一栏（桌面 21 / 8 / 1 / 0），以及 wegic / jsdesign 单站文档里的缓动实测值。
 
@@ -189,5 +190,5 @@
 ## 十一、来源
 
 - 判据：impeccable `craft-floor.md`（Apache-2.0）、design-taste-frontend 的 MOTION 旋钮与动效 tell（规则重写）。
-- 实测数值：wegic（`cubic-bezier(.33,1,.68,1)`、按钮厚度 4→2→0）、即时设计（桌面 21 个动画、展示区 400–600ms）、StyleKit（hover 160ms、两笔）、UI Notes（全站 1 个动画）。
+- 实测数值：holynova（单一 `cubic-bezier(.16,1,.3,1)`、时长 0.12–0.4、聚光层只改 opacity 与两个 CSS 变量）、wegic（`cubic-bezier(.33,1,.68,1)`、按钮厚度 4→2→0）、即时设计（桌面 21 个动画、展示区 400–600ms）、StyleKit（hover 160ms、两笔）、UI Notes（全站 1 个动画）。
 - 时长/缓动分级是本站汇总值，**不是某一家站点的原值**；要引用单站数值请回各自单站文档。

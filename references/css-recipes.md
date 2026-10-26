@@ -1336,3 +1336,135 @@ document.querySelectorAll('.reveal').forEach((el, i) => {
 - `transition-delay` 只该给入场，**别给 hover**（会出现"划过去一格一格的"）。
 - 用 CSS 变量算时长（`calc(var(--dur-4) * var(--motion))`）比自己维护两套规则好，切低端机时只改一个属性。
 - `animation: … both` 会把 `transform` 留在终值上，若元素里有 `position: fixed` 子元素会被拖偏；遇到就换 `backwards` 或把动画放到内层包一层。
+## 19. 聚光描边卡（holynova 风味，实测蒸馏）
+
+一句：一张卡在指针经过时"被点亮"——1px 描边跟着指针走，内侧浮一层极淡的环境光，同时卡片抬 4px、图片压暗。**零 canvas、零动画库，光层不参与补间。**
+
+```css
+:root{
+  /* 动效令牌：一条主缓动，六档时长 */
+  --spring:cubic-bezier(.16,1,.3,1);
+  --dur-1:120ms; --dur-2:150ms; --dur-3:180ms;
+  --dur-4:220ms; --dur-5:300ms; --dur-6:400ms;
+
+  /* 阴影：静止两层，悬停三层（第三层是 1px 环） */
+  --mx-rest:0 2px 8px -2px rgb(0 0 0/.30), 0 1px 3px rgb(0 0 0/.20);
+  --mx-hover:0 24px 50px -12px rgb(0 0 0/.75),
+             0 12px 24px -8px  rgb(0 0 0/.48),
+             0 0 0 1px         rgb(255 255 255/.14);
+  --mx-press:0 8px 24px -4px rgb(0 0 0/.45);
+}
+
+/* ---------- 1) 卡片本体 ---------- */
+.spotlight-card{
+  position:relative;
+  overflow:hidden;
+  border:1px solid rgb(255 255 255/.07);
+  border-radius:20px;
+  background:rgb(17 17 19);
+  box-shadow:var(--mx-rest);
+  /* 聚光坐标：默认居中，JS 覆盖 */
+  --spotlight-x:50%;
+  --spotlight-y:50%;
+  --spotlight-opacity:0;
+  transition:transform var(--dur-4) var(--spring),
+             border-color 200ms ease,
+             box-shadow var(--dur-5) var(--spring);
+}
+.spotlight-card:hover,
+.spotlight-card:focus-within{                 /* 键盘同款，别漏 */
+  transform:translateY(-4px);
+  border-color:rgb(255 255 255/.22);
+  box-shadow:var(--mx-hover);
+  --spotlight-opacity:1;
+}
+.spotlight-card:active{ transform:translateY(-1px); box-shadow:var(--mx-press); }
+
+/* ---------- 2) 两个光层 ---------- */
+.spotlight-card::before,
+.spotlight-card::after{
+  content:"";
+  position:absolute;
+  pointer-events:none;              /* 漏了整卡不可点 */
+  border-radius:inherit;            /* 跟着圆角，不用重复写 20px */
+  opacity:var(--spotlight-opacity);
+  transition:opacity var(--dur-4) var(--spring);
+}
+/* 1px 描边聚光：mask 把渐变抠成一条环 */
+.spotlight-card::before{
+  inset:0; padding:1px;
+  background:radial-gradient(clamp(180px,40%,320px) circle at var(--spotlight-x) var(--spotlight-y),
+             rgb(255 255 255/.94), rgb(255 255 255/.32) 40%, transparent 76%);
+  mask:linear-gradient(#fff 0 0) content-box exclude,
+       linear-gradient(#fff 0 0);
+}
+/* 内侧环境光：半径更大、透明度更低 */
+.spotlight-card::after{
+  inset:1px;
+  background:radial-gradient(clamp(220px,52%,420px) circle at var(--spotlight-x) var(--spotlight-y),
+             rgb(255 255 255/.12), transparent 72%);
+  z-index:0;
+}
+.spotlight-card > *{ position:relative; z-index:1; }   /* 内容压在光层上 */
+
+/* ---------- 3) 卡内媒体与浮出按钮 ---------- */
+.spotlight-card img{
+  display:block; width:100%; height:auto;
+  transition:filter 200ms ease;
+}
+.spotlight-card:hover img{ filter:brightness(.95) saturate(.97); }  /* 压暗，不是提亮 */
+
+.spotlight-card__actions{
+  position:absolute; inset:auto 12px 12px;
+  display:flex; gap:8px;
+  opacity:0; transform:translateY(5px); pointer-events:none;
+  transition:opacity var(--dur-3) ease, transform var(--dur-4) var(--spring);
+}
+.spotlight-card:hover .spotlight-card__actions,
+.spotlight-card:focus-within .spotlight-card__actions{
+  opacity:1; transform:translateY(0); pointer-events:auto;
+}
+
+/* ---------- 4) 批量入场：一批一次呼吸 ---------- */
+@keyframes card-entry{ from{ opacity:0; transform:translateY(14px); } to{ opacity:1; transform:none; } }
+.card-appear{
+  animation:card-entry 360ms var(--spring) both;   /* both 必写，否则首帧闪一下 */
+  animation-delay:calc(var(--i,0) * 40ms);        /* 可选：>4 张时加，封顶第 8 张 */
+}
+.card-appear:nth-child(n+9){ animation-delay:280ms; }   /* 封顶，别让第 20 张等 800ms */
+
+/* ---------- 5) 降级：连装饰层一起关 ---------- */
+@media (hover:none){ .spotlight-card{ --spotlight-opacity:0; } }   /* 触屏没有指针 */
+@media (prefers-reduced-motion:reduce){
+  *,::before,::after{
+    scroll-behavior:auto !important;
+    animation-duration:.01ms !important;            /* 不要写 0ms */
+    animation-iteration-count:1 !important;
+    transition-duration:.01ms !important;
+  }
+  .spotlight-card::before,.spotlight-card::after{ opacity:0 !important; }
+  .spotlight-card__actions{ opacity:1; transform:none; pointer-events:auto; }
+}
+```
+
+指针坐标（约十行，事件委托到容器上）：
+
+```js
+const grid = document.querySelector('[data-spotlight]');
+grid?.addEventListener('pointermove', (e) => {
+  const card = e.target.closest('.spotlight-card');
+  if (!card) return;
+  const r = card.getBoundingClientRect();
+  card.style.setProperty('--spotlight-x', `${(e.clientX - r.left).toFixed(0)}px`);
+  card.style.setProperty('--spotlight-y', `${(e.clientY - r.top).toFixed(0)}px`);
+}, { passive: true });
+```
+
+四条坑：
+
+1. **写自定义属性而不是 `background`**：改 `background` 会整层重绘，改坐标只让伪元素内部重画。
+2. `pointer-events:none` + `.spotlight-card > * { z-index:1 }` 两个都不能漏（前者让卡片可点，后者让文字可见）。
+3. 触屏（`hover: none`）把 `--spotlight-opacity` 归零，否则永远停在中心那个假光斑。
+4. reduced-motion 下把浮出按钮**直接常显**，不要让它依赖 hover 才出现。
+
+实测参照：holynova 的 23 条 transition 中位移 220ms / 颜色 200ms / 阴影 300ms、主缓动 `cubic-bezier(.16,1,.3,1)`、只有 3 个 keyframes；完整数值与七处别照抄见 [`holynova-motion.md`](holynova-motion.md)。

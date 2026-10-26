@@ -191,6 +191,7 @@ node scripts/scaffold.mjs --persona warm --out preview --accent 20 --pages landi
 | 间距节奏、容器与栅格 | 间距与结构 |
 | 要不要投影、圆角给谁、卡片分层 | 层级与阴影 |
 | 动效时长与缓动、编排、降级 | 动效（完整规格见 `references/motion-spec.md`） |
+| 卡片 hover 怎么“活”起来、聚光描边 | `references/holynova-motion.md` + `references/css-recipes.md` §19 |
 | 图墙 / 管理端列表 / 三态 / 表单 / 登录墙 | 页面结构 |
 | Logo、图片、图标 | Logo 与品牌、图片与视觉资产 |
 | 按钮 8 个状态、点击区尺寸 | 控件与状态 |
@@ -205,7 +206,7 @@ node scripts/scaffold.mjs --persona warm --out preview --accent 20 --pages landi
 - 间距基数 4，常用 8 / 12 / 16 / 24 / 32 / 48 / 64 / 96；区块上下留白不等（上 < 下更常见）。
 - 阴影选一派用到底：靠边框 / 发丝圈+内阴影 / 负扩散 / 全站零阴影 / 零阴影零边框；同屏不混。
 - 图墙选一派：密（5 列 gap 0）/ 疏（4 列列距 24）/ 活预览（3 列 gap 32）；同屏不混。
-- 动效 120 / 180 / 240 / 400 / 600，上限 800，只动 `transform` 与 `opacity`。
+- 动效 120 / 180 / 240 / 400 / 600，上限 800，只动 `transform` 与 `opacity`；卡片 hover 要四件套一起变（位移 + 边框 + 阴影 + 媒体压暗），只变一样会显得“抖了一下”。
 - 移动端 390 宽：无横向滚动、点击区 ≥44×44、底部避开安全区。
 
 ## 参考文件
@@ -262,6 +263,7 @@ node scripts/scaffold.mjs --persona warm --out preview --accent 20 --pages landi
   位移与缩放允许量、编排（交错 40–60ms、≤ 8 个、只演一次）、滚动驱动（IntersectionObserver / `animation-timeline` /
   禁 scroll 事件 / 禁劫持）、六类交互配方、三档降级写法、性能预算（同屏 ≤ 12 元素动、will-change ≤ 3）、
   自测四步、动效 AI tell。**要加任何动画之前先读第 1、2 节。**
+- `references/holynova-motion.md` — **单站动效蒸馏（案例）**：23 条 transition / 3 个 keyframes / 1 条主缓动、实测 9 档时长，聚光描边卡（`::before` + `mask content-box exclude` 抠 1px 环、`::after` 环境光、坐标走 CSS 变量）、hover 四件套与 `:active` 回落、无 stagger 的批量入场、reduced-motion 连装饰层一起关，附七处别照抄与十步搬用清单。
 - `references/craft-floor.md` — **工艺底线**（来源：impeccable 的 craft-floor，Apache-2.0，只蒸馏判据未复制原文）：
   九条做完才看的验证（对比度 / 深度偏移+模糊 / 标题上间距 > 下间距 / 行宽 65–75ch / 一个有意识的动效时刻 /
   五态与键盘焦点 / **浏览器原生表面** / 文案 / 覆盖）、深度三选一（发丝·边距·阴影，禁幽灵卡）、

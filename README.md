@@ -78,7 +78,7 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 | 灵感库 / 截图站：素材本身就是成品，界面要隐形 | [`references/uinotes-design.md`](references/uinotes-design.md) + [css-recipes §17](references/css-recipes.md) | 不画壳的截图墙、裁切露 1.8 张、48px 数字当标题、2/4/6/16/20/24 线性圆角阶梯 |
 | 后台 / 管理端：列表、表单、详情、空态、权限墙 | [`references/page-patterns.md`](references/page-patterns.md) + [`component-spec.md`](references/component-spec.md) + [`design-tokens.md`](references/design-tokens.md) | 七类页面骨架 + 11 类组件规格 + 三套人格令牌；单站样本没有后台，横向数据看 `design-evidence.md` B 组 |
 
-动效是另一条横切：动手加任何动画前读 [`references/motion-spec.md`](references/motion-spec.md)（四条底线、时长五档、四条缓动、编排、三档降级、自测四步），可粘贴片段在 [css-recipes §18](references/css-recipes.md)。
+动效是另一条横切：动手加任何动画前读 [`references/motion-spec.md`](references/motion-spec.md)（四条底线、时长五档、四条缓动、编排、三档降级、自测四步），可粘贴片段在 [css-recipes §18](references/css-recipes.md)。想让一批卡片"被指针点亮"，直接抄 [`references/holynova-motion.md`](references/holynova-motion.md) + [css-recipes §19](references/css-recipes.md)（聚光描边 + hover 四件套，实测单站）。
 
 另有两份**不分页面类型、每次都要过**的：流程走到一半看 [`references/anti-slop.md`](references/anti-slop.md)（三档旋钮、hero 四条、三把锁、8 组 AI tell、34 条 pre-flight），最后一道手感看 [`references/craft-floor.md`](references/craft-floor.md)（九条 verify、深度三选一、浏览器原生表面、与本站语料的四条冲突裁决）。
 
@@ -123,6 +123,7 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 - [参考站蒸馏：站酷 ZCOOL](#参考站蒸馏站酷-zcool)
 - [参考站蒸馏：StyleKit 风格目录](#参考站蒸馏stylekit-风格目录)
 - [参考站蒸馏：UI Notes 灵感库](#参考站蒸馏ui-notes-灵感库)
+- [动效单站蒸馏：holynova 聚光卡](#动效单站蒸馏holynova-聚光卡)
 - [外部规则集蒸馏：工艺底线与反模板](#外部规则集蒸馏工艺底线与反模板)
 - [交付验收清单](#交付验收清单)
 - [CI 集成](#ci-集成)
@@ -134,7 +135,7 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 
 ## 这是什么
 
-一个**把前端做对**的技能包，两条路都走：**先把已有界面整改/还原到位**，**也能从 0 生成一套能验收的骨架**。内含一份给 agent 读的操作手册（`SKILL.md`）+ 十六份参考数据（13 份实测 + 2 份外部规则集 + 1 份动效规格，`references/`）+ 九个能直接跑的脚本（`scripts/`）。
+一个**把前端做对**的技能包，两条路都走：**先把已有界面整改/还原到位**，**也能从 0 生成一套能验收的骨架**。内含一份给 agent 读的操作手册（`SKILL.md`）+ 十八份参考数据（7 份单站蒸馏 + 8 份通用规格 + 1 份跨站实测 + 2 份外部规则集，`references/`）+ 九个能直接跑的脚本（`scripts/`）。
 
 它解决的是这类问题：
 
@@ -188,6 +189,7 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 | `references/stylekit-design.md` | 双方 | StyleKit（风格目录站）单站全量蒸馏：卡片即预览（活渲染、非截图）、6px 四段色板条、直角陈列区、衬线+无衬线+等宽三件套、两条 hover、详情页第二套版式、七处反例 |
 | `references/uinotes-design.md` | 双方 | UI Notes（真实 UI 截图灵感库）单站全量蒸馏：隐形界面（0 壳 0 边 0 阴影）、240×520 截图带裁切露 1.8 张、48px 数字当标题、2/4/6/16/20/24 线性圆角阶梯、全站 `line-height: normal`、七处反例 |
 | `references/motion-spec.md` | 双方 | 动效规格：时长五档与四条缓动、位移允许量、编排、滚动驱动、六类交互配方、三档降级、性能预算、自测四步、动效 AI tell |
+| `references/holynova-motion.md` | 双方 | 单站动效蒸馏（案例）：23 条 transition / 3 个 keyframes / 1 条主缓动、实测 9 档时长（归并 6 档）、聚光描边卡（mask 抠 1px 环）、hover 四件套与按下回落、批量入场、reduced-motion 连装饰层关、七处别照抄 |
 | `references/craft-floor.md` | 双方 | 工艺底线：九条 verify、深度三选一、四件浏览器原生表面、表面禁令、与本站语料的四条冲突裁决（来源：impeccable `craft-floor`，Apache-2.0） |
 | `references/anti-slop.md` | agent | 反模板：Design Read、三档旋钮与三套人格对照、hero 四条硬规则、三把锁、8 组 AI tell、中文站条款、34 条 pre-flight（来源：design-taste-frontend，规则重写） |
 | `references/page-patterns.md` | agent | 选型表 + 七类页面骨架 + 空/错/无权限三变体 + 内容最低量 |
@@ -307,6 +309,7 @@ frontend-fidelity/
 │   ├── copy-and-content.md       # 文案规格：标题公式、按钮动词、空/错/载公式、占位写法
 │   ├── css-recipes.md            # 设计令牌 / 表格 / 骨架屏 / 空态 / 深色 / 六个站的风味片段（第 12–17 节）
 │   ├── motion-spec.md            # 动效规格：四条底线 + 时长五档 + 四条缓动 + 编排 + 三档降级 + 自测
+│   ├── holynova-motion.md       # 单站动效案例：23 条 transition + 3 个 keyframes + 聚光描边卡 + hover 四件套
 │   ├── craft-floor.md            # 工艺底线：九条 verify + 深度三选一 + 原生表面 + 四条冲突裁决
 │   ├── anti-slop.md              # 反模板：三档旋钮 + hero 四条 + 三把锁 + 8 组 AI tell + 34 条 pre-flight
 │   ├── visual-system.md         # 视觉与结构细则完整版（从 SKILL.md 下沉的 15 节）
@@ -1083,6 +1086,44 @@ node scripts/screenshot.mjs --url https://uinotes.com/ --out ./shots --name un -
 2. **移动端测不到「重排」**——只会得到 `innerWidth = 1420`，这本身就是结论，别误判成脚本出错。
 3. **水印是烧进图片像素的**——不是 DOM 叠层也不是 `::after`，想提取只能裁图。
 
+## 动效单站蒸馏：holynova 聚光卡
+
+<https://holynova.github.io/> 是一个作品集详情页（暗底 `#09090b`、431 元素、**0 canvas、0 video**）。它不进跨站视觉统计——只回答一个问题：**不用任何动效库，怎么让一批卡片"活着"。**
+
+结论：**23 条 transition、3 个 keyframes、1 条主缓动**。全站零动效库（GSAP / THREE / lottie / Swiper / lenis / anime 一个都没有），all in CSS。
+
+### 产出
+
+| 文件 | 内容 |
+| --- | --- |
+| [`references/holynova-motion.md`](references/holynova-motion.md)（15.9KB / 十一节） | 令牌（1 条 `cubic-bezier(.16,1,.3,1)` + 六档时长 120–400ms）、三条 keyframes 原文、hover 四件套的规则与前后实测对照、聚光卡的 `::before`/`::after` 完整源码与四个坑、批量入场、reduced-motion、七处别照抄、十步搬用清单、重采方法 |
+| [`references/css-recipes.md`](references/css-recipes.md) §19 | 可直接粘贴的 `.spotlight-card` + 两个光层 + 浮出按钮 + 入场 + 降级 + 十行 pointermove JS |
+| `references/motion-spec.md` | §十 增加指路；§十一 来源补 holynova 实测值 |
+| `SKILL.md` | 细则路由表加一行「卡片 hover 怎么活起来 / 聚光描边」；速查数字补「hover 要四件套一起变」；参考文件节加条目 |
+
+### 三招值得直接搬
+
+| 招 | 为什么有效 | 实测 |
+| --- | --- | --- |
+| **聚光描边用 `mask` 抠环** | `padding:1px` + `mask: linear-gradient(#fff 0 0) content-box exclude` 让径向渐变只剩 1px 环；只改两个 CSS 自定义属性（坐标），**不做 filter 动画、不建 canvas** | 半径 280px 描边 + 360px 环境光，`opacity` 过渡 220ms |
+| **一个 hover 用三个时长** | 位移 220ms、颜色 200ms、阴影 300ms——阴影面积大、必须更久才不跳。这是"看起来贵"的真正来源 | `transform .22s` / `border-color .2s ease` / `box-shadow .3s` |
+| **图片压暗而不是提亮** | 暗底上 `brightness(1.05)` 会糊成一片白；`brightness(.95) saturate(.97)` 让卡片退后一格，前景白字反而更清楚 | 实测 `filter: none → brightness(.95) saturate(.97)` |
+
+### 也别学它三处（全文见文档第八节，共七处）
+
+- **完全没有 stagger**：12 张同帧入场，慢机器上像"闪一下"。加 `--i × 40ms`、封顶第 8 张就够。
+- **动作按钮只在 hover 出现且静止 `pointer-events:none`**：触屏首次点按会"点空"。`(hover:none)` 下应常显。
+- **无限滚动没有终止态文案**：滚到 84 张时用户不知道还有多少。补「共 116 个，已全部加载」。
+
+### 重采
+
+```powershell
+node E:\SKIl.1\.tools\probe-hn1.mjs   # 结构 / 45 个 :root 变量 / 全部 keyframes / 声明计数
+node E:\SKIl.1\.tools\probe-hn2.mjs   # 23 条 transition + 3 条 animation 原文 + reduced-motion + 卡片计算值
+node E:\SKIl.1\.tools\probe-hn3.mjs   # hover 前后计算值对比 + 无限滚动（12 → 84 张）
+```
+
+坑：读"规则原文"必须遍历 `document.styleSheets[].cssRules`（含 `@media` 内层），`getComputedStyle` 只给最终值，拿不到 reduced-motion 块；伪元素要 `getComputedStyle(el,'::before')`。
 ## 外部规则集蒸馏：工艺底线与反模板
 
 参考站告诉我们「别人长什么样」，这两份外部规则集告诉我们「什么是做错了」。都不是本站实测，是**判据**——所以单独立两节，不带任何站点数值。

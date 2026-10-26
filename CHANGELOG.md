@@ -4,6 +4,17 @@
 `frontend-fidelity.zip`，由 `git archive` 从 Tag 快照生成，只含被 git 跟踪的文件
 （不含 `shots/`、`audit-report.json`、`.design/`）。
 
+## v1.10.0 - 2026-11-04
+
+新增一份**单站动效蒸馏**（holynova），并把"卡片怎么活起来"从原则落成可粘贴的片段。这是第一次以动效为唯一主题做的站点分析，补充 `motion-spec.md`（规则）缺的"照它做长什么样"。
+
+- **新增 `references/holynova-motion.md`**（15.9KB / 十一节）：<https://holynova.github.io/> 实测——431 元素、0 canvas / 0 video、**零动效库**，全站只有 **23 条 transition、3 个 keyframes、1 条主缓动**（`cubic-bezier(.16,1,.3,1)`）与实测 9 档时长（120/150/180/200/220/250/300/350/400ms，令牌里归并成 6 档）。含：三条 keyframes 原文、hover 四件套的规则与前后实测对照（`translateY(-4px)`、边框 `.07→.22`、阴影两层→三层、图片 `brightness(.95) saturate(.97)`、按钮 `opacity 0→1` + `translateY(5px)→0`）、` :active` 回落 `-1px`、聚光描边卡的 `::before`（`mask ... content-box exclude` 抠 1px 环）与 `::after`（环境光）完整源码 + 四个坑、批量入场（`both`、只演一次、无 stagger 的代价）、reduced-motion 连装饰层一起关、**七处别照抄**、十步搬用清单、重采方法。
+- **`references/css-recipes.md` 新增 §19「聚光描边卡」**：`--spring` / `--dur-1..6` / 阴影令牌、`.spotlight-card`（hover 四件套 + `:focus-within` 同组 + `:active` 回落）、两个光层、媒体压暗、浮出按钮、`.card-appear` 与封顶 stagger、`(hover:none)` 与 `prefers-reduced-motion` 两档降级、十行 `pointermove` JS。
+- **`references/motion-spec.md`**：§十 增加指向案例的说明（"该不该/多长"看规格，"长什么样/实测多少"看案例）；§十一 来源补 holynova 的实测值。
+- **`SKILL.md`**：细则路由表加一行「卡片 hover 怎么活起来 / 聚光描边」；速查数字补「hover 要四件套一起变，只变一样会显得抖了一下」；参考文件节新增条目。
+- **`README.md`**：份数口径从"十六份（13 实测 + 2 外部 + 1 动效规格）"改为**十八份**（7 单站蒸馏 + 8 通用规格 + 1 跨站实测 + 2 外部规则集）；「该抄哪份参考」的动效段补 §19 入口；分工表与结构树各加一行；新增整节「动效单站蒸馏：holynova 聚光卡」（产出表 + 三招表 + 也别学它三处 + 重采命令）。
+
+验证：`node scripts/audit.mjs` 与 `contrast_check.py` 的口径未变（本轮不动脚本）；README 锚点复验通过；文档内所有数值均可回查 `E:\SKIl.1\.tools\out\hn\facts{1,2,3}.json` 与 `hover.json` / `scroll.json`。
 ## v1.9.2 - 2026-11-02
 
 修掉上一轮验证剩下的四个小口子，并补齐两处会误导人的输出。
