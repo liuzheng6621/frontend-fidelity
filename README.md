@@ -1,11 +1,11 @@
 # frontend-fidelity · 前端保真度
 
 > 把界面做对、做实，两条路都走：**已有界面**——按设计稿/截图还原，或把现存页面整改到位（后台管理端、移动 H5/小程序、多端一致性、Logo 与品牌资产）；**还没有界面**——从 0 生成一套能验收的骨架（令牌 + 组件 + 六类页面），再往上填真内容与业务状态。
-> 参考库是 **20 个真实站的实测数据 + 八份单站蒸馏**（营销 / 工具站 / 密版图墙 / 疏版图墙 / 陈列页 / 灵感库 / 风格库 / 杂志目录），外加**两份外部规则集蒸馏**（工艺底线 / 反模板清单）；按页面类型对到具体文件，见 [该抄哪份参考](#该抄哪份参考)。
+> 参考库是 **21 个真实站的实测数据 + 九份单站蒸馏**（营销 / 工具站 / 密版图墙 / 疏版图墙 / 陈列页 / 灵感库 / 风格库 / 杂志目录 / B 端工具工作区），外加**两份外部规则集蒸馏**（工艺底线 / 反模板清单）；按页面类型对到具体文件，见 [该抄哪份参考](#该抄哪份参考)。
 > 搜这些词应该能到这：设计稿转代码、照着截图还原、UI 还原、前端验收、截图对比、后台美化、移动端适配、设计令牌、Claude Code 技能（skill）。
 > 目标不是"改好看"，而是**让界面和它声称的样子一致，并且真的能用——改完能拿出证据**。
 
-`v1.13.1` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `9 个可执行脚本`
+`v1.13.2` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `9 个可执行脚本`
 
 ---
 
@@ -37,7 +37,7 @@ curl -fsSL https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/ra
 bash install.sh --target claude          # 只装 Claude Code
 bash install.sh --target dsh             # 只装 DSH
 bash install.sh --dir ~/my-skills        # 装到自定义目录
-bash install.sh --ref v1.13.1            # 锁定某个版本
+bash install.sh --ref v1.13.2            # 锁定某个版本
 bash install.sh --dry-run                # 只看会装到哪，不动文件
 ```
 
@@ -52,7 +52,7 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 
 ## 它到底量大到什么程度
 
-20 个真实站在浏览器里逐元素量出来的，不是猜的：
+21 个真实站在浏览器里逐元素量出来的，不是猜的：
 
 | 量的是什么 | 结果 |
 | --- | --- |
@@ -125,6 +125,7 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 - [参考站蒸馏：UI Notes 灵感库](#参考站蒸馏ui-notes-灵感库)
 - [参考站蒸馏：猫叫兽 UI 风格库](#参考站蒸馏猫叫兽-ui-风格库印刷品外壳--三层展示体系)
 - [参考站蒸馏：Muzli 灵感库](#参考站蒸馏muzli-灵感库杂志目录式陈列)
+- [参考站蒸馏：MasterGo（B 端工具界面）](#参考站蒸馏mastergob-端工具界面)
 - [动效单站蒸馏：holynova 聚光卡](#动效单站蒸馏holynova-聚光卡)
 - [外部规则集蒸馏：工艺底线与反模板](#外部规则集蒸馏工艺底线与反模板)
 - [交付验收清单](#交付验收清单)
@@ -137,7 +138,7 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 
 ## 这是什么
 
-一个**把前端做对**的技能包，两条路都走：**先把已有界面整改/还原到位**，**也能从 0 生成一套能验收的骨架**。内含一份给 agent 读的操作手册（`SKILL.md`）+ 二十份参考数据（9 份单站蒸馏 + 8 份通用规格 + 1 份跨站实测 + 2 份外部规则集，`references/`）+ 九个能直接跑的脚本（`scripts/`）。
+一个**把前端做对**的技能包，两条路都走：**先把已有界面整改/还原到位**，**也能从 0 生成一套能验收的骨架**。内含一份给 agent 读的操作手册（`SKILL.md`）+ 二十一份参考数据（10 份单站蒸馏 + 8 份通用规格 + 1 份跨站实测 + 2 份外部规则集，`references/`）+ 九个能直接跑的脚本（`scripts/`）。
 
 它解决的是这类问题：
 
@@ -183,7 +184,7 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 | `SKILL.md` | agent（模型） | 入口：两种模式（整改 / 从 0 生成）+ 工作流 + 质量门 + 细则路由 + 十个速查数字（283 行，细则已下沉） |
 | `references/visual-system.md` | 双方 | 视觉与结构细则完整版（从 SKILL.md 下沉）：中文排版、色彩、间距、阴影五派、动效、页面结构、控件 8 状态、响应式、深色、可访问性、反模式清单 |
 | `README.md`（本文件） | 人 | 项目介绍、安装、脚本参数、产物、排错 |
-| `references/design-evidence.md` | 双方 | 20 个实测站点（17 A 组：11 营销/产品 + 6 内容陈列站；另 3 后台）的字体/间距/圆角/密度数值 |
+| `references/design-evidence.md` | 双方 | 21 个实测站点（18 A 组：12 营销/产品 + 6 内容陈列站；另 3 后台）的字体/间距/圆角/密度数值 |
 | `references/wegic-design.md` | 双方 | wegic.ai 单站全量蒸馏：完整令牌、塑料按钮、字阶节奏、迁移口径 |
 | `references/jsdesign-design.md` | 双方 | 即时设计 js.design 单站全量蒸馏：冷灰蓝底 + 负扩散阴影、130px 节奏、零 webfont、七处反例 |
 | `references/uishijie-design.md` | 双方 | UI 世界（内容聚合站）单站全量蒸馏：零 gutter 图墙、卡片不画壳、四档字号、七处反例 |
@@ -194,6 +195,7 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 | `references/holynova-motion.md` | 双方 | 单站动效蒸馏（案例）：23 条 transition / 3 个 keyframes / 1 条主缓动、实测 9 档时长（归并 6 档）、聚光描边卡（mask 抠 1px 环）、hover 四件套与按下回落、批量入场、reduced-motion 连装饰层关、七处别照抄 |
 | `references/luckymaomi-catalog.md` | 双方 | 单站全量：印刷品外壳（方格纸 / 墨黑框 / 硬阴影 / 元数据黑条）+ 三层展示体系（目录→规格页→showcase）+ 动效库 10 域 57 条的元数据与重放；含 100ms linear 的适用条件与七处反面 |
 | `references/muzli-gallery.md` | 双方 | 单站全量：左栏 sticky 目录 + 3 列图版（348×309）+ 衬线刊头（Instrument Serif 48/1.0）+ 电光蓝 #2e54ff + 无壳卡片 + 35px tag 药丸 + 页脚主色 10% 面板；含「零 hover」这处反面 |
+| `references/mastergo-b2b.md` | 双方 | 单站全量（B 端工具界面样板）：三栏工作区 300/画布/300 + 顶栏 56、属性面板分组标题 12/600 + 键值行 12 等宽 + 只有数值上色、代码面板语法色、盒子模型图；另含 24 张社区资源卡统计（B 端整页 98.2k 使用 > 大厂组件库 46.7k） |
 | `references/craft-floor.md` | 双方 | 工艺底线：九条 verify、深度三选一、四件浏览器原生表面、表面禁令、与本站语料的四条冲突裁决（来源：impeccable `craft-floor`，Apache-2.0） |
 | `references/anti-slop.md` | agent | 反模板：Design Read、三档旋钮与三套人格对照、hero 四条硬规则、三把锁、8 组 AI tell、中文站条款、34 条 pre-flight（来源：design-taste-frontend，规则重写） |
 | `references/page-patterns.md` | agent | 选型表 + 七类页面骨架 + 空/错/无权限三变体 + 内容最低量 |
@@ -300,7 +302,7 @@ frontend-fidelity/
 ├── LICENSE                       # MIT
 ├── CHANGELOG.md                  # 版本变更与发版说明
 ├── references/
-│   ├── design-evidence.md        # 20 个实测站点（17 A 组 + 3 后台）：字体、字阶、行高、间距、圆角、密度
+│   ├── design-evidence.md        # 21 个实测站点（18 A 组 + 3 后台）：字体、字阶、行高、间距、圆角、密度
 │   ├── wegic-design.md           # wegic.ai 单站全量蒸馏：完整令牌 + 塑料按钮 + 迁移口径
 │   ├── jsdesign-design.md        # 即时设计 js.design 单站全量蒸馏：冷灰蓝底 + 负扩散阴影 + 七处反例
 │   ├── uishijie-design.md        # UI 世界（内容聚合站）：零 gutter 图墙 + 卡片不画壳 + 七处反例
@@ -316,6 +318,7 @@ frontend-fidelity/
 │   ├── holynova-motion.md       # 单站动效案例：23 条 transition + 3 个 keyframes + 聚光描边卡 + hover 四件套
 │   ├── luckymaomi-catalog.md   # 印刷品外壳：方格纸底 + 墨黑框 + 硬阴影 + 元数据黑条 + 三层展示体系
 │   ├── muzli-gallery.md        # 杂志目录式陈列：左栏目录 + 3 列图版 + 衬线刊头 + 电光蓝 + 零 hover（反面）
+│   ├── mastergo-b2b.md         # B 端工具界面：三栏 300/画布/300 + 属性面板字段语言 + 代码面板 + 整页>组件清单
 │   ├── craft-floor.md            # 工艺底线：九条 verify + 深度三选一 + 原生表面 + 四条冲突裁决
 │   ├── anti-slop.md              # 反模板：三档旋钮 + hero 四条 + 三把锁 + 8 组 AI tell + 34 条 pre-flight
 │   ├── visual-system.md         # 视觉与结构细则完整版（从 SKILL.md 下沉的 15 节）
@@ -1209,6 +1212,33 @@ node E:\SKIl.1\.tools\probe-muz6.mjs   # 卡片外链目标与 UTM（51 张全�
 ```
 
 三坑：①`probe-ref.mjs` 默认 45s 等 `load`，这一页必超时，要 `domcontentloaded` + `waitForSelector('article')`；②`article` 里混着广告卡，数卡片会多 1–5 个；③**hover 无变化是结论不是漏测**（连测三次，`transform/filter/box-shadow/color` 全同）。
+## 参考站蒸馏：MasterGo（B 端工具界面）
+
+`https://mastergo.com/` 是"设计协作工具"的官网，但值得学的不是它的营销页（渐变 + 按钮 + logo 墙，任何 SaaS 都长这样），
+而是**它的工具界面实例**与**资源社区里什么被真用**。完整实测在 [`references/mastergo-b2b.md`](references/mastergo-b2b.md)（14KB / 八节）。
+
+| 产出 | 内容 |
+| --- | --- |
+| 工具界面实例解剖 | 官方 1800×1536 产品图：三栏 **300 / 画布 / 300** + 顶栏 56；左栏树行高 28、缩进 12、状态点 6px；右栏分组标题 12/600 `#8A8F99`、键值行 12 等宽、**只有数值上色** |
+| 属性面板字段语言 | 组间只给 1px 线；深色面板只换令牌不换结构；命中区 ≥44×44；数值 20/600 |
+| 代码面板 + 盒子模型图 | 底 `#1E1E1E` / 属性 `#7A7A7A` / 值 `#FFF` / 数值 `#7FB1FF`；嵌套矩形四条边各一个 10px 数字，比四行 `padding` 直观 |
+| 社区统计 | 24 张资源卡：大厂组件库 11 / B 端整页与大屏 7 / 移动端 4 / 图标 1；**B 端整页使用数 98.2k > TDesign 46.7k > AntDesign 4.0 Light 42.5k** |
+| 可抄配方 | [`references/css-recipes.md`](references/css-recipes.md) §22：三栏工作区 / 属性面板 / 盒子模型图 / 代码面板 |
+
+**三招值得直接搬**：
+
+1. **渐变当"墙"**：`header::after { position: fixed; height: 900px; z-index: -1 }` + `linear-gradient(120deg,#6236FF,#32C5FF)`——首屏之后整页都在色彩里，正文区始终白；只在 `(min-width:900px)` 开，iOS 上 `fixed` 背景会抖。
+2. **属性面板"只有数值上色"**：属性名 `#7A7A7A`、值 `#FFF`、数值 `#7FB1FF`。用户永远在找值，不在读标题，所以分组标题要做得比内容更安静。
+3. **交付整页而不是组件清单**：社区里使用数最高的是个人做的「B 端系统界面」（98.2k），高于所有大厂组件库——组件库人人有源文件，整页骨架才是别人真正会复制走的东西。
+
+**也别学它四处**：全站 `h2` 数量为 0（视觉标题全是 div，读屏无大纲）；首页 11,154px / 12 屏、移动端 13,449px；区块标题行高 1.8（中文超过 12 字就散）；促销条常年占 60px 顶在品牌叙事上面。
+
+**重采**（三个坑：渐变换在 `header::after` 上、社区 3 秒后弹登录框、资源实例本体在 `<canvas>` 里需登录）：
+
+```bash
+node scripts/probe-ref.mjs --url https://mastergo.com/ --out .probe --name mastergo --wait 4000
+curl -O https://mastergo.com/images/home/design2.png      # 1800×1536，比任何截图都清楚
+```
 ## 动效单站蒸馏：holynova 聚光卡
 
 <https://holynova.github.io/> 是一个作品集详情页（暗底 `#09090b`、431 元素、**0 canvas、0 video**）。它不进跨站视觉统计——只回答一个问题：**不用任何动效库，怎么让一批卡片"活着"。**

@@ -1749,3 +1749,148 @@ grid?.addEventListener('pointermove', (e) => {
 1. **衬线只在三个位置**：刊头（48）、长文大标（38）、区块标题（30）。正文一律无衬线——中文站把 `--mz-font-display` 换成 `"Source Han Serif SC","Songti SC"`，行高给到 1.1，别继承 1.0。
 2. **字号必须归整**：原站 38.4/30/15.2/14.4/12.8/11.2 都是 `0.8rem` 的倍数，抄进来会污染令牌表；按 38/30/15/14/13/11 落。
 3. **原站零 hover 是缺陷不是风格**：`.mz-card` 的三笔（环加深、图微提亮、标题下划线 + `:focus-visible`）必须补；但**只给图片加过渡**，别让整块卡片位移——这一页的气质是「图版」，不是「可拖动卡片」。
+## 22. B 端工具工作区（三栏 + 属性面板 + 代码面板，MasterGo 风味）
+
+三个片段解决"工具型界面"的三件小事：三栏怎么分、属性面板怎么排、代码面板怎么配色。实测来源见 `mastergo-b2b.md` §二。
+
+```css
+:root {
+  --mg-brand: #3662EC;
+  --mg-brand-press: #2B5CD9;
+
+  /* 浅色面板 */
+  --insp-bg: #FFFFFF;
+  --insp-line: #EDEEF2;
+  --insp-title: #8A8F99;
+  --insp-key: #6B7280;
+  --insp-val: #121127;
+  --insp-num: #2B5CD9;
+
+  /* 深色面板（研发模式） */
+  --insp-bg-dark: #1E1E1E;
+  --insp-line-dark: #2A2A2A;
+  --insp-title-dark: #8A8A8A;
+  --insp-key-dark: #7A7A7A;
+  --insp-val-dark: #FFFFFF;
+  --insp-num-dark: #7FB1FF;
+
+  --insp-row: 28px;
+  --insp-title-row: 40px;
+  --hit: 44px;              /* 工具类产品：任何可点区域都不小于 44 */
+}
+```
+
+### 22.1 三栏工作区
+
+```css
+.workspace {
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr) 300px;   /* 左右同宽，画布才有中心感 */
+  grid-template-rows: 56px minmax(0, 1fr);
+  grid-template-areas:
+    'top top top'
+    'left canvas right';
+  height: 100dvh;
+  background: var(--insp-bg);
+}
+.workspace__top { grid-area: top; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 0 16px; border-bottom: 1px solid var(--insp-line); }
+.workspace__left, .workspace__right { min-height: 0; overflow: auto; }
+.workspace__left { grid-area: left; border-right: 1px solid var(--insp-line); }
+.workspace__right { grid-area: right; border-left: 1px solid var(--insp-line); }
+.workspace__canvas { grid-area: canvas; min-width: 0; background: #F2F3F5; display: grid; place-items: center; padding: 32px; }
+
+/* 深色（研发模式）只换令牌，不换结构 */
+.workspace--dark { background: var(--insp-bg-dark); color: var(--insp-val-dark); }
+.workspace--dark .workspace__left, .workspace--dark .workspace__right, .workspace--dark .workspace__top { border-color: var(--insp-line-dark); }
+.workspace--dark .workspace__canvas { background: #1E1E1E; }
+
+@media (max-width: 1080px) {
+  .workspace { grid-template-columns: 1fr; grid-template-areas: 'top' 'canvas'; }
+  .workspace__left, .workspace__right { display: none; }   /* 小屏只留画布 + 抽屉 */
+}
+```
+
+### 22.2 属性 / 检查面板（分组 + 键值行）
+
+```css
+.insp { font: 400 12px/1.6 var(--font-sans); }
+.insp__group + .insp__group { border-top: 1px solid var(--insp-line); }
+.insp__title {
+  display: flex; align-items: center; justify-content: space-between;
+  height: var(--insp-title-row); padding: 0 12px;
+  font: 600 12px/1 var(--font-sans);
+  color: var(--insp-title);                 /* 比内容更安静：用户找的是值，不是标题 */
+}
+.insp__title button { width: 24px; height: 24px; border: 0; background: none; color: inherit; }
+
+.insp__row {
+  display: flex; align-items: center; gap: 8px;
+  min-height: 24px; padding: 2px 12px;
+  font: 400 12px/1.6 var(--font-mono);
+}
+.insp__row:hover { background: color-mix(in srgb, var(--insp-num) 6%, transparent); }
+.insp__key { color: var(--insp-key); }
+.insp__val { color: var(--insp-val); }
+.insp__num { color: var(--insp-num); }      /* 只有"数字"上色——最常被改的就是数字 */
+
+/* 深色只换令牌 */
+.workspace--dark .insp__group + .insp__group { border-top-color: var(--insp-line-dark); }
+.workspace--dark .insp__key { color: var(--insp-key-dark); }
+.workspace--dark .insp__val { color: var(--insp-val-dark); }
+.workspace--dark .insp__num { color: var(--insp-num-dark); }
+.workspace--dark .insp__row:hover { background: rgb(255 255 255 / 0.06); }
+```
+
+### 22.3 盒子模型图（比四行 padding 直观）
+
+```html
+<div class="boxmodel" aria-label="间距：上 12 右 16 下 20 左 16；尺寸 268 × 277">
+  <span class="boxmodel__edge boxmodel__edge--t">12</span>
+  <span class="boxmodel__edge boxmodel__edge--r">16</span>
+  <span class="boxmodel__edge boxmodel__edge--b">20</span>
+  <span class="boxmodel__edge boxmodel__edge--l">16</span>
+  <div class="boxmodel__inner">268 × 277</div>
+</div>
+```
+
+```css
+.boxmodel {
+  position: relative; margin: 8px 12px 12px; padding: 10px;
+  border: 1px dashed color-mix(in srgb, var(--insp-key) 60%, transparent);
+  border-radius: 4px;
+  font: 400 10px/1 var(--font-mono); color: var(--insp-key);
+}
+.boxmodel__inner {
+  display: grid; place-items: center; min-height: 48px;
+  border: 1px solid var(--insp-num);
+  border-radius: 4px; color: var(--insp-num);
+}
+.boxmodel__edge { position: absolute; padding: 0 4px; background: var(--insp-bg); }
+.boxmodel__edge--t { top: -6px; left: 50%; translate: -50% 0; }
+.boxmodel__edge--r { right: -8px; top: 50%; translate: 0 -50%; }
+.boxmodel__edge--b { bottom: -6px; left: 50%; translate: -50% 0; }
+.boxmodel__edge--l { left: -8px; top: 50%; translate: -50% -50%; }
+```
+
+### 22.4 代码面板配色（深色，只有数字上色）
+
+```css
+.code {
+  background: var(--insp-bg-dark); border-radius: 8px; padding: 12px;
+  font: 400 12px/1.7 var(--font-mono);
+  color: var(--insp-val-dark); overflow-x: auto;
+}
+.code__prop { color: var(--insp-key-dark); }        /* width / padding */
+.code__punc { color: #555555; }                     /* : ; { } */
+.code__num  { color: var(--insp-num-dark); }        /* 16px / 300 */
+.code__str  { color: var(--insp-val-dark); }        /* #FFFFFF */
+.code__line { display: block; padding: 0 8px; border-left: 2px solid transparent; }
+.code__line--active { background: rgb(255 255 255 / 0.06); border-left-color: var(--mg-brand); }
+```
+
+### 22.5 使用说明
+
+1. **左右同宽 300** 是这类界面的隐含约定；改成 260/320 会让画布看起来偏。
+2. 深色模式**只换令牌，不换结构**——不要给深色版另加卡片和阴影，会碎。
+3. 属性面板的分组标题要"比内容更安静"（12/600/灰）；一旦标题比值还亮，视线会被拽走。
+4. 数值 20/600 只用在**真正会被改的数值**（间距、尺寸、圆角），代码行里的 12px 不要放大。
