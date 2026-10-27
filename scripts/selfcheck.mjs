@@ -252,7 +252,8 @@ else {
   else {
     const wantAll = mAll[1];
     const wantA = mA[1];
-    const files = ['README.md', 'SKILL.md', 'references/design-evidence.md', 'references/craft-floor.md', 'references/visual-system.md'];
+    // docs/ 也写站点数（README 瘦身后计数主力搬到了 docs/reference-sites.md），一并纳入。
+    const files = ['README.md', 'SKILL.md', 'references/design-evidence.md', 'references/craft-floor.md', 'references/visual-system.md', 'docs/reference-sites.md', 'docs/scripts.md'];
     const bad = [];
     for (const rel of files) {
       const text = await read(rel);
@@ -262,8 +263,16 @@ else {
       for (const m of text.matchAll(/(\d+)\s*站实测/g)) if (m[1] !== wantAll) bad.push(`${rel}: 「${m[1]} 站实测」应为 ${wantAll}`);
       for (const m of text.matchAll(/A 组\s*(\d+)/g)) if (m[1] !== wantA) bad.push(`${rel}: 「A 组 ${m[1]}」应为 ${wantA}`);
     }
+    // 脚本数同样会漂：README 徽标写「N 个可执行脚本」，实际是 scripts/*.mjs + scripts/*.py
+    const nScript = readdirSync(SCRIPTS).filter((f) => f.endsWith('.mjs') || f.endsWith('.py')).length;
+    for (const rel of ['README.md', 'SKILL.md']) {
+      const text = await read(rel);
+      for (const m of text.matchAll(/(\d+)\s*个可执行脚本/g)) {
+        if (m[1] !== String(nScript)) bad.push(`${rel}: 「${m[1]} 个可执行脚本」应为 ${nScript}`);
+      }
+    }
     if (bad.length) fail('文档数字', [...new Set(bad)].join(' | '));
-    else pass('文档数字', `${wantAll} 个站 / A 组 ${wantA} 四处一致`);
+    else pass('文档数字', `${wantAll} 个站 / A 组 ${wantA} 在 ${files.length} 份文档里一致，脚本数 ${nScript} 也一致`);
   }
 }
 

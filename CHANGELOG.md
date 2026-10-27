@@ -4,6 +4,21 @@
 `frontend-fidelity.zip`，由 `git archive` 从 Tag 快照生成，只含被 git 跟踪的文件
 （不含 `shots/`、`audit-report.json`、`.design/`）。
 
+## v1.15.3 - 2026-10-27
+
+### 修复
+
+- **`docs/scripts.md` 补齐像素门**：手册搬去 `docs/` 时漏了 v1.14.0 的 `fidelity.mjs` / `pixel_diff.py`，
+  现在两节都在（参数表、指标口径、阈值、退出码、产物、`EDGE_PATH` 与「两边截图方式必须一致」的坑）。
+- **`SKILL.md` 补 `docs/` 入口**：细则搬到 `docs/` 后 SKILL 里 `docs/` 出现 0 次，技能侧看不到手册；
+  参考文件指针新增「手册与摘要（`docs/`）」一行，`page-patterns` 的「七类」改为「九类（含目录陈列）」。
+- **`selfcheck.mjs` 的文档数字门扩到 `docs/`**：纳入 `docs/reference-sites.md`、`docs/scripts.md`（计数主力已搬过去），
+  并新增「脚本数」一致性检查（README 徽标「N 个可执行脚本」必须等于 `scripts/*.mjs + *.py` 的实际数——
+  v1.15.1 之前它一直停在 9，实际已是 12）。
+- **文档小修**：README 徽标改为「12 个可执行脚本（9 个 Node + 3 个 Python）」；两处示例去掉已废弃的 `--dark`
+  （深色令牌早已默认生成，要关用 `--no-dark`）；`docs/visual-summary.md` 的「完整版在 `SKILL.md`」改为指向
+  `references/visual-system.md`（完整版已搬到那里）。
+
 ## v1.15.2 - 2026-10-27
 
 ### 修复
@@ -11,6 +26,7 @@
 - **安装器漏装 `package.json` 与 `docs/`**：`install.sh` / `install.ps1` 的拷贝清单只有 skill 运行文件，
   装到 `~/.claude/skills`、`~/.dsh/skills` 这类目录后 `package.json` 缺失 —— v1.15.1 新增的「版本号」检查无从读取版本，
   在安装副本里会直接判失败；README 里指向 `docs/` 的链接也会断。两份安装器的清单已补齐。
+
 - **`selfcheck.mjs` 的版本门对安装副本降级**：找不到 `package.json` 时打印跳过说明而不是判失败。
   仓库与 CI 里该文件始终存在，拦截力不受影响。
 - 重装已有副本即可对齐：`.\install.ps1 -Ref v1.15.2`（`~/.dsh`、`~/.claude`）；`~/.trae-cn` 若是 git 副本，`git pull` 即可。

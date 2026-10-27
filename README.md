@@ -6,7 +6,7 @@
 > 搜这些词应该能到这：设计稿转代码、照着截图还原、UI 还原、前端验收、截图对比、后台美化、移动端适配、设计令牌、Claude Code 技能（skill）。
 > 目标不是"改好看"，而是**让界面和它声称的样子一致，并且真的能用——改完能拿出证据**。
 
-`v1.15.2` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `12 个可执行脚本（9 个 Node + 3 个 Python）`
+`v1.15.3` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `12 个可执行脚本（9 个 Node + 3 个 Python）`
 
 ---
 
@@ -38,7 +38,7 @@ curl -fsSL https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/ra
 bash install.sh --target claude          # 只装 Claude Code
 bash install.sh --target dsh             # 只装 DSH
 bash install.sh --dir ~/my-skills        # 装到自定义目录
-bash install.sh --ref v1.15.2            # 锁定某个版本
+bash install.sh --ref v1.15.3            # 锁定某个版本
 bash install.sh --dry-run                # 只看会装到哪，不动文件
 ```
 
@@ -254,7 +254,7 @@ git clone https://gitee.com/liu-everything_impossble/skill-frontend-fidelity.git
 
 从 [Releases](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) 下载 `frontend-fidelity.zip`，解压到同名目录即可，内容与 git 版本一致。
 包由 `git archive` 从 tag 生成，不含 `__pycache__`、截图目录与本地缓存。
-当前是 [v1.15.2](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/tag/v1.15.2)。
+当前是 [v1.15.3](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/tag/v1.15.3)。
 
 ### 方式三：只取脚本
 
@@ -320,7 +320,7 @@ frontend-fidelity/
 ├── package.json                  # 只声明 devDependency playwright 与 npm run selfcheck
 ├── .github/workflows/           # CI：语法 + 生成 + 对比度（装了浏览器时再跑 30 组审计）
 └── scripts/
-    ├── scaffold.mjs              # 从 0 生成骨架：五套人格 + 深度三派 + 六类页面 + 生成期对比度自检 + --ref-url 量站覆盖 + --verify 生成即验收 + --export 多体系令牌
+    ├── scaffold.mjs              # 从 0 生成骨架：五套人格 + 深度三派 + 六类页面 + 生成期对比度自检 + --ref-url / --ref-json 量站或复用实测覆盖人格 + --verify 生成即验收 + --export 多体系令牌
     ├── screenshot.mjs            # 多视口 × 多主题全页截图
     ├── audit.mjs                 # 结构 + axe WCAG 2.1 A/AA + CLS + 动效
     ├── fidelity.mjs              # 像素级还原验收：设计稿 vs 实现（自动截图 + 差异热力 + 三联图）

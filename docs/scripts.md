@@ -382,6 +382,49 @@ node scripts/probe-ref.mjs --url https://example.com --no-shot # 不存截图
 
 ---
 
+### fidelity.mjs — 像素级还原验收（设计稿 vs 实现）
+
+「照着设计稿做完了没有」不该靠眼睛投票。把设计稿和真实渲染逐像素比一次，给出能贴进验收单的数字。
+
+```bash
+# 最常用：设计稿 vs 在线页面（自动截图，默认 desktop 1440×900、首屏）
+node scripts/fidelity.mjs --design design/home.png --url http://127.0.0.1:5173/
+
+# 移动端 + 深色 + 整页
+node scripts/fidelity.mjs --design design/home@390.png --url http://127.0.0.1:5173/ --viewport mobile --theme dark --full
+
+# 两张图直接比（不经浏览器）
+node scripts/fidelity.mjs --design design/home.png --impl shots/home-desktop.png
+```
+
+| 指标 | 含义 | 什么时候算过 |
+| --- | --- | --- |
+| `平均差` | 每像素最大通道差的均值（0–255） | 参考量，不单独卡 |
+| `超阈值像素` | 差异 > `--threshold`（默认 12%）的像素占比 | **还原类 ≤ 2%**（`--max-diff 0.02`）；微调类 ≤ 5% |
+| `最差 N 个区域` | 按 `--grid`（默认 16×12）排序的差异区块，带设计稿坐标 | 前 5 块要逐条解释 |
+
+产物落在 `.design/fidelity/`：`fidelity-diff.png`（设计稿压暗 + 超阈处标红）、`fidelity-side.png`（设计稿 / 实现 / 差异三联）、`fidelity-report.json`。
+退出码 `0` 达标 / `1` 超阈值 / `2` 参数或文件错误。**两边截图方式必须一致**（都整页或都首屏），否则报告会提示缩放不一致——那是最常见的假阳性来源。
+浏览器默认找本机 Edge，可用 `EDGE_PATH` 指定；`--theme` 靠 `addInitScript` 在页面脚本之前写 `localStorage['ui-theme']`，只改 `data-theme` 对已挂载组件无效。
+
+### pixel_diff.py — 像素比对引擎（可单独用）
+
+`fidelity.mjs` 底下那层，只依赖 Pillow + numpy。已经有两张图时可以直接调：
+
+```bash
+python scripts/pixel_diff.py --design design/home.png --impl shots/home-desktop.png --out .design/fidelity
+python scripts/pixel_diff.py --design a.png --impl b.png --threshold 0.08 --grid 24x16 --json
+```
+
+| 参数 | 默认 | 说明 |
+| --- | --- | --- |
+| `--threshold` | `0.12` | 归一化的单像素容差（×255 后比较最大通道差） |
+| `--grid` | `16x12` | 差异分区网格，`worst_cells` 按它排序 |
+| `--scale` | `auto` | 尺寸不同时是否把实现图缩到设计稿尺寸；`none` 则直接比 |
+| `--top` | `8` | 打印最差几块 |
+| `--max-diff` | `0.02` | 判定阈值，超过即退出码 1 |
+
+算法就三行：`delta = np.abs(a - b).max(axis=2)` → `over = delta > threshold*255` → 按网格聚合。产物与退出码和 `fidelity.mjs` 一致。
 ## 参数与退出码速查
 
 | 脚本 | 必需 | 最常用的可选 | 退出码 1 的条件 |
