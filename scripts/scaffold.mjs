@@ -25,7 +25,10 @@
  * 交付前必须跑：audit.mjs + screenshot.mjs + contrast_check.py（见 SKILL.md）。
  */
 
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile, readFile } from 'node:fs/promises';
+import { spawn } from 'node:child_process';
+import { createServer } from 'node:http';
+import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { stackFiles } from './lib/stacks.mjs';
 
@@ -39,13 +42,17 @@ const arg = (k, d = null) => {
 if (has('help') || has('h')) {
   console.log(`scaffold.mjs —— 从 0 生成前端骨架
 
-  --persona rational|editorial|warm   人格预设（默认 rational）
+  --persona rational|editorial|warm|print|magazine   人格预设（默认 rational）
   --out <dir>                         输出目录（默认 ui-scaffold）
-  --pages landing,app,form,auth,states  要生成哪些页面（默认 landing,app）
+  --pages landing,catalog,app,form,auth,states  要生成哪些页面（默认 landing,app）
   --stack html|react|vue|all          额外生成哪个框架版本（默认 html，只出静态页）
   --accent <hue 0-360>                覆盖品牌色相
   --no-dark                           不生成 .dark 令牌块（默认生成，主题开关才有效）
   --name <字符串>                      产品名（默认「示例产品」）
+  --ref-url <URL>                     先跑 probe-ref 量这个站，按实测值覆盖人格字段
+  --ref-json <path>                   直接用已有的 probe-ref JSON，不再跑一次
+  --verify                            生成后自动起服务跑 audit + contrast，失败退出码非 0
+  --export tailwind,antd,element      额外导出令牌到别的体系
   --quiet                             少打印
 `);
   process.exit(0);
@@ -190,17 +197,151 @@ const PERSONAS = {
 };
 
 const personaKey = arg('persona', 'rational');
-const P = PERSONAS[personaKey];
-if (!P) {
+const P = { ...PERSONAS[personaKey] };
+if (!P || !PERSONAS[personaKey]) {
   console.error(`未知人格：${personaKey}（可选：${Object.keys(PERSONAS).join(' / ')}）`);
   process.exit(2);
 }
-const accentHue = Number(arg('accent', P.accentHue));
+let accentHue = Number(arg('accent', P.accentHue));
 const outDir = path.resolve(arg('out', 'ui-scaffold'));
 const pages = (arg('pages', 'landing,app') || '').split(',').map((s) => s.trim()).filter(Boolean);
 const withDark = has('no-dark') ? false : true; // 默认带深色令牌：主题开关不该是死按钮
 const quiet = has('quiet');
 const NAME = arg('name', '示例产品');
+const refUrl = arg('ref-url');
+const refJsonPath = arg('ref-json');
+
+/* -------------------------------------------------- --ref-url / --ref-json
+   照着某个站做：跑 probe-ref（或读已有 JSON），把实测值盖到人格字段上。
+   只覆盖有明确对应关系的字段；探针拿不到的（字重、字距、动效）保留人格默认。
+   设计原则：逼近 80%，剩下 20% 让用户改 tokens.css，不要在这里追求完美映射。 */
+function hexToHue(hex) {
+  if (!hex || hex.length < 7) return null;
+  const r = parseInt(hex.slice(1, 3), 16) / 255;
+  const g = parseInt(hex.slice(3, 5), 16) / 255;
+  const b = parseInt(hex.slice(5, 7), 16) / 255;
+  const max = Math.max(r, g, b), min = Math.min(r, g, b);
+  const d = max - min;
+  if (d < 0.04) return null; // 接近灰，没有色相
+  const l = (max + min) / 2;
+  if (l < 0.08 || l > 0.94) return null; // 接近黑或白
+  let h;
+  if (max === r) h = ((g - b) / d + (g < b ? 6 : 0)) * 60;
+  else if (max === g) h = ((b - r) / d + 2) * 60;
+  else h = ((r - g) / d + 4) * 60;
+  return Math.round(h);
+}
+function hexSat(hex) {
+  if (!hex || hex.length < 7) return 0;
+  const r = parseInt(hex.slice(1, 3), 16) / 255;
+  const g = parseInt(hex.slice(3, 5), 16) / 255;
+  const b = parseInt(hex.slice(5, 7), 16) / 255;
+  const max = Math.max(r, g, b), min = Math.min(r, g, b);
+  const l = (max + min) / 2;
+  const d = max - min;
+  return d === 0 ? 0 : Math.round((d / (1 - Math.abs(2 * l - 1))) * 100);
+}
+function median(nums) {
+  const a = nums.filter((n) => Number.isFinite(n)).sort((x, y) => x - y);
+  return a.length ? a[Math.floor(a.length / 2)] : null;
+}
+
+async function loadRef() {
+  if (refJsonPath) {
+    return JSON.parse(await readFile(path.resolve(refJsonPath), 'utf8'));
+  }
+  if (!refUrl) return null;
+  const HERE = path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1'));
+  const probe = path.join(HERE, 'probe-ref.mjs');
+  if (!existsSync(probe)) {
+    console.error('找不到 probe-ref.mjs（应在 ' + probe + '）');
+    process.exit(2);
+  }
+  const tmpDir = path.join(outDir, '.ref');
+  await mkdir(tmpDir, { recursive: true });
+  const name = 'ref';
+  if (!quiet) console.log(`· 先跑探针：${refUrl}`);
+  const r = await new Promise((res) => {
+    const ch = spawn(process.execPath, [probe, '--url', refUrl, '--out', tmpDir, '--name', name, '--no-shot', '--brief'], { stdio: ['ignore', 'pipe', 'pipe'] });
+    let out = '';
+    ch.stdout.on('data', (d) => { out += d; });
+    ch.stderr.on('data', (d) => { out += d; });
+    ch.on('close', (code) => res({ code, out }));
+  });
+  if (r.code !== 0) {
+    console.error('probe-ref 失败：' + r.out.split('\n').slice(0, 4).join(' / '));
+    process.exit(1);
+  }
+  return JSON.parse(await readFile(path.join(tmpDir, name + '.json'), 'utf8'));
+}
+
+const ref = await loadRef();
+if (ref) {
+  const applied = [];
+  // 品牌色：从背景色里挑饱和度最高、不是中性灰的那个
+  const bgCandidates = (ref.bgColors || [])
+    .map(([hex]) => ({ hex, hue: hexToHue(hex), sat: hexSat(hex) }))
+    .filter((c) => c.hue !== null && c.sat >= 30);
+  if (bgCandidates.length && !arg('accent')) {
+    bgCandidates.sort((a, b) => b.sat - a.sat);
+    accentHue = bgCandidates[0].hue;
+    applied.push(`brand hue=${accentHue}（from ${bgCandidates[0].hex}）`);
+  }
+  // 底色三件套
+  if (ref.bodyBg && !arg('accent')) { P.bg = ref.bodyBg; applied.push(`bg=${ref.bodyBg}`); }
+  if (ref.bodyText) { P.ink = ref.bodyText; applied.push(`ink=${ref.bodyText}`); }
+  const surfCand = (ref.bgColors || []).filter(([hex]) => hex !== ref.bodyBg && hexToHue(hex) === null).slice(1, 2)[0];
+  if (surfCand) { P.surface = surfCand[0]; }
+  // 字阶：body 对齐 base，h1 对齐 3xl/4xl（看人格），其他按比例
+  const bodySize = ref.metrics?.p?.size;
+  const h1Size = ref.metrics?.h1?.size;
+  const h2Size = ref.metrics?.h2?.size;
+  const h3Size = ref.metrics?.h3?.size;
+  if (bodySize && bodySize >= 12 && bodySize <= 18) {
+    P.type = { ...P.type, base: bodySize };
+    applied.push(`type.base=${bodySize}`);
+  }
+  if (h1Size && h1Size >= 24 && h1Size <= 96) {
+    // 大标题：营销人格写到 4xl，管理端写到 3xl
+    const headKey = P.type['4xl'] >= 40 ? '4xl' : '3xl';
+    P.type = { ...P.type, [headKey]: h1Size };
+    applied.push(`type.${headKey}=${h1Size}`);
+  }
+  if (h2Size) P.type = { ...P.type, '2xl': h2Size };
+  if (h3Size) P.type = { ...P.type, xl: h3Size };
+  // 圆角：取中位数贴到 md，xs/sm/lg 按比例
+  const rads = (ref.radius || []).map(([v]) => parseFloat(v)).filter((n) => Number.isFinite(n) && n > 0 && n < 100);
+  const rMed = median(rads);
+  if (rMed) {
+    P.radius = { ...P.radius, md: Math.round(rMed), sm: Math.max(2, Math.round(rMed * 0.6)), lg: Math.round(rMed * 1.5) };
+    applied.push(`radius.md=${Math.round(rMed)}`);
+  }
+  // 控件高度：中位数
+  const ctlMed = median(ref.controlHeights || []);
+  if (ctlMed && ctlMed >= 24 && ctlMed <= 64) {
+    P.control = Math.round(ctlMed);
+    P.controlSm = Math.max(24, Math.round(ctlMed * 0.8));
+    applied.push(`control=${P.control}px`);
+  }
+  // 密度：按控件高度 + 表格行高推断
+  const rowMed = median(ref.tableRowHeights || []);
+  if (rowMed) {
+    if (rowMed < 44) P.density = 'compact';
+    else if (rowMed > 60) P.density = 'comfortable';
+    else P.density = 'regular';
+  }
+  // 间距基数：从 gaps 里挑出现频次最高的偶数
+  const gaps = (ref.gaps || []).map(([v]) => parseFloat(v)).filter((n) => Number.isFinite(n) && n >= 2 && n <= 32);
+  if (gaps.length) {
+    const evens = gaps.filter((n) => n % 2 === 0);
+    const base = evens.length ? median(evens) : median(gaps);
+    if (base >= 2 && base <= 16) {
+      P.spaceStep = Math.max(2, Math.round(base / 2) * 2);
+      applied.push(`spaceStep=${P.spaceStep}`);
+    }
+  }
+  if (!quiet) console.log('· 已按实测覆盖：' + (applied.length ? applied.join('  ') : '（无可覆盖字段）'));
+}
 
 /* ------------------------------------------------------------------ 颜色 */
 
@@ -580,6 +721,10 @@ const componentsCss = `/* components.css —— 8 个状态都在这里面，别
     box-shadow var(--dur-fast) var(--ease);
 }
 .btn:hover { background: color-mix(in srgb, var(--_bg) 92%, var(--ink)); }
+.btn:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
 .btn:active {
   transform: translateY(1px);
   box-shadow: var(--hairline);
@@ -588,8 +733,20 @@ const componentsCss = `/* components.css —— 8 个状态都在这里面，别
   opacity: .45;
   cursor: not-allowed;
   pointer-events: none;
+  transform: none;
+  box-shadow: var(--hairline);
 }
-.btn[aria-busy="true"] { pointer-events: none; opacity: .8; }
+.btn[aria-busy="true"] { pointer-events: none; opacity: .8; position: relative; }
+.btn[aria-busy="true"]::after {
+  content: '';
+  position: absolute;
+  width: 14px; height: 14px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 
 .btn--primary {
   --_bg: var(--brand-fill);
@@ -662,8 +819,11 @@ const componentsCss = `/* components.css —— 8 个状态都在这里面，别
 }
 .input-group .btn--icon:hover { background: var(--surface-hover); }
 
-.check { display: flex; align-items: center; gap: var(--s-2); font-size: var(--t-base); }
-.check input { width: 16px; height: 16px; accent-color: var(--brand); }
+.check { display: flex; align-items: center; gap: var(--s-2); font-size: var(--t-base); cursor: pointer; }
+.check input { width: 16px; height: 16px; accent-color: var(--brand); cursor: inherit; }
+.check input:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+.check:has(input:disabled) { cursor: not-allowed; opacity: .55; }
+.check input:disabled { accent-color: var(--ink-4); }
 
 /* ---------------- 卡片 ---------------- */
 .card {
@@ -703,6 +863,17 @@ const componentsCss = `/* components.css —— 8 个状态都在这里面，别
 }
 .table td { height: 48px; }
 .table tbody tr:hover { background: var(--surface-hover); }
+.table tbody tr:focus-within { outline: 2px solid var(--brand); outline-offset: -2px; }
+.table tbody tr[aria-selected="true"] {
+  background: color-mix(in srgb, var(--brand) 8%, var(--bg));
+}
+.table tbody tr[aria-selected="true"]:hover {
+  background: color-mix(in srgb, var(--brand) 12%, var(--bg));
+}
+.table tbody tr[aria-disabled="true"] {
+  color: var(--ink-4);
+  opacity: .6;
+}
 .table tbody tr:last-child td { border-bottom: 0; }
 .table .t-right { text-align: end; }
 .table .actions { text-align: end; white-space: nowrap; }
@@ -773,8 +944,18 @@ const componentsCss = `/* components.css —— 8 个状态都在这里面，别
   border-bottom: 2px solid transparent;
   margin-bottom: -1px;
 }
-.tab:hover { color: var(--ink); }
+.tab:hover:not(:disabled) { color: var(--ink); }
+.tab:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: -2px;
+  border-radius: var(--r-xs) var(--r-xs) 0 0;
+}
 .tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--brand); }
+.tab:disabled, .tab[aria-disabled="true"] {
+  color: var(--ink-4);
+  cursor: not-allowed;
+  opacity: .55;
+}
 
 /* ---------------- 弹窗 / toast ---------------- */
 .modal {
@@ -867,12 +1048,22 @@ const componentsCss = `/* components.css —— 8 个状态都在这里面，别
   text-decoration: none;
   transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
 }
-.nav-item:hover { background: var(--surface-hover); color: var(--ink); }
+.nav-item:hover:not([aria-disabled="true"]) { background: var(--surface-hover); color: var(--ink); }
+.nav-item:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: -2px;
+}
 .nav-item { white-space: nowrap; flex: 0 0 auto; }
 .nav-item[aria-current="page"] {
   background: var(--raised);
   color: var(--ink);
   box-shadow: inset 3px 0 0 var(--brand), var(--hairline);
+}
+.nav-item[aria-disabled="true"] {
+  color: var(--ink-4);
+  cursor: not-allowed;
+  opacity: .55;
+  pointer-events: none;
 }
 .nav-item__badge { margin-inline-start: auto; }
 .app__main { min-width: 0; display: flex; flex-direction: column; }
@@ -1246,8 +1437,15 @@ const catalogCss = `/* catalog.css */
   font-size: var(--t-sm);
   text-decoration: none;
 }
-.cat__pill:hover { border-color: var(--ink-4); color: var(--ink); }
+.cat__pill:hover:not(:disabled):not([aria-disabled="true"]) { border-color: var(--ink-4); color: var(--ink); }
+.cat__pill:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
 .cat__pill[aria-current="true"] { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+.cat__pill:disabled, .cat__pill[aria-disabled="true"] {
+  color: var(--ink-4);
+  cursor: not-allowed;
+  opacity: .55;
+  border-color: var(--border);
+}
 .cat__count {
   display: flex;
   align-items: center;
@@ -1281,15 +1479,21 @@ const catalogCss = `/* catalog.css */
     translate var(--dur-2) var(--ease-out);
   overflow: hidden;
 }
-.cat__card:hover .cat__thumb,
-.cat__card:focus-within .cat__thumb {
+.cat__card:hover:not([aria-disabled="true"]) .cat__thumb,
+.cat__card:focus-within:not([aria-disabled="true"]) .cat__thumb {
   box-shadow: var(--card-shadow-hover);
   translate: var(--card-hx) var(--card-hy);
 }
-.cat__card:active .cat__thumb {
+.cat__card:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; border-radius: var(--r-md); }
+.cat__card:active:not([aria-disabled="true"]) .cat__thumb {
   box-shadow: var(--card-shadow-active);
   translate: 0 var(--card-press);
   transition-duration: var(--dur-1);
+}
+.cat__card[aria-disabled="true"] {
+  opacity: .55;
+  cursor: not-allowed;
+  pointer-events: none;
 }
 @media (hover: none) {
   .cat__card:hover .cat__thumb { translate: 0 0; }
@@ -2149,6 +2353,122 @@ if (stackMode !== 'html') {
   }
   if (!quiet) console.log('  + ' + (stackMode + '/**').padEnd(16) + String(stackTotal).padStart(7) + ' B  (' + stackCount + ' 个文件)');
 }
+/* ------------------------------------------------- 令牌导出（--export）
+   骨架是 CSS 变量体系；接别的体系时把同一份令牌翻译过去，数值不二次发明。 */
+const exportTargets = (arg('export', '') || '').split(',').map((s) => s.trim().toLowerCase()).filter(Boolean);
+const EXPORTABLE = ['tailwind', 'antd', 'element'];
+const badExport = exportTargets.filter((x) => !EXPORTABLE.includes(x));
+if (badExport.length) {
+  console.error(`未知 --export：${badExport.join(', ')}（可选：${EXPORTABLE.join(' / ')}）`);
+  process.exit(2);
+}
+if (exportTargets.includes('tailwind')) {
+  const px = (n) => n + 'px';
+  const fontSize = {};
+  for (const [k, v] of Object.entries(P.type)) fontSize[k] = [px(v), { lineHeight: String(P.lh[k]) }];
+  const tw = `// generated by scaffold.mjs —— persona: ${personaKey}，数值与 tokens.css 同源
+// 用法：module.exports 后合进 tailwind.config 的 theme.extend，或 preset 引入
+module.exports = {
+  theme: {
+    extend: {
+      colors: {
+        brand: ${JSON.stringify(Object.fromEntries(Object.entries(brand).map(([k, v]) => [k, v])), null, 8).replace(/\n/g, '\n      ')},
+        neutral: ${JSON.stringify(neutral, null, 8).replace(/\n/g, '\n      ')},
+        ok: '${semantic.ok.base}',
+        warn: '${semantic.warn.base}',
+        danger: '${semantic.danger.base}',
+        info: '${semantic.info.base}',
+      },
+      fontSize: ${JSON.stringify(fontSize, null, 8).replace(/\n/g, '\n      ')},
+      borderRadius: ${JSON.stringify(Object.fromEntries(Object.entries(P.radius).map(([k, v]) => [k, px(v)])), null, 8).replace(/\n/g, '\n      ')},
+      spacing: ${JSON.stringify(Object.fromEntries(Object.entries(space).map(([k, v]) => [k, px(v)])), null, 8).replace(/\n/g, '\n      ')},
+      boxShadow: {
+        hairline: '${shadow.hairline.replace(/'/g, "\\'")}',
+        1: '${shadow.sh1.replace(/'/g, "\\'")}',
+        2: '${shadow.sh2.replace(/'/g, "\\'")}',
+        3: '${shadow.sh3.replace(/'/g, "\\'")}',
+      },
+      transitionDuration: { fast: '${P.dur.fast}ms', base: '${P.dur.base}ms', slow: '${P.dur.slow}ms' },
+    },
+  },
+};
+`;
+  await writeFile(path.join(outDir, 'tokens.tailwind.js'), tw, 'utf8');
+  if (!quiet) console.log('  + tokens.tailwind.js');
+}
+if (exportTargets.includes('antd')) {
+  const antd = {
+    $schema: 'https://gw.alipayobjects.com/os/antfincdn/PXjU7ptN/token-schema.json',
+    comment: 'generated by scaffold.mjs —— Ant Design v5 token（theme.useToken / ConfigProvider theme.token）',
+    token: {
+      colorPrimary: brandFill,
+      colorInfo: semantic.info.base,
+      colorSuccess: semantic.ok.base,
+      colorWarning: semantic.warn.base,
+      colorError: semantic.danger.base,
+      colorBgContainer: P.raised,
+      colorBgLayout: P.bg,
+      colorBgElevated: P.raised,
+      colorBorder: P.border,
+      colorText: P.ink,
+      colorTextSecondary: neutral[600],
+      borderRadius: P.radius.md,
+      fontSize: P.type.base,
+      controlHeight: P.control,
+      controlHeightSM: P.controlSm,
+      wireframe: false,
+    },
+  };
+  await writeFile(path.join(outDir, 'tokens.antd.json'), JSON.stringify(antd, null, 2) + '\n', 'utf8');
+  if (!quiet) console.log('  + tokens.antd.json');
+}
+if (exportTargets.includes('element')) {
+  const el = `// generated by scaffold.mjs —— Element Plus SCSS 变量（@use "element-plus/theme-chalk/src/index" 之前覆盖）
+@forward 'element-plus/theme-chalk/src/common/var.scss' with (
+  $colors: (
+    'primary': ('base': ${brandFill}),
+    'success': ('base': ${semantic.ok.base}),
+    'warning': ('base': ${semantic.warn.base}),
+    'danger': ('base': ${semantic.danger.base}),
+    'error': ('base': ${semantic.danger.base}),
+    'info': ('base': ${semantic.info.base}),
+  ),
+  $border-radius: (
+    'base': ${P.radius.md}px,
+    'small': ${P.radius.sm}px,
+    'round': ${P.radius.xl}px,
+  ),
+  $font-size: (
+    'base': ${P.type.base}px,
+    'small': ${P.type.sm}px,
+    'extra-small': ${P.type.xs}px,
+  ),
+  $component-size: (
+    'default': ${P.control}px,
+    'small': ${P.controlSm}px,
+  ),
+  $text-color: (
+    'primary': ${P.ink},
+    'regular': ${neutral[700]},
+  ),
+  $border-color: (
+    '': ${P.border},
+    'light': ${neutral[200]},
+    'lighter': ${neutral[100]},
+  ),
+  $fill-color: (
+    '': ${P.surface},
+    'light': ${P.bg},
+  ),
+  $bg-color: (
+    '': ${P.raised},
+    'page': ${P.bg},
+  ),
+);
+`;
+  await writeFile(path.join(outDir, 'tokens.element.scss'), el, 'utf8');
+  if (!quiet) console.log('  + tokens.element.scss');
+}
 /* 生成期自检：能算出来的对比度就不要留给"待会儿再看" */
 const contrastChecks = [
   { name: '正文 --ink / --bg', v: contrast(P.ink, P.bg), min: 12 },
@@ -2158,7 +2478,6 @@ const contrastChecks = [
 const failed = contrastChecks.filter((c) => c.v < c.min);
 
 if (!quiet) {
-  const rel = outDir.split(path.sep).join('/');
   console.log('');
   console.log('人格：' + P.label + '（--persona ' + personaKey + '）  参照：' + P.ref);
   console.log('密度：' + P.density + '  控件高：' + P.control + 'px  圆角：' + [P.radius.sm, P.radius.md, P.radius.lg, P.radius.xl].join('/') + 'px');
@@ -2168,15 +2487,112 @@ if (!quiet) {
     ? failed.map((c) => c.name + ' = ' + c.v.toFixed(2) + ':1，要求 ≥ ' + c.min).join('；') + '  ← 先修这个'
     : contrastChecks.map((c) => c.v.toFixed(1) + ':1').join(' / ') + '  全部达标'));
   console.log('输出：' + outDir + '（' + files.length + ' 个文件，' + (total / 1024).toFixed(1) + ' KB）');
-  console.log('');
-  console.log('接着做三件事：');
-  console.log('  1) 打开页面看骨架，再把 {{TODO: ...}} 换成真内容');
-  console.log('  2) 起本地服务再体检（file:// 会报 CORS 噪声，截图与审计都走 http）：');
-  console.log('     npx serve . 或 python -m http.server 8000');
-  console.log('     node scripts/audit.mjs --url http://127.0.0.1:8000/app.html --themes light,dark');
-  console.log('     node scripts/screenshot.mjs --url http://127.0.0.1:8000/index.html --out .shots --themes light,dark');
-  console.log('  3) 生成物是纯静态页、没有 package.json：不必跑 run_checks.mjs，上面两条加 contrast_check.py 就是验收。');
-  console.log('');
-  console.log('改 tokens.css 换品牌：--brand-* 换色，--r-* 换圆角，--control-h 换密度。');
-  console.log('页面里不该出现硬编码颜色和像素字号。');
+  if (!has('verify')) {
+    console.log('');
+    console.log('接着做三件事（或加 --verify 让脚本替你跑 2/3）：');
+    console.log('  1) 打开页面看骨架，再把 {{TODO: ...}} 换成真内容');
+    console.log('  2) 起本地服务再体检（file:// 会报 CORS 噪声，截图与审计都走 http）：');
+    console.log('     npx serve . 或 python -m http.server 8000');
+    console.log('     node scripts/audit.mjs --url http://127.0.0.1:8000/app.html --themes light,dark');
+    console.log('     node scripts/screenshot.mjs --url http://127.0.0.1:8000/index.html --out .shots --themes light,dark');
+    console.log('  3) 生成物是纯静态页、没有 package.json：不必跑 run_checks.mjs，上面两条加 contrast_check.py 就是验收。');
+    console.log('');
+    console.log('改 tokens.css 换品牌：--brand-* 换色，--r-* 换圆角，--control-h 换密度。');
+    console.log('页面里不该出现硬编码颜色和像素字号。');
+  }
+}
+
+/* ---------------------------------------------------------- --verify
+   生成完立刻起内置静态服务，对每个 HTML 跑 audit.mjs（明暗双主题）+ contrast_check.py。
+   报告写到 <outDir>/.verify/。任何一步失败 → 退出码非 0，让 Agent 立刻知道要修。
+   没装 playwright 时跳过 audit 只跑 contrast，但会在汇总里明说。 */
+if (has('verify')) {
+  const HERE = path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1'));
+  const auditScript = path.join(HERE, 'audit.mjs');
+  const contrastScript = path.join(HERE, 'contrast_check.py');
+  const verifyDir = path.join(outDir, '.verify');
+  await mkdir(verifyDir, { recursive: true });
+  const report = { when: new Date().toISOString(), persona: personaKey, pages, contrast: null, audit: [], ok: true, notes: [] };
+
+  // 1. 对比度：直接调 contrast_check.py（已支持 .dark 与 color-mix）
+  {
+    const PY = process.platform === 'win32' ? 'python' : 'python3';
+    const r = await new Promise((res) => {
+      const ch = spawn(PY, [contrastScript, outDir], { stdio: ['ignore', 'pipe', 'pipe'] });
+      let out = '';
+      ch.stdout.on('data', (d) => { out += d; });
+      ch.stderr.on('data', (d) => { out += d; });
+      ch.on('error', (e) => res({ code: -1, out: String(e && e.message) }));
+      ch.on('close', (code) => res({ code, out }));
+    });
+    const tail = r.out.split('\n').filter((l) => l.includes('合计')).pop() || '';
+    const m = tail.match(/合计：(\d+) 组，(\d+) 组未达标/);
+    report.contrast = { code: r.code, summary: tail.trim() };
+    if (r.code === -1) { report.notes.push('没装 python，跳过对比度'); }
+    else if (r.code !== 0 || (m && Number(m[2]) > 0)) {
+      report.ok = false;
+      report.notes.push('对比度未达标：' + tail.trim());
+    }
+    if (!quiet) console.log((report.ok ? '✓' : '✗') + ' 对比度  ' + (tail.trim() || '(python 不可用)'));
+  }
+
+  // 2. 审计：起内置静态服务，逐页跑 audit.mjs（明暗）
+  {
+    const { createRequire } = await import('node:module');
+    const req = createRequire(import.meta.url);
+    let playwrightOk = false;
+    for (const n of ['playwright', 'playwright-core']) { try { req.resolve(n); playwrightOk = true; break; } catch { /* 下一个 */ } }
+    if (!playwrightOk) {
+      report.notes.push('没装 playwright，跳过 audit（npm i -D playwright && npx playwright install chromium）');
+      if (!quiet) console.log('· 审计    跳过：没装 playwright');
+    } else {
+      const MIME = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.json': 'application/json; charset=utf-8', '.svg': 'image/svg+xml' };
+      const server2 = createServer(async (req2, res2) => {
+        try {
+          const p = decodeURIComponent((req2.url || '/').split('?')[0]);
+          const file = path.resolve(outDir, '.' + p);
+          if (!file.startsWith(path.resolve(outDir))) { res2.writeHead(403).end(); return; }
+          const body = await readFile(file);
+          res2.writeHead(200, { 'content-type': MIME[path.extname(file)] || 'application/octet-stream' }).end(body);
+        } catch { res2.writeHead(404).end('not found'); }
+      });
+      await new Promise((r) => server2.listen(0, '127.0.0.1', r));
+      const port = server2.address().port;
+      const pageFiles = pages.map((k) => pageMap[k]).filter(Boolean);
+      let passCount = 0, failCount = 0;
+      try {
+        for (const pg of pageFiles) {
+          const r = await new Promise((res) => {
+            const ch = spawn(process.execPath, [auditScript, '--url', `http://127.0.0.1:${port}/${pg}`, '--themes', 'light,dark'], { stdio: ['ignore', 'pipe', 'pipe'] });
+            let out = '';
+            ch.stdout.on('data', (d) => { out += d; });
+            ch.stderr.on('data', (d) => { out += d; });
+            ch.on('close', (code) => res({ code, out }));
+          });
+          const line = r.out.split('\n').filter((l) => l.includes('合计')).pop() || '';
+          const okLine = /合计：0 错误 \/ 0 警告/.test(line);
+          report.audit.push({ page: pg, code: r.code, summary: line.trim(), ok: r.code === 0 && okLine });
+          if (r.code === 0 && okLine) passCount++;
+          else { failCount++; report.ok = false; }
+          if (!quiet) console.log((r.code === 0 && okLine ? '✓' : '✗') + ' 审计    ' + pg + '  ' + line.trim());
+        }
+      } finally {
+        server2.close();
+      }
+      if (!quiet) console.log(`  审计小计：${passCount} 过 / ${failCount} 挂（共 ${pageFiles.length} 页 × 明暗）`);
+    }
+  }
+
+  await writeFile(path.join(verifyDir, 'report.json'), JSON.stringify(report, null, 2) + '\n', 'utf8');
+  if (!quiet) {
+    console.log('');
+    console.log('验收报告：' + path.join(verifyDir, 'report.json'));
+    if (report.notes.length) console.log('说明：' + report.notes.join('；'));
+  }
+  if (!report.ok) {
+    console.error('');
+    console.error('✗ --verify 未通过：先看 .verify/report.json，再回头修');
+    process.exit(1);
+  }
+  if (!quiet) console.log('✓ --verify 全部通过');
 }

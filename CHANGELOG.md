@@ -4,6 +4,51 @@
 `frontend-fidelity.zip`，由 `git archive` 从 Tag 快照生成，只含被 git 跟踪的文件
 （不含 `shots/`、`audit-report.json`、`.design/`）。
 
+## v1.15.0 - 2026-10-27
+
+### 新增
+
+- **`scaffold.mjs --verify`：生成即验收**。生成完自动起内置静态服务，对每个 HTML 跑 `audit.mjs`（明暗双主题）
+  + `contrast_check.py`，报告写 `<out>/.verify/report.json`，失败退出码非 0——Agent 立刻知道要修。
+  没装 playwright 时跳过 audit 只跑对比度并明说。
+- **`scaffold.mjs --ref-url / --ref-json`：探针与生成器打通**。先跑 `probe-ref.mjs` 量参考站（或读已有 JSON），
+  用实测值覆盖人格字段：品牌色相（从背景色里挑饱和度最高的非中性色）、底色/文字/表面、字阶（base/3xl/4xl/2xl/xl）、
+  圆角三档、控件高、密度、间距基数。探针拿不到的（字重、字距、动效）保留人格默认；设计口径是逼近 80%，剩下 20% 改 `tokens.css`。
+- **`scaffold.mjs --export tailwind,antd,element`：令牌多格式导出**。同一份令牌额外生成
+  `tokens.tailwind.js`（theme.extend：colors/fontSize 带行高/borderRadius/spacing/boxShadow/transitionDuration）、
+  `tokens.antd.json`（Ant Design v5 token）、`tokens.element.scss`（Element Plus `@forward ... with` 变量），数值与 `tokens.css` 同源，不二次发明。
+- **组件级四态补齐**：`btn:focus-visible`、`tab:disabled`、`nav-item[aria-disabled]`、表格行 `aria-selected`/`aria-disabled`、
+  `check:disabled`、`cat__pill:disabled`、`cat__card[aria-disabled]`、`.btn[aria-busy]::after` spinner。
+- **四份中文站单站蒸馏**（2026-10-27 实测，1440 / 390 双视口 + 双视口审计）：
+  - `references/sspai-design.md`（194 行）——少数派：**960 版心**（顶部 1024/padding 32）、编辑板 `224+16+480+16+224`、
+    feed `164+56+520+56+164`、文章卡 520×189 无壳、按部件分圆角 24/12/8/6、767 切移动 / 768 仍桌面。
+  - `references/yuque-design.md`——语雀：`#main-right-content` **内部滚动**（文档 900 / 容器 820 / 10171，截图必须分段）、
+    模块节奏 Hero 538 → 双场景 741 → 编辑器 1704 → 黑段 693 → 作品 3151 → …、Hero 100/125/600、绿 `#00b96b` / 蓝 `#166eff`。
+  - `references/juejin-design.md`（220 行）——掘金：1200 三栏 `180+20+720+20+260`、feed 条目 720×99、缩略图 110×74、
+    `#f2f3f5` 底 + 白卡、三档小字撑密度、灰字 3.17:1。
+  - `references/apple-design.md`（209 行）——苹果中国：主舞台 692 / 小舞台 580、**12px 页沟**、导航层 1024 与舞台分离、
+    首个 h1 是 1×1 visuallyhidden（可见产品名 h2 56/60/600）、CTA pill 44/36、逐舞台明暗编排。
+  配套在 `references/design-evidence.md` 各加一张实测卡，在 `docs/reference-sites.md` 各加「三招 / 也别学 / 重采」一节。
+
+### 变更
+
+- **`SKILL.md` 二次瘦身**（316 行 / 28KB → 113 行 / 8.9KB）：入口只留 frontmatter + 三条铁律 + 30 秒起步 + 模式 A/B 路由 +
+  **预设路由表**（后台→rational+mastergo-b2b、落地页→editorial/warm+wegic/jsdesign、图墙→magazine+muzli/uishijie/uinotes、
+  风格库→print+luckymaomi/stylekit、频道页→zcool）+ 视觉基线四件事 + 质量门 + 参考文件指针简表。
+  工作流 1–5 步、模式 B 六步、交付说明模板、细则路由表、参考库完整索引下沉到**新建 `references/workflow.md`**（26 份参考数据齐）。
+- `README.md` 同步：参考数据 21 → 26 份、分工表 SKILL.md 行数与结构、目录树加 `workflow.md` 与四份新蒸馏、scaffold.mjs 注释补新参数。
+- `docs/scripts.md` 同步：参数表加 `--ref-url/--ref-json/--verify/--export` 四行，顺手修掉 `--dark` 的过时描述（深色早已默认生成，开关是 `--no-dark`）。
+
+### 验证
+
+- `node scripts/selfcheck.mjs --skip-audit`：语法 9 mjs + 3 py ✓、5 套人格 × 6 页生成 ✓、对比度 565 组 0 未达标 ✓、文档数字 25 站 / A 组 22 四处一致 ✓。
+- 四站关键尺寸二次独立复测：语雀 `docH 900 / scroller 820×10171`、掘金 feed 1200 + 条目 720×99、少数派文章卡 520×189、苹果导航 44 + 隐藏 h1 1×1。
+- 冒烟：`--export tailwind,antd,element` 三份产物生成且 `tokens.tailwind.js` 过 `node --check`。
+
+### 明确不做
+
+- 增量生成、可视化配置界面、Figma 解析、插件化扩展机制、React/Vue 全量组件化输出、Tailwind 双写实现（只做令牌导出，不接实现侧）。
+
 ## v1.14.0 - 2026-11-09
 
 ### 新增

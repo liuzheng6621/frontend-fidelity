@@ -8,8 +8,11 @@
 # 后台：令牌 + 组件 + 落地页/列表/表单/认证/状态页
 node scripts/scaffold.mjs --persona rational --out src --pages landing,app,form,auth,states
 
-# 换品牌色相 + 带深色令牌
-node scripts/scaffold.mjs --persona warm --accent 20 --dark --out preview --pages landing,form
+# 换品牌色相（深色令牌默认生成，要关用 --no-dark）
+node scripts/scaffold.mjs --persona warm --accent 20 --out preview --pages landing,form
+
+# 照着参考站做：探针实测值盖进人格字段，生成即验收
+node scripts/scaffold.mjs --ref-url https://linear.app --out ui --pages app,form --verify
 
 # 产品名替换标题里的占位
 node scripts/scaffold.mjs --name "南风工单" --out src --pages app,form
@@ -22,8 +25,12 @@ node scripts/scaffold.mjs --name "南风工单" --out src --pages app,form
 | `--pages` | 逗号分隔：`landing,catalog,app,form,auth,states` | `landing,app` |
 | `--stack` | `html` / `react` / `vue` / `all`：额外产出框架版（默认 `html`） | `html` |
 | `--accent` | 覆盖品牌色相 0–360（不填用该人格默认） | 人格预设 |
-| `--dark` | 额外生成 `.dark` 令牌块（不给就等于没打算支持深色） | 关 |
+| `--no-dark` | 不生成 `.dark` 令牌块（默认生成，主题开关不该是死按钮） | 开 |
 | `--name` | 产品名 | `示例产品` |
+| `--ref-url` | 先跑 `probe-ref.mjs` 量这个站，用实测值覆盖人格字段（品牌色相、底色、字阶、控件高、圆角、密度；逼近 80%，剩下改 `tokens.css`） | 关 |
+| `--ref-json` | 直接用已有的 probe-ref JSON，不再跑一次探针 | 关 |
+| `--verify` | 生成后自动起内置静态服务，逐页跑 `audit.mjs`（明暗双主题）+ `contrast_check.py`，报告写 `<out>/.verify/report.json`，失败退出码非 0（没装 playwright 时只跑对比度并说明） | 关 |
+| `--export` | 逗号分隔：`tailwind,antd,element`——把同一份令牌额外导出成 `tokens.tailwind.js` / `tokens.antd.json` / `tokens.element.scss`，数值与 `tokens.css` 同源 | 关 |
 | `--quiet` | 少打印 | 关 |
 | `--help` / `-h` | 打印用法后退出 | — |
 

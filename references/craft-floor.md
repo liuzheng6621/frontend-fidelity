@@ -111,7 +111,7 @@ a { text-underline-offset: .22em; text-decoration-thickness: 1px; }
 
 ## 八、与本站实测语料的四条冲突与裁决
 
-外来的规则集是按"通用反模板"写的，本站语料是 21 个真实站（A 组 18 个）量出来的。冲突处一律按证据裁决，并把裁决写进验收口径。
+外来的规则集是按"通用反模板"写的，本站语料是 25 个真实站（A 组 22 个）量出来的。冲突处一律按证据裁决，并把裁决写进验收口径。
 
 ### 8.1 eyebrow（上方小标签）——三种立场，取中间
 
@@ -158,5 +158,5 @@ a { text-underline-offset: .22em; text-decoration-thickness: 1px; }
 
 - **impeccable**（`E:\impeccable-main\impeccable-main`，Apache-2.0）：`skill/reference/craft-floor.md`（九条 verify + refuse 清单 + codex 细则）、`skill/SKILL.src.md`（四种模式 Persuade / Operate / Read / Experience、brief 优先、refinement 保身份 vs redesign 换世界）。**只蒸馏判据，未复制原文与脚本。**
 - **design-taste-frontend**（`...\.claude\skills\design-taste-frontend\SKILL.md`，1206 行，原文件未声明许可证）：反模板部分单独蒸馏到 `references/anti-slop.md`，此处只取与"底线"重叠的条款。
-- 本站语料：`references/design-evidence.md`（21 站实测）+ 十份单站蒸馏文档。
+- 本站语料：`references/design-evidence.md`（25 站实测）+ 十四份单站蒸馏文档。
 - 裁决日期：2026-10-31。
