@@ -5,7 +5,7 @@
 > 搜这些词应该能到这：设计稿转代码、照着截图还原、UI 还原、前端验收、截图对比、后台美化、移动端适配、设计令牌、Claude Code 技能（skill）。
 > 目标不是"改好看"，而是**让界面和它声称的样子一致，并且真的能用——改完能拿出证据**。
 
-`v1.13.2` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `9 个可执行脚本`
+`v1.13.3` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `9 个可执行脚本`
 
 ---
 
@@ -37,7 +37,7 @@ curl -fsSL https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/ra
 bash install.sh --target claude          # 只装 Claude Code
 bash install.sh --target dsh             # 只装 DSH
 bash install.sh --dir ~/my-skills        # 装到自定义目录
-bash install.sh --ref v1.13.2            # 锁定某个版本
+bash install.sh --ref v1.13.3            # 锁定某个版本
 bash install.sh --dry-run                # 只看会装到哪，不动文件
 ```
 
@@ -454,6 +454,7 @@ node scripts/scaffold.mjs --name "南风工单" --out src --pages app,form
 | `--persona` | `rational`（SaaS/后台，方正克制）／`editorial`（内容、品牌站，字重轻留白大）／`warm`（消费级、社区，暖色圆角厚）／`print`（印刷品：方格纸 + 墨框 + 4px 硬阴影）／`magazine`（杂志目录：衬线刊头 + 电光蓝 + 无壳图版） | `rational` |
 | `--out` | 输出目录 | `ui-scaffold` |
 | `--pages` | 逗号分隔：`landing,catalog,app,form,auth,states` | `landing,app` |
+| `--stack` | `html` / `react` / `vue` / `all`：额外产出框架版（默认 `html`） | `html` |
 | `--accent` | 覆盖品牌色相 0–360（不填用该人格默认） | 人格预设 |
 | `--dark` | 额外生成 `.dark` 令牌块（不给就等于没打算支持深色） | 关 |
 | `--name` | 产品名 | `示例产品` |
@@ -476,6 +477,45 @@ node scripts/scaffold.mjs --name "南风工单" --out src --pages app,form
 
 退出码：`0` 成功；`2` 参数错（未知人格 / 未知页面名，同时打印可选值）。
 
+### 框架版：`--stack react` / `vue` / `all`
+
+原生 HTML 那套 CSS 是唯一的视觉事实源；`--stack` 只是把同一批类名包成组件，**不重写任何样式**：
+
+```
+node scripts/scaffold.mjs --persona rational --stack react --pages landing,app,catalog --out src
+node scripts/scaffold.mjs --persona rational --stack vue   --pages landing,app,catalog --out src
+node scripts/scaffold.mjs --persona rational --stack all   --pages landing,app,catalog --out src   # 两栈同时出
+```
+
+产出（每栈各一套，共用同一份 CSS）：
+
+```
+src/react/                     src/vue/
+├── package.json  tsconfig.json   ├── package.json  tsconfig.json  env.d.ts
+├── vite.config.ts  index.html    ├── vite.config.ts  index.html
+└── src/                          └── src/
+    ├── main.tsx  App.tsx             ├── main.ts  App.vue
+    ├── lib/{cx,theme}.ts             ├── lib/{cx,theme}.ts
+    ├── styles/{index,tokens,base,components,depth,catalog}.css   ← 与 html 版逐字节相同
+    ├── ui/{Button,Form,Surface,Data,Overlay}.tsx + index.ts      ← Vue 是 19 个单文件组件
+    └── pages/{Dashboard,Catalog}.tsx                             ← 各含 mock 数据与「{{TODO}}」
+```
+
+组件只做 props → className 的映射（`<Button variant="primary" size="sm">` → `class="btn btn--primary btn--sm"`），
+没有一处 `<style>`、没有样式库、没有 CSS-in-JS——所以**框架版与 html 版像素一致，改令牌两边同时变**。
+
+已验证到什么程度（v1.13.3 实测，命令可复现）：
+
+| 关卡 | 结果 |
+| --- | --- |
+| `tsc --noEmit`（strict） | React 0 错误 |
+| `vue-tsc --noEmit` | Vue 0 错误 |
+| `vite build` | React 153.06 kB / gzip 49.61 + CSS 25.52 kB；Vue 76.74 kB / gzip 30.75 + **CSS 25.52 kB（与 React 逐字节相同）** |
+| `audit.mjs`（打包产物，桌面/平板/手机 × 明暗） | 两栈各 6 组 **0 错误 / 0 警告 / 0 类 axe / 0 console** |
+| 类名对齐 | 组件引用的类名全部在 CSS 里存在（`selfcheck.mjs` 的「框架栈」一步守着） |
+
+两个坑写在生成物 README 里：`NODE_ENV=production` 的终端里 `npm install` 会跳过 devDependencies（用 `npm install --include=dev`）；
+`{{TODO: …}}` 在 JSX 里会被当成对象字面量，所以生成物统一走 `todo('…')` 函数。
 **生成物已过 `audit.mjs` 的明暗双主题验证**：五套人格 × 六类页面 × 明暗 = 30 组，0 error / 0 warn / 0 axe 违规（v1.13.1 复跑，`node scripts/selfcheck.mjs` 一条命令可复现）；令牌对比度门每个 113 组 / 0 组未达标。
 但它只保证「层级、间距、状态、可访问性」这些硬骨头，文案全是 `{{TODO: ...}}` 占位——
 你的活是把它们换成真内容（见 `references/copy-and-content.md`），别直接当成品交付。

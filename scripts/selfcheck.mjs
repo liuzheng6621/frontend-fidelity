@@ -2,11 +2,11 @@
 /**
  * selfcheck.mjs — 一键自检（给贡献者与 CI 用，不依赖具体项目）
  *
- * 它做四件事，任何一步失败都以非 0 退出：
+ * 它做五件事，任何一步失败都以非 0 退出：
  *   1. 语法：node --check 所有 scripts/*.mjs；python -m py_compile 所有 scripts/*.py
  *   2. 生成：五套人格 × 六类页面（含 --dark）各生成一遍到临时目录
  *   3. 对比度：对每个生成物跑 contrast_check.py，不达标即失败
- *   4. 审计：装了 playwright 就起本地服务跑 audit.mjs（明暗双主题），没有就跳过并说明
+ *   4. 审计：装了 playwright 就起本地服务跑 audit.mjs（明暗双主题），没有就跳过并说明`n *   4.5 框架栈：`--stack all` 生成 React/Vue，逐文件过 TSX/TS 语法 + 类名对齐（CSS 里没有的类名=错）
  *
  * 用法：
  *   node scripts/selfcheck.mjs                 # 全跑（无 playwright 时自动跳过审计）
@@ -15,9 +15,10 @@
  *   node scripts/selfcheck.mjs --keep          # 保留临时目录，便于看生成物
  */
 import { spawn, spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readdirSync, rmSync } from 'node:fs';
+import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
+import { basename } from 'node:path';
 import { extname, join, resolve } from 'node:path';
 import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
@@ -172,6 +173,69 @@ else {
   }
 }
 
+// ---------- 4.5 框架栈（React / Vue） ----------
+// 目标不是「能生成」而是「生成物自洽」：合成一个 --stack all 的产物，逐文件过 TSX/TS 语法，
+// 再从 CSS 抽出全部类名，检查框架组件里引用的类名一个都不缺。
+{
+  const root = resolve(SCRIPTS, '..');
+  const dir = join(outDir, 'stack');
+  const r = await runNodeAsync([join(SCRIPTS, 'scaffold.mjs'), '--persona', 'rational', '--stack', 'all', '--pages', 'landing,app,catalog', '--out', dir, '--quiet']);
+  if (r.status !== 0) fail('框架栈', 'scaffold --stack all 失败：' + (r.out || '').slice(0, 200));
+  else {
+    let esbuild;
+    try { esbuild = createRequire(import.meta.url)('esbuild'); } catch { esbuild = null; }
+    const files = [];
+    const walk = (p) => {
+      for (const e of readdirSync(p, { withFileTypes: true })) {
+        const abs = join(p, e.name);
+        if (e.isDirectory()) { if (e.name !== 'node_modules') walk(abs); }
+        else if (/\.(tsx?|vue)$/.test(e.name)) files.push(abs);
+      }
+    };
+    for (const s of ['react', 'vue']) { try { walk(join(dir, s)); } catch { /* 没生成就跳过 */ } }
+    const syntaxBad = [];
+    if (esbuild) {
+      for (const f of files) {
+        let code = readFileSync(f, 'utf8');
+        if (f.endsWith('.vue')) {
+          // 不能正则取脚本块：generic="T extends Record<string, unknown>" 里带 '>'，
+          // 会把这个 '>' 当成标签结束。这里按行取（生成物里 <script …> 恒为第一行）。
+          const lines = code.split('\n');
+          if (!/^<script/.test(lines[0])) continue;
+          code = lines.slice(1).join('\n');
+          const end = code.indexOf('</script>');
+          if (end >= 0) code = code.slice(0, end);
+        }
+        try { esbuild.transformSync(code, { loader: f.endsWith('.tsx') ? 'tsx' : 'ts' }); }
+        catch (e) { syntaxBad.push(`${basename(f)}: ${String(e.message).split('\n')[0]}`); }
+      }
+    }
+    // 类名对齐：CSS 里定义的 → 框架代码里引用的，缺一个都算错
+    const css = readFileSync(join(dir, 'react', 'src', 'styles', 'components.css'), 'utf8')
+      + readFileSync(join(dir, 'react', 'src', 'styles', 'catalog.css'), 'utf8')
+      + readFileSync(join(dir, 'react', 'src', 'styles', 'depth.css'), 'utf8');
+    const defined = new Set();
+    for (const m of css.matchAll(/\.([a-zA-Z][a-zA-Z0-9_-]*)/g)) defined.add(m[1]);
+    const used = new Set();
+    for (const f of files) {
+      const code = readFileSync(f, 'utf8');
+      for (const m of code.matchAll(/class(?:Name)?=(?:"([^"]*)"|\{([^}]*)\}|"([^"]*)")/g)) {
+        for (const raw of [m[1], m[2], m[3]]) {
+          if (!raw) continue;
+          for (const tok of raw.replace(/[{}`'"]/g, ' ').split(/\s+/)) {
+            if (tok.endsWith('--') || tok.endsWith('__')) continue; // 'tag--' + tone 这类拼接前缀
+            if (/^[a-z][a-z0-9-]*$/.test(tok) && (tok.includes('--') || tok.includes('__') || tok.startsWith('kpi__') || tok.startsWith('cat__'))) used.add(tok);
+          }
+        }
+      }
+    }
+    const missing = [...used].filter((c) => !defined.has(c) && !['t-right', 'is-open'].includes(c));
+    if (files.length < 20) fail('框架栈', `只生成了 ${files.length} 个 tsx/ts/vue 文件`);
+    else if (!esbuild) skip('框架栈', `已生成 ${files.length} 个文件，但没装 esbuild，跳过语法检查`);
+    else if (syntaxBad.length || missing.length) fail('框架栈', [...syntaxBad.slice(0, 3), ...(missing.length ? ['未定义类名：' + missing.join(', ')] : [])].join(' | '));
+    else pass('框架栈', `${files.length} 个 tsx/ts/vue 语法通过，类名引用 ${used.size} 个全部有定义`);
+  }
+}
 // ---------- 5. 文档数字一致 ----------
 // 参考库的站点数在 README / SKILL / design-evidence 里各写了一遍，最容易悄悄漂。
 // 以 design-evidence.md 为准，其他文件里出现的「N 个真实站」「N 个实测站点」「A 组 N」必须与它一致。

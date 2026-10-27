@@ -27,6 +27,7 @@
 
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { stackFiles } from './lib/stacks.mjs';
 
 const argv = process.argv.slice(2);
 const has = (k) => argv.includes(`--${k}`);
@@ -41,6 +42,7 @@ if (has('help') || has('h')) {
   --persona rational|editorial|warm   人格预设（默认 rational）
   --out <dir>                         输出目录（默认 ui-scaffold）
   --pages landing,app,form,auth,states  要生成哪些页面（默认 landing,app）
+  --stack html|react|vue|all          额外生成哪个框架版本（默认 html，只出静态页）
   --accent <hue 0-360>                覆盖品牌色相
   --dark                              额外生成 .dark 令牌块
   --name <字符串>                      产品名（默认「示例产品」）
@@ -900,6 +902,18 @@ const componentsCss = `/* components.css —— 8 个状态都在这里面，别
   flex-wrap: wrap;
 }
 .toolbar__search { flex: 1 1 240px; max-width: 320px; }
+.toolbar .select { width: auto; min-width: 8rem; }
+
+/* 框架版的多视图切换条（scaffold 生成物用） */
+.appswitch {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: var(--s-2) var(--s-4);
+  background: var(--surface);
+  box-shadow: 0 1px 0 var(--border);
+}
+.appswitch__label { font-size: var(--t-xs); color: var(--ink-3); }
 
 /* ---------------- KPI ---------------- */
 .kpis {
@@ -2104,6 +2118,36 @@ for (const [name, body] of files) {
   const bytes = Buffer.byteLength(body);
   total += bytes;
   if (!quiet) console.log('  + ' + name.padEnd(16) + String(bytes).padStart(7) + ' B');
+}
+/* ------------------------------------------------- 框架版（--stack） */
+const stackMode = String(arg('stack', 'html') || 'html').toLowerCase();
+const STACKS = ['html', 'react', 'vue', 'all'];
+if (!STACKS.includes(stackMode)) {
+  console.error(`未知 --stack：${stackMode}（可选：${STACKS.join(' / ')}）`);
+  process.exit(2);
+}
+let stackTotal = 0;
+let stackCount = 0;
+if (stackMode !== 'html') {
+  const stackOut = stackFiles({
+    stack: stackMode,
+    siteName: NAME,
+    css: {
+      'tokens.css': tokensCss,
+      'base.css': baseCss,
+      'components.css': componentsCss,
+      'depth.css': depthCss,
+      'catalog.css': catalogCss,
+    },
+  });
+  for (const [rel, body] of stackOut) {
+    const abs = path.join(outDir, ...rel.split('/'));
+    await mkdir(path.dirname(abs), { recursive: true });
+    await writeFile(abs, body, 'utf8');
+    stackTotal += Buffer.byteLength(body);
+    stackCount += 1;
+  }
+  if (!quiet) console.log('  + ' + (stackMode + '/**').padEnd(16) + String(stackTotal).padStart(7) + ' B  (' + stackCount + ' 个文件)');
 }
 /* 生成期自检：能算出来的对比度就不要留给"待会儿再看" */
 const contrastChecks = [

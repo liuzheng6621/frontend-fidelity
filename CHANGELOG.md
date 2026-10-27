@@ -4,6 +4,37 @@
 `frontend-fidelity.zip`，由 `git archive` 从 Tag 快照生成，只含被 git 跟踪的文件
 （不含 `shots/`、`audit-report.json`、`.design/`）。
 
+## v1.13.3 - 2026-11-08
+
+### 新增
+- **`--stack html|react|vue|all`**（默认 `html`）：在原有静态骨架之外，额外产出 React 18 + Vite 与 Vue 3 + Vite 两套源码。
+  两栈**共用同一份 CSS**（tokens / base / components / depth / catalog 逐字节复制），组件只做 props → className 映射，
+  没有 `<style>`、没有样式库、没有 CSS-in-JS —— 框架版与 html 版像素一致，改令牌两边同时变。
+- `scripts/lib/stacks.mjs`（48 KB）：`pkgReact`/`pkgVue`、`tsconfig`、`vite.config`、`index.html`、`cx`、`theme`
+  （`localStorage['ui-theme']` + `data-theme`）、React 五组组件（Button/Form/Surface/Data/Overlay）、Vue 19 个单文件组件、
+  两套页面（`Dashboard` 与 `Catalog`，都带 mock 数据与 `{{TODO}}` 占位）。
+- 生成期打印两个新行：`深度语言` 与 `动效阶梯`（v1.13.0 遗留的两处漏打印）。
+- `selfcheck.mjs` 新增「框架栈」一步：`--stack all` 生成后逐文件过 esbuild 语法、再从 CSS 抽类名核对引用，缺一个即失败。
+
+### 修复
+- 框架版的工具栏用 `Field` 包搜索框，渲染出一条多余的 `{{TODO: 搜索什么}}` 标签且 `.select` 撑满整行 ——
+  改为与 html 版一致的 `.input-group.toolbar__search` + 裸 `<input aria-label>` / `<select aria-label>`，
+  并在 `components.css` 补 `.toolbar .select { width: auto; min-width: 8rem }`。
+- 两栈的视图切换条原来是一段 inline style 的裸 div（无内边距、贴在页顶）→ 改成 `.appswitch`（新增该类）。
+- 我之前凭空发明的两个类名 `.cat__count-sort` / `.cat__pager-item` 在 CSS 里并不存在 → 改用 `.tiny` + `.select` 与裸 `<a>`。
+- Vue 的 `UiTable` 改成 `generic="T extends Record<string, unknown>"`（否则插槽里的 `row` 是 `unknown`，
+  `vue-tsc` 报 TS2538/TS7053），并补 `cell()` / `cellOf()` / `toneOf()` 三个取值helper。
+
+### 验证
+- `tsc --noEmit`（React，strict）0 错误；`vue-tsc --noEmit`（Vue）0 错误；`vite build` 两栈均成功
+  （React 153.06 kB / gzip 49.61，Vue 76.74 kB / gzip 30.75，CSS 两栈同为 25.52 kB）。
+- 打包产物跑 `audit.mjs`：两栈各 6 组（桌面/平板/手机 × 明暗）**0 错误 / 0 警告 / 0 类 axe / 0 console**。
+- `node scripts/selfcheck.mjs --skip-audit`：语法 8 mjs + 2 py ✓、5 套 × 6 页 ✓、对比度 565 组 0 未达标 ✓、
+  框架栈 40 个 tsx/ts/vue 语法通过且类名全部有定义 ✓、文档数字 21 站 / A 组 18 ⋯ ✓。
+
+### 已知未动
+- GitHub 上的 `.github/workflows/selfcheck.yml` 仍缺（fine-grained PAT 没有 `workflow` scope）。
+- 小程序 / React Native 明确不做（一套令牌对一套选择器方言，维护四份 truth 不划算）。
 ## v1.13.2 - 2026-11-08
 
 这一版只做一件事：把 MasterGo 的**工具界面实例**与**资源社区统计**蒸馏进来，补上"B 端工具型界面"这块空白。

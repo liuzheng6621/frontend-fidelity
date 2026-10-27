@@ -41,8 +41,8 @@ license: MIT
 | `scripts/crop_logo.py` | Logo 裁边、正方形化、导出尺寸 | 拿到品牌图之后 |
 | `scripts/hygiene.mjs` | 找无引用组件/资源/样式、重复路由 | 改版收尾、合并前 |
 | `scripts/run_checks.mjs` | 跑项目自带的 lint/typecheck/test/build | 交付前最后一步 |
-| `scripts/scaffold.mjs` | 从 0 生成骨架：五套人格（含印刷/杂志）+ 深度三派 + 六类页面 + 生成期对比度自检 | 要从零做一个页面/后台/落地页/陈列目录时，先生成再改 |
-| `scripts/selfcheck.mjs` | 一键自检：语法 + 五套人格各生成 6 页 + 对比度 + 30 组审计 | 动过技能本身（脚本/人格/文档数字）之后 |
+| `scripts/scaffold.mjs` | 从 0 生成骨架：五套人格（含印刷/杂志）+ 深度三派 + 六类页面 + 生成期对比度自检；`--stack html\|react\|vue\|all` 出框架版 | 要从零做一个页面/后台/落地页/陈列目录时，先生成再改 |
+| `scripts/selfcheck.mjs` | 一键自检：语法 + 五套人格各生成 6 页 + 对比度 + 30 组审计 + 框架栈语法与类名对齐 | 动过技能本身（脚本/人格/文档数字/框架层）之后 |
 | `scripts/probe-ref.mjs` | 量任意参考站的真实字体/字阶/配色/圆角/间距/控件高度 | 想「像这个站」但说不清具体数值时 |
 
 最短可用流程（把 `<url>` 换掉）：
@@ -160,6 +160,7 @@ node scripts/scaffold.mjs --persona rational --out src --pages landing,catalog,a
 node scripts/scaffold.mjs --persona warm --out preview --accent 20 --pages landing,form --dark
 node scripts/scaffold.mjs --persona print --pages catalog                    # 方格纸 + 硬阴影
 node scripts/scaffold.mjs --persona magazine --pages catalog                 # 衬线刊头 + 电光蓝
+node scripts/scaffold.mjs --persona rational --stack react --pages app        # 出 React 版（也可 vue / all）
 ```
 
 产出 `tokens.css / base.css / components.css / depth.css / catalog.css / ui.js` + 六类页面，摘要里还会打印**深度语言**（hairline / soft / hard）、动效阶梯与**生成期对比度自检**（三组关键配对，不达标会直接指出来）。`--dark` 决定深色是不是一等公民（不留后路那种才有意义）。
