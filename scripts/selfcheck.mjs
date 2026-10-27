@@ -273,11 +273,18 @@ else {
 {
   const ROOT = resolve(SCRIPTS, '..');
   const read = (rel) => readFile(join(ROOT, rel), 'utf8').catch(() => '');
+  const pkgRaw = await read('package.json');
   let want = '';
-  try { want = JSON.parse(await read('package.json')).version || ''; } catch { /* 下面统一报 */ }
-  const bad = [];
-  if (!want) bad.push('package.json 读不到 version');
-  else {
+  let bad = [];
+  if (!pkgRaw) {
+    // 安装到 ~/.claude/skills 这类目录时只拷贝 skill 运行文件，没有 package.json。
+    // 那种场合无从读版本，跳过即可——仓库与 CI 里它始终存在，拦截力不受影响。
+    skip('版本号', '这份副本没有 package.json，跳过');
+  } else {
+    try { want = JSON.parse(pkgRaw).version || ''; } catch { /* 下面统一报 */ }
+    if (!want) bad.push('package.json 没有 version 字段');
+  }
+  if (want) {
     const targets = {
       'README.md': [/^`v(\d+\.\d+\.\d+)`/m, /--ref v(\d+\.\d+\.\d+)/, /当前是 \[v(\d+\.\d+\.\d+)\]/],
       'install.sh': [/--ref v(\d+\.\d+\.\d+)/],

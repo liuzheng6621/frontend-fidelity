@@ -6,7 +6,7 @@
 > 搜这些词应该能到这：设计稿转代码、照着截图还原、UI 还原、前端验收、截图对比、后台美化、移动端适配、设计令牌、Claude Code 技能（skill）。
 > 目标不是"改好看"，而是**让界面和它声称的样子一致，并且真的能用——改完能拿出证据**。
 
-`v1.15.1` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `9 个可执行脚本`
+`v1.15.2` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `12 个可执行脚本（9 个 Node + 3 个 Python）`
 
 ---
 
@@ -38,7 +38,7 @@ curl -fsSL https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/ra
 bash install.sh --target claude          # 只装 Claude Code
 bash install.sh --target dsh             # 只装 DSH
 bash install.sh --dir ~/my-skills        # 装到自定义目录
-bash install.sh --ref v1.15.1            # 锁定某个版本
+bash install.sh --ref v1.15.2            # 锁定某个版本
 bash install.sh --dry-run                # 只看会装到哪，不动文件
 ```
 
@@ -232,7 +232,7 @@ node ~/.dsh/skills/frontend-fidelity/scripts/auth.mjs --url http://localhost:517
 ```bash
 # 生成一套令牌 + 组件 + 后台四页（含深色令牌）
 node ~/.dsh/skills/frontend-fidelity/scripts/scaffold.mjs \
-  --persona rational --out src --pages landing,app,form,auth,states --dark
+  --persona rational --out src --pages landing,app,form,auth,states   # 深色令牌默认生成，要关用 --no-dark
 ```
 
 生成完再走上面的第 2 步之后的验收链路（`scaffold.mjs` 是纯 node，不依赖 playwright）。
@@ -254,7 +254,7 @@ git clone https://gitee.com/liu-everything_impossble/skill-frontend-fidelity.git
 
 从 [Releases](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) 下载 `frontend-fidelity.zip`，解压到同名目录即可，内容与 git 版本一致。
 包由 `git archive` 从 tag 生成，不含 `__pycache__`、截图目录与本地缓存。
-当前是 [v1.15.1](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/tag/v1.15.1)。
+当前是 [v1.15.2](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/tag/v1.15.2)。
 
 ### 方式三：只取脚本
 
@@ -397,7 +397,7 @@ node scripts/probe-ref.mjs --url https://参考站.com --out .tmp/ref --name ref
 
 ```bash
 # 1) 生成（后台形态）
-node scripts/scaffold.mjs --persona rational --out src --pages landing,catalog,app,form,auth,states --dark
+node scripts/scaffold.mjs --persona rational --out src --pages landing,catalog,app,form,auth,states   # 深色默认生成
 
 # 2) 起本地服务再体检（file:// 会被 CORS 干扰，审计结果不可信）
 node scripts/screenshot.mjs --url http://localhost:5173/ --out .design/after

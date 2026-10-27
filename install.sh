@@ -6,7 +6,7 @@
 #   bash install.sh --target claude          # 只装到 ~/.claude/skills
 #   bash install.sh --target dsh             # 只装到 ~/.dsh/skills
 #   bash install.sh --dir ~/my-skills        # 装到自定义目录
-#   bash install.sh --ref v1.15.1            # 装某个 tag
+#   bash install.sh --ref v1.15.2            # 装某个 tag
 #   bash install.sh --dry-run                # 只看会装到哪，不动文件
 #
 # 可用环境变量覆盖：FF_REPO / FF_REF / FF_TARGET
@@ -36,7 +36,7 @@ while [ $# -gt 0 ]; do
 done
 
 # 要装的文件（不含 .git / 截图 / 产物）
-FILES="SKILL.md README.md LICENSE CHANGELOG.md .gitattributes references scripts install.sh install.ps1"
+FILES="SKILL.md README.md LICENSE CHANGELOG.md .gitattributes package.json references scripts docs install.sh install.ps1"
 
 resolve_dests() {
   if [ -n "$DEST" ]; then echo "$DEST"; return; fi

@@ -4,6 +4,21 @@
 `frontend-fidelity.zip`，由 `git archive` 从 Tag 快照生成，只含被 git 跟踪的文件
 （不含 `shots/`、`audit-report.json`、`.design/`）。
 
+## v1.15.2 - 2026-10-27
+
+### 修复
+
+- **安装器漏装 `package.json` 与 `docs/`**：`install.sh` / `install.ps1` 的拷贝清单只有 skill 运行文件，
+  装到 `~/.claude/skills`、`~/.dsh/skills` 这类目录后 `package.json` 缺失 —— v1.15.1 新增的「版本号」检查无从读取版本，
+  在安装副本里会直接判失败；README 里指向 `docs/` 的链接也会断。两份安装器的清单已补齐。
+- **`selfcheck.mjs` 的版本门对安装副本降级**：找不到 `package.json` 时打印跳过说明而不是判失败。
+  仓库与 CI 里该文件始终存在，拦截力不受影响。
+- 重装已有副本即可对齐：`.\install.ps1 -Ref v1.15.2`（`~/.dsh`、`~/.claude`）；`~/.trae-cn` 若是 git 副本，`git pull` 即可。
+
+### 说明
+
+- 生成器、设计令牌、参考库与 v1.15.1 完全相同；升级只需重装，无迁移。
+
 ## v1.15.1 - 2026-10-27
 
 ### 修复

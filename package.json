@@ -1,6 +1,6 @@
 {
   "name": "frontend-fidelity",
-  "version": "1.15.1",
+  "version": "1.15.2",
   "private": true,
   "description": "把界面做对、做实：按设计稿/截图还原与整改，或从 0 生成一套能验收的前端骨架。配套可运行脚本：多视口多主题截图、WCAG 审计、对比度检查、参考站探针、一键自检。",
   "homepage": "https://gitee.com/liu-everything_impossble/skill-frontend-fidelity",

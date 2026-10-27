@@ -21,7 +21,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $Name  = 'frontend-fidelity'
-$items = @('SKILL.md','README.md','LICENSE','CHANGELOG.md','.gitattributes','references','scripts','install.sh','install.ps1')
+$items = @('SKILL.md','README.md','LICENSE','CHANGELOG.md','.gitattributes','package.json','references','scripts','docs','install.sh','install.ps1')
 
 function Get-Bases {
   if ($Dir) { return @($Dir) }
