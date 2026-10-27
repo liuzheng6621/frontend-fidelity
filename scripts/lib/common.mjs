@@ -7,6 +7,7 @@
  */
 
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { spawnSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
@@ -182,6 +183,123 @@ export async function readPages(file) {
     .map((l) => l.trim())
     .filter((l) => l && !l.startsWith('#'));
 }
+
+/**
+ * Git Bash / MSYS 会把 `--pages /index.html` 里的 `/index.html` 当成 POSIX 绝对路径，
+ * 改写成 `C:/Program Files/Git/index.html` 再交给 node；脚本随后按 URL 解析就成了
+ * `file:///…/Git/index.html`，报 ERR_FILE_NOT_FOUND —— 报错完全指不到真因，
+ * 而 README 与 docs 里的示例恰好全是 `--pages /,/orders` 这种写法。
+ *
+ * 只认常见安装根（Git for Windows 默认目录 / PortableGit / MSYS2 / Cygwin），
+ * 认不出的一律不猜，交给 resolvePages 报警告 —— 猜错会静默审计到错误的页面，比报错更糟。
+ */
+export function undoMsysPath(p) {
+  const s = String(p)
+    .replace(/\\/g, '/')
+    .replace(/^([A-Za-z]):\/+/, '$1:/');
+  const m =
+    /^[A-Za-z]:\/(?:.*\/)?(?:PortableGit|msys64|msys32|cygwin64|cygwin)(\/.*)?$/i.exec(s) ||
+    /^[A-Za-z]:\/Program Files\/Git(\/.*)?$/i.exec(s);
+  if (!m) return null;
+  return m[1] && m[1].startsWith('/') ? m[1] : '/';
+}
+
+/**
+ * `--pages` 的值 → 目标列表。兼容「逗号分隔」与「.txt 清单文件」，
+ * 并顺手把 Git Bash 误转的路径还原回站点相对路径。
+ * 返回 { targets, warnings }；warnings 由调用方打到 stderr。
+ */
+export async function resolvePages(raw, { baseUrl = '' } = {}) {
+  const value = String(raw);
+  const isFile = /\.(txt|list|paths)$/i.test(value) && !value.includes(',');
+  const items = isFile
+    ? await readPages(value)
+    : value
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean);
+
+  const warnings = [];
+  const targets = items.map((u) => {
+    if (/^https?:\/\//i.test(u)) return u;
+
+    const fixed = undoMsysPath(u);
+    if (fixed && baseUrl) {
+      warnings.push(`--pages 的值被 Git Bash 改写成了 Windows 路径，已还原为站点相对路径：${u} → ${fixed}`);
+      return fixed;
+    }
+    if (fixed) {
+      warnings.push(`--pages 的值 ${u} 像被 Git Bash 改写过，但没有 --base，无法还原；请改用 --url 或补上 --base`);
+      return u;
+    }
+    if (/^[A-Za-z]:[\\/]/.test(u)) {
+      warnings.push(
+        `--pages 收到 Windows 绝对路径 ${u}：--pages 应传相对 --base 的路径（如 /index.html）。` +
+          `如果你在 Git Bash 里写的是 /index.html，是 MSYS 把它改写成了这个路径，` +
+          `可加 MSYS_NO_PATHCONV=1 或去掉前导斜杠（index.html）`,
+      );
+      return u;
+    }
+    return u;
+  });
+
+  return { targets, warnings };
+}
+
+/**
+ * `--expect-text` → 每页期望文案。
+ * 单段（不含 `|`）保持旧语义：所有目标共用；多段则必须与目标数一一对应。
+ * 旧行为在多页下必然误报——一个页面的特征文案不可能出现在另一页。
+ */
+export function expectTextsFor(value, count) {
+  if (value === undefined || value === true || value === null || value === '') return null;
+  const parts = String(value)
+    .split('|')
+    .map((s) => s.trim());
+  if (parts.length === 1) return { all: parts[0] };
+  if (parts.length !== count) {
+    throw new Error(
+      `--expect-text 用 | 分成了 ${parts.length} 段，但本次有 ${count} 个目标页面；` +
+        `段数与页面数必须一致，或只写一段表示所有页面共用`,
+    );
+  }
+  return { perPage: parts };
+}
+
+/**
+ * 找可用的 python。Windows 上常见的是 `py -3`（python 不在 PATH 或指向应用商店占位），
+ * 只认 `python` 会让 --verify 静默跳过对比度。依次试到能跑 `-c pass` 为止。
+ * 返回 { cmd, args } 或 null（调用方据此决定是否判 partial）。
+ */
+let _pythonCache;
+export function resolvePython() {
+  if (_pythonCache !== undefined) return _pythonCache;
+  const candidates =
+    process.platform === 'win32'
+      ? [
+          { cmd: 'python', args: [] },
+          { cmd: 'py', args: ['-3'] },
+          { cmd: 'python3', args: [] },
+        ]
+      : [
+          { cmd: 'python3', args: [] },
+          { cmd: 'python', args: [] },
+        ];
+  for (const c of candidates) {
+    try {
+      const r = spawnSync(c.cmd, [...c.args, '-c', 'pass'], { stdio: 'ignore', timeout: 15000 });
+      if (r.status === 0) {
+        _pythonCache = c;
+        return c;
+      }
+    } catch {
+      /* 换下一个候选 */
+    }
+  }
+  _pythonCache = null;
+  return null;
+}
+
 
 /** URL 或相对路径 → 安全的文件名片段。`/` 和 `/pricing?x=1` 都要能处理。 */
 export function slugify(url) {

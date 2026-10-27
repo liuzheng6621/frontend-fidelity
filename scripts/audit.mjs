@@ -39,7 +39,8 @@ import {
   listArg,
   loadChromium,
   parseArgs,
-  readPages,
+  resolvePages,
+  expectTextsFor,
   watchPage,
   writeJson,
 } from './lib/common.mjs';
@@ -283,26 +284,20 @@ async function main() {
     wait: '800',
   });
 
+  // --base 把 /pricing 这类相对路径拼成绝对 URL
+  const baseUrl = args.base && args.base !== true ? String(args.base).replace(/\/+$/, '') + '/' : '';
+
   const urls = [];
   if (args.url && args.url !== true) urls.push(String(args.url));
   if (args.pages && args.pages !== true) {
-    const raw = String(args.pages);
-    const isFile = /\.(txt|list|paths)$/i.test(raw) && !raw.includes(',');
-    if (isFile) urls.push(...(await readPages(raw)));
-    else
-      urls.push(
-        ...raw
-          .split(',')
-          .map((s) => s.trim())
-          .filter(Boolean),
-      );
+    const { targets: pageTargets, warnings } = await resolvePages(String(args.pages), { baseUrl });
+    for (const w of warnings) console.warn(`${MARK.warn} ${w}`);
+    urls.push(...pageTargets);
   }
   if (urls.length === 0) {
     console.error('必须提供 --url <url>，或 --pages <逗号分隔路径|page-list.txt>');
     process.exit(2);
   }
-  // --base 把 /pricing 这类相对路径拼成绝对 URL
-  const baseUrl = args.base && args.base !== true ? String(args.base).replace(/\/+$/, '') + '/' : '';
   const targets = urls.map((u) => (baseUrl ? new URL(u, baseUrl).toString() : u));
 
   const viewports = listArg(args.viewports, 'desktop,tablet,mobile');
@@ -314,9 +309,14 @@ async function main() {
     }
   }
 
-  const expectText = args['expect-text'] && args['expect-text'] !== true
-    ? String(args['expect-text'])
-    : null;
+  // --expect-text 支持 `|` 按页对应（--pages 多页时）；只写一段则所有页共用
+  let expectMap;
+  try {
+    expectMap = expectTextsFor(args['expect-text'], targets.length);
+  } catch (e) {
+    console.error(e.message);
+    process.exit(2);
+  }
   const wantAxe = flag(args, 'axe', true);
   const reducedMotion = flag(args, 'reduced-motion') ? 'reduce' : 'no-preference';
   const storageState = args['storage-state'] && args['storage-state'] !== true
@@ -335,7 +335,13 @@ async function main() {
 
   const report = {
     generatedAt: new Date().toISOString(),
-    options: { viewports, themes, expectText, axe: wantAxe, reducedMotion },
+    options: {
+      viewports,
+      themes,
+      expectText: expectMap ? String(args['expect-text']) : null,
+      axe: wantAxe,
+      reducedMotion,
+    },
     axeVersion: null,
     targets: [],
     totals: { error: 0, warn: 0, console: 0, http: 0, axe: 0 },
@@ -352,7 +358,9 @@ async function main() {
       if (theme === 'dark') await context.addInitScript(forceDark);
       const watcher = watchPage(page);
 
-      for (const url of targets) {
+      for (let ti = 0; ti < targets.length; ti++) {
+        const url = targets[ti];
+        const expectText = expectMap ? (expectMap.perPage ? expectMap.perPage[ti] : expectMap.all) : null;
         const t = { url, viewport: v, theme, issues: [], axe: null, consoleErrors: [], httpErrors: [], cls: 0 };
         try {
           await goto(page, url);

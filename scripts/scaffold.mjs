@@ -30,7 +30,9 @@ import { spawn } from 'node:child_process';
 import { createServer } from 'node:http';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { stackFiles } from './lib/stacks.mjs';
+import { resolvePython } from './lib/common.mjs';
 
 const argv = process.argv.slice(2);
 const has = (k) => argv.includes(`--${k}`);
@@ -2507,33 +2509,71 @@ if (!quiet) {
    报告写到 <outDir>/.verify/。任何一步失败 → 退出码非 0，让 Agent 立刻知道要修。
    没装 playwright 时跳过 audit 只跑 contrast，但会在汇总里明说。 */
 if (has('verify')) {
-  const HERE = path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1'));
+  const HERE = path.dirname(fileURLToPath(import.meta.url));
   const auditScript = path.join(HERE, 'audit.mjs');
   const contrastScript = path.join(HERE, 'contrast_check.py');
   const verifyDir = path.join(outDir, '.verify');
   await mkdir(verifyDir, { recursive: true });
-  const report = { when: new Date().toISOString(), persona: personaKey, pages, contrast: null, audit: [], ok: true, notes: [] };
+  const allowPartial = has('allow-partial');
+  /**
+   * status 三态，退出码一一对应：
+   *   pass    —— 每一项都跑了且通过，0
+   *   partial —— 缺依赖跳过了某些项（没验全），3（--allow-partial 时降为 0）
+   *   fail    —— 有项没通过，1
+   * 以前"跳过"只写进 notes 就退出 0，等于把"没验"当成"验过了"，
+   * 与「改完自证」直接冲突——这是 v1.15.4 修掉的。
+   */
+  const report = {
+    when: new Date().toISOString(),
+    persona: personaKey,
+    pages,
+    status: 'pass',
+    ok: true,
+    skipped: [],
+    contrast: null,
+    audit: [],
+    notes: [],
+  };
+  const markPartial = (why) => {
+    report.skipped.push(why);
+    if (report.status === 'pass') report.status = 'partial';
+    report.ok = false;
+  };
+  const markFail = (why) => {
+    report.status = 'fail';
+    report.ok = false;
+    if (why) report.notes.push(why);
+  };
 
   // 1. 对比度：直接调 contrast_check.py（已支持 .dark 与 color-mix）
   {
-    const PY = process.platform === 'win32' ? 'python' : 'python3';
-    const r = await new Promise((res) => {
-      const ch = spawn(PY, [contrastScript, outDir], { stdio: ['ignore', 'pipe', 'pipe'] });
-      let out = '';
-      ch.stdout.on('data', (d) => { out += d; });
-      ch.stderr.on('data', (d) => { out += d; });
-      ch.on('error', (e) => res({ code: -1, out: String(e && e.message) }));
-      ch.on('close', (code) => res({ code, out }));
-    });
-    const tail = r.out.split('\n').filter((l) => l.includes('合计')).pop() || '';
-    const m = tail.match(/合计：(\d+) 组，(\d+) 组未达标/);
-    report.contrast = { code: r.code, summary: tail.trim() };
-    if (r.code === -1) { report.notes.push('没装 python，跳过对比度'); }
-    else if (r.code !== 0 || (m && Number(m[2]) > 0)) {
-      report.ok = false;
-      report.notes.push('对比度未达标：' + tail.trim());
+    const py = resolvePython();
+    if (!py) {
+      markPartial('对比度：本机找不到 python（依次试过 python / py -3 / python3）');
+      if (!quiet) console.log('· 对比度  跳过：没装 python');
+    } else {
+      const cmd = [py.cmd, ...py.args];
+      const r = await new Promise((res) => {
+        const ch = spawn(py.cmd, [...py.args, contrastScript, outDir], { stdio: ['ignore', 'pipe', 'pipe'] });
+        let out = '';
+        ch.stdout.on('data', (d) => { out += d; });
+        ch.stderr.on('data', (d) => { out += d; });
+        ch.on('error', (e) => res({ code: -1, out: String(e && e.message) }));
+        ch.on('close', (code) => res({ code, out }));
+      });
+      const tail = r.out.split('\n').filter((l) => l.includes('合计')).pop() || '';
+      const m = tail.match(/合计：(\d+) 组，(\d+) 组未达标/);
+      report.contrast = { code: r.code, cmd: cmd.join(' '), summary: tail.trim() };
+      if (r.code === -1) {
+        markPartial(`对比度：${cmd.join(' ')} 无法执行（${r.out.split('\n')[0] || '未知错误'}）`);
+      } else if (!m) {
+        // 没有汇总行说明脚本自己崩了（多半是缺 pillow），这不是"达标"，别混为一谈
+        markFail('对比度脚本执行失败：' + (r.out.split('\n').filter(Boolean).pop() || `退出码 ${r.code}`).slice(0, 200));
+      } else if (r.code !== 0 || Number(m[2]) > 0) {
+        markFail('对比度未达标：' + tail.trim());
+      }
+      if (!quiet) console.log((report.status === 'fail' ? '✗' : report.status === 'partial' ? '·' : '✓') + ' 对比度  ' + (tail.trim() || `(${cmd.join(' ')} 未产出汇总)`));
     }
-    if (!quiet) console.log((report.ok ? '✓' : '✗') + ' 对比度  ' + (tail.trim() || '(python 不可用)'));
   }
 
   // 2. 审计：起内置静态服务，逐页跑 audit.mjs（明暗）
@@ -2543,7 +2583,7 @@ if (has('verify')) {
     let playwrightOk = false;
     for (const n of ['playwright', 'playwright-core']) { try { req.resolve(n); playwrightOk = true; break; } catch { /* 下一个 */ } }
     if (!playwrightOk) {
-      report.notes.push('没装 playwright，跳过 audit（npm i -D playwright && npx playwright install chromium）');
+      markPartial('审计：没装 playwright（npm i -D playwright && npx playwright install chromium）');
       if (!quiet) console.log('· 审计    跳过：没装 playwright');
     } else {
       const MIME = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.json': 'application/json; charset=utf-8', '.svg': 'image/svg+xml' };
@@ -2573,7 +2613,7 @@ if (has('verify')) {
           const okLine = /合计：0 错误 \/ 0 警告/.test(line);
           report.audit.push({ page: pg, code: r.code, summary: line.trim(), ok: r.code === 0 && okLine });
           if (r.code === 0 && okLine) passCount++;
-          else { failCount++; report.ok = false; }
+          else { failCount++; markFail(); }
           if (!quiet) console.log((r.code === 0 && okLine ? '✓' : '✗') + ' 审计    ' + pg + '  ' + line.trim());
         }
       } finally {
@@ -2586,13 +2626,29 @@ if (has('verify')) {
   await writeFile(path.join(verifyDir, 'report.json'), JSON.stringify(report, null, 2) + '\n', 'utf8');
   if (!quiet) {
     console.log('');
-    console.log('验收报告：' + path.join(verifyDir, 'report.json'));
+    console.log('验收报告：' + path.join(verifyDir, 'report.json') + '（status: ' + report.status + '）');
+    if (report.skipped.length) console.log('未验证项：' + report.skipped.join('；'));
     if (report.notes.length) console.log('说明：' + report.notes.join('；'));
   }
-  if (!report.ok) {
+  if (report.status === 'fail') {
     console.error('');
     console.error('✗ --verify 未通过：先看 .verify/report.json，再回头修');
     process.exit(1);
+  }
+  if (report.status === 'partial') {
+    const msg = '⚠ --verify 只验了一部分：' + report.skipped.join('；');
+    if (allowPartial) {
+      if (!quiet) {
+        console.log('');
+        console.log(msg);
+        console.log('  （--allow-partial 已放行，退出码 0；交付说明里要写明这几项没验）');
+      }
+      process.exit(0);
+    }
+    console.error('');
+    console.error(msg);
+    console.error('  补上依赖后重跑；确实要接受不完整验收，加 --allow-partial');
+    process.exit(3);
   }
   if (!quiet) console.log('✓ --verify 全部通过');
 }

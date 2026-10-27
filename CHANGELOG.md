@@ -4,6 +4,77 @@
 `frontend-fidelity.zip`，由 `git archive` 从 Tag 快照生成，只含被 git 跟踪的文件
 （不含 `shots/`、`audit-report.json`、`.design/`）。
 
+## v1.15.5 - 2026-10-27
+
+### 新增
+
+- **`scripts/flow.mjs`：交互流程验收**。补上「验收只看静态结构与像素」这个缺口 ——
+  用声明式 JSON 描述一条真实用户路径（`goto` / `click` / `fill` / `select` / `press` / `wait` /
+  `expectText` / `expectVisible` / `expectHidden` / `expectUrl` / `expectCount` / `expectValue` / `screenshot`），
+  逐步执行、给出每步耗时；失败即停、自动截现场图、报告写 `<out>/flow-report.json`。
+  平铺与嵌套两种写法都收（`{ "select": "#f-type", "label": "故障" }` ≡ 把 `selector`/`label` 写进内层对象）。
+  开跑前先校验流程文件（缺 selector / 缺 value / 一步多动作 / 未知动作），**退 2 而不是跑到一半崩**。
+  退出码 0 全过 / 1 有步骤失败（标了 `optional` 的不算）/ 2 参数或流程错误。
+  定位是「一条路径能不能走通」：不做断言库、重试策略、网络拦截、多标签页，那些交给 Playwright Test。
+- `scripts/flow.example.json`：对 scaffold 骨架冒烟的可跑示例（12 步，覆盖列表 → 新建 → 填表 → 回读）。
+
+### 变更
+
+- `selfcheck.mjs` 增加「流程」一步：用示例 flow 跑一遍骨架，守住 flow.mjs 的步骤/断言/报告链路；自检由七步变八步。
+- **陈旧数字修正**：README 与 `docs/scripts.md` 四处写「30 组审计」，实际是 5 套 × 6 页 × 明暗 = **60 组**；
+  `docs/scripts.md` 里「v1.13.1 复跑」的版本指针也一并去掉（复跑命令一直在，指针只会过期）。
+- **`selfcheck.mjs` 的静态服务改为启动时预读进内存**：原先每个请求 `readFile`，失败被 `catch` 成 404 ——
+  Windows 上偶发一次读失败，就会让某套生成物的页面缺 CSS，炸出「20 错误 / 1 HTTP」这种只随机命中一套的假失败
+  （实测命中过 `editorial/index.html`，单独复跑全绿）。生成物统共几十 KB，缓存后既消掉这类假阳性，也让 60 组审计更快。
+- README / `docs/scripts.md` / `SKILL.md` 同步：脚本数 12 → 13（10 Node + 3 Python）、仓库结构树、脚本速览表、
+  新增 `flow.mjs` 一节（动作表 / 参数表 / 产物 / 退出码 / 边界）。SKILL.md 明确它**不进必跑质量门**，
+  只在「改动涉及提交、跳转、弹窗、异步加载」时追加。
+
+### 验证
+
+- 示例流程（12 步，desktop/light）全过退出 0；`--theme dark --viewport mobile --screenshot` 全过、13 张图。
+- 失败语义：默认中断（余下步骤未执行、退 1）；`--continue` 跑完全部，`optional` 失败不拦路，汇总单列「1 可选未满足」。
+- 开跑前校验：坏流程文件一次列出 4 处问题、退 2；缺 `--flow`、文件不存在均退 2。
+- `selfcheck --personas rational` 全绿（含流程步）。
+
+## v1.15.4 - 2026-10-27
+
+### 修复
+
+- **`--verify` 不再把「没验」当「验过」**：缺 python 或 playwright 时，以前只往 `notes` 写一行就退出 0，
+  用降级结果冒充全绿，与「改完自证」直接冲突。报告改带 `status` 三态 ——
+  `pass` / `fail` / `partial`，退出码 0 / 1 / 3；`partial` 会列出哪几项没验，
+  要接受不完整验收必须显式加 `--allow-partial`（此时退出 0，并提示交付说明里写明）。
+  `report.ok` 同步收紧为「完全通过」，不再在跳过时保持 true。
+- **只有 `py -3` 没有 `python` 的机器被判「没装 python」**：`python` 是硬编码的，
+  Windows 上常见只有 Python Launcher。改为依次探测 `python` / `py -3` / `python3`
+  （`scripts/lib/common.mjs` 的 `resolvePython`）；对比度脚本自己崩了（如缺 pillow）
+  也不再混进「未达标」，单独报「对比度脚本执行失败」并附最后一行输出。
+- **Git Bash 下 `--base + --pages` 必挂**：MSYS 会把 `--pages /index.html` 改写成
+  `C:/Program Files/Git/index.html`，脚本再 `new URL(u, base)` 就成了 `file:///…`，
+  报 `ERR_FILE_NOT_FOUND` —— 报错完全指不到真因，而文档里的示例恰好全是 `--pages /,/orders` 这种写法。
+  新增 `resolvePages` / `undoMsysPath`：识别 Git for Windows / PortableGit / MSYS2 / Cygwin
+  安装根并还原成站点相对路径（stderr 打一条 `WARN`），认不出的一律不猜，给明确改写建议。
+  `screenshot.mjs` 与 `audit.mjs` 都已接入。
+- **多页审计下 `--expect-text` 必然误报**：它是全局单值，对所有页面做 `includes`，
+  一页的特征文案不可能出现在另一页（实测两页必有一页报 error、退出码 1）。
+  现在支持 `|` 按页对应（`--pages /a,/b --expect-text "A 页文案|B 页文案"`，段数必须等于页数，
+  不匹配直接退出 2）；只写一段仍是旧语义「所有页共用」，文档已标注多页下别这么用。
+
+### 变更
+
+- `scaffold.mjs` 的 `HERE` 改用 `fileURLToPath`，仓库/输出路径含空格或中文时不再被 `%20` 打断。
+- `docs/scripts.md`：补 `--allow-partial`、verify 三态退出码、`--expect-text` 按页语义、
+  Windows / Git Bash 下 `--pages` 的坑与两种安全写法（去前导斜杠 / `MSYS_NO_PATHCONV=1`）。
+
+### 验证
+
+- `scaffold --verify` 三态实跑：正常 → `status: pass` 退出 0；隐藏 python 探测 → `status: partial` 退出 3，
+  加 `--allow-partial` 退出 0；替换成必失败的审计脚本 → `status: fail` 退出 1。
+- `audit --pages index.html,app.html --expect-text "登录|工单"` → 0 错误退出 0；
+  单值 `"工单"` → 1 错误退出 1（旧语义保持）；`"a|b|c"` 对 2 页 → 退出 2 并说明段数不符。
+- 去掉 `MSYS_NO_PATHCONV` 后 `--pages /index.html,/app.html` 自动还原并成功审计。
+
 ## v1.15.3 - 2026-10-27
 
 ### 修复

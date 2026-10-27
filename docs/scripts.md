@@ -29,7 +29,8 @@ node scripts/scaffold.mjs --name "南风工单" --out src --pages app,form
 | `--name` | 产品名 | `示例产品` |
 | `--ref-url` | 先跑 `probe-ref.mjs` 量这个站，用实测值覆盖人格字段（品牌色相、底色、字阶、控件高、圆角、密度；逼近 80%，剩下改 `tokens.css`） | 关 |
 | `--ref-json` | 直接用已有的 probe-ref JSON，不再跑一次探针 | 关 |
-| `--verify` | 生成后自动起内置静态服务，逐页跑 `audit.mjs`（明暗双主题）+ `contrast_check.py`，报告写 `<out>/.verify/report.json`，失败退出码非 0（没装 playwright 时只跑对比度并说明） | 关 |
+| `--verify` | 生成后自动起内置静态服务，逐页跑 `audit.mjs`（明暗双主题）+ `contrast_check.py`，报告写 `<out>/.verify/report.json`，`status` 三态对应退出码：`pass` 0 / `fail` 1 / `partial` 3（缺 python 或 playwright 时跳过某些项即 `partial`，**不再当通过**） | 关 |
+| `--allow-partial` | 配 `--verify`：接受不完整验收，`partial` 也退出 0（交付说明里必须写明哪几项没验） | 关 |
 | `--export` | 逗号分隔：`tailwind,antd,element`——把同一份令牌额外导出成 `tokens.tailwind.js` / `tokens.antd.json` / `tokens.element.scss`，数值与 `tokens.css` 同源 | 关 |
 | `--quiet` | 少打印 | 关 |
 | `--help` / `-h` | 打印用法后退出 | — |
@@ -48,7 +49,8 @@ node scripts/scaffold.mjs --name "南风工单" --out src --pages app,form
 └── *.html               # index / catalog / app / form / auth / states，按 --pages 决定
 ```
 
-退出码：`0` 成功；`2` 参数错（未知人格 / 未知页面名，同时打印可选值）。
+退出码：`0` 成功；`2` 参数错（未知人格 / 未知页面名，同时打印可选值）；
+带 `--verify` 时另有 `1`（有检查没通过）与 `3`（只验了一部分，缺依赖）——`3` 不等于通过，别用 `|| true` 吞掉。
 
 ### 框架版：`--stack react` / `vue` / `all`
 
@@ -92,7 +94,7 @@ src/react/                     src/vue/
 
 两个坑写在生成物 README 里：`NODE_ENV=production` 的终端里 `npm install` 会跳过 devDependencies（用 `npm install --include=dev`）；
 `{{TODO: …}}` 在 JSX 里会被当成对象字面量，所以生成物统一走 `todo('…')` 函数。
-**生成物已过 `audit.mjs` 的明暗双主题验证**：五套人格 × 六类页面 × 明暗 = 30 组，0 error / 0 warn / 0 axe 违规（v1.13.1 复跑，`node scripts/selfcheck.mjs` 一条命令可复现）；令牌对比度门每个 113 组 / 0 组未达标。
+**生成物已过 `audit.mjs` 的明暗双主题验证**：五套人格 × 六类页面 × 明暗 = 60 组，0 error / 0 warn / 0 axe 违规（`node scripts/selfcheck.mjs` 一条命令可复现）；令牌对比度门每个 113 组 / 0 组未达标。
 但它只保证「层级、间距、状态、可访问性」这些硬骨头，文案全是 `{{TODO: ...}}` 占位——
 你的活是把它们换成真内容（见 `references/copy-and-content.md`），别直接当成品交付。
 
@@ -104,35 +106,38 @@ src/react/                     src/vue/
 
 ```bash
 node scripts/selfcheck.mjs              # 全跑（没有 playwright 时自动跳过审计）
-node scripts/selfcheck.mjs --skip-audit # 只跑语法 + 生成 + 对比度 + 文档数字 + 版本号，秒级，CI 用
+node scripts/selfcheck.mjs --skip-audit # 只跑参数语义 + 语法 + 生成 + 对比度 + 文档数字 + 版本号，秒级，CI 用
 npm run selfcheck                       # 同上，走 package.json 里的脚本
 node scripts/selfcheck.mjs --keep       # 保留临时目录，方便看生成物
 ```
 
-六步，任何一步失败都以非 0 退出：
+八步，任何一步失败都以非 0 退出：
 
 | 步骤 | 做什么 | 失败含义 |
 | --- | --- | --- |
+| 参数语义 | 纯断言（不需要浏览器）：MSYS 路径还原 5 条、按页 `--expect-text` 3 条 | `lib/common.mjs` 的参数解析被改坏了 |
 | 语法 | `node --check` 所有 `scripts/*.mjs`、`python -m py_compile` 所有 `scripts/*.py` | 改脚本时手滑了 |
-| 生成 | 五套人格 × 六类页面（含 `--dark`）各生成一遍，检查 13 个产物文件齐 | `scaffold.mjs` 坏了 |
+| 生成 | 五套人格 × 六类页面各生成一遍，检查 13 个产物文件齐 | `scaffold.mjs` 坏了 |
 | 对比度 | 对每套生成物跑 `contrast_check.py`，有未达标即失败 | 令牌改暗了/改浅了 |
-| 审计 | 内置静态服务 + `audit.mjs --themes light,dark`，30 组都要 `0 错误 / 0 警告` | 生成物出现了 a11y 回归 |
+| 审计 | 内置静态服务 + `audit.mjs --themes light,dark`，60 组都要 `0 错误 / 0 警告` | 生成物出现了 a11y 回归 |
+| 流程 | 用 `flow.example.json` 对骨架跑一遍完整交互，确认步骤/断言/报告链路没坏 | `flow.mjs` 坏了 |
 | 文档数字 | 见下 | 站点数 / 均值在文档里漂了 |
 | 版本号 | `package.json` 的 version 与 README 徽标 / 安装示例 /「当前是」、`install.sh` 示例、CHANGELOG 首条逐一比对 | 发版时漏改某处，按文档判版本的人读到旧号 |
 
-第五步「文档数字」以 `references/design-evidence.md` 的「采集成功 N 个站 / A 组 N」为准，扫五个文件
-（`README.md`、`SKILL.md`、`references/design-evidence.md`、`references/craft-floor.md`、`references/visual-system.md`）
+第七步「文档数字」以 `references/design-evidence.md` 的「采集成功 N 个站 / A 组 N」为准，扫七份文档
+（`README.md`、`SKILL.md`、`references/design-evidence.md`、`references/craft-floor.md`、`references/visual-system.md`、
+`docs/reference-sites.md`、`docs/scripts.md`）
 里的四种写法——`N 个真实站`、`N 个实测站点`、`N 站实测`、`A 组 N`——任何一处与样本头不一致即失败。
 
 这一项是补出来的：这类数字在本项目已经漂过三次，且都漂在「换个说法就绕过检查」上——
 `visual-system.md` 整个文件不在扫描范围；`craft-floor.md` 里那种「数字 + 站实测」的连写不匹配旧正则，躲过了两版检查。
 **要么统一写法，要么改检查，别指望记得住。**
 
-第六步「版本号」同理：版本号手写在五处，README 元信息曾连续两个版本停在 `v1.9.2`，两次替换都没命中。
+第八步「版本号」同理：版本号手写在五处，README 元信息曾连续两个版本停在 `v1.9.2`，两次替换都没命中。
 它只比对「应当等于当前版本」的写法——README 徽标、`--ref` 示例、「当前是 vX.Y.Z」、`install.sh` 示例、CHANGELOG 首条；
 历史条目里的旧版本号不参与比对。
 
-CI 在 `.github/workflows/selfcheck.yml`：推 PR 时跑 fast 路径（不装浏览器），手动触发跑完整 30 组审计。
+CI 在 `.github/workflows/selfcheck.yml`：推 PR 时跑 fast 路径（不装浏览器），手动触发跑完整 60 组审计。
 ### screenshot.mjs — 多视口 / 多主题全页截图
 
 **用途**：一次拍齐 3 视口 × 2 主题，自动滚动触发懒加载，记录 console 错误与 CLS。
@@ -159,7 +164,7 @@ node scripts/screenshot.mjs --url http://localhost:5173/ --viewports 1440x900,83
 | --- | --- | --- |
 | `--url` | 必填（或 `--pages`） | 页面地址（完整 URL） |
 | `--base` | – | 站点根地址；`--pages` 里的 `/orders` 会拼到它后面 |
-| `--pages` | – | 逗号分隔的路径/URL（`/orders,/settings`），或一个 `.txt` 清单文件（每行一条，`#` 注释） |
+| `--pages` | – | 逗号分隔的路径/URL（`/orders,/settings`），或一个 `.txt` 清单文件（每行一条，`#` 注释）；Windows 下的路径坑见下方「坑」 |
 | `--out` | `shots` | 输出目录（同时写入 `manifest.json`） |
 | `--viewports` | `desktop,tablet,mobile` | 内置 `desktop` 1440×900、`tablet` 768×1024、`mobile` 390×844（`isMobile` + `hasTouch`）；也可写 `1440x900` 自定义 |
 | `--themes` | `light` | `light` / `dark`，可组合；只传一个时不加后缀，传两个时文件名带 `-light` / `-dark` |
@@ -174,6 +179,8 @@ node scripts/screenshot.mjs --url http://localhost:5173/ --viewports 1440x900,83
 **深色模式怎么强制**：`--themes dark` 不只用 `prefers-color-scheme`，还会同时给 `<html>` 打 `.dark` 类、`data-theme="dark"`、`data-color-mode="dark"`，所以三种常见切主题写法（CSS 类 / data 属性 / 媒体查询）都能出图。三种都不是、截出来还是白的 → 这个站点确实没做深色，别假装支持。
 
 **坑**：全页截图依赖自动滚动触发懒加载；如果图还是空白，说明图片由脚本异步渲染，加大 `--wait`。
+
+**坑（Windows / Git Bash）**：在 Git Bash、MSYS2、Cygwin 里写 `--pages /,/orders`，shell 会把 `/orders` 当成 POSIX 绝对路径改写成 `C:/Program Files/Git/orders` 再传进来，脚本再按 URL 解析就成了 `file:///…`，报 `ERR_FILE_NOT_FOUND`。脚本现在能认出 Git for Windows / PortableGit / MSYS2 / Cygwin 这几种安装根并自动还原（会在 stderr 打一条 `WARN`），但最稳的写法是**去掉前导斜杠**：`--pages index.html,orders`；要站点根路径就写 `--pages .`。或者显式加 `MSYS_NO_PATHCONV=1`。PowerShell / cmd 不受影响。
 
 ---
 
@@ -191,6 +198,9 @@ node scripts/audit.mjs --url http://localhost:5173/orders --expect-text "订单�
 # 多页 + 登录态
 node scripts/audit.mjs --base http://localhost:5173 --pages /,/orders --themes light,dark --storage-state auth.json
 
+# 多页 + 每页各自的期望文案（用 | 按 --pages 顺序对应，段数必须一致）
+node scripts/audit.mjs --base http://localhost:5173 --pages /,/orders --expect-text "工作台|订单列表"
+
 # 只跑结构检查，跳过 axe（想更快时）
 node scripts/audit.mjs --url http://localhost:5173/ --no-axe
 ```
@@ -200,7 +210,7 @@ node scripts/audit.mjs --url http://localhost:5173/ --no-axe
 | `--url` / `--pages` / `--base` | 必填 | 语义同 `screenshot.mjs`；`--base` + `--pages /a,/b` 最省事 |
 | `--viewports` | `desktop,tablet,mobile` | 移动端才做点击区检查 |
 | `--themes` | `light` | 建议 `light,dark` |
-| `--expect-text` | – | 页面 `innerText` 必须包含的文案（区分大小写）；用于抓"被重定向回登录页" |
+| `--expect-text` | – | 页面 `innerText` 必须包含的文案（区分大小写）；用于抓"被重定向回登录页"。多页时用 `\|` 按页对应（`--pages /a,/b --expect-text "A 页文案\|B 页文案"`，段数必须等于页数）；只写一段表示所有页共用——多页下必然误报，别这么用 |
 | `--storage-state` | – | `auth.mjs` 产出的登录态 |
 | `--reduced-motion` | 关 | 以 `reduce` 偏好渲染，并额外检查仍在无限循环的动画 |
 | `--axe` | 开 | `--no-axe` 关闭 WCAG 检测（只跑结构检查） |
@@ -230,6 +240,87 @@ node scripts/audit.mjs --url http://localhost:5173/ --no-axe
 - axe 只跑 **WCAG 2.1 A/AA** 规则集（`wcag2a`、`wcag2aa`、`wcag21a`、`wcag21aa`），跳过 best-practice，避免刷屏。
 - `audit-report.json` 里每条违规都带 `helpUrl` 与命中节点的 HTML 片段，能直接定位。
 - **退出码：有 error 时为 1**，可直接当 CI 门禁。
+
+---
+
+### flow.mjs — 交互流程验收（点得通吗）
+
+**用途**：把「登录 → 填表 → 提交 → 出现成功提示」跑一遍，失败时告诉你第几步、哪个选择器、现场长什么样。
+只回答「这条路径能不能走通」——**不做测试框架**：没有断言库、没有重试策略、没有网络拦截、没有多标签页，要那些用 Playwright Test。
+
+```bash
+# 一条登录流程，深色主题走一遍
+node scripts/flow.mjs --flow login.json --base http://localhost:5173 --theme dark
+
+# 从某页开始，每步都截图（交付留证据）
+node scripts/flow.mjs --flow order.json --url http://localhost:5173/orders --screenshot
+
+# 失败不中断，一次看全所有问题
+node scripts/flow.mjs --flow order.json --base http://localhost:5173 --continue
+
+# 调选择器：有头模式 + 每步慢 300ms
+node scripts/flow.mjs --flow order.json --base http://localhost:5173 --headed --slow 300
+```
+
+`login.json`：
+
+```json
+{
+  "name": "登录并进入工单列表",
+  "start": "/login",
+  "steps": [
+    { "fill": "#email", "value": "qa@example.com" },
+    { "fill": "#password", "value": "secret" },
+    { "click": "button[type=submit]" },
+    { "expectUrl": "/dashboard", "desc": "登录后跳到工作台" },
+    { "expectText": "工单列表" }
+  ]
+}
+```
+
+**动作**（每步只能有一个）：
+
+| 动作 | 写法 | 说明 |
+| --- | --- | --- |
+| `goto` | `"url"` 或 `{ "url": "/orders", "waitUntil": "load" }` | 相对路径要配 `--base` |
+| `click` | `"selector"` 或 `{ "selector": "...", "nth": 0 }` | 默认点第一个匹配 |
+| `fill` | `{ "selector": "#title", "value": "..." }`，也可平铺 `{ "fill": "#title", "value": "..." }` | |
+| `select` | `{ "selector": "#type", "label": "故障" }` 或给 `value` | 按可见文本或 value 选 |
+| `press` | `"Enter"` 或 `{ "key": "Escape", "selector": ".modal" }` | 给了 selector 会先聚焦 |
+| `wait` | `{ "ms": 500 }` 或 `{ "selector": ".spinner", "hidden": true }` | |
+| `expectText` | `"文案"`（整页）或 `{ "text": "...", "selector": ".toast" }` | 轮询到超时 |
+| `expectVisible` / `expectHidden` | `"selector"` | |
+| `expectUrl` | `"片段"` | `url().includes()` |
+| `expectCount` | `{ "selector": "tr", "value": 6 }`，或给 `min` / `max` | 三者至少一个 |
+| `expectValue` | `{ "selector": "#email", "value": "..." }` | 防受控组件没接住输入 |
+| `screenshot` | `"文件名"` | 整页图，落在 `--out` |
+
+通用字段：`timeout`（覆盖 `--timeout`）、`desc`（失败日志里显示）、`optional`（失败不拦路，汇总里单列）。
+
+**参数**
+
+| 参数 | 默认 | 说明 |
+| --- | --- | --- |
+| `--flow` | 必填 | 流程 JSON；也可以直接传一个步骤数组 |
+| `--base` | – | 站点根，`goto` / `start` 的相对路径拼到它后面 |
+| `--url` | – | 起点（优先于 JSON 里的 `start`） |
+| `--viewport` | `desktop` | `desktop` / `tablet` / `mobile` / `1440x900` |
+| `--theme` | `light` | `dark` 会同时打 `.dark` / `data-theme` / `prefers-color-scheme` |
+| `--timeout` | `5000` | 每步超时 ms |
+| `--out` | `.design/flow` | 报告与截图目录 |
+| `--continue` | 关 | 失败后继续跑余下步骤 |
+| `--screenshot` | 关 | 每步都截图（默认只在失败与显式 `screenshot` 步骤截图） |
+| `--slow` | `0` | 每步之间等 ms，调选择器时用 |
+| `--headed` | 关 | 有头浏览器 |
+| `--storage-state` | – | `auth.mjs` 导出的登录态；流程里就不必再登一次 |
+
+**产物**：`<out>/flow-report.json`（每步 `index` / `action` / `target` / `ok` / `ms` / `error` / `screenshot`）+ `<out>/*.png`；失败必截 `fail-<序号>.png`。
+
+**退出码**：`0` 全过 / `1` 有步骤失败 / `2` 参数或流程文件错误（**开跑前**就校验并列出第几步缺什么，不会跑到一半才崩）。
+
+**边界**：不做断言库、不做重试、不做网络拦截、不做多标签页；需要参数化、fixture、并行时转 Playwright Test。这里只保证「一条真实用户路径能走通，并留下证据」。
+
+`scripts/flow.example.json` 是可直接跑的示例（对 scaffold 生成的骨架做冒烟），`selfcheck.mjs` 用它守着这条链路。
 
 ---
 
@@ -431,6 +522,7 @@ python scripts/pixel_diff.py --design a.png --impl b.png --threshold 0.08 --grid
 | --- | --- | --- | --- |
 | `screenshot.mjs` | `--url` 或 `--pages` | `--themes light,dark`、`--viewports`、`--storage-state`、`--out` | 有页面截图失败（记在 `manifest.failed`） |
 | `audit.mjs` | `--url` 或 `--pages` | `--themes light,dark`、`--expect-text`、`--no-axe`、`--reduced-motion` | 有 error 级问题 |
+| `flow.mjs` | `--flow` | `--base`、`--theme dark`、`--continue`、`--screenshot`、`--headed` | 有步骤失败（标了 `optional` 的不算） |
 | `auth.mjs` | `--url` | `--out`、`--force` | 导出失败 |
 | `contrast_check.py` | 无（默认扫 cwd） | `--json`、`--dir`、`--fg/--bg`、`--strict` | 有未达标项 |
 | `crop_logo.py` | 输入图片 | `--trim --pad`、`--format square --side`、`--check` | 处理失败 |

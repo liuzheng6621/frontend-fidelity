@@ -16,7 +16,6 @@
  *   --base               站点根地址，把 --pages 的相对路径拼成绝对 URL
  *   --out                输出目录，默认 shots
  *   --name               文件名前缀（默认由 URL 推导）；多页时自动加页面名后缀防覆盖
- *   --name               文件名前缀（默认由 URL 推导）
  *   --viewports          desktop,tablet,mobile（默认三档全跑）
  *   --themes             light,dark（默认 light）
  *   --storage-state      登录态文件，用 scripts/auth.mjs 生成
@@ -43,7 +42,7 @@ import {
   listArg,
   loadChromium,
   parseArgs,
-  readPages,
+  resolvePages,
   slugify,
   watchPage,
   writeJson,
@@ -56,22 +55,15 @@ async function main() {
     wait: '1200',
   });
 
+  const baseUrl = args.base && args.base !== true ? String(args.base).replace(/\/+$/, '') + '/' : '';
+
   const urls = [];
   if (args.url && args.url !== true) urls.push(String(args.url));
   if (args.pages && args.pages !== true) {
     // --pages 既可以是 .txt 清单文件，也可以是逗号分隔的路径/URL：--pages /,/about,/pricing
-    const raw = String(args.pages);
-    const isFile = /\.(txt|list|paths)$/i.test(raw) && !raw.includes(',');
-    if (isFile) {
-      urls.push(...(await readPages(raw)));
-    } else {
-      urls.push(
-        ...raw
-          .split(',')
-          .map((s) => s.trim())
-          .filter(Boolean),
-      );
-    }
+    const { targets: pageTargets, warnings } = await resolvePages(String(args.pages), { baseUrl });
+    for (const w of warnings) console.warn(`${MARK.warn} ${w}`);
+    urls.push(...pageTargets);
   }
   if (urls.length === 0) {
     console.error('必须提供 --url <url>，或 --pages <逗号分隔路径|page-list.txt>');
@@ -93,9 +85,6 @@ async function main() {
 
   const outDir = path.resolve(String(args.out || 'shots'));
   await mkdir(outDir, { recursive: true });
-
-  // --base http://127.0.0.1:5173 + --pages /,/about  → 绝对 URL
-  const baseUrl = args.base && args.base !== true ? String(args.base).replace(/\/+$/, '') + '/' : '';
 
   let chromium;
   try {

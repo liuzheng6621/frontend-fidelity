@@ -1,0 +1,18 @@
+{
+  "name": "骨架冒烟：列表 → 新建工单 → 填表",
+  "start": "app.html",
+  "steps": [
+    { "expectText": "示例产品", "desc": "确认进的是骨架首页而不是登录页" },
+    { "expectCount": { "selector": ".table tbody tr", "min": 3 }, "desc": "列表至少 3 行数据" },
+    { "click": "a[href='./form.html']", "desc": "从侧栏进新建页" },
+    { "expectUrl": "form.html" },
+    { "fill": "#f-title", "value": "导出报表时超时", "desc": "标题必填项" },
+    { "select": "#f-type", "label": "故障" },
+    { "fill": "#f-desc", "value": "点击导出后 30 秒无响应，控制台无报错" },
+    { "fill": "#f-email", "value": "qa@example.com" },
+    { "expectValue": { "selector": "#f-title", "value": "导出报表时超时" }, "desc": "回读输入值，防受控组件没接住" },
+    { "press": "Tab", "desc": "键盘走一步，确认没被 tabindex=-1 拦住" },
+    { "expectVisible": "button[type=submit]" },
+    { "screenshot": "form-filled" }
+  ]
+}

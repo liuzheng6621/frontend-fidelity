@@ -45,10 +45,13 @@ node scripts/run_checks.mjs            # 仅当项目有 package.json；静态�
 `warn`（文本裁切、点击区过小、字号过小、CLS 偏高、axe moderate）逐条看过，能修就修，
 不修要在交付说明里写明原因。`hygiene.mjs` 的结果一律是「待确认」，不是「可以删」。
 
-`--base http://localhost:5173` + `--pages /,/orders,/settings`（相对路径批量跑，省得写全 URL）、
+`--base http://localhost:5173` + `--pages /,/orders,/settings`（相对路径批量跑，省得写全 URL；
+Git Bash / MSYS2 下前导斜杠会被改写成 `C:/Program Files/Git/…`，改用 `--pages .,orders,settings`
+或加 `MSYS_NO_PATHCONV=1`）、
 `--themes light,dark`（dark 会同时打上 `.dark` 类、`data-theme="dark"` 与 `prefers-color-scheme`，
 三种切主题写法都能出图）、`--storage-state auth.json`、`--reduced-motion`、
-`--expect-text "订单列表"`（确认没被重定向到登录页）这些参数按需组合。详细参数见 `README.md`。
+`--expect-text "订单列表"`（确认没被重定向到登录页；多页时用 `|` 按页对应 `"工作台|订单列表"`，
+段数必须等于页数，只写一段会被所有页共用从而误报）这些参数按需组合。详细参数见 `README.md`。
 
 ---
 
@@ -134,7 +137,9 @@ node scripts/scaffold.mjs --persona rational --export tailwind,antd,element  # �
 深色令牌**默认生成**（主题开关不是死按钮），要关掉用 `--no-dark`。
 `--ref-url` / `--ref-json` 把探针实测值（品牌色相、底色、字号阶梯、控件高、圆角、密度）盖到人格字段上，逼近 80%，剩下 20% 改 `tokens.css`。
 `--export tailwind,antd,element` 生成 `tokens.tailwind.js` / `tokens.antd.json` / `tokens.element.scss`，数值与 `tokens.css` 同源。
-`--verify` 生成后自动起服务跑 `audit.mjs`（明暗双主题）+ `contrast_check.py`，报告在 `<out>/.verify/report.json`，失败退出码非 0。
+`--verify` 生成后自动起服务跑 `audit.mjs`（明暗双主题）+ `contrast_check.py`，报告在 `<out>/.verify/report.json`。
+退出码 **0** 通过 / **1** 有检查未过 / **3** 只验了一部分（缺 python 或 playwright，**不当通过**；
+确实要接受不完整验收再加 `--allow-partial`）。
 
 ### 3. 改令牌，不是改样式
 

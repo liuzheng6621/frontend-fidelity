@@ -4,9 +4,11 @@
  *
  * 它按顺序做这些检查，任何一步失败都以非 0 退出：
  *   1. 语法：node --check 所有 scripts/*.mjs；python -m py_compile 所有 scripts/*.py
- *   2. 生成：五套人格 × 六类页面（含 --dark）各生成一遍到临时目录
+ *   0. 参数语义：MSYS 路径还原、按页 expect-text、python 探测（纯断言，不需要浏览器）
+ *   2. 生成：五套人格 × 六类页面各生成一遍到临时目录
  *   3. 对比度：对每个生成物跑 contrast_check.py，不达标即失败
  *   4. 审计：装了 playwright 就起本地服务跑 audit.mjs（明暗双主题），没有就跳过并说明
+ *   4.2 流程：用示例 flow 跑一遍 skeleton，确认 flow.mjs 的步骤/断言/报告链路没坏
  *   4.5 框架栈：`--stack all` 生成 React/Vue，逐文件过 TSX/TS 语法 + 类名对齐（CSS 里没有的类名=错）
  *   5. 文档数字：参考库站点数在四份文档里必须一致
  *   6. 版本号：package.json / README / install.sh / CHANGELOG 首条必须同版
@@ -25,8 +27,10 @@ import { basename } from 'node:path';
 import { extname, join, resolve } from 'node:path';
 import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
+import { fileURLToPath } from 'node:url';
+import { resolvePython, undoMsysPath, expectTextsFor } from './lib/common.mjs';
 
-const HERE = new URL('.', import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1');
+const HERE = fileURLToPath(new URL('.', import.meta.url));
 const SCRIPTS = resolve(HERE);
 const ALL_PERSONAS = ['rational', 'editorial', 'warm', 'print', 'magazine'];
 const PAGES = ['landing', 'catalog', 'app', 'form', 'auth', 'states'];
@@ -58,17 +62,37 @@ const pass = (step, msg) => { results.push({ step, ok: true, msg }); console.log
 const fail = (step, msg) => { results.push({ step, ok: false, msg }); console.log(`${C.bad}✗${C.off} ${step} — ${msg}`); };
 const skip = (step, msg) => console.log(`${C.dim}· ${step} 跳过：${msg}${C.off}`);
 
-function hasCmd(cmd, args = ['--version']) {
-  // 不要开 shell：Node >=22 会抛 DEP0190 弃用警告，CI 与 pwsh 都会把它当成失败
+const PYINFO = resolvePython();
+const PY = PYINFO?.cmd || null;
+const PYA = PYINFO?.args || [];
+const pyOk = !!PYINFO;
+
+// ---------- 0. 参数语义 ----------
+{
+  const bad = [];
+  const eq = (a, b, what) => {
+    if (JSON.stringify(a) !== JSON.stringify(b)) bad.push(`${what}：期望 ${JSON.stringify(b)}，实际 ${JSON.stringify(a)}`);
+  };
+
+  eq(undoMsysPath('C:/Program Files/Git/index.html'), '/index.html', 'undoMsysPath 默认安装根');
+  eq(undoMsysPath('c:/Users/x/AppData/Local/Programs/PortableGit/orders/detail'), '/orders/detail', 'undoMsysPath PortableGit 子路径');
+  eq(undoMsysPath('C:/msys64/home/u/repo/index.html'), '/home/u/repo/index.html', 'undoMsysPath msys2');
+  eq(undoMsysPath('C:/Users/git/proj/index.html'), null, 'undoMsysPath 不误伤用户名 git');
+  eq(undoMsysPath('/index.html'), null, 'undoMsysPath 不动正常相对路径');
+
+  eq(expectTextsFor('工单', 2), { all: '工单' }, 'expectTextsFor 单段=全局');
+  eq(expectTextsFor('首页|工单', 2), { perPage: ['首页', '工单'] }, 'expectTextsFor 按页对应');
+  let threw = false;
   try {
-    const r = spawnSync(cmd, args, { stdio: 'ignore' });
-    return r.status === 0;
+    expectTextsFor('a|b|c', 2);
   } catch {
-    return false;
+    threw = true;
   }
+  if (!threw) bad.push('expectTextsFor 段数与页数不符时应抛错');
+
+  if (bad.length) fail('参数语义', bad.join(' | '));
+  else pass('参数语义', 'MSYS 路径还原 5 条 + 按页 expect-text 3 条');
 }
-const PY = process.platform === 'win32' ? 'python' : 'python3';
-const pyOk = hasCmd(PY);
 
 // ---------- 1. 语法 ----------
 {
@@ -87,7 +111,7 @@ const pyOk = hasCmd(PY);
   else {
     const bad = [];
     for (const f of pys) {
-      const r = spawnSync(PY, ['-m', 'py_compile', join(SCRIPTS, f)], { encoding: 'utf8' });
+      const r = spawnSync(PY, [...PYA, '-m', 'py_compile', join(SCRIPTS, f)], { encoding: 'utf8' });
       if (r.status !== 0) bad.push(`${f}: ${(r.stderr || '').split('\n')[0]}`);
     }
     if (bad.length) fail('语法 python', bad.join(' | '));
@@ -103,7 +127,7 @@ const generated = [];
   const bad = [];
   for (const p of personas) {
     const dir = join(outDir, p);
-    const r = spawnSync(process.execPath, [scaffold, '--persona', p, '--pages', PAGES.join(','), '--dark', '--out', dir, '--quiet'], { encoding: 'utf8' });
+    const r = spawnSync(process.execPath, [scaffold, '--persona', p, '--pages', PAGES.join(','), '--out', dir, '--quiet'], { encoding: 'utf8' });
     if (r.status !== 0) { bad.push(`${p}: exit ${r.status} ${(r.stderr || '').split('\n')[0]}`); continue; }
     const missing = ['tokens.css', 'base.css', 'components.css', 'depth.css', 'catalog.css', 'ui.js', ...PAGES_HTML].filter((f) => !existsSync(join(dir, f)));
     if (missing.length) bad.push(`${p}: 缺 ${missing.join(',')}`);
@@ -122,7 +146,7 @@ const generated = [];
     const bad = [];
     let total = 0;
     for (const g of generated) {
-      const r = spawnSync(PY, [contrast, g.dir], { encoding: 'utf8', env: { ...process.env, PYTHONIOENCODING: 'utf-8' } });
+      const r = spawnSync(PY, [...PYA, contrast, g.dir], { encoding: 'utf8', env: { ...process.env, PYTHONIOENCODING: 'utf-8' } });
       const tail = ((r.stdout || '') + (r.stderr || '')).split('\n').filter((l) => l.includes('合计')).pop() || '';
       const m = tail.match(/合计：(\d+) 组，(\d+) 组未达标/);
       if (r.status !== 0 || (m && Number(m[2]) > 0)) bad.push(`${g.persona}: ${tail.trim() || 'exit ' + r.status}`);
@@ -145,14 +169,30 @@ else if (!playwrightPath) skip('审计', '没有 playwright（npm i -D playwrigh
 else if (!generated.length) skip('审计', '没有生成物');
 else {
   const MIME = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.json': 'application/json; charset=utf-8', '.svg': 'image/svg+xml' };
-  const server = createServer(async (req, res) => {
-    try {
-      const p = decodeURIComponent((req.url || '/').split('?')[0]);
-      const file = resolve(outDir, '.' + p);
-      if (!file.startsWith(resolve(outDir))) { res.writeHead(403).end(); return; }
-      const body = await readFile(file);
-      res.writeHead(200, { 'content-type': MIME[extname(file)] || 'application/octet-stream' }).end(body);
-    } catch { res.writeHead(404).end('not found'); }
+  // 生成物统共几十 KB，启动时全读进内存：60 组审计反复读同一批文件，
+  // 走磁盘既慢，又会在 Windows 上偶发 readFile 失败 —— 那会被 catch 成 404，
+  // 页面缺 CSS 直接炸出一片假错误（20 error + 1 HTTP，且只随机命中一套）。
+  const cache = new Map();
+  const preload = (dir, prefix = '') => {
+    for (const e of readdirSync(dir, { withFileTypes: true })) {
+      const abs = join(dir, e.name);
+      const urlPath = `${prefix}/${e.name}`;
+      if (e.isDirectory()) preload(abs, urlPath);
+      else if (MIME[extname(e.name)]) {
+        try {
+          cache.set(urlPath, { body: readFileSync(abs), type: MIME[extname(e.name)] });
+        } catch {
+          /* 读不到就不进缓存，请求时自然 404 */
+        }
+      }
+    }
+  };
+  preload(outDir);
+  const server = createServer((req, res) => {
+    const p = decodeURIComponent((req.url || '/').split('?')[0]);
+    const hit = cache.get(p);
+    if (!hit) { res.writeHead(404).end('not found'); return; }
+    res.writeHead(200, { 'content-type': hit.type }).end(hit.body);
   });
   await new Promise((r) => server.listen(0, '127.0.0.1', r));
   const port = server.address().port;
@@ -171,6 +211,22 @@ else {
     }
     pass('审计', bad.length ? '' : `${generated.length} 套 × ${PAGES.length} 页 × 明暗 = ${combos} 组 0 错误 / 0 警告`);
     if (bad.length) fail('审计', bad.join(' | '));
+
+    // 流程验收：拿示例 flow 跑一遍骨架，确保 flow.mjs 自身没坏（复用同一台静态服务）
+    {
+      const g0 = generated[0];
+      const fout = join(outDir, 'flow');
+      const fr = await runNodeAsync([
+        join(SCRIPTS, 'flow.mjs'),
+        '--flow', join(SCRIPTS, 'flow.example.json'),
+        '--base', `http://127.0.0.1:${port}/${g0.persona}`,
+        '--out', fout,
+      ]);
+      const tail = (fr.out || '').split('\n').filter((l) => l.includes('合计')).pop() || '';
+      const m = tail.match(/共 (\d+) 步/);
+      if (fr.status === 0) pass('流程', `示例流程 ${m ? m[1] + ' 步' : ''}全过（${g0.persona}）`);
+      else fail('流程', (tail.trim() || `exit ${fr.status}`).slice(0, 200));
+    }
   } finally {
     server.close();
   }

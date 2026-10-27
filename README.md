@@ -6,7 +6,7 @@
 > 搜这些词应该能到这：设计稿转代码、照着截图还原、UI 还原、前端验收、截图对比、后台美化、移动端适配、设计令牌、Claude Code 技能（skill）。
 > 目标不是"改好看"，而是**让界面和它声称的样子一致，并且真的能用——改完能拿出证据**。
 
-`v1.15.3` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `12 个可执行脚本（9 个 Node + 3 个 Python）`
+`v1.15.5` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `13 个可执行脚本（10 个 Node + 3 个 Python）`
 
 ---
 
@@ -38,7 +38,7 @@ curl -fsSL https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/ra
 bash install.sh --target claude          # 只装 Claude Code
 bash install.sh --target dsh             # 只装 DSH
 bash install.sh --dir ~/my-skills        # 装到自定义目录
-bash install.sh --ref v1.15.3            # 锁定某个版本
+bash install.sh --ref v1.15.5            # 锁定某个版本
 bash install.sh --dry-run                # 只看会装到哪，不动文件
 ```
 
@@ -66,9 +66,42 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 
 全部原始数值、样本清单和失败样本在 [`references/design-evidence.md`](references/design-evidence.md)。
 
+## 能力评级与国内定位
+
+**先说口径**：这是自评，不是第三方认证。每条结论都指向仓库里能跑出来的数字或能打开的文件，标准写在表里——不同意可以按同一张表复核。
+
+### 评级：A
+
+| 维度 | 现状 | 怎么核对 |
+| --- | --- | --- |
+| 可执行验收 | **13 个脚本**（10 Node + 3 Python）6,318 行，全部用退出码表达结论 | `ls scripts/*.mjs scripts/*.py`、`wc -l scripts/*` |
+| 参考数据 | 25 个真实站的浏览器实测 + 14 份单站蒸馏，`references/` 共 26 份 8,332 行 | `wc -l references/*.md` |
+| 自检闭环 | **八步**：参数语义 / 语法 / 生成 / 565 组对比度 / 60 组审计 / 流程冒烟 / 文档数字 / 版本一致性 | `npm run selfcheck` |
+| 文档可操作性 | 入口 125 行 + 参考 26 份 + 手册 3 份（1,178 行），每个脚本都有参数 / 退出码 / 产物 | `SKILL.md`、`docs/scripts.md` |
+| 边界诚实度 | 明写不做什么（测试框架 / Figma / 小程序原生 / 默认视觉回归门禁），红旗清单 8 条 | 本文「适用与不适用」、`review-rubric.md` |
+
+没给 A+ 的两个理由，都写在明面上：
+
+1. **没有移动端页面模板**——`scaffold` 的六类页面全是桌面形态，底部 tab / 安全区 / sheet 生成不出来。移动端的实测数据其实有（`design-evidence.md` 里记了 390 单列、gap 12、底部 tab 4 项），但没落到生成器里。
+2. **电商结算、多步表单没有参考依据**——`auth.html` / `form.html` 有页面骨架，没有对应的实测数值支撑。
+
+### 国内定位：第一梯队（不宣称名次）
+
+没有权威榜单可依据，所以这里**不写「国内第 N」**——任何具体名次都无法核实，写进 README 就是假数据。
+
+能给的是可核对的量级：公开可见的 Agent skill 绝大多数是「一份 `SKILL.md` + 若干 markdown」，自带 3 个以上可执行脚本的都少见。本项目是 13 个脚本 6,318 行 + 26 份参考 8,332 行 + 八步自检，按这个量级，在国内公开的前端 / UI 类 skill 里属于第一梯队。
+
+真正少见的是三件事同时成立：
+
+- **能生成**：`scaffold` 五套人格 × 六类页面 × 深色令牌，可出 React / Vue；
+- **能验收**：截图 / WCAG 审计 / 对比度 / 交互流程 / 像素比对，五项都有可执行脚本和明确退出码；
+- **有基准**：所有数值能回溯到 25 个站的浏览器实测，不是「感觉这样好看」。
+
+限定条件：这个判断基于公开 skill 的常见形态，不是穷举统计；样本范围一变，结论也会变。
+
 ## 该抄哪份参考
 
-先看这张表：**按你手上的页面类型选一份，别从头读二十一份。**
+先看这张表：**按你手上的页面类型选一份，别从头读二十六份。**
 
 | 你在做什么 | 抄这份 | 从这里拿走什么 |
 | --- | --- | --- |
@@ -95,6 +128,7 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 
 - [30 秒安装](#30-秒安装)
 - [它到底量大到什么程度](#它到底量大到什么程度)
+- [能力评级与国内定位](#能力评级与国内定位)
 - [该抄哪份参考](#该抄哪份参考)
 - [这是什么](#这是什么)
 - [适用与不适用](#适用与不适用)
@@ -105,6 +139,7 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 - [五步工作流（模式 A：整改与还原）](#五步工作流模式-a整改与还原)
 - [从 0 生成（模式 B）](#从-0-生成模式-b)
 - [像素级还原验收](#像素级还原验收)
+- [交互流程验收](#交互流程验收)
 - [脚本手册](#脚本手册)
 - [参考站蒸馏](#参考站蒸馏)
 - [交付验收清单](#交付验收清单)
@@ -118,7 +153,7 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 
 ## 这是什么
 
-一个**把前端做对**的技能包，两条路都走：**先把已有界面整改/还原到位**，**也能从 0 生成一套能验收的骨架**。内含一份给 agent 读的操作手册（`SKILL.md`）+ 二十六份参考数据（14 份单站蒸馏 + 8 份通用规格 + 1 份跨站实测 + 2 份外部规则集 + 1 份工作流，`references/`）+ 九个能直接跑的脚本（`scripts/`）。
+一个**把前端做对**的技能包，两条路都走：**先把已有界面整改/还原到位**，**也能从 0 生成一套能验收的骨架**。内含一份给 agent 读的操作手册（`SKILL.md`）+ 二十六份参考数据（14 份单站蒸馏 + 8 份通用规格 + 1 份跨站实测 + 2 份外部规则集 + 1 份工作流，`references/`）+ 十个能直接跑的脚本（`scripts/`）。
 
 它解决的是这类问题：
 
@@ -254,7 +289,7 @@ git clone https://gitee.com/liu-everything_impossble/skill-frontend-fidelity.git
 
 从 [Releases](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) 下载 `frontend-fidelity.zip`，解压到同名目录即可，内容与 git 版本一致。
 包由 `git archive` 从 tag 生成，不含 `__pycache__`、截图目录与本地缓存。
-当前是 [v1.15.3](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/tag/v1.15.3)。
+当前是 [v1.15.5](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/tag/v1.15.5)。
 
 ### 方式三：只取脚本
 
@@ -318,11 +353,12 @@ frontend-fidelity/
 │   ├── visual-system.md         # 视觉与结构细则完整版（从 SKILL.md 下沉的 15 节）
 │   └── review-rubric.md          # 交付前十节验收清单（含红旗清单）
 ├── package.json                  # 只声明 devDependency playwright 与 npm run selfcheck
-├── .github/workflows/           # CI：语法 + 生成 + 对比度（装了浏览器时再跑 30 组审计）
+├── .github/workflows/           # CI：语法 + 生成 + 对比度（装了浏览器时再跑 60 组审计）
 └── scripts/
-    ├── scaffold.mjs              # 从 0 生成骨架：五套人格 + 深度三派 + 六类页面 + 生成期对比度自检 + --ref-url / --ref-json 量站或复用实测覆盖人格 + --verify 生成即验收 + --export 多体系令牌
+    ├── scaffold.mjs              # 从 0 生成骨架：五套人格 + 深度三派 + 六类页面 + 生成期对比度自检 + --ref-url / --ref-json 量站或复用实测覆盖人格 + --verify 生成即验收（pass/fail/partial 三态退出码）+ --export 多体系令牌
     ├── screenshot.mjs            # 多视口 × 多主题全页截图
     ├── audit.mjs                 # 结构 + axe WCAG 2.1 A/AA + CLS + 动效
+    ├── flow.mjs                  # 交互流程验收：声明式 JSON（goto/click/fill/断言），逐步结果 + 失败现场截图
     ├── fidelity.mjs              # 像素级还原验收：设计稿 vs 实现（自动截图 + 差异热力 + 三联图）
     ├── pixel_diff.py             # 上面的比对引擎（Pillow + numpy，可单独用）
     ├── auth.mjs                  # 有头浏览器人工登录，导出 auth.json
@@ -331,6 +367,7 @@ frontend-fidelity/
     ├── hygiene.mjs               # 无引用组件/资源/样式、重复路由、超大资源
     ├── run_checks.mjs            # 跑项目自带的 lint/typecheck/test/build
     ├── probe-ref.mjs             # 量任意参考站的真实字体/配色/圆角/间距
+    ├── flow.example.json         # flow.mjs 的示例流程（对 scaffold 骨架冒烟，selfcheck 用它守着）
     ├── lib/common.mjs            # 共享工具
     └── vendor/axe.min.js         # axe-core 4.14.0（MPL-2.0）
 ```
@@ -468,15 +505,57 @@ node scripts/fidelity.mjs --design design/home.png --url http://localhost:5173/ 
 
 ---
 
+## 交互流程验收
+
+审计能证明「结构对、对比度够、没溢出」，但证明不了「点提交有没有反应」。`scripts/flow.mjs` 补这一段：用一份声明式 JSON 把真实用户路径跑一遍，失败时告诉你第几步、哪个选择器、现场长什么样。
+
+```bash
+# 一条登录流程，深色主题走一遍
+node scripts/flow.mjs --flow login.json --base http://localhost:5173 --theme dark
+
+# 每步都截图，交付时一起给出去
+node scripts/flow.mjs --flow order.json --base http://localhost:5173 --screenshot
+
+# 失败不中断，一次看全所有问题
+node scripts/flow.mjs --flow order.json --base http://localhost:5173 --continue
+```
+
+`login.json`：
+
+```json
+{
+  "name": "登录并进入工单列表",
+  "start": "login.html",
+  "steps": [
+    { "fill": "#email", "value": "qa@example.com" },
+    { "fill": "#password", "value": "secret" },
+    { "click": "button[type=submit]" },
+    { "expectUrl": "/dashboard", "desc": "登录后跳到工作台" },
+    { "expectText": "工单列表" }
+  ]
+}
+```
+
+13 个动作：`goto` / `click` / `fill` / `select` / `press` / `wait` / `expectText` / `expectVisible` / `expectHidden` / `expectUrl` / `expectCount` / `expectValue` / `screenshot`。每步可加 `timeout`、`desc`、`optional`。完整动作表与参数见 [`docs/scripts.md`](docs/scripts.md)。
+
+产物：`<out>/flow-report.json`（每步 `ok` / `ms` / `error` / 截图名）+ 截图，失败必截 `fail-<序号>.png`。退出码 **0** 全过 / **1** 有步骤失败（标了 `optional` 的不算）/ **2** 流程文件写错——写错在开跑前就列出来，不会跑到一半才崩。
+
+两件它**不做**的事，别指望：不做断言库、不做重试与网络拦截。需要参数化、fixture、并行时用 Playwright Test。它只回答一个问题：这条路径现在还能不能走通。
+
+`scripts/flow.example.json` 是可直接跑的示例（对 scaffold 骨架冒烟），`selfcheck.mjs` 用它守着这条链路。
+
+---
+
 ## 脚本手册
 
-九个 Node 脚本 + 三个 Python 工具，每个的参数、示例、退出码与产物见 [`docs/scripts.md`](docs/scripts.md)。一句话速览：
+十个 Node 脚本 + 三个 Python 工具，每个的参数、示例、退出码与产物见 [`docs/scripts.md`](docs/scripts.md)。一句话速览：
 
 | 脚本 | 干什么 |
 | --- | --- |
 | `scaffold.mjs` | 从 0 生成骨架：五套人格 × 六类页面 × 深色令牌，可出 React/Vue 框架版 |
 | `screenshot.mjs` | 多视口 × 多主题全页截图，记录 CLS 与控制台错误 |
 | `audit.mjs` | 结构 + axe WCAG 2.1 A/AA + CLS + 动效审计 |
+| `flow.mjs` | 交互流程验收：声明式 JSON 跑「登录 → 填表 → 成功提示」，失败给第几步 + 现场截图 |
 | `fidelity.mjs` | 像素级还原验收（设计稿 vs 实现） |
 | `auth.mjs` | 有头浏览器登录，导出 auth.json |
 | `contrast_check.py` | 对比度审计，支持 oklch / color-mix / Tailwind v4 |
@@ -485,7 +564,7 @@ node scripts/fidelity.mjs --design design/home.png --url http://localhost:5173/ 
 | `hygiene.mjs` | 找无引用资源、重复路由、超大资源 |
 | `run_checks.mjs` | 跑项目自带的 lint/typecheck/test/build |
 | `probe-ref.mjs` | 量参考站的真实字体/配色/圆角/间距 |
-| `selfcheck.mjs` | 改技能本身之后的自检（语法 + 生成 + 对比度 + 审计 + 文档数字） |
+| `selfcheck.mjs` | 改技能本身之后的自检（参数语义 + 语法 + 生成 + 对比度 + 审计 + 流程 + 文档数字 + 版本号） |
 
 视觉细则的常用速查在 [`docs/visual-summary.md`](docs/visual-summary.md)，完整版在 [`references/visual-system.md`](references/visual-system.md)。
 
@@ -536,6 +615,7 @@ node scripts/fidelity.mjs --design design/home.png --url http://localhost:5173/ 
 - [ ] 390px 主操作在下 1/3，点击区 ≥ 44×44
 - [ ] Logo 比例正确、深色可见、favicon 正常
 - [ ] before / after 截图都留了，能指给评审看
+- [ ] 涉及提交 / 跳转 / 弹窗 / 异步加载的改动，`flow.mjs` 跑过一遍（没跑要写明原因）
 - [ ] 交付说明四段齐全，关键改善有量化
 
 **红旗（出现就别交付）**：只做浅色 / 只做 1440 / 只做 happy path；审计非 0 却说"基本没问题"；删组件没核实引用；用 `outline: none` 换"更干净"；深色是反色得来的没校验对比度；只有一张手动截图；构建本来就红却当理由。
@@ -633,7 +713,7 @@ stages:
 
 **`scaffold.mjs` 需要 playwright 吗** —— 不需要，纯 node 零依赖。只有截图与审计脚本需要。
 
-**Windows 下路径怎么写** —— 脚本内部用 `path` 处理，命令行里写 `E:/proj/src` 或 `E:\\proj\\src` 都行；含空格的路径要加引号。
+**Windows 下路径怎么写** —— 脚本内部用 `path` 处理，命令行里写 `E:/proj/src` 或 `E:\\proj\\src` 都行；含空格的路径要加引号。**但 Git Bash / MSYS2 / Cygwin 里要小心 `--pages /orders`**：shell 会把 `/orders` 当成 POSIX 绝对路径改写成 `C:/Program Files/Git/orders`，脚本再按 URL 解析就成了 `file:///…`，报 `ERR_FILE_NOT_FOUND`，而报错完全指不到真因。脚本现在能认出 Git for Windows / PortableGit / MSYS2 / Cygwin 的安装根并自动还原（stderr 打一条 `WARN`），但最稳的写法是**去掉前导斜杠**：`--pages index.html,orders`；要站点根路径写 `--pages .`；或显式加 `MSYS_NO_PATHCONV=1`。PowerShell / cmd 不受影响。
 
 **为什么不直接跑 Lighthouse** —— Lighthouse 是页面性能/SEO 报告，视角是"浏览器怎么评价这个页面"；这里要的是"这次改动有没有把界面做坏"：横向溢出、Logo 拉伸、点击区、文本裁切、对比度令牌、无引用资源，这些它不管。两者互补，不冲突。
 
