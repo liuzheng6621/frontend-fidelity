@@ -289,7 +289,7 @@ git clone https://gitee.com/liu-everything_impossble/skill-frontend-fidelity.git
 
 从 [Releases](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) 下载 `frontend-fidelity.zip`，解压到同名目录即可，内容与 git 版本一致。
 包由 `git archive` 从 tag 生成，不含 `__pycache__`、截图目录与本地缓存。
-当前是 [v1.15.5](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/tag/v1.15.5)。
+当前是 [v1.15.5](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest)。
 
 ### 方式三：只取脚本
 
