@@ -4,6 +4,16 @@
 `frontend-fidelity.zip`，由 `git archive` 从 Tag 快照生成，只含被 git 跟踪的文件
 （不含 `shots/`、`audit-report.json`、`.design/`）。
 
+## v1.15.1 - 2026-10-27
+
+### 修复
+
+- **版本号指针漂移**：README 徽标已经是 v1.15.0，但安装示例、「当前是」链接与 `install.sh` 注释还停在 v1.14.0，
+  按文档判版本的人会读到旧号（此前 README 元信息曾连续两版停在 v1.9.2，两次替换都没命中）。全部对齐到本版。
+  `docs/scripts.md` 里的「v1.14.0 实测」是历史测量记录，不是版本指针，不参与对齐。
+- **`selfcheck.mjs` 增加第六步「版本号」**：`package.json` 的 version 与 README 徽标 / 安装示例 /「当前是」、
+  `install.sh` 示例、CHANGELOG 首条逐一比对，漏改一处即非 0 退出。已反向验证：把徽标改成一个与 `package.json` 不同的版本号时退出码 1。
+
 ## v1.15.0 - 2026-10-27
 
 ### 新增
