@@ -1,12 +1,12 @@
 # frontend-fidelity · 前端保真度
 
 > 把界面做对、做实，两条路都走：**已有界面**——按设计稿/截图还原，或把现存页面整改到位（后台管理端、移动 H5/小程序、多端一致性、Logo 与品牌资产）；**还没有界面**——从 0 生成一套能验收的骨架（令牌 + 组件 + 六类页面），再往上填真内容与业务状态。
-> 参考库是 **25 个真实站的实测数据 + 十四份单站蒸馏**（营销 / 工具站 / SaaS 首页 / 编辑内容首页 / 技术社区 feed / 品牌产品舞台 / 密版图墙 / 疏版图墙 / 陈列页 / 灵感库 / 风格库 / 杂志目录 / B 端工具工作区 / 动效），外加**两份外部规则集蒸馏**（工艺底线 / 反模板清单）；按页面类型对到具体文件，见 [该抄哪份参考](#该抄哪份参考)。
-> **计数口径**：25 个实测站 = **A 组 22**（14 营销/产品 + 8 内容陈列）+ **B 组 3 后台工具站**。跨站统计的均值/带宽冻结在原来的 18 站基线（A 组）上——2026-10-27 新增的 4 个中文站只入站数与单站条目，不重算中位数；所以文档里出现「18 站基线」不等于总数，总数永远是 25 / A 组 22——这是本项目最容易漂的一处，`selfcheck.mjs` 会盯。
+> 参考库是 **27 个真实站的实测数据 + 十六份单站蒸馏**（营销 / 工具站 / SaaS 首页 / 编辑内容首页 / 技术社区 feed / 品牌产品舞台 / 密版图墙 / 疏版图墙 / 陈列页 / 灵感库 / 风格库 / 杂志目录 / B 端工具工作区 / 认证注册 / 电商商品配置 / 动效），外加**两份外部规则集蒸馏**（工艺底线 / 反模板清单）；按页面类型对到具体文件，见 [该抄哪份参考](#该抄哪份参考)。
+> **计数口径**：27 个实测站 = **A 组 24**（16 营销/产品/电商 + 8 内容陈列）+ **B 组 3 后台工具站**。跨站统计的均值/带宽冻结在原来的 18 站基线（A 组）上——2026-10-27 新增的 6 个站（4 中文 + 认证/电商各 1）只入站数与单站条目，不重算中位数；所以文档里出现「18 站基线」不等于总数，总数永远是 27 / A 组 24——这是本项目最容易漂的一处，`selfcheck.mjs` 会盯。
 > 搜这些词应该能到这：设计稿转代码、照着截图还原、UI 还原、前端验收、截图对比、后台美化、移动端适配、设计令牌、Claude Code 技能（skill）。
 > 目标不是"改好看"，而是**让界面和它声称的样子一致，并且真的能用——改完能拿出证据**。
 
-`v1.15.5` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `13 个可执行脚本（10 个 Node + 3 个 Python）`
+`v1.15.6` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `13 个可执行脚本（10 个 Node + 3 个 Python）`
 
 ---
 
@@ -38,7 +38,7 @@ curl -fsSL https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/ra
 bash install.sh --target claude          # 只装 Claude Code
 bash install.sh --target dsh             # 只装 DSH
 bash install.sh --dir ~/my-skills        # 装到自定义目录
-bash install.sh --ref v1.15.5            # 锁定某个版本
+bash install.sh --ref v1.15.6            # 锁定某个版本
 bash install.sh --dry-run                # 只看会装到哪，不动文件
 ```
 
@@ -53,7 +53,7 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 
 ## 它到底量大到什么程度
 
-25 个真实站（A 组 22 + 3 后台工具站）在浏览器里逐元素量出来的，不是猜的：
+27 个真实站（A 组 24 + 3 后台工具站）在浏览器里逐元素量出来的，不是猜的：
 
 | 量的是什么 | 结果 |
 | --- | --- |
@@ -75,9 +75,9 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 | 维度 | 现状 | 怎么核对 |
 | --- | --- | --- |
 | 可执行验收 | **13 个脚本**（10 Node + 3 Python）6,318 行，全部用退出码表达结论 | `ls scripts/*.mjs scripts/*.py`、`wc -l scripts/*` |
-| 参考数据 | 25 个真实站的浏览器实测 + 14 份单站蒸馏，`references/` 共 26 份 8,332 行 | `wc -l references/*.md` |
+| 参考数据 | 27 个真实站的浏览器实测 + 16 份单站蒸馏，`references/` 共 28 份 8,643 行 | `wc -l references/*.md` |
 | 自检闭环 | **八步**：参数语义 / 语法 / 生成 / 565 组对比度 / 60 组审计 / 流程冒烟 / 文档数字 / 版本一致性 | `npm run selfcheck` |
-| 文档可操作性 | 入口 125 行 + 参考 26 份 + 手册 3 份（1,178 行），每个脚本都有参数 / 退出码 / 产物 | `SKILL.md`、`docs/scripts.md` |
+| 文档可操作性 | 入口 125 行 + 参考 28 份 + 手册 3 份（1,178 行），每个脚本都有参数 / 退出码 / 产物 | `SKILL.md`、`docs/scripts.md` |
 | 边界诚实度 | 明写不做什么（测试框架 / Figma / 小程序原生 / 默认视觉回归门禁），红旗清单 8 条 | 本文「适用与不适用」、`review-rubric.md` |
 
 没给 A+ 的两个理由，都写在明面上：
@@ -89,19 +89,19 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 
 没有权威榜单可依据，所以这里**不写「国内第 N」**——任何具体名次都无法核实，写进 README 就是假数据。
 
-能给的是可核对的量级：公开可见的 Agent skill 绝大多数是「一份 `SKILL.md` + 若干 markdown」，自带 3 个以上可执行脚本的都少见。本项目是 13 个脚本 6,318 行 + 26 份参考 8,332 行 + 八步自检，按这个量级，在国内公开的前端 / UI 类 skill 里属于第一梯队。
+能给的是可核对的量级：公开可见的 Agent skill 绝大多数是「一份 `SKILL.md` + 若干 markdown」，自带 3 个以上可执行脚本的都少见。本项目是 13 个脚本 6,318 行 + 28 份参考 8,643 行 + 八步自检，按这个量级，在国内公开的前端 / UI 类 skill 里属于第一梯队。
 
 真正少见的是三件事同时成立：
 
 - **能生成**：`scaffold` 五套人格 × 六类页面 × 深色令牌，可出 React / Vue；
 - **能验收**：截图 / WCAG 审计 / 对比度 / 交互流程 / 像素比对，五项都有可执行脚本和明确退出码；
-- **有基准**：所有数值能回溯到 25 个站的浏览器实测，不是「感觉这样好看」。
+- **有基准**：所有数值能回溯到 27 个站的浏览器实测，不是「感觉这样好看」。
 
 限定条件：这个判断基于公开 skill 的常见形态，不是穷举统计；样本范围一变，结论也会变。
 
 ## 该抄哪份参考
 
-先看这张表：**按你手上的页面类型选一份，别从头读二十六份。**
+先看这张表：**按你手上的页面类型选一份，别从头读二十八份。**
 
 | 你在做什么 | 抄这份 | 从这里拿走什么 |
 | --- | --- | --- |
@@ -112,6 +112,8 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 | 目录 / 陈列页：一屏陈列一批**彼此不同**的东西 | [`references/stylekit-design.md`](references/stylekit-design.md) + [css-recipes §16](references/css-recipes.md) | 卡片即预览（真 CSS 不是截图）、6px 四段色板条、通体直角、hover 只两笔 |
 | 灵感库 / 截图站：素材本身就是成品，界面要隐形 | [`references/uinotes-design.md`](references/uinotes-design.md) + [css-recipes §17](references/css-recipes.md) | 不画壳的截图墙、裁切露 1.8 张、48px 数字当标题、2/4/6/16/20/24 线性圆角阶梯 |
 | 后台 / 管理端：列表、表单、详情、空态、权限墙 | [`references/page-patterns.md`](references/page-patterns.md) + [`component-spec.md`](references/component-spec.md) + [`design-tokens.md`](references/design-tokens.md) | 八类页面骨架 + 11 类组件规格 + 五套人格令牌；单站样本没有后台，横向数据看 `design-evidence.md` B 组 |
+| 登录 / 注册 / 多步表单：一屏装完、按钮一列 | [`references/vercel-auth.md`](references/vercel-auth.md) | 390px 表单列（移动撑满减 32）、按钮 40 高配 16px/500、圆角 8/6/4/2/12、间距 8/16/24/32 |
+| 电商商品详情：价格分层、SKU 选择、加购 | [`references/applestore-commerce.md`](references/applestore-commerce.md) | 三层价格（17/600 主价不放大）、36px 圆点 SKU + 文字档位、44 高 CTA、控件高五档 |
 
 动效是另一条横切：动手加任何动画前读 [`references/motion-spec.md`](references/motion-spec.md)（四条底线、时长五档、四条缓动、编排、三档降级、自测四步），可粘贴片段在 [css-recipes §18](references/css-recipes.md)。想让一批卡片"被指针点亮"，直接抄 [`references/holynova-motion.md`](references/holynova-motion.md) + [css-recipes §19](references/css-recipes.md)（聚光描边 + hover 四件套，实测单站）。
 
@@ -122,7 +124,7 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 两条读法上的提醒：
 
 1. **别把"他们的取舍"当规范。** 八份中文内容站（即时设计 / UI 世界 / 站酷 / UI Notes / 少数派 / 语雀 / 掘金 / 苹果）多数用系统字体栈、正文 13–16px——那是它们要在一屏里塞更多东西的代价，不是推荐值。跨站统计的均值（正文 14.8px、H1 72.6px）在 [`design-evidence.md`](references/design-evidence.md)。
-2. **单站样本只证明"可以这么做"，不证明"必须这么做"。** 想要判断某个数值是不是行业常态，去 `design-evidence.md` 看 22 个 A 组站里出现了几次；只在单站出现一次的，一律当作那一家的个性。
+2. **单站样本只证明"可以这么做"，不证明"必须这么做"。** 想要判断某个数值是不是行业常态，去 `design-evidence.md` 看 24 个 A 组站里出现了几次；只在单站出现一次的，一律当作那一家的个性。
 
 ## 目录
 
@@ -153,7 +155,7 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 
 ## 这是什么
 
-一个**把前端做对**的技能包，两条路都走：**先把已有界面整改/还原到位**，**也能从 0 生成一套能验收的骨架**。内含一份给 agent 读的操作手册（`SKILL.md`）+ 二十六份参考数据（14 份单站蒸馏 + 8 份通用规格 + 1 份跨站实测 + 2 份外部规则集 + 1 份工作流，`references/`）+ 十个能直接跑的脚本（`scripts/`）。
+一个**把前端做对**的技能包，两条路都走：**先把已有界面整改/还原到位**，**也能从 0 生成一套能验收的骨架**。内含一份给 agent 读的操作手册（`SKILL.md`）+ 二十八份参考数据（16 份单站蒸馏 + 8 份通用规格 + 1 份跨站实测 + 2 份外部规则集 + 1 份工作流，`references/`）+ 十个能直接跑的脚本（`scripts/`）。
 
 它解决的是这类问题：
 
@@ -200,7 +202,7 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 | `references/workflow.md` | agent（模型） | 模式 A 五步 / 模式 B 六步完整流程、交付说明模板、脚本一览、参考库完整索引（从 SKILL.md 下沉） |
 | `references/visual-system.md` | 双方 | 视觉与结构细则完整版（从 SKILL.md 下沉）：中文排版、色彩、间距、阴影五派、动效、页面结构、控件 8 状态、响应式、深色、可访问性、反模式清单 |
 | `README.md`（本文件） | 人 | 项目介绍、安装、工作流、索引（脚本参数见 `docs/scripts.md`） |
-| `references/design-evidence.md` | 双方 | 25 个实测站点（22 A 组：14 营销/产品 + 8 内容陈列站；另 3 后台）的字体/间距/圆角/密度数值；跨站中位数仍为 18 站基线 |
+| `references/design-evidence.md` | 双方 | 27 个实测站点（24 A 组：16 营销/产品/电商 + 8 内容陈列站；另 3 后台）的字体/间距/圆角/密度数值；跨站中位数仍为 18 站基线 |
 | `references/wegic-design.md` | 双方 | wegic.ai 单站全量蒸馏：完整令牌、塑料按钮、字阶节奏、迁移口径 |
 | `references/jsdesign-design.md` | 双方 | 即时设计 js.design 单站全量蒸馏：冷灰蓝底 + 负扩散阴影、130px 节奏、零 webfont、七处反例 |
 | `references/uishijie-design.md` | 双方 | UI 世界（内容聚合站）单站全量蒸馏：零 gutter 图墙、卡片不画壳、四档字号、七处反例 |
@@ -289,7 +291,7 @@ git clone https://gitee.com/liu-everything_impossble/skill-frontend-fidelity.git
 
 从 [Releases](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) 下载 `frontend-fidelity.zip`，解压到同名目录即可，内容与 git 版本一致。
 包由 `git archive` 从 tag 生成，不含 `__pycache__`、截图目录与本地缓存。
-当前是 [v1.15.5](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest)。
+当前是 [v1.15.6](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest)。
 
 ### 方式三：只取脚本
 
@@ -327,7 +329,7 @@ frontend-fidelity/
 │   └── reference-sites.md        # 参考站蒸馏：招与反面逐站展开
 ├── references/
 │   ├── workflow.md              # 模式 A 五步 / 模式 B 六步完整流程 + 交付模板 + 脚本一览 + 参考库索引（从 SKILL.md 下沉）
-│   ├── design-evidence.md        # 25 个实测站点（22 A 组 + 3 后台）：字体、字阶、行高、间距、圆角、密度
+│   ├── design-evidence.md        # 27 个实测站点（24 A 组 + 3 后台）：字体、字阶、行高、间距、圆角、密度
 │   ├── wegic-design.md           # wegic.ai 单站全量蒸馏：完整令牌 + 塑料按钮 + 迁移口径
 │   ├── jsdesign-design.md        # 即时设计 js.design 单站全量蒸馏：冷灰蓝底 + 负扩散阴影 + 七处反例
 │   ├── uishijie-design.md        # UI 世界（内容聚合站）：零 gutter 图墙 + 卡片不画壳 + 七处反例
@@ -348,6 +350,8 @@ frontend-fidelity/
 │   ├── luckymaomi-catalog.md   # 印刷品外壳：方格纸底 + 墨黑框 + 硬阴影 + 元数据黑条 + 三层展示体系
 │   ├── muzli-gallery.md        # 杂志目录式陈列：左栏目录 + 3 列图版 + 衬线刊头 + 电光蓝 + 零 hover（反面）
 │   ├── mastergo-b2b.md         # B 端工具界面：三栏 300/画布/300 + 属性面板字段语言 + 代码面板 + 整页>组件清单
+│   ├── vercel-auth.md          # 认证注册：390px 表单列 + 40 高按钮 + 五档圆角；对照 Linear 的两档字阶
+│   ├── applestore-commerce.md  # 电商商品配置：三层价格 + 36px 色块 SKU + 44 高 CTA；小米不响应式反例
 │   ├── craft-floor.md            # 工艺底线：九条 verify + 深度三选一 + 原生表面 + 四条冲突裁决
 │   ├── anti-slop.md              # 反模板：三档旋钮 + hero 四条 + 三把锁 + 8 组 AI tell + 34 条 pre-flight
 │   ├── visual-system.md         # 视觉与结构细则完整版（从 SKILL.md 下沉的 15 节）
