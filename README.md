@@ -38,7 +38,7 @@ curl -fsSL https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/ra
 bash install.sh --target claude          # 只装 Claude Code
 bash install.sh --target dsh             # 只装 DSH
 bash install.sh --dir ~/my-skills        # 装到自定义目录
-bash install.sh --ref v1.14.0            # 锁定某个版本
+bash install.sh --ref v1.15.0            # 锁定某个版本
 bash install.sh --dry-run                # 只看会装到哪，不动文件
 ```
 
@@ -254,7 +254,7 @@ git clone https://gitee.com/liu-everything_impossble/skill-frontend-fidelity.git
 
 从 [Releases](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) 下载 `frontend-fidelity.zip`，解压到同名目录即可，内容与 git 版本一致。
 包由 `git archive` 从 tag 生成，不含 `__pycache__`、截图目录与本地缓存。
-当前是 [v1.14.0](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/tag/v1.14.0)。
+当前是 [v1.15.0](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/tag/v1.15.0)。
 
 ### 方式三：只取脚本
 

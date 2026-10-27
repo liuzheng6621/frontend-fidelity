@@ -2,11 +2,14 @@
 /**
  * selfcheck.mjs — 一键自检（给贡献者与 CI 用，不依赖具体项目）
  *
- * 它做五件事，任何一步失败都以非 0 退出：
+ * 它按顺序做这些检查，任何一步失败都以非 0 退出：
  *   1. 语法：node --check 所有 scripts/*.mjs；python -m py_compile 所有 scripts/*.py
  *   2. 生成：五套人格 × 六类页面（含 --dark）各生成一遍到临时目录
  *   3. 对比度：对每个生成物跑 contrast_check.py，不达标即失败
- *   4. 审计：装了 playwright 就起本地服务跑 audit.mjs（明暗双主题），没有就跳过并说明`n *   4.5 框架栈：`--stack all` 生成 React/Vue，逐文件过 TSX/TS 语法 + 类名对齐（CSS 里没有的类名=错）
+ *   4. 审计：装了 playwright 就起本地服务跑 audit.mjs（明暗双主题），没有就跳过并说明
+ *   4.5 框架栈：`--stack all` 生成 React/Vue，逐文件过 TSX/TS 语法 + 类名对齐（CSS 里没有的类名=错）
+ *   5. 文档数字：参考库站点数在四份文档里必须一致
+ *   6. 版本号：package.json / README / install.sh / CHANGELOG 首条必须同版
  *
  * 用法：
  *   node scripts/selfcheck.mjs                 # 全跑（无 playwright 时自动跳过审计）
@@ -262,6 +265,35 @@ else {
     if (bad.length) fail('文档数字', [...new Set(bad)].join(' | '));
     else pass('文档数字', `${wantAll} 个站 / A 组 ${wantA} 四处一致`);
   }
+}
+
+// ---------- 6. 版本号一致 ----------
+// 版本号手写在 package.json / README 徽标与安装示例 / install.sh / CHANGELOG 首条。
+// 漏改一处，按文档判版本的人就会读到旧号——README 元信息曾连续两个版本停在 v1.9.2。
+{
+  const ROOT = resolve(SCRIPTS, '..');
+  const read = (rel) => readFile(join(ROOT, rel), 'utf8').catch(() => '');
+  let want = '';
+  try { want = JSON.parse(await read('package.json')).version || ''; } catch { /* 下面统一报 */ }
+  const bad = [];
+  if (!want) bad.push('package.json 读不到 version');
+  else {
+    const targets = {
+      'README.md': [/^`v(\d+\.\d+\.\d+)`/m, /--ref v(\d+\.\d+\.\d+)/, /当前是 \[v(\d+\.\d+\.\d+)\]/],
+      'install.sh': [/--ref v(\d+\.\d+\.\d+)/],
+      'CHANGELOG.md': [/^## v(\d+\.\d+\.\d+)/m],
+    };
+    for (const [rel, regs] of Object.entries(targets)) {
+      const text = await read(rel);
+      if (!text) continue;
+      for (const re of regs) {
+        const m = text.match(re);
+        if (m && m[1] !== want) bad.push(`${rel}: v${m[1]} 应为 v${want}`);
+      }
+    }
+  }
+  if (bad.length) fail('版本号', [...new Set(bad)].join(' | '));
+  else pass('版本号', `package.json / README / install.sh / CHANGELOG 首条均为 v${want}`);
 }
 
 // ---------- 汇总 ----------

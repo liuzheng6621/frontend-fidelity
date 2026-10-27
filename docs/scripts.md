@@ -104,12 +104,12 @@ src/react/                     src/vue/
 
 ```bash
 node scripts/selfcheck.mjs              # 全跑（没有 playwright 时自动跳过审计）
-node scripts/selfcheck.mjs --skip-audit # 只跑语法 + 生成 + 对比度 + 文档数字，秒级，CI 用
+node scripts/selfcheck.mjs --skip-audit # 只跑语法 + 生成 + 对比度 + 文档数字 + 版本号，秒级，CI 用
 npm run selfcheck                       # 同上，走 package.json 里的脚本
 node scripts/selfcheck.mjs --keep       # 保留临时目录，方便看生成物
 ```
 
-五步，任何一步失败都以非 0 退出：
+六步，任何一步失败都以非 0 退出：
 
 | 步骤 | 做什么 | 失败含义 |
 | --- | --- | --- |
@@ -118,6 +118,7 @@ node scripts/selfcheck.mjs --keep       # 保留临时目录，方便看生成�
 | 对比度 | 对每套生成物跑 `contrast_check.py`，有未达标即失败 | 令牌改暗了/改浅了 |
 | 审计 | 内置静态服务 + `audit.mjs --themes light,dark`，30 组都要 `0 错误 / 0 警告` | 生成物出现了 a11y 回归 |
 | 文档数字 | 见下 | 站点数 / 均值在文档里漂了 |
+| 版本号 | `package.json` 的 version 与 README 徽标 / 安装示例 /「当前是」、`install.sh` 示例、CHANGELOG 首条逐一比对 | 发版时漏改某处，按文档判版本的人读到旧号 |
 
 第五步「文档数字」以 `references/design-evidence.md` 的「采集成功 N 个站 / A 组 N」为准，扫五个文件
 （`README.md`、`SKILL.md`、`references/design-evidence.md`、`references/craft-floor.md`、`references/visual-system.md`）
@@ -126,6 +127,10 @@ node scripts/selfcheck.mjs --keep       # 保留临时目录，方便看生成�
 这一项是补出来的：这类数字在本项目已经漂过三次，且都漂在「换个说法就绕过检查」上——
 `visual-system.md` 整个文件不在扫描范围；`craft-floor.md` 里那种「数字 + 站实测」的连写不匹配旧正则，躲过了两版检查。
 **要么统一写法，要么改检查，别指望记得住。**
+
+第六步「版本号」同理：版本号手写在五处，README 元信息曾连续两个版本停在 `v1.9.2`，两次替换都没命中。
+它只比对「应当等于当前版本」的写法——README 徽标、`--ref` 示例、「当前是 vX.Y.Z」、`install.sh` 示例、CHANGELOG 首条；
+历史条目里的旧版本号不参与比对。
 
 CI 在 `.github/workflows/selfcheck.yml`：推 PR 时跑 fast 路径（不装浏览器），手动触发跑完整 30 组审计。
 ### screenshot.mjs — 多视口 / 多主题全页截图
