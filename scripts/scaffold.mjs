@@ -44,7 +44,7 @@ if (has('help') || has('h')) {
   --pages landing,app,form,auth,states  要生成哪些页面（默认 landing,app）
   --stack html|react|vue|all          额外生成哪个框架版本（默认 html，只出静态页）
   --accent <hue 0-360>                覆盖品牌色相
-  --dark                              额外生成 .dark 令牌块
+  --no-dark                           不生成 .dark 令牌块（默认生成，主题开关才有效）
   --name <字符串>                      产品名（默认「示例产品」）
   --quiet                             少打印
 `);
@@ -198,7 +198,7 @@ if (!P) {
 const accentHue = Number(arg('accent', P.accentHue));
 const outDir = path.resolve(arg('out', 'ui-scaffold'));
 const pages = (arg('pages', 'landing,app') || '').split(',').map((s) => s.trim()).filter(Boolean);
-const withDark = has('dark');
+const withDark = has('no-dark') ? false : true; // 默认带深色令牌：主题开关不该是死按钮
 const quiet = has('quiet');
 const NAME = arg('name', '示例产品');
 

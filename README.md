@@ -5,7 +5,7 @@
 > 搜这些词应该能到这：设计稿转代码、照着截图还原、UI 还原、前端验收、截图对比、后台美化、移动端适配、设计令牌、Claude Code 技能（skill）。
 > 目标不是"改好看"，而是**让界面和它声称的样子一致，并且真的能用——改完能拿出证据**。
 
-`v1.13.3` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `9 个可执行脚本`
+`v1.14.0` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `9 个可执行脚本`
 
 ---
 
@@ -37,7 +37,7 @@ curl -fsSL https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/ra
 bash install.sh --target claude          # 只装 Claude Code
 bash install.sh --target dsh             # 只装 DSH
 bash install.sh --dir ~/my-skills        # 装到自定义目录
-bash install.sh --ref v1.13.3            # 锁定某个版本
+bash install.sh --ref v1.14.0            # 锁定某个版本
 bash install.sh --dry-run                # 只看会装到哪，不动文件
 ```
 
@@ -104,6 +104,7 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 - [仓库结构](#仓库结构)
 - [五步工作流（模式 A：整改与还原）](#五步工作流模式-a整改与还原)
 - [从 0 生成（模式 B）](#从-0-生成模式-b)
+- [像素级还原验收](#像素级还原验收)
 - [脚本手册](#脚本手册)
   - [scaffold.mjs — 从 0 生成前端骨架](#scaffoldmjs--从-0-生成前端骨架)
   - [screenshot.mjs — 多视口 / 多主题全页截图](#screenshotmjs--多视口--多主题全页截图)
@@ -313,7 +314,7 @@ frontend-fidelity/
 │   ├── component-spec.md         # 11 类组件规格：三档密度、尺寸、对齐、禁忌
 │   ├── design-tokens.md          # 五套人格预设、深度三派、色阶生成算法、字阶、圆角阴影配对、暗色推导
 │   ├── copy-and-content.md       # 文案规格：标题公式、按钮动词、空/错/载公式、占位写法
-│   ├── css-recipes.md            # 设计令牌 / 表格 / 骨架屏 / 空态 / 深色 / 六个站的风味片段（第 12–17 节）
+│   ├── css-recipes.md            # 设计令牌 / 表格 / 骨架屏 / 空态 / 深色 / 九个站的风味片段（第 12–22 节）
 │   ├── motion-spec.md            # 动效规格：四条底线 + 时长五档 + 四条缓动 + 编排 + 三档降级 + 自测
 │   ├── holynova-motion.md       # 单站动效案例：23 条 transition + 3 个 keyframes + 聚光描边卡 + hover 四件套
 │   ├── luckymaomi-catalog.md   # 印刷品外壳：方格纸底 + 墨黑框 + 硬阴影 + 元数据黑条 + 三层展示体系
@@ -329,6 +330,8 @@ frontend-fidelity/
     ├── scaffold.mjs              # 从 0 生成骨架：五套人格 + 深度三派 + 六类页面 + 生成期对比度自检
     ├── screenshot.mjs            # 多视口 × 多主题全页截图
     ├── audit.mjs                 # 结构 + axe WCAG 2.1 A/AA + CLS + 动效
+├── fidelity.mjs              # 像素级还原验收：设计稿 vs 实现（自动截图 + 差异热力 + 三联图）
+├── pixel_diff.py             # 上面的比对引擎（Pillow + numpy，可单独用）
     ├── auth.mjs                  # 有头浏览器人工登录，导出 auth.json
     ├── contrast_check.py         # 对比度审计，支持 oklch / color-mix / Tailwind v4
     ├── crop_logo.py              # 品牌图裁边、方形化、导出尺寸
@@ -432,6 +435,43 @@ node scripts/audit.mjs --url http://localhost:5173/ --themes light,dark
 
 ---
 
+## 像素级还原验收
+
+「照着设计稿做完了没有」不该靠眼睛投票。`scripts/fidelity.mjs` 把设计稿和真实渲染逐像素比一次，给出可贴进验收记录的数字。
+
+```bash
+# 设计稿 vs 本地页面（自动截图，默认 1440×900、DPR 1）
+node scripts/fidelity.mjs --design design/home.png --url http://localhost:5173/
+
+# 移动端 + 深色 + 整页
+node scripts/fidelity.mjs --design design/home@390.png --url http://localhost:5173/ --viewport mobile --dpr 2 --theme dark --full
+
+# 已经有实现截图：直接比
+node scripts/fidelity.mjs --design design/home.png --impl shots/after.png --max-diff 0.01
+```
+
+输出（终端 + 三个产物）：
+
+| 指标 | 含义 | 建议门槛 |
+| --- | --- | --- |
+| `平均差` | 每像素最大通道差的均值（0–255） | 参考量，不单独卡 |
+| `超阈值像素` | 差异 > `--threshold`（默认 12%）的像素占比 | **还原类 ≤ 2%**，微调 ≤ 0.5% |
+| `最差 N 个区域` | 按 16×12 网格排序的区域，含设计稿坐标 bbox | 逐个看，通常立刻能指出是哪块没做对 |
+
+产物落在 `.design/fidelity/`：`fidelity-diff.png`（设计稿压暗 + 超阈处红）、`fidelity-side.png`（设计稿 / 实现 / 差异三联）、`fidelity-report.json`（机器可读，可进 CI）。
+
+退出码 **0** 达人 / **1** 差异超标 / **2** 参数或环境错误 —— 可以直接当门用：
+
+```bash
+node scripts/fidelity.mjs --design design/home.png --url http://localhost:5173/ --max-diff 0.02 || echo "还原度不达标，别交付"
+```
+
+两个必须注意的点：
+
+1. **两边截图方式要一致**（都整页或都首屏）。不一致会报 `⚠ 尺寸不一致（缩放 1.000×1.049）`，此时的差异被缩放放大，不代表实现有问题。
+2. **深色/多主题**用 `--theme dark`，它会在页面脚本之前写入 `localStorage['ui-theme']` 并带上 `prefers-color-scheme`，框架版（React/Vue）能真正以该主题启动；只改 `data-theme` 属性对已挂载的组件无效。
+
+比对引擎是纯 Python（Pillow + numpy），不需要浏览器；`--impl` 模式下整条链路只依赖 Python，可以进任何 CI。
 ## 脚本手册
 
 ### scaffold.mjs — 从 0 生成前端骨架
@@ -492,19 +532,22 @@ node scripts/scaffold.mjs --persona rational --stack all   --pages landing,app,c
 ```
 src/react/                     src/vue/
 ├── package.json  tsconfig.json   ├── package.json  tsconfig.json  env.d.ts
+├── tailwind.preset.js  tailwind.css  ← Tailwind 桥（v3 用 preset / v4 用 @theme）
 ├── vite.config.ts  index.html    ├── vite.config.ts  index.html
 └── src/                          └── src/
     ├── main.tsx  App.tsx             ├── main.ts  App.vue
-    ├── lib/{cx,theme}.ts             ├── lib/{cx,theme}.ts
+    ├── lib/{cx,theme,api}.ts         ├── lib/{cx,theme,api}.ts   ← api.ts：fetchJson + useAsync（三态 + 竞态保护）
     ├── styles/{index,tokens,base,components,depth,catalog}.css   ← 与 html 版逐字节相同
     ├── ui/{Button,Form,Surface,Data,Overlay}.tsx + index.ts      ← Vue 是 19 个单文件组件
     └── pages/{Dashboard,Catalog}.tsx                             ← 各含 mock 数据与「{{TODO}}」
 ```
 
+生态位：`react-router-dom` / `vue-router` 真路由（`/`、`/catalog`，深链可直达，服务端记得配 history fallback）；`src/lib/api.ts` 给统一取数与三态；`tailwind.preset.js` / `tailwind.css` 把设计令牌映射成 Tailwind 主题（项目已有 Tailwind 时直接接）；深色令牌**默认生成**，主题开关可用（要关用 `--no-dark`）。
+
 组件只做 props → className 的映射（`<Button variant="primary" size="sm">` → `class="btn btn--primary btn--sm"`），
 没有一处 `<style>`、没有样式库、没有 CSS-in-JS——所以**框架版与 html 版像素一致，改令牌两边同时变**。
 
-已验证到什么程度（v1.13.3 实测，命令可复现）：
+已验证到什么程度（v1.14.0 实测，命令可复现）：
 
 | 关卡 | 结果 |
 | --- | --- |

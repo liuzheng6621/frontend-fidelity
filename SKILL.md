@@ -43,6 +43,8 @@ license: MIT
 | `scripts/run_checks.mjs` | 跑项目自带的 lint/typecheck/test/build | 交付前最后一步 |
 | `scripts/scaffold.mjs` | 从 0 生成骨架：五套人格（含印刷/杂志）+ 深度三派 + 六类页面 + 生成期对比度自检；`--stack html\|react\|vue\|all` 出框架版 | 要从零做一个页面/后台/落地页/陈列目录时，先生成再改 |
 | `scripts/selfcheck.mjs` | 一键自检：语法 + 五套人格各生成 6 页 + 对比度 + 30 组审计 + 框架栈语法与类名对齐 | 动过技能本身（脚本/人格/文档数字/框架层）之后 |
+| `scripts/fidelity.mjs` | 像素级还原验收：设计稿 vs 实现，自动截图 + 差异热力 + 三联图 + 退出码 | 「照这张稿做完了没有」要用数字回答时 |
+| `scripts/pixel_diff.py` | 上面的比对引擎（Pillow + numpy，可单独用） | 已有两张图、只想要差异报告 |
 | `scripts/probe-ref.mjs` | 量任意参考站的真实字体/字阶/配色/圆角/间距/控件高度 | 想「像这个站」但说不清具体数值时 |
 
 最短可用流程（把 `<url>` 换掉）：
@@ -83,6 +85,7 @@ node scripts/run_checks.mjs            # 仅当项目有 package.json；静态�
 
 两条路最后过同一道闸：screenshot.mjs + audit.mjs（项目有 `package.json` 时再加 run_checks.mjs），退出码 0 才算完成。
 `scaffold.mjs` 的生成物是纯静态页、没有 `package.json`，质量门就是「截图 + 审计 + 对比度」三项。
+**还原类任务（有设计稿/参考图）再加第四项：像素级比对** `node scripts/fidelity.mjs --design 设计稿 --url 页面`，超阈值像素占比 ≤ 2%（`--max-diff`）才算「照着做对了」；输出三联图（设计稿 / 实现 / 差异热力）直接贴进验收记录。
 
 ## 工作流
 
@@ -163,7 +166,8 @@ node scripts/scaffold.mjs --persona magazine --pages catalog                 # �
 node scripts/scaffold.mjs --persona rational --stack react --pages app        # 出 React 版（也可 vue / all）
 ```
 
-产出 `tokens.css / base.css / components.css / depth.css / catalog.css / ui.js` + 六类页面，摘要里还会打印**深度语言**（hairline / soft / hard）、动效阶梯与**生成期对比度自检**（三组关键配对，不达标会直接指出来）。`--dark` 决定深色是不是一等公民（不留后路那种才有意义）。
+产出 `tokens.css / base.css / components.css / depth.css / catalog.css / ui.js` + 六类页面，摘要里还会打印**深度语言**（hairline / soft / hard）、动效阶梯
+`--stack react|vue|all` 会额外出前端工程：`react-router-dom` / `vue-router` 真路由（`/` 与 `/catalog`）、`src/lib/api.ts`（`fetchJson` + `useAsync` 三态 + 竞态保护）、`tailwind.preset.js` + `tailwind.css`（Tailwind v4 `@theme` 桥）、深色令牌**默认生成**（主题开关不是死按钮）。深色要关掉用 `--no-dark`。与**生成期对比度自检**（三组关键配对，不达标会直接指出来）。`--dark` 决定深色是不是一等公民（不留后路那种才有意义）。
 
 ### 3. 改令牌，不是改样式
 

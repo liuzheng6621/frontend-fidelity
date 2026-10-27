@@ -15,7 +15,7 @@ const pkgReact = (name) => JSON.stringify({
   version: '0.0.0',
   type: 'module',
   scripts: { dev: 'vite', build: 'tsc -b && vite build', preview: 'vite preview', typecheck: 'tsc --noEmit' },
-  dependencies: { react: '^18.3.1', 'react-dom': '^18.3.1' },
+  dependencies: { react: '^18.3.1', 'react-dom': '^18.3.1', 'react-router-dom': '^6.28.0' },
   devDependencies: { '@types/react': '^18.3.12', '@types/react-dom': '^18.3.1', '@vitejs/plugin-react': '^4.3.4', typescript: '^5.6.3', vite: '^5.4.11' },
 }, null, 2) + '\n';
 
@@ -25,7 +25,7 @@ const pkgVue = (name) => JSON.stringify({
   version: '0.0.0',
   type: 'module',
   scripts: { dev: 'vite', build: 'vue-tsc -b && vite build', preview: 'vite preview', typecheck: 'vue-tsc --noEmit' },
-  dependencies: { vue: '^3.5.13' },
+  dependencies: { vue: '^3.5.13', 'vue-router': '^4.5.0' },
   devDependencies: { '@vitejs/plugin-vue': '^5.2.1', typescript: '^5.6.3', vite: '^5.4.11', 'vue-tsc': '^2.1.10' },
 }, null, 2) + '\n';
 
@@ -77,10 +77,13 @@ function reactFiles({ push, styles, siteName }) {
   push(d + '/src/ui/Data.tsx', REACT_DATA);
   push(d + '/src/ui/Overlay.tsx', REACT_OVERLAY);
   push(d + '/src/ui/index.ts', REACT_BARREL);
+  push(d + '/src/lib/api.ts', REACT_API);
+  push(d + '/tailwind.preset.js', TAILWIND_PRESET);
+  push(d + '/tailwind.css', TAILWIND_THEME);
   push(d + '/src/pages/Dashboard.tsx', REACT_DASHBOARD);
   push(d + '/src/pages/Catalog.tsx', REACT_CATALOG);
-  push(d + '/src/App.tsx', REACT_APP);
-  push(d + '/src/main.tsx', REACT_MAIN);
+  push(d + '/src/App.tsx', REACT_APP_ROUTER);
+  push(d + '/src/main.tsx', REACT_MAIN_ROUTER);
   push(d + '/README.md', readme('React', siteName));
 }
 
@@ -94,12 +97,15 @@ function vueFiles({ push, styles, siteName }) {
   styles(d);
   push(d + '/src/lib/cx.ts', cxTsVue);
   push(d + '/src/lib/theme.ts', VUE_THEME);
+  push(d + '/src/lib/api.ts', VUE_API);
+  push(d + '/tailwind.preset.js', TAILWIND_PRESET);
+  push(d + '/tailwind.css', TAILWIND_THEME);
   for (const [file, body] of Object.entries(VUE_UI)) push(d + '/src/ui/' + file, body);
   push(d + '/src/ui/index.ts', VUE_BARREL);
   push(d + '/src/pages/Dashboard.vue', VUE_DASHBOARD);
   push(d + '/src/pages/Catalog.vue', VUE_CATALOG);
-  push(d + '/src/App.vue', VUE_APP);
-  push(d + '/src/main.ts', VUE_MAIN);
+  push(d + '/src/App.vue', VUE_APP_ROUTER);
+  push(d + '/src/main.ts', VUE_MAIN_ROUTER);
   push(d + '/README.md', readme('Vue', siteName));
 }
 
@@ -1473,4 +1479,208 @@ import App from './App.vue';
 import './styles/index.css';
 
 createApp(App).mount('#root');
+`;/* ------------------------------------------------- 生态桥：router / api / tailwind */
+
+const REACT_APP_ROUTER = `import { NavLink, Route, Routes } from 'react-router-dom';
+import Dashboard from './pages/Dashboard';
+import Catalog from './pages/Catalog';
+
+const NAV = [
+  { to: '/', label: '后台', end: true },
+  { to: '/catalog', label: '目录', end: false },
+];
+
+export default function App() {
+  return (
+    <>
+      <nav className="appswitch" aria-label="视图">
+        <span className="appswitch__label">视图</span>
+        {NAV.map((n) => (
+          <NavLink key={n.to} to={n.to} end={n.end} className="btn btn--ghost btn--sm">
+            {n.label}
+          </NavLink>
+        ))}
+      </nav>
+      <Routes>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/catalog" element={<Catalog />} />
+        <Route path="*" element={<Dashboard />} />
+      </Routes>
+    </>
+  );
+}
+`;
+
+const REACT_MAIN_ROUTER = `import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
+import App from './App';
+import { ThemeProvider } from './lib/theme';
+import './styles/index.css';
+
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    <ThemeProvider>
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+    </ThemeProvider>
+  </StrictMode>,
+);
+`;
+
+const VUE_APP_ROUTER = `<script setup lang="ts">
+import { RouterLink, RouterView } from 'vue-router';
+</script>
+
+<template>
+  <nav class="appswitch" aria-label="视图">
+    <span class="appswitch__label">视图</span>
+    <RouterLink to="/" class="btn btn--ghost btn--sm">后台</RouterLink>
+    <RouterLink to="/catalog" class="btn btn--ghost btn--sm">目录</RouterLink>
+  </nav>
+  <RouterView />
+</template>
+`;
+
+const VUE_MAIN_ROUTER = `import { createApp } from 'vue';
+import { createRouter, createWebHistory } from 'vue-router';
+import App from './App.vue';
+import Dashboard from './pages/Dashboard.vue';
+import Catalog from './pages/Catalog.vue';
+import './styles/index.css';
+
+const router = createRouter({
+  history: createWebHistory(),
+  routes: [
+    { path: '/', name: 'dashboard', component: Dashboard },
+    { path: '/catalog', name: 'catalog', component: Catalog },
+    { path: '/:pathMatch(.*)*', redirect: '/' },
+  ],
+});
+
+createApp(App).use(router).mount('#root');
+`;
+
+const REACT_API = `import { useEffect, useRef, useState } from 'react';
+
+export interface AsyncState<T> {
+  data: T | null;
+  loading: boolean;
+  error: string | null;
+}
+
+/** 统一取数入口：换成真实后端只改这里的前缀与鉴权。 */
+export async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
+  const res = await fetch(url, {
+    ...init,
+    headers: { Accept: 'application/json', ...(init && init.headers) },
+  });
+  if (!res.ok) throw new Error('HTTP ' + res.status + ' ' + res.statusText);
+  return (await res.json()) as T;
+}
+
+/**
+ * 最简数据钩子：三态（loading / error / data）+ 竞态保护。
+ * 项目要是已有 TanStack Query / SWR，把这个文件删掉即可。
+ */
+export function useAsync<T>(load: () => Promise<T>, deps: unknown[]): AsyncState<T> {
+  const [state, setState] = useState<AsyncState<T>>({ data: null, loading: true, error: null });
+  const run = useRef(0);
+  useEffect(() => {
+    const id = ++run.current;
+    setState({ data: null, loading: true, error: null });
+    load().then(
+      (data) => { if (id === run.current) setState({ data, loading: false, error: null }); },
+      (e: unknown) => { if (id === run.current) setState({ data: null, loading: false, error: String(e) }); },
+    );
+    // 依赖由调用方给全，这里只认 deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, deps);
+  return state;
+}
+`;
+
+const VUE_API = `import { ref, watchEffect, type Ref } from 'vue';
+
+export interface AsyncState<T> {
+  data: Ref<T | null>;
+  loading: Ref<boolean>;
+  error: Ref<string | null>;
+}
+
+/** 统一取数入口：换成真实后端只改这里的前缀与鉴权。 */
+export async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
+  const res = await fetch(url, {
+    ...init,
+    headers: { Accept: 'application/json', ...(init && init.headers) },
+  });
+  if (!res.ok) throw new Error('HTTP ' + res.status + ' ' + res.statusText);
+  return (await res.json()) as T;
+}
+
+/** 最简数据组合式：三态 + 自动收集依赖（用 watchEffect）。 */
+export function useAsync<T>(load: () => Promise<T>): AsyncState<T> {
+  const data = ref<T | null>(null) as Ref<T | null>;
+  const loading = ref(true);
+  const error = ref<string | null>(null);
+  watchEffect(async () => {
+    loading.value = true;
+    error.value = null;
+    try {
+      data.value = await load();
+    } catch (e) {
+      error.value = String(e);
+    } finally {
+      loading.value = false;
+    }
+  });
+  return { data, loading, error };
+}
+`;
+
+const TAILWIND_PRESET = `/**
+ * Tailwind preset：把 tokens.css 里的 CSS 变量映射成工具类名。
+ * 用法（tailwind.config.js）：
+ *   const preset = require('./tailwind.preset.js');
+ *   module.exports = { presets: [preset], content: ['./index.html', './src/**/*.{ts,tsx,vue}'] };
+ * Tailwind v4：本目录的 tailwind.css 里已有等价的 @theme 块，@import './tailwind.css' 即可。
+ */
+module.exports = {
+  theme: {
+    extend: {
+      colors: {
+        brand: { DEFAULT: 'var(--brand)', 600: 'var(--brand-600)', fill: 'var(--brand-fill)', ink: 'var(--brand-ink)' },
+        ink: { DEFAULT: 'var(--ink)', 2: 'var(--ink-2)', 3: 'var(--ink-3)', 4: 'var(--ink-4)' },
+        bg: 'var(--bg)',
+        surface: 'var(--surface)',
+        raised: 'var(--raised)',
+        border: 'var(--border)',
+        ok: 'var(--ok)', warn: 'var(--warn)', danger: 'var(--danger)', info: 'var(--info)',
+      },
+      borderRadius: { control: 'var(--r-md)', card: 'var(--r-lg)', pill: 'var(--r-pill)' },
+      fontFamily: { sans: 'var(--font-sans)', display: 'var(--font-display)', mono: 'var(--font-mono)' },
+      boxShadow: { card: 'var(--card-shadow)', hairline: 'var(--hairline)' },
+      transitionTimingFunction: { out: 'var(--ease-out)', spring: 'var(--ease-spring)' },
+    },
+  },
+};
+`;
+
+const TAILWIND_THEME = `/* Tailwind v4 桥：把生成的设计令牌暴露成 Tailwind 主题变量。
+   在入口 CSS 里 @import './tailwind.css';
+   注意 Tailwind v4 的 @theme 需要真实值，这里用 var() 引用 tokens.css，配合 :root 生效。 */
+@theme {
+  --color-brand: var(--brand);
+  --color-brand-600: var(--brand-600);
+  --color-ink: var(--ink);
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-border: var(--border);
+  --radius-control: var(--r-md);
+  --radius-card: var(--r-lg);
+  --font-sans: var(--font-sans);
+  --font-display: var(--font-display);
+  --ease-out-quint: var(--ease-out);
+}
 `;

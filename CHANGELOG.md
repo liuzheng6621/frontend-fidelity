@@ -4,6 +4,41 @@
 `frontend-fidelity.zip`，由 `git archive` 从 Tag 快照生成，只含被 git 跟踪的文件
 （不含 `shots/`、`audit-report.json`、`.design/`）。
 
+## v1.14.0 - 2026-11-09
+
+### 新增
+
+- **`scripts/fidelity.mjs` + `scripts/pixel_diff.py`：像素级还原验收**。`--design` + `--url`（自动截图）或 `--impl`（已有图），
+  输出平均差、超阈值像素占比、按 16×12 网格排序的最差区域（带设计稿坐标），产物三件：
+  `fidelity-diff.png`（设计稿压暗 + 超阈处红）、`fidelity-side.png`（设计稿/实现/差异三联）、`fidelity-report.json`。
+  退出码 0/1/2 可直接当门用；`--theme dark` 在页面脚本之前写 `localStorage` 并带 `prefers-color-scheme`，框架版能真以深色启动。
+  引擎是纯 Python（Pillow + numpy），`--impl` 模式下整条链路不需要浏览器。
+- **框架生态补齐**（`--stack react|vue|all`）：
+  - 真路由：`react-router-dom` / `vue-router`，`/` 与 `/catalog` 深链直达，`*` 兜底。
+  - 数据层：`src/lib/api.ts` —— `fetchJson<T>` + `useAsync<T>`（loading/error/data 三态、竞态保护；Vue 用 `watchEffect`）。
+  - Tailwind 桥：`tailwind.preset.js`（v3 preset，全部指向 `var(--…)`）+ `tailwind.css`（v4 `@theme` 块）。
+  - 依赖：`react-router-dom ^6.28.0` / `vue-router ^4.5.0`。
+
+### 修复
+
+- **深色令牌改为默认生成**：以前要 `--dark` 才有 `.dark` 块，但主题开关一直在页面上——默认状态下它是死按钮。
+  现在默认生成，关掉用 `--no-dark`；`VUE_THEME`/`REACT_THEME` 的 `localStorage['ui-theme']` 与 `data-theme` 双向同步。
+- `E:\SKIl.1\.tools\serve.mjs`（工具侧，不在仓库）：补 SPA history fallback（无扩展名且文件不存在 → 回根 `index.html`），
+  否则审深链 `/catalog` 会得到 9 错误 / 6 类 axe（全是 404 引起的假失败）。
+
+### 验证
+
+- React：`tsc --noEmit` 0 错误，`vite build` → JS 175.56 kB / gzip 57.66、CSS 26.66 kB / gzip 6.21。
+- Vue：`vue-tsc --noEmit` 0 错误，`vite build` → JS 102.83 kB / gzip 40.61、CSS 26.66 kB（与 React 同字节）。
+- 打包产物审计：`/` 与 `/catalog` 两栈、明暗双主题各 6 组，全部 **0 错误 / 0 警告 / 0 类 axe / 0 console / 0 HTTP**。
+- 像素工具自测：同图比对 0.00%（退出 0）；浅色设计稿 vs 深色实现 18.4%（退出 1，最差区域 = 整条内容带，与预期一致）。
+- `node scripts/selfcheck.mjs --skip-audit`：语法 9 mjs + 3 py ✓、5 套 × 6 页 ✓、对比度 565 组 0 未达标 ✓、
+  框架栈 42 个 tsx/ts/vue 语法通过且类名引用全部有定义 ✓、文档数字 21 站 / A 组 18 ✓。
+
+### 未做
+
+- `.github/workflows/selfcheck.yml` 仍需带 `workflow` scope 的 PAT 才能上 GitHub（当前仓库里已有文件，GitHub 侧缺失）。
+- 小程序 / RN 不在范围内：一套令牌对一套选择器方言，维护四份 truth 不划算。
 ## v1.13.3 - 2026-11-08
 
 ### 新增
