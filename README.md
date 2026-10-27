@@ -1,7 +1,8 @@
 # frontend-fidelity · 前端保真度
 
 > 把界面做对、做实，两条路都走：**已有界面**——按设计稿/截图还原，或把现存页面整改到位（后台管理端、移动 H5/小程序、多端一致性、Logo 与品牌资产）；**还没有界面**——从 0 生成一套能验收的骨架（令牌 + 组件 + 六类页面），再往上填真内容与业务状态。
-> 参考库是 **21 个真实站的实测数据 + 九份单站蒸馏**（营销 / 工具站 / 密版图墙 / 疏版图墙 / 陈列页 / 灵感库 / 风格库 / 杂志目录 / B 端工具工作区），外加**两份外部规则集蒸馏**（工艺底线 / 反模板清单）；按页面类型对到具体文件，见 [该抄哪份参考](#该抄哪份参考)。
+> 参考库是 **21 个真实站的实测数据 + 十份单站蒸馏**（营销 / 工具站 / 密版图墙 / 疏版图墙 / 陈列页 / 灵感库 / 风格库 / 杂志目录 / B 端工具工作区 / 动效），外加**两份外部规则集蒸馏**（工艺底线 / 反模板清单）；按页面类型对到具体文件，见 [该抄哪份参考](#该抄哪份参考)。
+> **计数口径**：21 个实测站 = **A 组 18**（12 营销/产品 + 6 内容陈列）+ **B 组 3 后台工具站**。跨站统计的均值/带宽算在 A 组 18 站上，所以文档里出现「A 组 18 站」不等于总数 18——这是本项目最容易漂的一处，`selfcheck.mjs` 会盯。
 > 搜这些词应该能到这：设计稿转代码、照着截图还原、UI 还原、前端验收、截图对比、后台美化、移动端适配、设计令牌、Claude Code 技能（skill）。
 > 目标不是"改好看"，而是**让界面和它声称的样子一致，并且真的能用——改完能拿出证据**。
 
@@ -52,21 +53,22 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 
 ## 它到底量大到什么程度
 
-21 个真实站在浏览器里逐元素量出来的，不是猜的：
+21 个真实站（A 组 18 + 3 后台工具站）在浏览器里逐元素量出来的，不是猜的：
 
 | 量的是什么 | 结果 |
 | --- | --- |
-| 正文字号 | 均值 **14.8px**（跨站 10–20px），行高比均值 **1.42** |
-| 主标题字号 | 均值 **72.6px**（36–140px），H1/正文比 **2.3–8.8 倍** |
+| 正文字号 | 均值 **14.7px**（跨站 10–20px），行高比均值 **1.42** |
+| 主标题字号 | 均值 **69.8px**（36–140px），H1/正文比 **2.3–8.8 倍** |
 | 圆角 | 六种做法并存：单主力档 / 双轨 / 直角派 / 线性阶梯 / 七档无递进（反例） |
 | 阴影 | 五派：靠边框 / 发丝圈+内阴影 / 负扩散 / 全站零阴影 / 零阴影零边框 |
 | 动效 | 中位数 **1 个**——最克制的几站反而最显专业 |
 | 网格 | 三派图墙：密（5 列 gap 0）／疏（4 列列距 24）／活预览墙（3 列 gap 32） |
 
 全部原始数值、样本清单和失败样本在 [`references/design-evidence.md`](references/design-evidence.md)。
+
 ## 该抄哪份参考
 
-先看这张表：**按你手上的页面类型选一份，别从头读十六份。**
+先看这张表：**按你手上的页面类型选一份，别从头读二十一份。**
 
 | 你在做什么 | 抄这份 | 从这里拿走什么 |
 | --- | --- | --- |
@@ -270,7 +272,7 @@ git clone https://gitee.com/liu-everything_impossble/skill-frontend-fidelity.git
 
 从 [Releases](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) 下载 `frontend-fidelity.zip`，解压到同名目录即可，内容与 git 版本一致。
 包由 `git archive` 从 tag 生成，不含 `__pycache__`、截图目录与本地缓存。
-当前是 [v1.12.0](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/tag/v1.12.0)。
+当前是 [v1.14.0](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/tag/v1.14.0)。
 
 ### 方式三：只取脚本
 
@@ -576,7 +578,7 @@ npm run selfcheck                       # 同上，走 package.json 里的脚本
 node scripts/selfcheck.mjs --keep       # 保留临时目录，方便看生成物
 ```
 
-四步，任何一步失败都以非 0 退出：
+五步，任何一步失败都以非 0 退出：
 
 | 步骤 | 做什么 | 失败含义 |
 | --- | --- | --- |
@@ -584,10 +586,15 @@ node scripts/selfcheck.mjs --keep       # 保留临时目录，方便看生成�
 | 生成 | 五套人格 × 六类页面（含 `--dark`）各生成一遍，检查 13 个产物文件齐 | `scaffold.mjs` 坏了 |
 | 对比度 | 对每套生成物跑 `contrast_check.py`，有未达标即失败 | 令牌改暗了/改浅了 |
 | 审计 | 内置静态服务 + `audit.mjs --themes light,dark`，30 组都要 `0 错误 / 0 警告` | 生成物出现了 a11y 回归 |
+| 文档数字 | 见下 | 站点数 / 均值在文档里漂了 |
 
-第五步「文档数字」也在里面：以 `references/design-evidence.md` 的「采集成功 N 个站 / A 组 N」为准，
-检查 README、SKILL 里所有「N 个真实站」「N 个实测站点」「A 组 N」是否一致——这类数字最容易悄悄漂
-（本项目已经漂过三次）。
+第五步「文档数字」以 `references/design-evidence.md` 的「采集成功 N 个站 / A 组 N」为准，扫五个文件
+（`README.md`、`SKILL.md`、`references/design-evidence.md`、`references/craft-floor.md`、`references/visual-system.md`）
+里的四种写法——`N 个真实站`、`N 个实测站点`、`N 站实测`、`A 组 N`——任何一处与样本头不一致即失败。
+
+这一项是补出来的：这类数字在本项目已经漂过三次，且都漂在「换个说法就绕过检查」上——
+`visual-system.md` 整个文件不在扫描范围；`craft-floor.md` 里那种「数字 + 站实测」的连写不匹配旧正则，躲过了两版检查。
+**要么统一写法，要么改检查，别指望记得住。**
 
 CI 在 `.github/workflows/selfcheck.yml`：推 PR 时跑 fast 路径（不装浏览器），手动触发跑完整 30 组审计。
 ### screenshot.mjs — 多视口 / 多主题全页截图

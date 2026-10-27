@@ -249,13 +249,14 @@ else {
   else {
     const wantAll = mAll[1];
     const wantA = mA[1];
-    const files = ['README.md', 'SKILL.md', 'references/design-evidence.md', 'references/craft-floor.md'];
+    const files = ['README.md', 'SKILL.md', 'references/design-evidence.md', 'references/craft-floor.md', 'references/visual-system.md'];
     const bad = [];
     for (const rel of files) {
       const text = await read(rel);
       if (!text) continue;
       for (const m of text.matchAll(/(\d+)\s*个真实站/g)) if (m[1] !== wantAll) bad.push(`${rel}: 「${m[1]} 个真实站」应为 ${wantAll}`);
       for (const m of text.matchAll(/(\d+)\s*个实测站点/g)) if (m[1] !== wantAll) bad.push(`${rel}: 「${m[1]} 个实测站点」应为 ${wantAll}`);
+      for (const m of text.matchAll(/(\d+)\s*站实测/g)) if (m[1] !== wantAll) bad.push(`${rel}: 「${m[1]} 站实测」应为 ${wantAll}`);
       for (const m of text.matchAll(/A 组\s*(\d+)/g)) if (m[1] !== wantA) bad.push(`${rel}: 「A 组 ${m[1]}」应为 ${wantA}`);
     }
     if (bad.length) fail('文档数字', [...new Set(bad)].join(' | '));

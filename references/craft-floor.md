@@ -158,5 +158,5 @@ a { text-underline-offset: .22em; text-decoration-thickness: 1px; }
 
 - **impeccable**（`E:\impeccable-main\impeccable-main`，Apache-2.0）：`skill/reference/craft-floor.md`（九条 verify + refuse 清单 + codex 细则）、`skill/SKILL.src.md`（四种模式 Persuade / Operate / Read / Experience、brief 优先、refinement 保身份 vs redesign 换世界）。**只蒸馏判据，未复制原文与脚本。**
 - **design-taste-frontend**（`...\.claude\skills\design-taste-frontend\SKILL.md`，1206 行，原文件未声明许可证）：反模板部分单独蒸馏到 `references/anti-slop.md`，此处只取与"底线"重叠的条款。
-- 本站语料：`references/design-evidence.md`（17 站实测）+ 六份单站蒸馏文档。
+- 本站语料：`references/design-evidence.md`（21 站实测）+ 十份单站蒸馏文档。
 - 裁决日期：2026-10-31。
