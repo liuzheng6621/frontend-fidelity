@@ -2,12 +2,12 @@
 
 [中文](README.md) | **English**
 
-> Two ways to work: **existing UI** — rebuild from a design file or screenshot, or clean up a live admin panel, H5 page, mini-program webview, multi-end consistency, logo and brand assets; **no UI yet** — generate a verifiable skeleton from tokens (tokens + components + ten page types, mobile shell and a three-page commerce flow included), then fill in real content and states.
+> Two ways to work: **existing UI** — rebuild from a design file or screenshot, or clean up a live admin panel, H5 page, mini-program webview, multi-end consistency, logo and brand assets; **no UI yet** — generate a verifiable skeleton from tokens (tokens + components + fifteen page types, four mobile shells and a five-page commerce flow included), then fill in real content and states.
 > The reference library is **28 real sites measured element by element + 17 single-site distillations** (marketing, tool sites, SaaS homepages, editorial homepages, developer feeds, product stages, dense and sparse galleries, catalog pages, inspiration libraries, style directories, magazine indexes, B2B workspaces, auth, commerce configuration, motion), plus **two distilled external rule sets** (craft floor / anti-slop checklist). Pick by page type in [Which reference to copy](#which-reference-to-copy).
 > **Counting rule**: 28 measured sites = **Group A 25** (16 marketing/product/commerce + 9 content galleries) + **Group B 3 backend tools**. Cross-site averages stay frozen at the original 18-site baseline; newer samples only add sites and single-site entries. Totals are always 28 / Group A 25 — `selfcheck.mjs` guards this.
 > The goal is not "make it prettier" but **make the interface match what it claims to be, and actually work — with evidence**.
 
-`v1.21.1` · [latest release](https://github.com/liuzheng6621/frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9 (cropping/contrast only)` · `offline WCAG checks` · `15 executables (12 Node + 3 Python)`
+`v1.22.0` · [latest release](https://github.com/liuzheng6621/frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9 (cropping/contrast only)` · `offline WCAG checks` · `16 executables (13 Node + 3 Python)`
 
 ---
 
@@ -54,7 +54,7 @@ Start a new session after installing, then say "rebuild this page from the scree
 | Entry | `SKILL.md` — routing table, 30-second start, quality gates, design baseline |
 | Reference library | 29 Markdown files: 17 single-site distillations + 8 general specs + 1 cross-site evidence file + 2 external rule sets + 1 workflow — plus 2 machine-readable datasets (recheck baseline / REA structure evidence) |
 | Executables | 15 scripts: screenshots, WCAG/CLS audit, contrast, design-system audit, flow checks, pixel diff, auth export, reference probe, batch recheck, repo hygiene, quality gates, scaffold generator, self-check |
-| Generator | `scaffold.mjs`: five personas × ten page types × dark tokens, optional React/Vue output |
+| Generator | `scaffold.mjs`: five personas × fifteen page types × dark tokens, optional React/Vue output |
 
 ## Two modes
 
@@ -78,7 +78,7 @@ Generated output is a starting point, not a finished product: replace every `{{T
 
 | Script | What it does |
 | --- | --- |
-| `scaffold.mjs` | Generate tokens + components + pages; five personas, ten page types, dark tokens, React/Vue output |
+| `scaffold.mjs` | Generate tokens + components + pages; five personas, fifteen page types, dark tokens, React/Vue output |
 | `screenshot.mjs` | Multi-viewport, multi-theme full-page screenshots with CLS and console capture |
 | `audit.mjs` | Structure + axe WCAG 2.1 A/AA + CLS + motion; `--design-system` checks type/spacing/radius/shadow against a declared system |
 | `flow.mjs` | Declarative interaction checks: fill form → submit → expect success; per-step screenshots |
@@ -124,27 +124,31 @@ It counts visible text sizes, padding/margin/gap, non-pill radii and full `box-s
 
 Keyboard walk-through (Tab reachable, visible focus, Esc closes overlays) and 200% zoom remain manual steps — do not skip them.
 
-## Self-assessment: A (all five dimensions at A, three things short of A+)
+## Self-assessment: A+ (all five dimensions at A, three gates closed)
 
 This is a self-grade, not third-party certification. Every claim below maps to a file you can open or a command you can run.
 
 | Dimension | Grade | Current state | Verify with |
 | --- | --- | --- | --- |
-| Executable checks | A | **15 scripts** (12 Node + 3 Python), every one reports via exit code: `0 pass / 1 check failed / 2 bad arguments or environment / 3 partial, not a pass` | `ls scripts/*.mjs scripts/*.py` |
-| Reference data | A | 28 real sites measured in-browser + 17 single-site distillations + **structural evidence for all 17** (landmarks / heading levels / DOM depth / `alt` coverage); 29 reference files + 2 machine-readable datasets | `wc -l references/*.md`, `jq . references/rea-structure.json` |
-| Self-check loop | A | Argument semantics / recursive syntax / 10 generated pages / 615 contrast pairs / **246 audit runs** / design-system positive and negative cases / **3 flow suites** (12 + 6 + 42 steps) / framework stack / 11 agent entry points / doc counts and links / changelog dates | `npm run selfcheck` |
+| Executable checks | A+ | **16 scripts** (13 Node + 3 Python), every one reports via exit code: `0 pass / 1 check failed / 2 bad arguments or environment / 3 partial, not a pass` | `ls scripts/*.mjs scripts/*.py` |
+| Reference data | A+ | 28 real sites measured in-browser + 17 single-site distillations + **structural evidence for all 17** (landmarks / heading levels / DOM depth / `alt` coverage) + **a dated frozen snapshot**; 29 reference files + 2 machine-readable datasets | `wc -l references/*.md`, `jq . references/reference-snapshot.json` |
+| Self-check loop | A+ | Argument semantics / recursive syntax / 15 generated pages / 645 contrast pairs / **306 audit runs (4-way parallel, 2m47s)** / design-system positive and negative cases / **4 flow suites** (12 + 6 + 42 + 45 steps) / framework stack / 11 agent entry points / doc counts and links / reference snapshot / changelog dates | `npm run selfcheck` |
 | Documentation | A | Thin entry point + on-demand reference library + per-script manuals with arguments, exit codes and artifacts | `SKILL.md`, `docs/scripts.md` |
-| Honest boundaries | A | Explicit non-goals (test framework, Figma import, native mini-program, visual regression as a default gate); **13 red flags** | "When not to use", [`review-rubric.md`](references/review-rubric.md) §10 |
+| Honest boundaries | A+ | Explicit non-goals (test framework, Figma import, native mini-program, visual regression as a default gate); **13 red flags** | "When not to use", [`review-rubric.md`](references/review-rubric.md) §10 |
 
-**What A+ would require**, stated up front so it does not drift: all five dimensions at A **and no known scenario gap**. Three remain:
+**Why A to A+** — all three gates closed in `v1.22.0`, each independently checkable:
 
-| # | Gap | Type | Done when |
+| # | Former gap | How it is closed now | How to verify |
 | --- | --- | --- | --- |
-| 1 | Payment callback / order state machine / refunds are not in the skeleton | Scenario | The commerce flow runs from "place order" to "order detail with state transitions" |
-| 2 | Mobile has exactly one shell (list + bottom tabs + bottom sheet) | Scenario | Multi-step wizard, horizontal paging, and native-bridge shells each have a template |
-| 3 | The reference library has no snapshot, so values drift when sites redesign | Mechanism | A dated value snapshot exists; `recheck-refs.mjs` reports drift without touching the baseline |
+| 1 | Payment callback / order state machine / refunds were not in the skeleton | `orders.html` + `order.html`: 7 states (pending / paid / shipped / completed / refunding / refunded / canceled) kept in sync across banner, timeline and action group; refund uses a native `dialog` | `node scripts/scaffold.mjs --pages orders,order --verify`; `flow.order.example.json` (45 steps) |
+| 2 | Mobile had exactly one shell | **Four** now: list shell + multi-step wizard + horizontal pager + native-bridge shell (with a `postMessage` contract and a no-bridge fallback) | `--pages mobile,mobile-wizard,mobile-pager,mobile-native`; each new page passes 6 audit runs |
+| 3 | The reference library had no snapshot | `references/reference-snapshot.json` carries `capturedAt` / `frozenAt` / `method`; `recheck-refs.mjs` only reports drift, `--freeze` writes; new `snapshot-refs.mjs` freezes offline | The "reference snapshot" gate in `selfcheck` validates the date, rejects future dates, and requires comparable numbers per site |
 
-The grade moves only when all three are closed — **not when more files are added**.
+**The grade is earned, not permanent**: any `selfcheck` item can revoke it. If audits regress, a flow breaks,
+or the snapshot gate fails, the grade goes back down — that constraint is part of the claim.
+
+Two **declared non-goals** remain (not gaps): Figma design import, and visual regression as a default gate
+(`fidelity.mjs` needs a design file first).
 
 ## Which reference to copy
 

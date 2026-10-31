@@ -2,7 +2,7 @@
 
 ### scaffold.mjs — 从 0 生成前端骨架
 
-一次性产出设计令牌 + 组件样式 + 十类页面（含移动端壳与电商三页），拿到就能跑、能量、能改。**模式 B 的第一步**。
+一次性产出设计令牌 + 组件样式 + 十五类页面（含移动端壳与电商三页），拿到就能跑、能量、能改。**模式 B 的第一步**。
 
 ```bash
 # 后台：令牌 + 组件 + 落地页/列表/表单/认证/状态页
@@ -38,7 +38,7 @@ node scripts/scaffold.mjs --name "南风工单" --out src --pages app,form
 | `--quiet` | 少打印 | 关 |
 | `--help` / `-h` | 打印用法后退出 | — |
 
-**产出**（平铺在 `--out` 目录：9 个 CSS/JS/JSON + 各页面，全量 19 个文件）：
+**产出**（平铺在 `--out` 目录：9 个 CSS/JS/JSON + 各页面，全量 24 个文件）：
 
 ```
 <out>/
@@ -98,7 +98,7 @@ src/react/                     src/vue/
 
 两个坑写在生成物 README 里：`NODE_ENV=production` 的终端里 `npm install` 会跳过 devDependencies（用 `npm install --include=dev`）；
 `{{TODO: …}}` 在 JSX 里会被当成对象字面量，所以生成物统一走 `todo('…')` 函数。
-**生成物已过 `audit.mjs` 的明暗双主题验证**：五套人格 × 十类页面 × 三视口 × 明暗 = 246 个渲染组合，0 error / 0 warn / 0 axe 违规（`node scripts/selfcheck.mjs` 一条命令可复现）；令牌对比度门每个 123 组 / 0 组未达标。
+**生成物已过 `audit.mjs` 的明暗双主题验证**：五套人格 × 十五类页面 × 三视口 × 明暗 = 306 个渲染组合，0 error / 0 warn / 0 axe 违规（`node scripts/selfcheck.mjs` 一条命令可复现）；令牌对比度门每个 129 组 / 0 组未达标。
 但它只保证「层级、间距、状态、可访问性」这些硬骨头，文案全是 `{{TODO: ...}}` 占位——
 你的活是把它们换成真内容（见 `references/copy-and-content.md`），别直接当成品交付。
 
@@ -123,9 +123,9 @@ node scripts/selfcheck.mjs --keep       # 保留临时目录，方便看生成�
 | --- | --- | --- |
 | 参数语义 | 纯断言（不需要浏览器）：MSYS 路径还原 5 条、按页 `--expect-text` 3 条 | `lib/common.mjs` 的参数解析被改坏了 |
 | 语法 | 递归 `node --check scripts/` 的 `.mjs`（含 `lib/`）；`python -m py_compile` 顶层 `.py` | 改脚本时手滑了 |
-| 生成 | 五套人格 × 十类页面各生成一遍，检查 19 个产物文件齐 | `scaffold.mjs` 坏了 |
+| 生成 | 五套人格 × 十五类页面各生成一遍，检查 24 个产物文件齐 | `scaffold.mjs` 坏了 |
 | 对比度 | 对每套生成物跑 `contrast_check.py`，有未达标即失败 | 令牌改暗了/改浅了 |
-| 审计 | 内置静态服务 + `audit.mjs --themes light,dark`，五套 × 十页 × 三视口 × 双主题共 246 个渲染组合，均须 `0 错误 / 0 警告` | 生成物出现了 a11y 回归 |
+| 审计 | 内置静态服务 + `audit.mjs --themes light,dark`，十五页 × 三视口 × 双主题共 306 个渲染组合，均须 `0 错误 / 0 警告` | 生成物出现了 a11y 回归 |
 | 流程 | 用 `flow.example.json` 对骨架跑一遍完整交互，确认步骤/断言/报告链路没坏 | `flow.mjs` 坏了 |
 | 设计体系回归 | 合规 / 越档 / strict / 允许列表 / 忽略与未启用对照；无效配置反例 | 新审计漏报、误报或退出码协议被改坏 |
 | 框架栈 | React / Vue 生成、类名对齐；有 esbuild 时检查 TSX / TS 语法 | 框架生成物不自洽；缺 esbuild 明确列为未执行项 |
@@ -147,7 +147,7 @@ README 当前跨站正文 / H1 均值必须等于冻结基线；单站条目中�
 它只比对「应当等于当前版本」的写法——README 徽标、`--ref` 示例、「当前是 vX.Y.Z」、`install.sh` 示例、CHANGELOG 首条；
 历史条目里的旧版本号不参与比对。
 
-CI 在 `.github/workflows/selfcheck.yml`：push / PR / 手动触发均配置 fast 与 audit 两个任务；完整审计覆盖 246 个渲染组合，另跑设计体系回归。长审计使用后台任务，不把前台超时误判为脚本失败。
+CI 在 `.github/workflows/selfcheck.yml`：push / PR / 手动触发均配置 fast 与 audit 两个任务；完整审计覆盖 306 个渲染组合，另跑设计体系回归。长审计使用后台任务，不把前台超时误判为脚本失败。
 ### screenshot.mjs — 多视口 / 多主题全页截图
 
 **用途**：一次拍齐 3 视口 × 2 主题，自动滚动触发懒加载，记录 console 错误与 CLS。
@@ -551,13 +551,13 @@ node scripts/agent-adapter.mjs --target gemini --print
 
 ### recheck-refs.mjs — 参考站批量复测
 
-**用途**：参考库的数值是采样当天的，站点改版后会悄悄过期。一次量完 17 个单站参考，和基线对比，只报差异。
+**用途**：参考库的数值是采样当天的，站点改版后会悄悄过期。一次量完 17 个单站参考，和**冻结快照**对比，只报漂移——默认绝不动快照。
 
 ```bash
-node scripts/recheck-refs.mjs                       # 全量，报告写 docs/reference-recheck.md
+node scripts/recheck-refs.mjs                       # 全量复测，只报漂移
 node scripts/recheck-refs.mjs --only awwwards,muzli # 只测指定站点
 node scripts/recheck-refs.mjs --concurrency 3 --timeout 90
-node scripts/recheck-refs.mjs --update-baseline     # 确认改版后重设基线
+node scripts/recheck-refs.mjs --freeze              # 确认改版后重设快照（写新 capturedAt）
 node scripts/recheck-refs.mjs --strict              # 有站点不可达时退出 1
 ```
 
@@ -566,14 +566,43 @@ node scripts/recheck-refs.mjs --strict              # 有站点不可达时退�
 | `--only` | 全部 | 逗号分隔的站点 key（见脚本内 `SITES`） |
 | `--concurrency` | `4` | 并发探针数，1–6 |
 | `--timeout` | `90` | 单站超时秒数（≥15），超时即 `failed` |
-| `--update-baseline` | 关 | 用本次可达结果重写 `references/recheck-baseline.json` |
+| `--freeze` | 关 | 用本次可达结果重写 `references/reference-snapshot.json`（带新 `capturedAt`） |
+| `--allow-partial` | 关 | 配合 `--freeze`：有站点不可达也冻结，缺的站保持旧值 |
 | `--strict` | 关 | 有失败站点时退出 1 |
 
 - 逐站调用 `probe-ref.mjs`，解析其 JSON，抽 H1 / 正文 / 控件高 / 主字体 / 底色 / 卡片 / 懒加载图。
-- 基线首次运行自动建立；**失败站点不写入基线**——被拦、超时、下线不能当成「没变化」。
-- 首次采样标 `首次采样（无基线）`，与「无变化」分开；`--only` 默认把报告写到 `.design/recheck/`，不覆盖 `docs/reference-recheck.md`，加 `--report` 才覆盖。
+- 对照对象是带日期的只读快照 `references/reference-snapshot.json`（含 `capturedAt` / `frozenAt` / `method`）；**失败站点不写入快照**——被拦、超时、下线不能当成「没变化」。
+- `--update-baseline` 已移除，跑它会直接退出 2 并提示改用 `--freeze`：冻结是需要人确认的动作，不该藏在一次普通复测里。
+- 快照里没有的站点标 `首次采样`，与「无变化」分开；`--only` 默认把报告写到 `.design/recheck/`，不覆盖 `docs/reference-recheck.md`，加 `--report` 才覆盖。
 - 报告只报差异，不改写单站结论；**探针复测 ≠ REA 逆向**：只验证可达性与关键计算值，不做 DOM/脚本结构分析。
 - 退出码：`0` 正常；`1` 加了 `--strict` 且有站点失败；`2` 参数错。
+
+### snapshot-refs.mjs — 离线冻结参考站数值快照
+
+**用途**：`recheck-refs.mjs` 负责「量」和「报漂移」，这个脚本负责「冻」。分开的理由有两条——
+冻结是需要人确认的动作，不该混进每次复测；CI 里往往没有外网，只能拿归档的 probe JSON 冻结。
+
+```bash
+node scripts/snapshot-refs.mjs --from .design/recheck            # 嵌套布局：<from>/<site>/<slug>.json
+node scripts/snapshot-refs.mjs --from .tmp/probes --flat         # 扁平布局：<from>/<site>.json
+node scripts/snapshot-refs.mjs --from .design/recheck --only apple,zcool
+node scripts/snapshot-refs.mjs --from .design/recheck --dry-run  # 只报会改什么，不写文件
+node scripts/snapshot-refs.mjs --from .design/recheck --date 2026-11-01
+```
+
+| 参数 | 默认 | 说明 |
+| --- | --- | --- |
+| `--from` | 必填 | probe 产物目录（嵌套或扁平） |
+| `--flat` | 关 | 目录下直接是 `<site>.json`，不是每站一个子目录 |
+| `--only` | 全部 | 逗号分隔的站点 key |
+| `--dry-run` | 关 | 只打印差异，不写文件 |
+| `--date` | 今天 | 覆盖 `capturedAt`（`YYYY-MM-DD`），补历史快照时用 |
+
+- **只冻结读到的站点**：没读到的保持旧值，不会被清空——快照少一个站是「这次没采」，不是「这站没了」。
+- 写盘前打印「新增站点」与「相对旧快照的漂移」，让冻结这件事有可见的后果。
+- 退出码：`0` 写入成功（或 dry-run 完成）；`1` 一个站点都没读到；`2` 参数错。
+- 快照结构由 `selfcheck.mjs` 的「参考库快照」门校验：`capturedAt` 必须是合法日期且不在未来，
+  每站至少要有一个可比对的数值（`h1` / `body` / `control`），缺 `method` / `note` 直接判失败。
 
 ### fidelity.mjs — 像素级还原验收（设计稿 vs 实现）
 

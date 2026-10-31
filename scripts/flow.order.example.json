@@ -1,0 +1,60 @@
+{
+  "name": "订单：列表筛选 → 状态机流转 → 退款申请",
+  "start": "orders.html",
+  "steps": [
+    { "desc": "初始 5 笔订单", "expectCount": { "selector": "[data-order]:not([hidden])", "value": 5 } },
+    { "expectText": { "selector": "[data-order-count]", "text": "5" } },
+
+    { "click": "[data-order-filter=\"pending\"]" },
+    { "expectCount": { "selector": "[data-order]:not([hidden])", "value": 1 } },
+    { "expectText": { "selector": "[data-order-count]", "text": "1" } },
+    { "expectHidden": "[data-order-empty]" },
+
+    { "click": "[data-order-filter=\"refunding\"]" },
+    { "expectCount": { "selector": "[data-order]:not([hidden])", "value": 1 } },
+
+    { "desc": "没有该状态的订单时出空态，不跳页", "click": "[data-order-filter=\"canceled\"]" },
+    { "expectCount": { "selector": "[data-order]:not([hidden])", "value": 0 } },
+    { "expectVisible": "[data-order-empty]" },
+
+    { "click": "[data-order-filter=\"all\"]" },
+    { "expectCount": { "selector": "[data-order]:not([hidden])", "value": 5 } },
+    { "expectHidden": "[data-order-empty]" },
+
+    { "goto": "order.html" },
+    { "expectText": { "selector": "[data-state-title]", "text": "等待付款" } },
+    { "expectVisible": "[data-state-group=\"pending\"]" },
+    { "expectHidden": "[data-state-group=\"paid\"]" },
+    { "expectText": { "selector": "[data-tl=\"paid\"] .co-tl__time", "text": "等待支付" } },
+
+    { "desc": "切到已支付：时间线推进一格，动作组整体换掉", "select": { "selector": "[data-order-state-demo]", "value": "paid" } },
+    { "expectText": { "selector": "[data-state-title]", "text": "已支付" } },
+    { "expectVisible": "[data-state-group=\"paid\"]" },
+    { "expectHidden": "[data-state-group=\"pending\"]" },
+    { "expectHidden": "[data-state-count]" },
+
+    { "desc": "确认收货 → 订单完成", "select": { "selector": "[data-order-state-demo]", "value": "shipped" } },
+    { "expectVisible": "[data-state-group=\"shipped\"]" },
+    { "click": "[data-order-confirm]" },
+    { "expectText": { "selector": "[data-state-title]", "text": "订单已完成" } },
+    { "expectText": { "selector": "[data-order-feedback]", "text": "已确认收货" } },
+    { "expectVisible": "[data-state-group=\"completed\"]" },
+
+    { "desc": "退款：弹窗提交后进入退款中，可撤销", "select": { "selector": "[data-order-state-demo]", "value": "paid" } },
+    { "click": "[data-open-refund]" },
+    { "expectVisible": "#refund-dialog" },
+    { "click": "#refund-dialog [data-refund-submit]" },
+    { "expectText": { "selector": "[data-state-title]", "text": "退款审核中" } },
+    { "expectVisible": "[data-state-group=\"refunding\"]" },
+    { "click": "[data-order-cancel-refund]" },
+    { "expectText": { "selector": "[data-state-title]", "text": "已发货" } },
+    { "expectText": { "selector": "[data-order-feedback]", "text": "已撤销" } },
+
+    { "desc": "取消订单：时间线只留第一步", "select": { "selector": "[data-order-state-demo]", "value": "pending" } },
+    { "click": "[data-order-cancel]" },
+    { "expectText": { "selector": "[data-state-title]", "text": "订单已取消" } },
+    { "expectVisible": "[data-state-group=\"canceled\"]" },
+    { "expectText": { "selector": "[data-tl=\"paid\"] .co-tl__time", "text": "—" } },
+    { "screenshot": "order-canceled" }
+  ]
+}

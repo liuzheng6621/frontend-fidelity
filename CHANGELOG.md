@@ -8,6 +8,41 @@
 各版本条目首次引入的对应提交日期校正；这些日期是**提交日期，不据此宣称发行日期**。
 v1.0.0 保留初始化提交 `6da84f5`（2026-10-22）支持的日期；其余已一致的标题日期不改。
 
+## v1.22.0 - 2026-10-31
+
+关闭 README 里写明的三条 A+ 门槛，评级 A → **A+**。
+
+### 新增
+
+- **移动端从 1 种形态补到 4 种**（页面 10 → 13 中的三张）：
+  - `mobile-wizard.html` 多步向导：三步封顶、进度条带 `aria-valuenow`、逐步必填校验（焦点回第一个错字段）、末步回显、sticky 底栏。
+  - `mobile-pager.html` 横向滑动分栏：`scroll-snap` + 44×44 指示点（圆点是 `::before` 内芯）+ 键盘左右键 / Home / End。
+  - `mobile-native.html` 原生壳桥接：安全区让位、原生标题栏占位、只暴露 `postMessage` 一个入口、无桥时按钮照常可用。
+- **订单两页**（`orders` / `order`）：7 状态（待支付 / 已支付 / 已发货 / 已完成 / 退款中 / 已退款 / 已取消），
+  横幅文案 × 时间线三态 × 可执行操作组**三处同步**；退款走原生 `dialog`。
+- `scripts/flow.order.example.json`：45 步链路（列表筛选含空态 → 切状态 → 确认收货 → 退款提交 → 撤销 → 取消）。
+- **参考库快照机制**：`references/reference-snapshot.json` 带 `capturedAt` / `frozenAt` / `method` / `note`；
+  `scripts/lib/ref-metrics.mjs` 抽出共用的指标解析与漂移比较；新增 `scripts/snapshot-refs.mjs` 离线冻结（不联网）。
+- `page-patterns.md` 新增 §2.11 订单状态机表、§3.1–3.3 三种移动形态；`docs/scripts.md` 补 `snapshot-refs.mjs` 一节。
+
+### 变更
+
+- **`recheck-refs.mjs` 只报漂移，不改快照**：`--update-baseline` 移除（跑它会退出 2 并提示），
+  改用 `--freeze`（全部可达才写）+ `--allow-partial`（有不可达也写，缺的站保持旧值）。
+  `references/recheck-baseline.json` 迁移为 `references/reference-snapshot.json`。
+- **自检审计改为 4 路并发**：组合数 246 → **306**（核心 7 页 × 5 套 = 210，限定 8 页 × 2 套 = 96），
+  耗时反而从 7m50s 降到 **2m47s**。串行跑 300 组会超过 10 分钟，长到没人愿意在本地执行。
+- 自检新增两项：「流程（订单）」45 步、「参考库快照」门（日期合法且不在未来、每站有可比对数值、必须有 method 与 note）。
+- 页面 10 → 15，产物 19 → 24；对比度配对 615 → 645；脚本 15 → 16。
+
+### 修复
+
+- **`[hidden]` 之外还有一个「打开了但看不见」**：`.modal { display: none }` 会让原生 `dialog.showModal()`
+  的元素不可见（`showModal` 只加 `[open]`，不加 `.is-open`）。补 `.modal[open] { display: grid }`。
+- **单列 grid 的 `auto` 会按内容撑宽**：移动端三页的容器都加了 `grid-template-columns: minmax(0, 1fr)`，
+  否则一段长文本就把整页顶出 390 视口（分栏页实测被撑到 457px）。
+- 时间线竖线改用 `color-mix(in srgb, var(--ink) 18%, transparent)`：1px 的 `--border` 在浅底上肉眼不可见。
+
 ## v1.21.1 - 2026-10-31
 
 ### 变更

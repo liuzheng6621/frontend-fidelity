@@ -33,12 +33,20 @@ import { resolvePython, undoMsysPath, expectTextsFor } from './lib/common.mjs';
 const HERE = fileURLToPath(new URL('.', import.meta.url));
 const SCRIPTS = resolve(HERE);
 const ALL_PERSONAS = ['rational', 'editorial', 'warm', 'print', 'magazine'];
-const PAGES = ['landing', 'catalog', 'app', 'form', 'auth', 'states', 'mobile', 'product', 'cart', 'checkout'];
-const PAGES_HTML = ['index.html', 'catalog.html', 'app.html', 'form.html', 'auth.html', 'states.html', 'mobile.html', 'product.html', 'cart.html', 'checkout.html'];
-// 电商三页只在 rational / warm 两套令牌下跑审计：它们的差异来自颜色与间距令牌，
-// 两套已覆盖冷/暖两端；全 5 套会把自检时长推到 10 分钟以上，收益不成比例。
-const COMMERCE_HTML = ['product.html', 'cart.html', 'checkout.html'];
-const COMMERCE_PERSONAS = ['rational', 'warm'];
+const PAGES = ['landing', 'catalog', 'app', 'form', 'auth', 'states', 'mobile', 'mobile-wizard', 'mobile-pager', 'mobile-native', 'product', 'cart', 'checkout', 'orders', 'order'];
+const PAGES_HTML = ['index.html', 'catalog.html', 'app.html', 'form.html', 'auth.html', 'states.html', 'mobile.html', 'mobile-wizard.html', 'mobile-pager.html', 'mobile-native.html', 'product.html', 'cart.html', 'checkout.html', 'orders.html', 'order.html'];
+// 只跑两套人格的页面：它们的差异来自颜色与间距令牌，rational（冷）+ warm（暖）已覆盖两端。
+// 全 5 套会把自检时长翻倍，收益不成比例。
+const AUDIT_SCOPE = {
+  'product.html': ['rational', 'warm'],
+  'cart.html': ['rational', 'warm'],
+  'checkout.html': ['rational', 'warm'],
+  'orders.html': ['rational', 'warm'],
+  'order.html': ['rational', 'warm'],
+  'mobile-wizard.html': ['rational', 'warm'],
+  'mobile-pager.html': ['rational', 'warm'],
+  'mobile-native.html': ['rational', 'warm'],
+};
 
 const argv = process.argv.slice(2);
 const flag = (n) => argv.includes(n);
@@ -344,25 +352,38 @@ else {
   const bad = [];
   let combos = 0;
   try {
+    // 页面 × 人格的审计矩阵：核心页跑满五套；电商与移动形态页只跑两套（差异来自令牌，两套覆盖冷暖两端）。
+    const scopedPersonas = (pg) => AUDIT_SCOPE[pg] || personas;
+    const tasks = [];
     for (const g of generated) {
-      const commerce = COMMERCE_PERSONAS.includes(g.persona);
       for (const pg of PAGES_HTML) {
-        if (!commerce && COMMERCE_HTML.includes(pg)) continue;
-        const r = await runNodeAsync([audit, '--url', `http://127.0.0.1:${port}/${g.persona}/${pg}`, '--themes', 'light,dark', '--viewports', 'desktop,tablet,mobile', '--out', join(outDir, `audit-${g.persona}-${pg}.json`)]);
+        if (!scopedPersonas(pg).includes(g.persona)) continue;
+        tasks.push({ persona: g.persona, pg });
+      }
+    }
+    // 并发跑：每个 audit 自带一个浏览器，4 路并发在普通开发机上是安全的，
+    // 串行跑 300 组会超过 10 分钟，长到没人愿意在本地执行。
+    const CONCURRENCY = 4;
+    let cursor = 0;
+    async function auditWorker() {
+      while (cursor < tasks.length) {
+        const t = tasks[cursor++];
+        const r = await runNodeAsync([audit, '--url', `http://127.0.0.1:${port}/${t.persona}/${t.pg}`, '--themes', 'light,dark', '--viewports', 'desktop,tablet,mobile', '--out', join(outDir, `audit-${t.persona}-${t.pg}.json`)]);
         combos += 6;
         const out = r.out || '';
         const line = out.split('\n').filter((l) => l.includes('合计')).pop() || '';
-        if (r.status !== 0 || !/合计：0 错误 \/ 0 警告/.test(line)) bad.push(`${g.persona}/${pg}: ${line.trim() || 'exit ' + r.status}`);
+        if (r.status !== 0 || !/合计：0 错误 \/ 0 警告/.test(line)) bad.push(`${t.persona}/${t.pg}: ${line.trim() || 'exit ' + r.status}`);
       }
     }
+    await Promise.all(Array.from({ length: Math.min(CONCURRENCY, tasks.length) }, auditWorker));
     if (bad.length) fail('审计', bad.join(' | '));
     else {
-      const commerceCombos = COMMERCE_PERSONAS.filter((p) => generated.some((g) => g.persona === p)).length * COMMERCE_HTML.length * 6;
-      const coreCombos = combos - commerceCombos;
+      const scopedPages = Object.keys(AUDIT_SCOPE).filter((p) => PAGES_HTML.includes(p));
+      const scopedRuns = scopedPages.reduce((n, p) => n + AUDIT_SCOPE[p].filter((x) => generated.some((g) => g.persona === x)).length, 0);
+      const coreRuns = tasks.length - scopedRuns;
       pass(
         '审计',
-        `${generated.length} 套 × ${PAGES.length} 页 × 三视口 × 明暗 = ${combos} 组 0 错误 / 0 警告` +
-          `（核心 ${PAGES_HTML.length - COMMERCE_HTML.length} 页 × ${generated.length} 套 = ${coreCombos}，电商 ${COMMERCE_HTML.length} 页 × ${COMMERCE_PERSONAS.length} 套 = ${commerceCombos}）`,
+        `${tasks.length} 次页面渲染 × 三视口 × 明暗 = ${combos} 组 0 错误 / 0 警告（核心 ${PAGES_HTML.length - scopedPages.length} 页 × ${generated.length} 套 = ${coreRuns * 6}，限定页 ${scopedPages.length} 页 × 2 套 = ${scopedRuns * 6}；${CONCURRENCY} 路并发）`,
       );
     }
 
@@ -432,12 +453,23 @@ else {
       const fc = await runNodeAsync([
         join(SCRIPTS, 'flow.mjs'),
         '--flow', join(SCRIPTS, 'flow.commerce.example.json'),
-        '--base', `http://127.0.0.1:${port}/${COMMERCE_PERSONAS.find((p) => generated.some((g) => g.persona === p)) || g0.persona}`,
+        '--base', `http://127.0.0.1:${port}/${['rational', 'warm'].find((p) => generated.some((g) => g.persona === p)) || g0.persona}`,
         '--out', join(outDir, 'flow-commerce'),
       ]);
       const fcTail = (fc.out || '').split('\n').filter((l) => l.includes('合计')).pop() || '';
       if (fc.status === 0) pass('流程（电商）', fcTail.trim());
       else fail('流程（电商）', (fcTail.trim() || `exit ${fc.status}`).slice(0, 200));
+
+      // 订单流程：列表筛选 → 状态机流转 → 退款申请 → 取消
+      const fo = await runNodeAsync([
+        join(SCRIPTS, 'flow.mjs'),
+        '--flow', join(SCRIPTS, 'flow.order.example.json'),
+        '--base', `http://127.0.0.1:${port}/${['rational', 'warm'].find((p) => generated.some((g) => g.persona === p)) || g0.persona}`,
+        '--out', join(outDir, 'flow-order'),
+      ]);
+      const foTail = (fo.out || '').split('\n').filter((l) => l.includes('合计')).pop() || '';
+      if (fo.status === 0) pass('流程（订单）', foTail.trim());
+      else fail('流程（订单）', (foTail.trim() || `exit ${fo.status}`).slice(0, 200));
     }
   } finally {
     server.close();
@@ -577,6 +609,32 @@ else {
     if (bad.length) fail('文档数字', [...new Set(bad)].join(' | '));
     else pass('文档数字', `${expected.sites} 站 / A 组 ${expected.groupA} / 磁盘蒸馏 ${expected.distillations} 份 / 顶层脚本 ${expected.scripts} 个；冻结均值 ${means.body}/${means.h1}px`);
   } catch (e) { fail('文档数字', e.message); }
+
+  // 参考库快照：必须带日期、日期不能是未来、每个站点要有可比对的关键值。
+  // 这一门防的是「有人手改快照把漂移抹掉」，以及「冻结时漏写 capturedAt」。
+  try {
+    const snapPath = join(ROOT, 'references', 'reference-snapshot.json');
+    if (!existsSync(snapPath)) throw new Error('缺少 references/reference-snapshot.json');
+    const snap = JSON.parse(readFileSync(snapPath, 'utf8'));
+    const issues = [];
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(snap.capturedAt || ''))) {
+      issues.push(`capturedAt 必须是 YYYY-MM-DD，收到「${snap.capturedAt}」`);
+    } else if (new Date(`${snap.capturedAt}T00:00:00Z`) > new Date()) {
+      issues.push(`capturedAt ${snap.capturedAt} 在未来`);
+    }
+    if (!snap.method || !snap.note) issues.push('缺 method 或 note（口径必须写清，否则快照没法复核）');
+    const sites = snap.sites && typeof snap.sites === 'object' ? Object.keys(snap.sites) : [];
+    if (!sites.length) issues.push('sites 为空');
+    for (const name of sites) {
+      const s = snap.sites[name];
+      if (!s || typeof s !== 'object') { issues.push(`${name} 不是对象`); continue; }
+      // 关键值至少要有一项是数字，否则这一站冻结了也没法比漂移
+      const numeric = ['h1', 'body', 'control'].filter((k) => typeof s[k] === 'number');
+      if (!numeric.length) issues.push(`${name} 没有可比对的数值（h1 / body / control 全空）`);
+    }
+    if (issues.length) fail('参考库快照', issues.join(' | '));
+    else pass('参考库快照', `capturedAt ${snap.capturedAt} · ${sites.length} 站 · 带 method 与 note`);
+  } catch (e) { fail('参考库快照', e.message); }
 
   try {
     const markdown = readdirSync(ROOT).filter((f) => f.endsWith('.md'));

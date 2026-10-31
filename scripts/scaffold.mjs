@@ -23,9 +23,14 @@
  *   auth.html        认证页（--pages auth）
  *   states.html      空/错/载三态（--pages states）
  *   mobile.html      移动端列表壳（--pages mobile）
+ *   mobile-wizard.html  移动端多步向导（--pages mobile-wizard）
+ *   mobile-pager.html   移动端横向滑动分栏（--pages mobile-pager）
+ *   mobile-native.html  移动端原生壳桥接（--pages mobile-native）
  *   product.html     商品详情（--pages product）
  *   cart.html        购物车（--pages cart）
  *   checkout.html    结算（--pages checkout）
+ *   orders.html      订单列表 + 状态筛选（--pages orders）
+ *   order.html       订单详情 + 状态机时间线 + 退款（--pages order）
  *
  * 生成的是**骨架**：结构、令牌、状态都到位，内容和品牌要你自己换。
  * 交付前必须跑：audit.mjs + screenshot.mjs + contrast_check.py（见 SKILL.md）。
@@ -52,7 +57,7 @@ if (has('help') || has('h')) {
 
   --persona rational|editorial|warm|print|magazine   人格预设（默认 rational）
   --out <dir>                         输出目录（默认 ui-scaffold）
-  --pages landing,catalog,app,form,auth,states,mobile,product,cart,checkout
+  --pages landing,catalog,app,form,auth,states,mobile,mobile-wizard,mobile-pager,mobile-native,product,cart,checkout,orders,order
                                       要生成哪些页面（默认 landing,app）
   --stack html|react|vue|all          额外生成哪个框架版本（默认 html，只出静态页）
   --accent <hue 0-360>                覆盖品牌色相
@@ -982,6 +987,8 @@ const componentsCss = `/* components.css —— 8 个状态都在这里面，别
   padding: var(--s-5);
 }
 .modal.is-open { display: grid; }
+/* 原生 <dialog> 走 showModal() 时只有 [open]，不会带 .is-open —— 少了这条会「打开了但看不见」 */
+.modal[open] { display: grid; }
 .modal__panel {
   width: min(480px, 100%);
   background: var(--raised);
@@ -1760,6 +1767,233 @@ const mobileCss = `/* mobile.css —— 390 单列壳：安全区 / 底部 tab /
 .m-sheet__body { display: grid; gap: var(--s-3); padding: 0 var(--s-4) calc(var(--s-5) + env(safe-area-inset-bottom)); }
 .m-sheet__title { font-size: var(--t-lg); font-weight: var(--fw-head); }
 .m-sheet__actions { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-2); margin-top: var(--s-2); }
+
+/* ================= 形态二：多步向导（mobile-wizard.html） =================
+   三步封顶。步数超过 4 就该换成「一屏一组 + 保存草稿」，不是继续加步骤条。 */
+.m-wiz {
+  display: grid;
+  /* 单列必须 minmax(0,1fr)：auto 会按内容撑宽，超长文本把整页顶出视口 */
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto auto 1fr auto;
+  min-height: 100dvh;
+  max-width: 430px;
+  margin-inline: auto;
+  background: var(--bg);
+  border-inline: 1px solid var(--border);
+}
+@media (max-width: 430px) { .m-wiz { border-inline: 0; } }
+
+.m-wiz__bar {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-2) var(--s-4);
+  padding-top: max(var(--s-2), env(safe-area-inset-top));
+  border-bottom: 1px solid var(--border);
+}
+.m-wiz__bar-title { font-size: var(--t-base); font-weight: var(--fw-ui); }
+.m-wiz__count {
+  margin-inline-start: auto;
+  font-size: var(--t-sm);
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+.m-wiz__track { height: 4px; background: var(--border); }
+.m-wiz__fill {
+  display: block;
+  height: 100%;
+  width: 33.333%;
+  background: var(--brand-fill);
+  transition: width var(--dur-base) var(--ease);
+}
+
+.m-wiz__body {
+  display: grid;
+  gap: var(--s-4);
+  align-content: start;
+  padding: var(--s-5) var(--s-4) var(--s-6);
+}
+.m-wiz__panel { display: grid; gap: var(--s-4); }
+.m-wiz__title { font-size: var(--t-xl); line-height: var(--lh-xl); font-weight: var(--fw-head); }
+.m-wiz__lede { font-size: var(--t-sm); line-height: var(--lh-base); color: var(--ink-2); }
+.m-wiz__sum { display: grid; gap: var(--s-2); padding: var(--s-4); border: 1px solid var(--border); border-radius: var(--r-md); background: var(--surface); }
+.m-wiz__sum-row { display: flex; justify-content: space-between; gap: var(--s-3); font-size: var(--t-sm); color: var(--ink-2); }
+.m-wiz__sum-row strong { color: var(--ink); font-weight: var(--fw-ui); }
+
+.m-wiz__foot {
+  position: sticky;
+  bottom: 0;
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: var(--s-3);
+  padding: var(--s-3) var(--s-4) calc(var(--s-3) + env(safe-area-inset-bottom));
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+}
+.m-wiz__foot .btn { min-height: 44px; }
+
+/* ================= 形态三：横向滑动分栏（mobile-pager.html） =================
+   scroll-snap 做分栏。键盘左右键必须也能翻——只靠手势等于把键盘用户排除。 */
+.m-pager {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto 1fr auto;
+  min-height: 100dvh;
+  max-width: 430px;
+  margin-inline: auto;
+  background: var(--bg);
+  border-inline: 1px solid var(--border);
+  overflow: hidden;
+}
+@media (max-width: 430px) { .m-pager { border-inline: 0; } }
+
+.m-pager__track {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+.m-pager__track::-webkit-scrollbar { display: none; }
+.m-pager__track:focus-visible { outline: 2px solid var(--brand); outline-offset: -2px; }
+
+.m-pager__slide {
+  flex: 0 0 100%;
+  min-width: 0;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  display: grid;
+  gap: var(--s-4);
+  align-content: start;
+  padding: var(--s-5) var(--s-4) var(--s-6);
+}
+.m-pager__art {
+  aspect-ratio: 4 / 3;
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background:
+    radial-gradient(120% 120% at 25% 15%, color-mix(in srgb, var(--brand) 16%, transparent), transparent 70%),
+    linear-gradient(160deg, color-mix(in srgb, var(--brand) 8%, var(--surface)), var(--surface));
+}
+.m-pager__title { font-size: var(--t-xl); line-height: var(--lh-xl); font-weight: var(--fw-head); }
+.m-pager__lede { font-size: var(--t-sm); line-height: var(--lh-base); color: var(--ink-2); }
+.m-pager__list { display: grid; gap: var(--s-2); margin: 0; padding: 0; list-style: none; }
+.m-pager__list li {
+  display: flex;
+  gap: var(--s-2);
+  align-items: flex-start;
+  font-size: var(--t-sm);
+  color: var(--ink-2);
+}
+.m-pager__list li::before {
+  content: '';
+  flex: 0 0 auto;
+  width: 6px;
+  height: 6px;
+  margin-top: 7px;
+  border-radius: 999px;
+  background: var(--brand-fill);
+}
+
+.m-pager__dots {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--s-1);
+  padding: var(--s-2) 0 calc(var(--s-2) + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--border);
+}
+/* 圆点本体 8px，但按钮盒子 44×44——命中区不够的圆点在 390 上点不中 */
+.m-pager__dot {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.m-pager__dot::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--border);
+  transition: width var(--dur-base) var(--ease), background var(--dur-base) var(--ease);
+}
+.m-pager__dot[aria-current="true"]::before { width: 22px; background: var(--brand-fill); }
+
+/* ================= 形态四：原生壳桥接（mobile-native.html） =================
+   容器页跑在 WebView 里：顶部是原生标题栏（这里只留安全区与占位），
+   底部操作条必须让出 home indicator，且 JS 要通过约定的 bridge 与原生通信。 */
+.m-native {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto 1fr auto;
+  min-height: 100dvh;
+  max-width: 430px;
+  margin-inline: auto;
+  background: var(--bg);
+  border-inline: 1px solid var(--border);
+}
+@media (max-width: 430px) { .m-native { border-inline: 0; } }
+
+/* 原生标题栏占位：真机上这段由 native 绘制，WebView 只负责让位 */
+.m-native__chrome {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  min-height: 44px;
+  padding: env(safe-area-inset-top) var(--s-4) 0;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  font-size: var(--t-sm);
+  color: var(--ink-2);
+}
+.m-native__chrome-title { font-size: var(--t-base); font-weight: var(--fw-ui); color: var(--ink); }
+.m-native__badge {
+  margin-inline-start: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-1);
+  padding: 2px var(--s-2);
+  border-radius: 999px;
+  background: var(--surface-hover);
+  font-size: var(--t-xs);
+}
+
+.m-native__body {
+  display: grid;
+  gap: var(--s-4);
+  align-content: start;
+  padding: var(--s-4);
+}
+.m-native__card {
+  display: grid;
+  gap: var(--s-2);
+  padding: var(--s-4);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background: var(--raised);
+}
+.m-native__card h2 { font-size: var(--t-base); font-weight: var(--fw-ui); }
+.m-native__card p { font-size: var(--t-sm); line-height: var(--lh-base); color: var(--ink-2); }
+.m-native__kv { display: grid; grid-template-columns: 96px 1fr; gap: var(--s-2) var(--s-3); font-size: var(--t-sm); }
+.m-native__kv dt { color: var(--ink-3); }
+.m-native__kv dd { margin: 0; color: var(--ink); }
+
+.m-native__bar {
+  position: sticky;
+  bottom: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s-3);
+  padding: var(--s-3) var(--s-4) calc(var(--s-3) + env(safe-area-inset-bottom));
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+}
+.m-native__bar .btn { min-height: 44px; }
 `;
 
 const head = (title, extra = '') => `<!doctype html>
@@ -2546,6 +2780,213 @@ const mobileHtml = head('工单', '<link rel="stylesheet" href="mobile.css">\n')
   </form>
 </dialog>
 ` + tail();
+/* ------------------------------------------- 移动端另三种形态：wizard / pager / native */
+
+const mHead = (title) => head(title, '<link rel="stylesheet" href="mobile.css">\n');
+
+const mobileWizardHtml = mHead('新建 · 向导') + shellNote(['wizard-bar', 'progress', 'step-panels', 'summary', 'sticky-foot']) + `
+<div class="m-wiz" data-wiz>
+  <div class="m-wiz__bar">
+    <a class="m-icon-btn" href="./mobile.html" aria-label="返回工单列表">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m15 5-7 7 7 7"></path></svg>
+    </a>
+    <span class="m-wiz__bar-title">新建工单</span>
+    <span class="m-wiz__count" data-wiz-count aria-live="polite">第 1 步 / 共 3 步</span>
+  </div>
+  <div class="m-wiz__track" role="progressbar" aria-valuemin="1" aria-valuemax="3" aria-valuenow="1" aria-label="填写进度" data-wiz-bar>
+    <span class="m-wiz__fill" data-wiz-fill></span>
+  </div>
+
+  <main class="m-wiz__body" id="main">
+    <!-- 第 1 步 -->
+    <section class="m-wiz__panel" data-wiz-panel="1" aria-labelledby="wiz-t1">
+      <h1 class="m-wiz__title" id="wiz-t1">先说清楚是什么问题</h1>
+      <p class="m-wiz__lede">标题一句话，描述给复现步骤。这一步决定工单会被分给谁。</p>
+      <div class="field">
+        <label class="label" for="wiz-title">标题<span class="req" aria-hidden="true">*</span></label>
+        <input class="input" id="wiz-title" name="title" required placeholder="例如：导出 CSV 时中文变成问号" data-wiz-required>
+        <p class="error-text" data-wiz-error="wiz-title" hidden>请填写标题</p>
+      </div>
+      <div class="field">
+        <label class="label" for="wiz-desc">描述</label>
+        <textarea class="input" id="wiz-desc" name="desc" rows="4" placeholder="复现步骤 / 期望结果 / 实际结果"></textarea>
+      </div>
+      <div class="field">
+        <label class="label" for="wiz-priority">优先级</label>
+        <select class="select" id="wiz-priority" name="priority">
+          <option>普通</option>
+          <option>紧急</option>
+          <option>低</option>
+        </select>
+      </div>
+    </section>
+
+    <!-- 第 2 步 -->
+    <section class="m-wiz__panel" data-wiz-panel="2" aria-labelledby="wiz-t2" hidden>
+      <h1 class="m-wiz__title" id="wiz-t2">什么时候、在哪台设备上</h1>
+      <p class="m-wiz__lede">时间与设备决定了能不能复现。填不准比不填更糟。</p>
+      <div class="field">
+        <label class="label" for="wiz-when">发生时间<span class="req" aria-hidden="true">*</span></label>
+        <input class="input" id="wiz-when" name="when" type="datetime-local" required data-wiz-required>
+        <p class="error-text" data-wiz-error="wiz-when" hidden>请选择发生时间</p>
+      </div>
+      <div class="field">
+        <label class="label" for="wiz-device">设备</label>
+        <select class="select" id="wiz-device" name="device">
+          <option>iPhone · Safari</option>
+          <option>Android · Chrome</option>
+          <option>桌面 · Chrome</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="label" for="wiz-version">版本号</label>
+        <input class="input" id="wiz-version" name="version" placeholder="设置 → 关于 里的版本">
+      </div>
+    </section>
+
+    <!-- 第 3 步 -->
+    <section class="m-wiz__panel" data-wiz-panel="3" aria-labelledby="wiz-t3" hidden>
+      <h1 class="m-wiz__title" id="wiz-t3">确认后提交</h1>
+      <p class="m-wiz__lede">提交后可以继续补充，但标题与时间不可改。</p>
+      <div class="m-wiz__sum">
+        <div class="m-wiz__sum-row"><span>标题</span><strong data-wiz-review="title">—</strong></div>
+        <div class="m-wiz__sum-row"><span>发生时间</span><strong data-wiz-review="when">—</strong></div>
+        <div class="m-wiz__sum-row"><span>优先级</span><strong data-wiz-review="priority">—</strong></div>
+        <div class="m-wiz__sum-row"><span>设备</span><strong data-wiz-review="device">—</strong></div>
+      </div>
+      <label class="check">
+        <input type="checkbox" name="agree" required data-wiz-required>
+        <span>我确认以上信息可复现，且不含敏感数据</span>
+      </label>
+      <p class="error-text" data-wiz-error="agree" hidden>提交前需要勾选确认</p>
+    </section>
+  </main>
+
+  <div class="m-wiz__foot">
+    <button class="btn btn--secondary" type="button" data-wiz-prev disabled>上一步</button>
+    <button class="btn btn--primary" type="button" data-wiz-next>下一步</button>
+  </div>
+</div>
+` + tail();
+
+const mobilePagerHtml = mHead('分栏') + shellNote(['pager-track', 'scroll-snap', 'slides', 'dots', 'keyboard']) + `
+<div class="m-pager">
+  <div class="m-wiz__bar">
+    <a class="m-icon-btn" href="./mobile.html" aria-label="返回工单列表">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m15 5-7 7 7 7"></path></svg>
+    </a>
+    <span class="m-wiz__bar-title">产品导览</span>
+    <span class="m-wiz__count" data-pager-count aria-live="polite">1 / 3</span>
+  </div>
+
+  <main id="main">
+    <!-- 横向分栏：scroll-snap 负责手势，键盘左右键由 ui.js 接住 -->
+    <div class="m-pager__track" tabindex="0" role="group" aria-roledescription="轮播" aria-label="产品导览三屏，可用左右方向键切换" data-pager-track>
+      <section class="m-pager__slide" role="group" aria-roledescription="幻灯片" aria-label="第 1 屏，共 3 屏">
+        <div class="m-pager__art" role="img" aria-label="{{TODO: 第 1 屏配图 alt}}"></div>
+        <h1 class="m-pager__title">一屏一件事</h1>
+        <p class="m-pager__lede">横向分栏只适合「彼此并列、顺序无所谓」的几块内容。有先后就换向导。</p>
+        <ul class="m-pager__list">
+          <li>每屏一个主张，标题不超过 12 字</li>
+          <li>配图统一比例，别让高度跳</li>
+          <li>指示点常驻，位置在底部安全区上方</li>
+        </ul>
+      </section>
+
+      <section class="m-pager__slide" role="group" aria-roledescription="幻灯片" aria-label="第 2 屏，共 3 屏">
+        <div class="m-pager__art" role="img" aria-label="{{TODO: 第 2 屏配图 alt}}"></div>
+        <h1 class="m-pager__title">手势之外要留键盘</h1>
+        <p class="m-pager__lede">只做滑动等于把键盘用户排除在外。轨道要可聚焦，左右键要能翻。</p>
+        <ul class="m-pager__list">
+          <li>轨道加 <code>tabindex="0"</code> 与 <code>aria-roledescription="轮播"</code></li>
+          <li>左右方向键翻页，Home / End 到首尾</li>
+          <li>指示点是 44×44 的按钮，圆点只是它的内芯</li>
+        </ul>
+      </section>
+
+      <section class="m-pager__slide" role="group" aria-roledescription="幻灯片" aria-label="第 3 屏，共 3 屏">
+        <div class="m-pager__art" role="img" aria-label="{{TODO: 第 3 屏配图 alt}}"></div>
+        <h1 class="m-pager__title">别把长文塞进来</h1>
+        <p class="m-pager__lede">横滑分栏的每一屏都该是「扫一眼就懂」。超过三段就该换成纵向页面。</p>
+        <ul class="m-pager__list">
+          <li>单屏内容高度控制在 1.2 屏以内</li>
+          <li>不嵌套横向滚动（手势会打架）</li>
+          <li>首屏放最重要的一件事，不要放导航</li>
+        </ul>
+      </section>
+    </div>
+  </main>
+
+  <div class="m-pager__dots" role="tablist" aria-label="选择分屏">
+    <button class="m-pager__dot" type="button" role="tab" aria-current="true" aria-label="第 1 屏" data-pager-dot="0"></button>
+    <button class="m-pager__dot" type="button" role="tab" aria-current="false" aria-label="第 2 屏" data-pager-dot="1"></button>
+    <button class="m-pager__dot" type="button" role="tab" aria-current="false" aria-label="第 3 屏" data-pager-dot="2"></button>
+  </div>
+</div>
+` + tail();
+
+const mobileNativeHtml = mHead('原生壳') + shellNote(['native-chrome', 'safe-area', 'bridge-detect', 'webview-contract', 'bottom-bar']) + `
+<!--
+  原生壳桥接约定（WebView 容器页）：
+  1) 原生侧注入 window.NativeBridge（Android：addJavascriptInterface；iOS：WKScriptMessageHandler）
+  2) Web 侧只调 NativeBridge.postMessage(JSON.stringify({ type, payload }))，
+     不直接调原生方法——方法名一改前端就崩
+  3) 原生回执走 window.__nativeCallback(id, data)，Web 侧按 id 派发
+  4) 没有 bridge 时必须降级：按钮照常可点，只提示「当前在浏览器里」
+-->
+<div class="m-native">
+  <div class="m-native__chrome">
+    <a class="m-icon-btn" href="./mobile.html" aria-label="返回">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m15 5-7 7 7 7"></path></svg>
+    </a>
+    <span class="m-native__chrome-title">{{TODO: 原生标题栏}}</span>
+    <span class="m-native__badge" data-bridge-state>检测中…</span>
+  </div>
+
+  <main class="m-native__body" id="main">
+    <section class="m-native__card" aria-labelledby="nv-t1">
+      <h2 id="nv-t1">安全区要让出来</h2>
+      <p>顶部让 <code>env(safe-area-inset-top)</code>（刘海 / 灵动岛），底部让 <code>env(safe-area-inset-bottom)</code>（home indicator）。
+        底部操作条被指示条压住是最常见的壳内事故。</p>
+      <dl class="m-native__kv">
+        <dt>顶部内边距</dt><dd>max(8px, safe-area-inset-top)</dd>
+        <dt>底部内边距</dt><dd>12px + safe-area-inset-bottom</dd>
+        <dt>视口单位</dt><dd>100dvh（不用 100vh）</dd>
+      </dl>
+    </section>
+
+    <section class="m-native__card" aria-labelledby="nv-t2">
+      <h2 id="nv-t2">桥接状态</h2>
+      <p data-bridge-detail>正在检测 <code>window.NativeBridge</code> 与 <code>webkit.messageHandlers</code>。</p>
+      <dl class="m-native__kv">
+        <dt>桥对象</dt><dd data-bridge-kind>—</dd>
+        <dt>回退行为</dt><dd>无桥时按钮照常可用，只提示环境</dd>
+      </dl>
+    </section>
+
+    <section class="m-native__card" aria-labelledby="nv-t3">
+      <h2 id="nv-t3">别在壳里做的事</h2>
+      <p>壳内 WebView 与浏览器不是一回事：没有地址栏、返回手势由原生接管、Cookie 与存储可能不共享。
+        以下三件在壳里最容易翻车。</p>
+      <dl class="m-native__kv">
+        <dt>硬编码 UA</dt><dd>壳可以改 UA，按 UA 判环境必错</dd>
+        <dt>自绘返回</dt><dd>与原生返回手势打架，只保留一套</dd>
+        <dt>整页刷新</dt><dd>壳里刷新会丢原生状态，用局部更新</dd>
+      </dl>
+    </section>
+
+    <p class="tiny">原生方法名一改前端就崩，所以约定只暴露 <code>postMessage</code> 一个入口。</p>
+  </main>
+
+  <div class="m-native__bar">
+    <button class="btn btn--secondary" type="button" data-native-action="close">关闭页面</button>
+    <button class="btn btn--primary" type="button" data-native-action="confirm">确认并返回</button>
+  </div>
+</div>
+` + tail();
+
+
+
 /* --------------------------------------------------- 电商三页：product / cart / checkout */
 
 const coHead = (title) =>
@@ -2564,6 +3005,7 @@ const coHeader = (current) => `<a class="skip-link" href="#main">跳到主内容
       <a href="./product.html"${current === 'product' ? ' aria-current="page"' : ''}>商品详情</a>
       <a href="./cart.html"${current === 'cart' ? ' aria-current="page"' : ''}>购物车</a>
       <a href="./checkout.html"${current === 'checkout' ? ' aria-current="page"' : ''}>结算</a>
+      <a href="./orders.html"${current === 'orders' || current === 'order' ? ' aria-current="page"' : ''}>订单</a>
     </nav>
     <div class="site-header__actions">
       <a class="btn btn--ghost btn--sm" href="./cart.html">
@@ -2993,9 +3435,358 @@ const checkoutHtml = coHead('结算') + shellNote(['checkout-header', 'steps', '
 
 
 
+/* --------------------------------------------------- 订单两页：orders / order */
+
+const ordersHtml = coHead('订单') + shellNote(['site-header', 'page-head', 'state-filters', 'order-cards', 'empty-state', 'pager']) + coHeader('orders') + `
+<main class="co-shell" id="main">
+  <div class="page__head">
+    <div>
+      <h1 class="page__title">我的订单</h1>
+      <p class="page__desc">共 <span data-order-count>5</span> 笔订单。待支付的订单 24 小时后自动取消。</p>
+    </div>
+  </div>
+
+  <!-- 状态筛选：value 与卡片上的 data-order-state 对齐；「全部」用 all -->
+  <div class="co-filters" role="group" aria-label="按订单状态筛选">
+    <button class="co-filter" type="button" aria-pressed="true" data-order-filter="all">全部</button>
+    <button class="co-filter" type="button" aria-pressed="false" data-order-filter="pending">待支付</button>
+    <button class="co-filter" type="button" aria-pressed="false" data-order-filter="paid">待发货</button>
+    <button class="co-filter" type="button" aria-pressed="false" data-order-filter="shipped">待收货</button>
+    <button class="co-filter" type="button" aria-pressed="false" data-order-filter="completed">已完成</button>
+    <button class="co-filter" type="button" aria-pressed="false" data-order-filter="refunding">退款中</button>
+    <button class="co-filter" type="button" aria-pressed="false" data-order-filter="canceled">已取消</button>
+  </div>
+
+  <ul class="co-orders" data-order-list>
+    <li class="co-order" data-order data-order-state="pending">
+      <div class="co-order__head">
+        <span class="co-order__no">订单号 202610310001</span>
+        <span>2026-10-31 14:22</span>
+        <span class="co-order__state"><span class="tag tag--warn"><span class="dot"></span>待支付</span></span>
+      </div>
+      <div class="co-order__items">
+        <span class="co-order__art" role="img" aria-label="{{TODO: 商品缩略图 alt}}"></span>
+        <div>
+          <p class="co-order__name">{{TODO: 商品名}}</p>
+          <p class="co-order__meta">薰衣草紫 · 256GB · ×1</p>
+        </div>
+      </div>
+      <div class="co-order__foot">
+        <span class="co-order__sum">应付 <strong>RMB 6,799</strong></span>
+        <div class="co-order__actions">
+          <a class="btn btn--ghost btn--sm" href="./order.html">订单详情</a>
+          <button class="btn btn--secondary btn--sm" type="button">取消订单</button>
+          <a class="btn btn--primary btn--sm" href="./checkout.html">去支付</a>
+        </div>
+      </div>
+    </li>
+
+    <li class="co-order" data-order data-order-state="paid">
+      <div class="co-order__head">
+        <span class="co-order__no">订单号 202610300014</span>
+        <span>2026-10-30 09:41</span>
+        <span class="co-order__state"><span class="tag tag--brand"><span class="dot"></span>待发货</span></span>
+      </div>
+      <div class="co-order__items">
+        <span class="co-order__art" role="img" aria-label="{{TODO: 商品缩略图 alt}}"></span>
+        <div>
+          <p class="co-order__name">{{TODO: 商品名}}</p>
+          <p class="co-order__meta">深空黑 · 512GB · ×1</p>
+        </div>
+      </div>
+      <div class="co-order__foot">
+        <span class="co-order__sum">已付 <strong>RMB 7,599</strong></span>
+        <div class="co-order__actions">
+          <a class="btn btn--ghost btn--sm" href="./order.html">订单详情</a>
+          <button class="btn btn--secondary btn--sm" type="button" data-open-refund>申请退款</button>
+        </div>
+      </div>
+    </li>
+
+    <li class="co-order" data-order data-order-state="shipped">
+      <div class="co-order__head">
+        <span class="co-order__no">订单号 202610280007</span>
+        <span>2026-10-28 20:03</span>
+        <span class="co-order__state"><span class="tag tag--info"><span class="dot"></span>待收货</span></span>
+      </div>
+      <div class="co-order__items">
+        <span class="co-order__art" role="img" aria-label="{{TODO: 商品缩略图 alt}}"></span>
+        <div>
+          <p class="co-order__name">{{TODO: 配件名}}</p>
+          <p class="co-order__meta">雾岩白 · 标准版 · ×2</p>
+        </div>
+      </div>
+      <div class="co-order__foot">
+        <span class="co-order__sum">已付 <strong>RMB 1,798</strong></span>
+        <div class="co-order__actions">
+          <a class="btn btn--ghost btn--sm" href="./order.html">订单详情</a>
+          <button class="btn btn--secondary btn--sm" type="button">查看物流</button>
+          <button class="btn btn--primary btn--sm" type="button">确认收货</button>
+        </div>
+      </div>
+    </li>
+
+    <li class="co-order" data-order data-order-state="refunding">
+      <div class="co-order__head">
+        <span class="co-order__no">订单号 202610250031</span>
+        <span>2026-10-25 11:10</span>
+        <span class="co-order__state"><span class="tag tag--warn"><span class="dot"></span>退款中</span></span>
+      </div>
+      <div class="co-order__items">
+        <span class="co-order__art" role="img" aria-label="{{TODO: 商品缩略图 alt}}"></span>
+        <div>
+          <p class="co-order__name">{{TODO: 商品名}}</p>
+          <p class="co-order__meta">海盐蓝 · 128GB · ×1</p>
+        </div>
+      </div>
+      <div class="co-order__foot">
+        <span class="co-order__sum">退款 <strong>RMB 5,199</strong></span>
+        <div class="co-order__actions">
+          <a class="btn btn--ghost btn--sm" href="./order.html">订单详情</a>
+          <button class="btn btn--secondary btn--sm" type="button">撤销申请</button>
+        </div>
+      </div>
+    </li>
+
+    <li class="co-order" data-order data-order-state="completed">
+      <div class="co-order__head">
+        <span class="co-order__no">订单号 202610120008</span>
+        <span>2026-10-12 16:55</span>
+        <span class="co-order__state"><span class="tag tag--ok"><span class="dot"></span>已完成</span></span>
+      </div>
+      <div class="co-order__items">
+        <span class="co-order__art" role="img" aria-label="{{TODO: 商品缩略图 alt}}"></span>
+        <div>
+          <p class="co-order__name">{{TODO: 商品名}}</p>
+          <p class="co-order__meta">赤陶橙 · 256GB · ×1</p>
+        </div>
+      </div>
+      <div class="co-order__foot">
+        <span class="co-order__sum">实付 <strong>RMB 6,799</strong></span>
+        <div class="co-order__actions">
+          <a class="btn btn--ghost btn--sm" href="./order.html">订单详情</a>
+          <button class="btn btn--secondary btn--sm" type="button">申请售后</button>
+          <button class="btn btn--primary btn--sm" type="button">再次购买</button>
+        </div>
+      </div>
+    </li>
+  </ul>
+
+  <div class="empty" data-order-empty hidden>
+    <div class="empty__icon" aria-hidden="true">◇</div>
+    <p class="empty__title">这个状态下没有订单</p>
+    <p class="empty__text">换个状态看看，或者去挑点新的。</p>
+    <a class="btn btn--primary" href="./catalog.html">去逛逛</a>
+  </div>
+
+  <nav class="pager" aria-label="分页">
+    <span class="pager__info">显示 1–5 / 共 5 笔</span>
+  </nav>
+</main>
+
+<footer class="site-footer">
+  <div class="container site-footer__in">
+    <p class="muted">© {{TODO: 年份}} ${NAME}</p>
+    <nav class="site-footer__links" aria-label="页脚导航">
+      <a href="./index.html">首页</a>
+      <a href="./catalog.html">全部商品</a>
+      <a href="./cart.html">购物车</a>
+    </nav>
+  </div>
+</footer>
+` + tail();
+
+const orderHtml = coHead('订单详情') + shellNote(['site-header', 'state-banner', 'timeline', 'items', 'amount', 'address', 'state-actions', 'refund-dialog']) + coHeader('order') + `
+<main class="co-shell" id="main">
+  <nav class="co-crumbs" aria-label="面包屑">
+    <a href="./index.html">首页</a>
+    <span class="co-crumbs__sep" aria-hidden="true">/</span>
+    <a href="./orders.html">我的订单</a>
+    <span class="co-crumbs__sep" aria-hidden="true">/</span>
+    <span aria-current="page">订单详情</span>
+  </nav>
+
+  <div class="page__head">
+    <div>
+      <h1 class="page__title">订单 202610310001</h1>
+      <p class="page__desc">下单时间 2026-10-31 14:22 · 支付方式 银行卡</p>
+    </div>
+  </div>
+
+  <!-- 演示开关：切换状态看整页怎么变。交付时整块删掉，状态由接口返回。 -->
+  <div class="co-demo">
+    <label for="order-state-demo">演示：切换订单状态</label>
+    <select class="select" id="order-state-demo" data-order-state-demo>
+      <option value="pending">待支付</option>
+      <option value="paid">已支付 / 待发货</option>
+      <option value="shipped">已发货 / 待收货</option>
+      <option value="completed">已完成</option>
+      <option value="refunding">退款中</option>
+      <option value="refunded">已退款</option>
+      <option value="canceled">已取消</option>
+    </select>
+    <span>（真实项目里这块删掉，状态由接口给）</span>
+  </div>
+
+  <div class="co-detail">
+    <div>
+      <!-- 状态横幅：标题与提示随状态变 -->
+      <section class="co-state-banner" aria-live="polite" data-state-banner>
+        <div>
+          <p class="co-state-banner__title" data-state-title>等待付款</p>
+          <p class="co-state-banner__hint" data-state-hint>请在 24 小时内完成支付，超时订单会自动取消。</p>
+        </div>
+        <span class="co-state-banner__count" data-state-count>23:41:08</span>
+      </section>
+
+      <section class="co-panel" aria-labelledby="tl-title">
+        <h2 class="co-panel__title" id="tl-title">订单进度</h2>
+        <ol class="co-timeline" data-timeline>
+          <li class="co-tl" data-tl="placed" data-state="done">
+            <span class="co-tl__dot" aria-hidden="true">1</span>
+            <div class="co-tl__body">
+              <span class="co-tl__title">提交订单</span>
+              <span class="co-tl__time">2026-10-31 14:22</span>
+            </div>
+          </li>
+          <li class="co-tl" data-tl="paid" data-state="current">
+            <span class="co-tl__dot" aria-hidden="true">2</span>
+            <div class="co-tl__body">
+              <span class="co-tl__title">支付成功</span>
+              <span class="co-tl__time" data-tl-time="paid">等待支付</span>
+            </div>
+          </li>
+          <li class="co-tl" data-tl="shipped" data-state="todo">
+            <span class="co-tl__dot" aria-hidden="true">3</span>
+            <div class="co-tl__body">
+              <span class="co-tl__title">商家发货</span>
+              <span class="co-tl__time" data-tl-time="shipped">—</span>
+            </div>
+          </li>
+          <li class="co-tl" data-tl="delivered" data-state="todo">
+            <span class="co-tl__dot" aria-hidden="true">4</span>
+            <div class="co-tl__body">
+              <span class="co-tl__title">确认收货</span>
+              <span class="co-tl__time" data-tl-time="delivered">—</span>
+            </div>
+          </li>
+        </ol>
+        <p class="co-panel__hint" data-tl-note></p>
+      </section>
+
+      <section class="co-panel" aria-labelledby="it-title">
+        <h2 class="co-panel__title" id="it-title">商品</h2>
+        <ul class="co-lines">
+          <li class="co-line" style="grid-template-columns: 88px minmax(0,1fr) auto;">
+            <span class="co-line__art" role="img" aria-label="{{TODO: 商品缩略图 alt}}"></span>
+            <div>
+              <p class="co-line__name">{{TODO: 商品名}}</p>
+              <p class="co-line__meta">薰衣草紫 · 256GB</p>
+            </div>
+            <span class="co-line__total">RMB 6,799</span>
+          </li>
+        </ul>
+      </section>
+
+      <section class="co-panel" aria-labelledby="addr2-title">
+        <h2 class="co-panel__title" id="addr2-title">收货信息</h2>
+        <dl class="co-facts">
+          <div class="co-facts__row"><dt>收货人</dt><dd>{{TODO: 张三}} · 138****8000</dd></div>
+          <div class="co-facts__row"><dt>地址</dt><dd>{{TODO: 省市区 + 详细地址}}</dd></div>
+          <div class="co-facts__row"><dt>配送</dt><dd>标准配送 · 免运费</dd></div>
+        </dl>
+      </section>
+    </div>
+
+    <aside class="co-detail__side">
+      <section class="co-summary" aria-labelledby="amt-title">
+        <h2 class="co-summary__title" id="amt-title">金额</h2>
+        <div class="co-amount">
+          <div class="co-amount__row"><span>商品小计</span><span class="co-amount__num">RMB 6,799</span></div>
+          <div class="co-amount__row"><span>运费</span><span class="co-amount__num">RMB 0</span></div>
+          <div class="co-amount__row"><span>优惠</span><span class="co-amount__num">− RMB 0</span></div>
+          <div class="co-amount__row co-amount__row--total"><span>应付</span><span class="co-amount__num">RMB 6,799</span></div>
+        </div>
+      </section>
+
+      <!-- 状态动作：每组的显示由 ui.js 按当前状态开关，同一时刻只有一组可见 -->
+      <section class="co-summary" aria-labelledby="act-title">
+        <h2 class="co-summary__title" id="act-title">可执行操作</h2>
+
+        <div class="co-actions" data-state-group="pending">
+          <a class="btn btn--primary btn--block" href="./checkout.html">去支付</a>
+          <button class="btn btn--ghost btn--block" type="button" data-order-cancel>取消订单</button>
+        </div>
+
+        <div class="co-actions" data-state-group="paid" hidden>
+          <button class="btn btn--secondary btn--block" type="button" data-open-refund>申请退款</button>
+          <button class="btn btn--ghost btn--block" type="button">提醒发货</button>
+        </div>
+
+        <div class="co-actions" data-state-group="shipped" hidden>
+          <button class="btn btn--primary btn--block" type="button" data-order-confirm>确认收货</button>
+          <button class="btn btn--secondary btn--block" type="button" data-open-refund>申请退款</button>
+          <button class="btn btn--ghost btn--block" type="button">查看物流</button>
+        </div>
+
+        <div class="co-actions" data-state-group="completed" hidden>
+          <button class="btn btn--primary btn--block" type="button">再次购买</button>
+          <button class="btn btn--ghost btn--block" type="button" data-open-refund>申请售后</button>
+        </div>
+
+        <div class="co-actions" data-state-group="refunding" hidden>
+          <button class="btn btn--secondary btn--block" type="button" data-order-cancel-refund>撤销退款申请</button>
+          <p class="co-summary__note">退款审核中，预计 1–3 个工作日。撤销后订单回到原状态。</p>
+        </div>
+
+        <div class="co-actions" data-state-group="refunded" hidden>
+          <button class="btn btn--primary btn--block" type="button">再次购买</button>
+          <p class="co-summary__note">款项已退回原支付方式，到账时间以银行为准。</p>
+        </div>
+
+        <div class="co-actions" data-state-group="canceled" hidden>
+          <button class="btn btn--primary btn--block" type="button">再次购买</button>
+          <p class="co-summary__note">订单已取消。若已付款，退款会在 1–3 个工作日原路退回。</p>
+        </div>
+
+        <p class="co-summary__note" data-order-feedback role="status" aria-live="polite"></p>
+      </section>
+    </aside>
+  </div>
+</main>
+
+<!-- 退款申请：原生 dialog，Esc 关闭、焦点自动落到第一个字段 -->
+<dialog class="modal" id="refund-dialog" aria-labelledby="refund-title">
+  <form method="dialog" class="modal__panel">
+    <h2 class="modal__title" id="refund-title">申请退款</h2>
+    <div class="field">
+      <label class="label" for="refund-reason">退款原因</label>
+      <select class="select" id="refund-reason" name="reason" autofocus>
+        <option>不想要了</option>
+        <option>商品与描述不符</option>
+        <option>包装破损</option>
+        <option>物流太慢</option>
+        <option>其他</option>
+      </select>
+    </div>
+    <div class="field">
+      <label class="label" for="refund-note">补充说明</label>
+      <textarea class="input" id="refund-note" name="note" rows="3" placeholder="可选，写清情况能加快审核"></textarea>
+    </div>
+    <p class="tiny">提交后订单进入「退款中」，审核期间不能再次申请。</p>
+    <div class="modal__actions">
+      <button class="btn btn--secondary" value="cancel" formnovalidate>取消</button>
+      <button class="btn btn--primary" value="submit" data-refund-submit>提交申请</button>
+    </div>
+  </form>
+</dialog>
+` + tail();
+
+
+
 /* ------------------------------------------------------------------ commerce.css */
 
-const commerceCss = `/* commerce.css —— 商品详情 / 购物车 / 结算
+const commerceCss = `/* commerce.css —— 商品详情 / 购物车 / 结算 / 订单
    只在 product.html / cart.html / checkout.html 引入。
    口径见 references/applestore-commerce.md：三层价格（主价不放大，只加字重）、
    36px 色块 SKU、两组 SKU 用不同形状区分、主 CTA 44 高。 */
@@ -3461,6 +4252,173 @@ const commerceCss = `/* commerce.css —— 商品详情 / 购物车 / 结算
   }
   .co-crumbs__sep { display: none; }
 }
+
+/* ================= 订单列表 / 订单详情 ================= */
+
+.co-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  margin-bottom: var(--s-5);
+}
+.co-filter {
+  min-height: 40px;
+  padding: 0 var(--s-4);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--ink-2);
+  font-size: var(--t-sm);
+  font-weight: var(--fw-ui);
+  cursor: pointer;
+  transition: border-color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease);
+}
+.co-filter:hover { border-color: var(--ink-4); }
+.co-filter[aria-pressed="true"] {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--bg);
+}
+
+.co-orders { display: grid; gap: var(--s-4); margin: 0; padding: 0; list-style: none; }
+.co-order {
+  display: grid;
+  gap: var(--s-3);
+  padding: var(--s-4);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background: var(--raised);
+}
+.co-order__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-2) var(--s-4);
+  font-size: var(--t-sm);
+  color: var(--ink-3);
+}
+.co-order__no { color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.co-order__state { margin-inline-start: auto; }
+.co-order__items { display: flex; align-items: center; gap: var(--s-3); }
+.co-order__art {
+  flex: 0 0 auto;
+  width: 64px;
+  height: 64px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  background:
+    radial-gradient(120% 120% at 30% 20%, color-mix(in srgb, var(--brand) 16%, transparent), transparent 70%),
+    linear-gradient(160deg, color-mix(in srgb, var(--brand) 8%, var(--surface)), var(--surface));
+}
+.co-order__name { font-size: var(--t-base); font-weight: var(--fw-ui); }
+.co-order__meta { font-size: var(--t-sm); color: var(--ink-3); }
+.co-order__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-2);
+  padding-top: var(--s-3);
+  border-top: 1px solid var(--border);
+}
+.co-order__sum { font-size: var(--t-base); font-variant-numeric: tabular-nums; color: var(--ink-2); }
+.co-order__sum strong { color: var(--ink); font-weight: var(--fw-head); }
+.co-order__actions { margin-inline-start: auto; display: flex; flex-wrap: wrap; gap: var(--s-2); }
+.co-order__actions .btn { min-height: 40px; }
+
+/* 状态机时间线：done / current / todo 三态，竖线用伪元素连起来 */
+.co-timeline { margin: 0; padding: 0; list-style: none; }
+.co-tl {
+  position: relative;
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  gap: var(--s-3);
+  padding-bottom: var(--s-4);
+}
+.co-tl:last-child { padding-bottom: 0; }
+.co-tl::before {
+  content: '';
+  position: absolute;
+  left: 10px;
+  top: 22px;
+  bottom: 0;
+  width: 1px;
+  /* 竖线要比发丝边重一档，否则 1px 的 --border 在浅底上根本看不见 */
+  background: color-mix(in srgb, var(--ink) 18%, transparent);
+}
+.co-tl:last-child::before { display: none; }
+.co-tl__dot {
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--bg);
+  font-size: var(--t-xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-3);
+}
+.co-tl__body { display: grid; gap: 2px; }
+.co-tl__title { font-size: var(--t-base); font-weight: var(--fw-ui); color: var(--ink-2); }
+.co-tl__time { font-size: var(--t-xs); color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.co-tl[data-state="done"] .co-tl__dot { background: var(--ok-bg); border-color: var(--ok); color: var(--ok-ink); }
+.co-tl[data-state="done"] .co-tl__title { color: var(--ink); }
+.co-tl[data-state="current"] .co-tl__dot { background: var(--brand-fill); border-color: var(--brand-fill); color: var(--on-brand); }
+.co-tl[data-state="current"] .co-tl__title { color: var(--ink); font-weight: var(--fw-head); }
+
+/* 状态演示开关：明确标成 demo，交付时整块删掉 */
+.co-demo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-2);
+  margin-bottom: var(--s-4);
+  padding: var(--s-3) var(--s-4);
+  border: 1px dashed var(--border);
+  border-radius: var(--r-md);
+  font-size: var(--t-sm);
+  color: var(--ink-3);
+}
+.co-demo select { min-height: 40px; width: auto; min-width: 200px; }
+
+/* 详情页两列 */
+.co-detail { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: var(--s-6); align-items: start; }
+.co-detail__side { display: grid; gap: var(--s-4); position: sticky; top: var(--s-6); }
+.co-amount { display: grid; gap: var(--s-2); }
+.co-amount__row { display: flex; justify-content: space-between; gap: var(--s-3); font-size: var(--t-base); color: var(--ink-2); }
+.co-amount__row--total {
+  padding-top: var(--s-3);
+  border-top: 1px solid var(--border);
+  font-size: var(--t-lg);
+  font-weight: var(--fw-head);
+  color: var(--ink);
+}
+.co-amount__num { font-variant-numeric: tabular-nums; }
+.co-state-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-4);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+}
+.co-state-banner__title { font-size: var(--t-lg); font-weight: var(--fw-head); }
+.co-state-banner__hint { font-size: var(--t-sm); color: var(--ink-2); }
+.co-state-banner__count { margin-inline-start: auto; font-variant-numeric: tabular-nums; color: var(--ink); }
+.co-actions { display: grid; gap: var(--s-2); }
+.co-actions .btn { min-height: 44px; }
+
+@media (max-width: 1080px) {
+  .co-detail { grid-template-columns: minmax(0, 1fr); }
+  .co-detail__side { position: static; }
+}
+@media (max-width: 720px) {
+  .co-filter { min-height: 44px; }
+  .co-order__actions .btn { min-height: 44px; }
+  .co-demo select { min-height: 44px; }
+}
 `;
 
 const uiJs = `// ui.js —— 主题切换 / 密码显隐 / tabs 键盘 / 弹窗 / 商品 SKU 与购物车（无依赖）
@@ -3793,6 +4751,328 @@ const uiJs = `// ui.js —— 主题切换 / 密码显隐 / tabs 键盘 / 弹窗
     });
   }
 
+  // ---------- 移动端向导：步骤切换 + 逐步校验 + 末步回显 ----------
+  var wiz = document.querySelector('[data-wiz]');
+  if (wiz) {
+    var panels = Array.prototype.slice.call(wiz.querySelectorAll('[data-wiz-panel]'));
+    var total = panels.length;
+    var cur = 0;
+    var fill = wiz.querySelector('[data-wiz-fill]');
+    var bar = wiz.querySelector('[data-wiz-bar]');
+    var count = wiz.querySelector('[data-wiz-count]');
+    var prevBtn = wiz.querySelector('[data-wiz-prev]');
+    var nextBtn = wiz.querySelector('[data-wiz-next]');
+
+    function syncReview() {
+      var map = { title: '#wiz-title', when: '#wiz-when', priority: '#wiz-priority', device: '#wiz-device' };
+      Object.keys(map).forEach(function (k) {
+        var src = wiz.querySelector(map[k]);
+        var out = wiz.querySelector('[data-wiz-review="' + k + '"]');
+        if (src && out) out.textContent = String(src.value || '—').replace('T', ' ');
+      });
+    }
+
+    function renderWiz(focusFirst) {
+      panels.forEach(function (p, i) { p.hidden = i !== cur; });
+      if (fill) fill.style.width = ((cur + 1) / total) * 100 + '%';
+      if (bar) bar.setAttribute('aria-valuenow', String(cur + 1));
+      if (count) count.textContent = '第 ' + (cur + 1) + ' 步 / 共 ' + total + ' 步';
+      if (prevBtn) prevBtn.disabled = cur === 0;
+      if (nextBtn) nextBtn.textContent = cur === total - 1 ? '提交' : '下一步';
+      if (cur === total - 1) syncReview();
+      if (focusFirst) {
+        var first = panels[cur].querySelector('input, select, textarea');
+        if (first) first.focus({ preventScroll: true });
+      }
+    }
+
+    function validateStep() {
+      var panel = panels[cur];
+      var bad = 0;
+      panel.querySelectorAll('[data-wiz-required]').forEach(function (input) {
+        var ok = input.type === 'checkbox' ? input.checked : String(input.value || '').trim().length > 0;
+        var key = input.id || input.name;
+        var err = wiz.querySelector('[data-wiz-error="' + key + '"]');
+        if (err) err.hidden = ok;
+        input.setAttribute('aria-invalid', String(!ok));
+        if (!ok) bad += 1;
+      });
+      if (bad) {
+        var firstBad = panel.querySelector('[aria-invalid="true"]');
+        if (firstBad) firstBad.focus();
+      }
+      return bad === 0;
+    }
+
+    if (nextBtn) {
+      nextBtn.addEventListener('click', function () {
+        if (!validateStep()) return;
+        if (cur === total - 1) {
+          nextBtn.disabled = true;
+          nextBtn.textContent = '提交中…';
+          return;
+        }
+        cur = Math.min(total - 1, cur + 1);
+        renderWiz(true);
+      });
+    }
+    if (prevBtn) {
+      prevBtn.addEventListener('click', function () {
+        cur = Math.max(0, cur - 1);
+        renderWiz(true);
+      });
+    }
+    renderWiz(false);
+  }
+
+  // ---------- 横向分栏：指示点 + 键盘 + 滚动同步 ----------
+  var track = document.querySelector('[data-pager-track]');
+  if (track) {
+    var slides = Array.prototype.slice.call(track.querySelectorAll('.m-pager__slide'));
+    var dots = Array.prototype.slice.call(document.querySelectorAll('[data-pager-dot]'));
+    var pagerCount = document.querySelector('[data-pager-count]');
+    var active = 0;
+
+    function syncPager(i) {
+      active = Math.max(0, Math.min(slides.length - 1, i));
+      dots.forEach(function (d, k) { d.setAttribute('aria-current', String(k === active)); });
+      if (pagerCount) pagerCount.textContent = active + 1 + ' / ' + slides.length;
+    }
+    function goTo(i) {
+      var n = Math.max(0, Math.min(slides.length - 1, i));
+      if (slides[n]) slides[n].scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
+      syncPager(n);
+    }
+    dots.forEach(function (d) {
+      d.addEventListener('click', function () { goTo(Number(d.getAttribute('data-pager-dot'))); });
+    });
+    // 手势之外必须留键盘：左右键翻页，Home / End 到首尾
+    track.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowRight') { goTo(active + 1); e.preventDefault(); }
+      else if (e.key === 'ArrowLeft') { goTo(active - 1); e.preventDefault(); }
+      else if (e.key === 'Home') { goTo(0); e.preventDefault(); }
+      else if (e.key === 'End') { goTo(slides.length - 1); e.preventDefault(); }
+    });
+    var raf = 0;
+    track.addEventListener('scroll', function () {
+      if (raf) return;
+      raf = requestAnimationFrame(function () {
+        raf = 0;
+        var w = track.clientWidth || 1;
+        syncPager(Math.round(track.scrollLeft / w));
+      });
+    });
+    syncPager(0);
+  }
+
+  // ---------- 原生壳：桥接探测 + 无桥降级 ----------
+  var bridgeState = document.querySelector('[data-bridge-state]');
+  if (bridgeState) {
+    var bridge =
+      window.NativeBridge ||
+      (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.NativeBridge) ||
+      null;
+    var kind = window.NativeBridge
+      ? 'window.NativeBridge'
+      : bridge
+        ? 'webkit.messageHandlers.NativeBridge'
+        : '无（浏览器环境）';
+    bridgeState.textContent = bridge ? '已连接' : '浏览器环境';
+    var kindEl = document.querySelector('[data-bridge-kind]');
+    if (kindEl) kindEl.textContent = kind;
+    var detail = document.querySelector('[data-bridge-detail]');
+    if (detail) {
+      detail.textContent = bridge
+        ? '已检测到桥对象，可以 postMessage 给原生。'
+        : '没有桥对象。按钮照常可用，只提示当前环境——不要在无桥时禁用操作。';
+    }
+    window.postToNative = function (type, payload) {
+      var msg = JSON.stringify({ type: type, payload: payload || {} });
+      if (window.NativeBridge && typeof window.NativeBridge.postMessage === 'function') {
+        window.NativeBridge.postMessage(msg);
+        return true;
+      }
+      if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.NativeBridge) {
+        window.webkit.messageHandlers.NativeBridge.postMessage(msg);
+        return true;
+      }
+      return false;
+    };
+    document.addEventListener('click', function (e) {
+      var btn = e.target.closest && e.target.closest('[data-native-action]');
+      if (!btn) return;
+      var sent = window.postToNative(btn.getAttribute('data-native-action'), { at: Date.now() });
+      if (!sent && detail) {
+        detail.textContent = '无桥环境：已忽略「' + btn.getAttribute('data-native-action') + '」（真机上会走原生）。';
+      }
+    });
+  }
+
+  // ---------- 订单列表：按状态筛选 + 空态 + 计数 ----------
+  var orderList = document.querySelector('[data-order-list]');
+  if (orderList) {
+    function filterOrders() {
+      var active = document.querySelector('[data-order-filter][aria-pressed="true"]');
+      var want = active ? active.getAttribute('data-order-filter') : 'all';
+      var shown = 0;
+      Array.prototype.forEach.call(orderList.querySelectorAll('[data-order]'), function (li) {
+        var hit = want === 'all' || li.getAttribute('data-order-state') === want;
+        li.hidden = !hit;
+        if (hit) shown += 1;
+      });
+      var emptyEl = document.querySelector('[data-order-empty]');
+      if (emptyEl) emptyEl.hidden = shown > 0;
+      var countEl = document.querySelector('[data-order-count]');
+      if (countEl) countEl.textContent = String(shown);
+    }
+    document.addEventListener('click', function (e) {
+      var f = e.target.closest && e.target.closest('[data-order-filter]');
+      if (!f) return;
+      document.querySelectorAll('[data-order-filter]').forEach(function (b) {
+        b.setAttribute('aria-pressed', String(b === f));
+      });
+      filterOrders();
+    });
+    filterOrders();
+  }
+
+  // ---------- 订单详情：状态机（横幅 / 时间线 / 可执行操作三处同步）----------
+  var stateDemo = document.querySelector('[data-order-state-demo]');
+  if (stateDemo) {
+    var ORDER_STATES = {
+      pending: {
+        title: '等待付款',
+        hint: '请在 24 小时内完成支付，超时订单会自动取消。',
+        count: '23:41:08',
+        tl: { placed: 'done', paid: 'current', shipped: 'todo', delivered: 'todo' },
+        times: { paid: '等待支付', shipped: '—', delivered: '—' },
+        note: '',
+      },
+      paid: {
+        title: '已支付，等待发货',
+        hint: '商家会在 48 小时内发货，发货后可查看物流。',
+        count: '',
+        tl: { placed: 'done', paid: 'done', shipped: 'current', delivered: 'todo' },
+        times: { paid: '2026-10-31 14:25', shipped: '等待发货', delivered: '—' },
+        note: '',
+      },
+      shipped: {
+        title: '已发货，等待收货',
+        hint: '包裹已交给承运商，确认收货前可以申请退款。',
+        count: '',
+        tl: { placed: 'done', paid: 'done', shipped: 'done', delivered: 'current' },
+        times: { paid: '2026-10-31 14:25', shipped: '2026-11-01 09:10', delivered: '待确认' },
+        note: '物流单号 SF{{TODO: 单号}}，承运商顺丰速运。',
+      },
+      completed: {
+        title: '订单已完成',
+        hint: '感谢购买。7 天内可以申请售后。',
+        count: '',
+        tl: { placed: 'done', paid: 'done', shipped: 'done', delivered: 'done' },
+        times: { paid: '2026-10-31 14:25', shipped: '2026-11-01 09:10', delivered: '2026-11-03 18:02' },
+        note: '',
+      },
+      refunding: {
+        title: '退款审核中',
+        hint: '已收到退款申请，审核通过后原路退回。',
+        count: '',
+        tl: { placed: 'done', paid: 'done', shipped: 'done', delivered: 'todo' },
+        times: { paid: '2026-10-31 14:25', shipped: '2026-11-01 09:10', delivered: '—' },
+        note: '退款原因：{{TODO: 原因}}。审核预计 1–3 个工作日。',
+      },
+      refunded: {
+        title: '已退款',
+        hint: '款项已退回原支付方式，到账时间以银行为准。',
+        count: '',
+        tl: { placed: 'done', paid: 'done', shipped: 'done', delivered: 'todo' },
+        times: { paid: '2026-10-31 14:25', shipped: '2026-11-01 09:10', delivered: '—' },
+        note: '退款金额 RMB 6,799，退回至银行卡。',
+      },
+      canceled: {
+        title: '订单已取消',
+        hint: '订单已关闭。若已付款，退款会在 1–3 个工作日原路退回。',
+        count: '',
+        tl: { placed: 'done', paid: 'todo', shipped: 'todo', delivered: 'todo' },
+        times: { paid: '—', shipped: '—', delivered: '—' },
+        note: '取消原因：用户主动取消。',
+      },
+    };
+
+    function applyOrderState(key) {
+      var s = ORDER_STATES[key] || ORDER_STATES.pending;
+      var t = document.querySelector('[data-state-title]');
+      var h = document.querySelector('[data-state-hint]');
+      var c = document.querySelector('[data-state-count]');
+      if (t) t.textContent = s.title;
+      if (h) h.textContent = s.hint;
+      if (c) {
+        c.textContent = s.count;
+        c.hidden = !s.count;
+      }
+      Object.keys(s.tl).forEach(function (k) {
+        var li = document.querySelector('[data-tl="' + k + '"]');
+        if (li) li.setAttribute('data-state', s.tl[k]);
+        var time = document.querySelector('[data-tl-time="' + k + '"]');
+        if (time && s.times[k] !== undefined) time.textContent = s.times[k];
+      });
+      var note = document.querySelector('[data-tl-note]');
+      if (note) {
+        note.textContent = s.note || '';
+        note.hidden = !s.note;
+      }
+      document.querySelectorAll('[data-state-group]').forEach(function (g) {
+        g.hidden = g.getAttribute('data-state-group') !== key;
+      });
+    }
+
+    stateDemo.addEventListener('change', function () {
+      applyOrderState(stateDemo.value);
+      var fb = document.querySelector('[data-order-feedback]');
+      if (fb) fb.textContent = '';
+    });
+    applyOrderState(stateDemo.value);
+
+    function orderFeedback(text) {
+      var fb = document.querySelector('[data-order-feedback]');
+      if (fb) fb.textContent = text;
+    }
+
+    document.addEventListener('click', function (e) {
+      var cancel = e.target.closest && e.target.closest('[data-order-cancel]');
+      var confirm = e.target.closest && e.target.closest('[data-order-confirm]');
+      var unrefund = e.target.closest && e.target.closest('[data-order-cancel-refund]');
+      if (cancel) {
+        stateDemo.value = 'canceled';
+        applyOrderState('canceled');
+        orderFeedback('订单已取消。');
+      } else if (confirm) {
+        stateDemo.value = 'completed';
+        applyOrderState('completed');
+        orderFeedback('已确认收货，订单完成。');
+      } else if (unrefund) {
+        stateDemo.value = 'shipped';
+        applyOrderState('shipped');
+        orderFeedback('退款申请已撤销，订单回到待收货。');
+      }
+    });
+
+    // 退款弹窗：原生 dialog，提交后进入「退款中」
+    var refundDialog = document.getElementById('refund-dialog');
+    document.addEventListener('click', function (e) {
+      if (e.target.closest && e.target.closest('[data-open-refund]') && refundDialog) {
+        refundDialog.showModal();
+      }
+    });
+    if (refundDialog) {
+      refundDialog.addEventListener('close', function () {
+        if (refundDialog.returnValue !== 'submit') return;
+        stateDemo.value = 'refunding';
+        applyOrderState('refunding');
+        orderFeedback('退款申请已提交，等待审核。');
+      });
+    }
+  }
+
   applyFilters();
 })();
 `;
@@ -3807,9 +5087,14 @@ const pageMap = {
   auth: 'auth.html',
   states: 'states.html',
   mobile: 'mobile.html',
+  'mobile-wizard': 'mobile-wizard.html',
+  'mobile-pager': 'mobile-pager.html',
+  'mobile-native': 'mobile-native.html',
   product: 'product.html',
   cart: 'cart.html',
   checkout: 'checkout.html',
+  orders: 'orders.html',
+  order: 'order.html',
 };
 const built = {
   landing: landingHtml,
@@ -3819,9 +5104,14 @@ const built = {
   auth: authHtml,
   states: statesHtml,
   mobile: mobileHtml,
+  'mobile-wizard': mobileWizardHtml,
+  'mobile-pager': mobilePagerHtml,
+  'mobile-native': mobileNativeHtml,
   product: productHtml,
   cart: cartHtml,
   checkout: checkoutHtml,
+  orders: ordersHtml,
+  order: orderHtml,
 };
 const unknown = pages.filter((x) => !pageMap[x]);
 if (unknown.length) {

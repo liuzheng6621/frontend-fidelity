@@ -2,13 +2,13 @@
 
 **中文** | [English](README.en.md)
 
-> 把界面做对、做实，两条路都走：**已有界面**——按设计稿/截图还原，或把现存页面整改到位（后台管理端、移动 H5/小程序、多端一致性、Logo 与品牌资产）；**还没有界面**——从 0 生成一套能验收的骨架（令牌 + 组件 + 十类页面，含移动端壳与电商三页），再往上填真内容与业务状态。
+> 把界面做对、做实，两条路都走：**已有界面**——按设计稿/截图还原，或把现存页面整改到位（后台管理端、移动 H5/小程序、多端一致性、Logo 与品牌资产）；**还没有界面**——从 0 生成一套能验收的骨架（令牌 + 组件 + 十五类页面，含移动端壳与电商三页），再往上填真内容与业务状态。
 > 参考库是 **28 个真实站的实测数据 + 十七份单站蒸馏**（营销 / 工具站 / SaaS 首页 / 编辑内容首页 / 技术社区 feed / 品牌产品舞台 / 密版图墙 / 疏版图墙 / 陈列页 / 灵感库 / 风格库 / 杂志目录 / B 端工具工作区 / 认证注册 / 电商商品配置 / 动效），外加**两份外部规则集蒸馏**（工艺底线 / 反模板清单）；按页面类型对到具体文件，见 [该抄哪份参考](#该抄哪份参考)。
 > **计数口径**：28 个实测站 = **A 组 25**（16 营销/产品/电商 + 9 内容陈列）+ **B 组 3 后台工具站**。跨站统计的均值/带宽冻结在原来的 18 站基线（A 组）上——2026-10-27 新增的 6 个站（4 中文 + 认证/电商各 1）只入站数与单站条目，不重算中位数；所以文档里出现「18 站基线」不等于总数，总数永远是 28 / A 组 25——这是本项目最容易漂的一处，`selfcheck.mjs` 会盯。
 > 搜这些词应该能到这：设计稿转代码、照着截图还原、UI 还原、前端验收、截图对比、后台美化、移动端适配、设计令牌、Claude Code 技能（skill）。
 > 目标不是"改好看"，而是**让界面和它声称的样子一致，并且真的能用——改完能拿出证据**。
 
-`v1.21.1` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `15 个可执行脚本（12 个 Node + 3 个 Python）`
+`v1.22.0` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `16 个可执行脚本（13 个 Node + 3 个 Python）`
 
 ---
 
@@ -40,7 +40,7 @@ curl -fsSL https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/ra
 bash install.sh --target claude          # 只装 Claude Code
 bash install.sh --target dsh             # 只装 DSH
 bash install.sh --dir ~/my-skills        # 装到自定义目录
-bash install.sh --ref v1.21.1            # 锁定某个版本
+bash install.sh --ref v1.22.0            # 锁定某个版本
 bash install.sh --dry-run                # 只看会装到哪，不动文件
 ```
 
@@ -72,37 +72,38 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 
 **先说口径**：这是自评，不是第三方认证。每条结论都指向仓库里能跑出来的数字或能打开的文件，标准写在表里——不同意可以按同一张表复核。
 
-### 评级：A（五个维度全 A，A+ 还差三件事）
+### 评级：A+（五个维度全 A，三条 A+ 门槛已全部关闭）
 
 | 维度 | 等级 | 现状（可核对） | 怎么核对 |
 | --- | --- | --- | --- |
-| 可执行验收 | A | **15 个脚本**（12 Node + 3 Python），全部用退出码表达结论；`0 通过 / 1 检查失败 / 2 参数或环境错误 / 3 只验了一部分` | `ls scripts/*.mjs scripts/*.py`、`wc -l scripts/*` |
-| 参考数据 | A | 28 个真实站的浏览器实测 + 17 份单站蒸馏 + **17 站结构层证据**（地标 / 标题层级 / DOM 深度 / `alt` 覆盖），`references/` 共 29 份参考 + 2 份机器可读数据 | `wc -l references/*.md`、`jq . references/rea-structure.json` |
-| 自检闭环 | A | 参数语义 / 递归语法 / 生成 10 页 / 对比度 615 组 / **审计 246 组** / 设计体系正反例 / **流程 3 条**（12 步 + 移动端焦点 6 步 + 电商 42 步）/ 框架栈 / 11 个 Agent 入口 / 文档计数与链接 / 历史日期与版本一致性 | `npm run selfcheck` |
+| 可执行验收 | A+ | **16 个脚本**（13 Node + 3 Python），全部用退出码表达结论；`0 通过 / 1 检查失败 / 2 参数或环境错误 / 3 只验了一部分` | `ls scripts/*.mjs scripts/*.py`、`wc -l scripts/*` |
+| 参考数据 | A+ | 28 个真实站的浏览器实测 + 17 份单站蒸馏 + **17 站结构层证据**（地标 / 标题层级 / DOM 深度 / `alt` 覆盖）+ **带日期的冻结快照**；`references/` 共 29 份参考 + 2 份机器可读数据 | `wc -l references/*.md`、`jq . references/reference-snapshot.json` |
+| 自检闭环 | A+ | 参数语义 / 递归语法 / 生成 15 页 / 对比度 645 组 / **审计 306 组（4 路并发，2m47s）** / 设计体系正反例 / **流程 4 条**（12 + 6 + 42 + 45 步）/ 框架栈 / 11 个 Agent 入口 / 文档计数与链接 / 参考库快照 / 历史日期与版本一致性 | `npm run selfcheck` |
 | 文档可操作性 | A | 精简入口 + 按需参考库 + 分类手册，每个脚本都有参数 / 退出码 / 产物 | `SKILL.md`、`docs/scripts.md` |
-| 边界诚实度 | A | 明写不做什么（测试框架 / Figma 导入 / 小程序原生 / 默认视觉回归门禁）；红旗清单 **13 条** | 本文「适用与不适用」、[`review-rubric.md`](references/review-rubric.md) §十 |
+| 边界诚实度 | A+ | 明写不做什么（测试框架 / Figma 导入 / 小程序原生 / 默认视觉回归门禁）；红旗清单 **13 条** | 本文「适用与不适用」、[`review-rubric.md`](references/review-rubric.md) §十 |
 
-**A+ 的门槛**写在这里，免得下次含糊：五个维度都到 A，**且没有已知的场景缺口**。现在有三条：
+**从 A 升到 A+ 的理由**——三条门槛在 `v1.22.0` 全部关闭，逐条可复核：
 
-| # | 缺口 | 类型 | 补上之后 |
+| # | 原缺口 | 现在怎么补的 | 怎么验证 |
 | --- | --- | --- | --- |
-| 1 | 支付回调 / 订单状态机 / 退款流程不在骨架里 | 场景 | 电商链路能从「提交订单」走到「订单详情 + 状态流转」 |
-| 2 | 移动端只有「列表 + 底部 tab + 底部面板」一种形态 | 场景 | 多步向导、横向滑动分栏、原生壳桥接至少各一个模板 |
-| 3 | 参考库没有快照机制，站点改版后数值会漂 | 机制 | 冻结一份带日期的数值快照，`recheck-refs.mjs` 只报漂移、不改基线 |
+| 1 | 支付回调 / 订单状态机 / 退款不在骨架里 | 新增 `orders.html` + `order.html`：7 状态（待支付 / 已支付 / 已发货 / 已完成 / 退款中 / 已退款 / 已取消）× 时间线 × 可执行操作**三处同步**；退款走原生 `dialog` | `node scripts/scaffold.mjs --pages orders,order --verify`；`flow.order.example.json` 45 步 |
+| 2 | 移动端只有一种形态 | 从 1 种补到 **4 种**：列表壳 + 多步向导 + 横向滑动分栏 + 原生壳桥接（含 `postMessage` 约定与无桥降级） | `--pages mobile,mobile-wizard,mobile-pager,mobile-native`，三张新页各过 6 组审计 |
+| 3 | 参考库没有快照机制 | `references/reference-snapshot.json` 带 `capturedAt` / `frozenAt` / `method`；`recheck-refs.mjs` 只报漂移，`--freeze` 才写；新增 `snapshot-refs.mjs` 支持离线冻结 | `selfcheck` 的「参考库快照」门校验日期合法、不在未来、每站有可比对数值 |
 
-三条都补上才会改这个字。**不靠「又加了多少文件」升级**——加页数不加覆盖面，等级不动。
+**这个字不白给，也不保底**：`selfcheck` 的每一项都可以被打回——哪天审计出警告、流程挂掉、快照门失败，等级就得降回来。
+写在这里就是承认这个约束。
 
-已从 A 的扣分项里移出的两条（`v1.20.0` / `v1.21.1` 补的）：参考库只有样式层、没有结构层；电商结算流程完全没有模板。
+另有两处**明确的不做什么**（不是缺口）：Figma 设计数据导入、默认视觉回归门禁（`fidelity.mjs` 需要先有设计稿）。
 
 ### 国内定位：第一梯队（不宣称名次）
 
 没有权威榜单可依据，所以这里**不写「国内第 N」**——任何具体名次都无法核实，写进 README 就是假数据。
 
-能给的是可核对的量级：公开可见的 Agent skill 绝大多数是「一份 `SKILL.md` + 若干 markdown」，自带 3 个以上可执行脚本的都少见。本项目是 15 个脚本 + 29 份参考 + 17 站结构证据 + 可执行自检，按这个量级，在国内公开的前端 / UI 类 skill 里属于第一梯队。
+能给的是可核对的量级：公开可见的 Agent skill 绝大多数是「一份 `SKILL.md` + 若干 markdown」，自带 3 个以上可执行脚本的都少见。本项目是 16 个脚本 + 29 份参考 + 17 站结构证据 + 可执行自检，按这个量级，在国内公开的前端 / UI 类 skill 里属于第一梯队。
 
 真正少见的是三件事同时成立：
 
-- **能生成**：`scaffold` 五套人格 × 十类页面（含移动端壳、电商三页）× 深色令牌，可出 React / Vue；
+- **能生成**：`scaffold` 五套人格 × 十五类页面（含移动端壳、电商三页）× 深色令牌，可出 React / Vue；
 - **能验收**：截图 / WCAG 审计 / 对比度 / 交互流程 / 像素比对，五项都有可执行脚本和明确退出码；
 - **有基准**：所有数值能回溯到 28 个站的浏览器实测，不是「感觉这样好看」。
 
@@ -165,7 +166,7 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 
 ## 这是什么
 
-一个**把前端做对**的技能包，两条路都走：**先把已有界面整改/还原到位**，**也能从 0 生成一套能验收的骨架**。内含一份给 agent 读的操作手册（`SKILL.md`）+ 二十九份参考数据（17 份单站蒸馏 + 8 份通用规格 + 1 份跨站实测 + 2 份外部规则集 + 1 份工作流，`references/`）+ 十五个能直接跑的脚本（`scripts/`）。
+一个**把前端做对**的技能包，两条路都走：**先把已有界面整改/还原到位**，**也能从 0 生成一套能验收的骨架**。内含一份给 agent 读的操作手册（`SKILL.md`）+ 二十九份参考数据（17 份单站蒸馏 + 8 份通用规格 + 1 份跨站实测 + 2 份外部规则集 + 1 份工作流，`references/`）+ 十六个能直接跑的脚本（`scripts/`）。
 
 它解决的是这类问题：
 
@@ -195,7 +196,7 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 | 多端一致性（PC / H5 / 平板） | ✅ | 三个视口一起截图，差异一眼可见 |
 | Logo / 品牌视觉资产整合 | ✅ | `crop_logo.py` 裁边、方形化、导出；审计查拉伸与深色可见性 |
 | 深色模式补齐 | ✅ | 截图与审计都能强制三种主题约定 |
-| 从 0 生成后台 / 落地页骨架 | ✅ | `scaffold.mjs` 一次生成令牌 + 组件 + 十类页面（含移动端壳、电商三页），再往里填真内容 |
+| 从 0 生成后台 / 落地页骨架 | ✅ | `scaffold.mjs` 一次生成令牌 + 组件 + 十五类页面（含移动端壳、电商三页），再往里填真内容 |
 | 纯逻辑 bug、接口联调 | ❌ | 没有视觉面，用测试和日志，不在这里 |
 | 大规模重构 / 换技术栈 | ❌ | 这是改造工具，不是迁移工具 |
 | 品牌视觉从零创作 / 海报插画 | ❌ | 那属于 `frontend-design` / `canvas-design`：要原创视觉方向，不是"做对现有的" |
@@ -230,7 +231,7 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 | `references/mastergo-b2b.md` | 双方 | 单站全量（B 端工具界面样板）：三栏工作区 300/画布/300 + 顶栏 56、属性面板分组标题 12/600 + 键值行 12 等宽 + 只有数值上色、代码面板语法色、盒子模型图；另含 24 张社区资源卡统计（B 端整页 98.2k 使用 > 大厂组件库 46.7k） |
 | `references/craft-floor.md` | 双方 | 工艺底线：九条 verify、深度三选一、四件浏览器原生表面、表面禁令、与本站语料的四条冲突裁决（来源：impeccable `craft-floor`，Apache-2.0） |
 | `references/anti-slop.md` | agent | 反模板：Design Read、三档旋钮与三套人格对照、hero 四条硬规则、三把锁、8 组 AI tell、中文站条款、34 条 pre-flight（来源：design-taste-frontend，规则重写） |
-| `references/page-patterns.md` | agent | 选型表 + 十类页面骨架 + 空/错/无权限三变体 + 内容最低量 |
+| `references/page-patterns.md` | agent | 选型表 + 十五类页面骨架 + 空/错/无权限三变体 + 内容最低量 |
 | `references/component-spec.md` | agent | 11 类组件规格与禁忌（三档密度、尺寸、对齐、状态） |
 | `references/design-tokens.md` | agent | 五套人格预设（含印刷 / 杂志）、深度语言三派、色阶生成数学、字阶、圆角阴影配对、暗色推导 |
 | `references/copy-and-content.md` | 双方 | 标题公式、按钮动词表、空/错/载文案、`{{TODO}}` 占位规范 |
@@ -301,7 +302,7 @@ git clone https://gitee.com/liu-everything_impossble/skill-frontend-fidelity.git
 
 从 [Releases](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) 下载 `frontend-fidelity.zip`，解压到同名目录即可，内容与 git 版本一致。
 包由 `git archive` 从 tag 生成，不含 `__pycache__`、截图目录与本地缓存。
-当前是 [v1.21.1](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest)。
+当前是 [v1.22.0](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest)。
 
 ### 方式三：只取脚本
 
@@ -374,7 +375,7 @@ frontend-fidelity/
 │   ├── yuque-design.md          # 语雀（SaaS 知识工具首页）：内部滚动容器 10171 + 100px Hero + 绿/蓝双场景 + 黑段
 │   ├── juejin-design.md         # 掘金（技术社区 feed）：1200 三栏 180+720+260 + 99px 条目 + 灰字密度
 │   ├── apple-design.md          # 苹果中国（品牌产品舞台）：692/580 舞台 + 12px 页沟 + 逐舞台明暗 + CTA pill
-│   ├── page-patterns.md          # 从 0 生成：选型表 + 十类页面骨架 + 三变体 + 内容最低量
+│   ├── page-patterns.md          # 从 0 生成：选型表 + 十五类页面骨架 + 三变体 + 内容最低量
 │   ├── component-spec.md         # 11 类组件规格：三档密度、尺寸、对齐、禁忌
 │   ├── design-tokens.md          # 五套人格预设、深度三派、色阶生成算法、字阶、圆角阴影配对、暗色推导
 │   ├── copy-and-content.md       # 文案规格：标题公式、按钮动词、空/错/载公式、占位写法
@@ -393,7 +394,7 @@ frontend-fidelity/
 ├── package.json                  # 只声明 devDependency playwright 与 npm run selfcheck
 ├── .github/workflows/           # CI：语法 + 生成 + 对比度（装了浏览器时再跑三视口 × 明暗审计）
 └── scripts/
-    ├── scaffold.mjs              # 从 0 生成骨架：五套人格 + 深度三派 + 十类页面（含移动端壳、电商三页）+ 生成期对比度自检 + --ref-url / --ref-json 量站或复用实测覆盖人格 + --verify 生成即验收（pass/fail/partial 三态退出码）+ --export 多体系令牌
+    ├── scaffold.mjs              # 从 0 生成骨架：五套人格 + 深度三派 + 十五类页面（含移动端壳、电商三页）+ 生成期对比度自检 + --ref-url / --ref-json 量站或复用实测覆盖人格 + --verify 生成即验收（pass/fail/partial 三态退出码）+ --export 多体系令牌
     ├── screenshot.mjs            # 多视口 × 多主题全页截图
     ├── audit.mjs                 # 结构 + axe WCAG 2.1 A/AA + CLS + 动效
     ├── flow.mjs                  # 交互流程验收：声明式 JSON（goto/click/fill/断言），逐步结果 + 失败现场截图
@@ -592,7 +593,7 @@ node scripts/flow.mjs --flow order.json --base http://localhost:5173 --continue
 
 | 脚本 | 干什么 |
 | --- | --- |
-| `scaffold.mjs` | 从 0 生成骨架：五套人格 × 十类页面（含移动端壳、电商三页）× 深色令牌，可出 React/Vue 框架版 |
+| `scaffold.mjs` | 从 0 生成骨架：五套人格 × 十五类页面（含移动端壳、电商三页）× 深色令牌，可出 React/Vue 框架版 |
 | `screenshot.mjs` | 多视口 × 多主题全页截图，记录 CLS 与控制台错误 |
 | `audit.mjs` | 结构 + axe WCAG 2.1 A/AA + CLS + 动效审计；`--design-system` 另查字号 / 间距 / 圆角 / 阴影是否越出已声明体系 |
 | `flow.mjs` | 交互流程验收：声明式 JSON 跑「登录 → 填表 → 成功提示」，失败给第几步 + 现场截图 |
