@@ -9,7 +9,7 @@ description: >-
   自带可运行脚本：多视口多主题截图、结构与 WCAG 审计、设计体系一致性（字号 / 间距 / 圆角 / 阴影档位）、
   对比度检查、交互流程验收、登录态导出、
   参考站实测探针、仓库残留清理、跑项目自带的质量门，以及 scaffold.mjs 一键生成骨架。
-  参考库是 27 个真实站的实测数据 + 十六份单站蒸馏（营销页 / 工具站 / SaaS 首页 / 编辑内容首页 / 技术社区 feed / 品牌产品舞台 / 密版图墙 / 疏版图墙 / 陈列页 / 灵感库 / 风格库 / 杂志目录 / B 端工具工作区 / 认证注册 / 电商商品配置 / 动效；27 = A 组 24 + 3 后台工具站），
+  参考库是 28 个真实站的实测数据 + 十七份单站蒸馏（营销页 / 工具站 / SaaS 首页 / 编辑内容首页 / 技术社区 feed / 品牌产品舞台 / 密版图墙 / 疏版图墙 / 陈列页 / 灵感库 / 风格库 / 杂志目录 / B 端工具工作区 / 认证注册 / 电商商品配置 / 动效 / 奖项目录；28 = A 组 25 + 3 后台工具站），
   外加动效规格、工艺底线、反模板清单与视觉细则层（含浏览器原生表面、三把锁、动效五档与三档降级），
   按页面类型对到具体文件与配方小节。
   不用于：纯逻辑 bug 修复；插画/海报等纯视觉创作（那属于 canvas-design）。
@@ -72,6 +72,7 @@ node scripts/scaffold.mjs --ref-url https://linear.app --out ui --pages app,form
 | 品牌产品发布页 / 硬件舞台 | `editorial` | `landing` | `apple-design.md` |
 | 电商商品详情 / SKU 选择 | `warm` | `landing,form` | `applestore-commerce.md` |
 | 移动 H5 / 小程序 WebView（列表 + 底部 tab + 底部面板） | `rational`（工具）或 `warm`（消费） | `mobile` | `design-evidence.md` 的 390 单列 / gap 12 / tab 4 项，`applestore-commerce.md` 的控件高 |
+| 奖项目录 / 榜单 / 每日一作 | `magazine` 或 `editorial` | `catalog`（加 `landing` 做今日一作） | `awwwards-design.md` |
 
 ```bash
 node scripts/scaffold.mjs --persona <人格> --pages <页面> --out ui --verify
@@ -118,9 +119,9 @@ node scripts/scaffold.mjs --persona <人格> --pages <页面> --out ui --verify
 ## 参考文件指针（按需查，不要一次背完）
 
 - **工作流与选型**：`references/workflow.md`（模式 A 五步 / 模式 B 六步 / 交付模板）、`references/page-patterns.md`（九类页面骨架表，含目录陈列）、`references/design-tokens.md`（五套人格完整令牌）
-- **数值证据**：`references/design-evidence.md`（27 个真实站实测，「哪些能抄、哪些不能」）、`scripts/probe-ref.mjs`（量任意站）
+- **数值证据**：`references/design-evidence.md`（28 个真实站实测，「哪些能抄、哪些不能」）、`scripts/probe-ref.mjs`（量任意站）
 - **规格**：`references/component-spec.md`（11 类组件规格卡）、`references/motion-spec.md`（动效）、`references/copy-and-content.md`（文案）、`references/visual-system.md`（视觉细则全本：中文排版 / 色彩 / 层级五派 / 页面结构 / 控件 8 状态 / 响应式 / 深色 / 可访问性 / AI tell）
-- **单站蒸馏**：营销工具站 `wegic-design.md`、`jsdesign-design.md`；SaaS 首页 `yuque-design.md`；编辑内容首页 `sspai-design.md`；技术社区 feed `juejin-design.md`；品牌产品舞台 `apple-design.md`；内容图墙 `uishijie-design.md`、`zcool-design.md`、`uinotes-design.md`；杂志目录 `muzli-gallery.md`；风格库 `luckymaomi-catalog.md`、`stylekit-design.md`；B 端工具 `mastergo-b2b.md`；认证注册 `vercel-auth.md`；电商商品配置 `applestore-commerce.md`；动效案例 `holynova-motion.md`
+- **单站蒸馏**：营销工具站 `wegic-design.md`、`jsdesign-design.md`；SaaS 首页 `yuque-design.md`；编辑内容首页 `sspai-design.md`；技术社区 feed `juejin-design.md`；品牌产品舞台 `apple-design.md`；内容图墙 `uishijie-design.md`、`zcool-design.md`、`uinotes-design.md`；杂志目录 `muzli-gallery.md`；风格库 `luckymaomi-catalog.md`、`stylekit-design.md`；B 端工具 `mastergo-b2b.md`；认证注册 `vercel-auth.md`；电商商品配置 `applestore-commerce.md`；动效案例 `holynova-motion.md`；奖项目录 `awwwards-design.md`
 - **手册与摘要（`docs/`）**：`docs/scripts.md`（每个脚本的参数 / 退出码 / 产物）、`docs/reference-sites.md`（各站实测与重采命令）、`docs/visual-summary.md`（视觉细则速查）——要查用法先看 `docs/`，`references/` 只放判据与配方
 - **工艺与验收**：`references/craft-floor.md`（工艺底线九条）、`references/anti-slop.md`（反模板清单 + 34 条 pre-flight）、`references/review-rubric.md`（交付前逐项勾）、`references/css-recipes.md`（可复制片段，§12–22 是各站风味）
 

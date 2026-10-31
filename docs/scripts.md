@@ -523,6 +523,31 @@ node scripts/probe-ref.mjs --url https://example.com --no-shot # 不存截图
 
 ---
 
+### recheck-refs.mjs — 参考站批量复测
+
+**用途**：参考库的数值是采样当天的，站点改版后会悄悄过期。一次量完 17 个单站参考，和基线对比，只报差异。
+
+```bash
+node scripts/recheck-refs.mjs                       # 全量，报告写 docs/reference-recheck.md
+node scripts/recheck-refs.mjs --only awwwards,muzli # 只测指定站点
+node scripts/recheck-refs.mjs --concurrency 3 --timeout 90
+node scripts/recheck-refs.mjs --update-baseline     # 确认改版后重设基线
+node scripts/recheck-refs.mjs --strict              # 有站点不可达时退出 1
+```
+
+| 参数 | 默认 | 说明 |
+| --- | --- | --- |
+| `--only` | 全部 | 逗号分隔的站点 key（见脚本内 `SITES`） |
+| `--concurrency` | `4` | 并发探针数，1–6 |
+| `--timeout` | `90` | 单站超时秒数，超时即 `failed` |
+| `--update-baseline` | 关 | 用本次可达结果重写 `references/recheck-baseline.json` |
+| `--strict` | 关 | 有失败站点时退出 1 |
+
+- 逐站调用 `probe-ref.mjs`，解析其 JSON，抽 H1 / 正文 / 控件高 / 主字体 / 底色 / 卡片 / 懒加载图。
+- 基线首次运行自动建立；**失败站点不写入基线**——被拦、超时、下线不能当成「没变化」。
+- 报告只报差异，不改写单站结论；确认改版后再手工更新对应 `references/*-design.md`。
+- 退出码：`0` 正常；`1` 加了 `--strict` 且有站点失败；`2` 参数错。
+
 ### fidelity.mjs — 像素级还原验收（设计稿 vs 实现）
 
 「照着设计稿做完了没有」不该靠眼睛投票。把设计稿和真实渲染逐像素比一次，给出能贴进验收单的数字。

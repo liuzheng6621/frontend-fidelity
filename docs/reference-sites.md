@@ -589,3 +589,34 @@ wc -l 'E:\实验室打卡预约系统-交接包-20260910\实验室打卡预约�
 ```
 
 两份都是**别人写的规则**，不是实测。要引用具体数值时，一律回 `design-evidence.md`。
+
+## 参考站蒸馏：Awwwards 奖项目录站
+
+2026-10-31 采集首页（1440 / 390 双视口；REA 被动结构 + `probe-ref` 985 元素 + 盒模型定向实测），完整实测在
+[`references/awwwards-design.md`](../references/awwwards-design.md)。它补的是「**奖项目录 / 榜单站**」这一形态：
+主角是单件作品，不是一批卡片。
+
+### 三招值得直接搬
+
+| 招 | 实测数值 | 为什么成立 |
+| --- | --- | --- |
+| **三级明度代替边框** | 画布 `#f8f8f8` / 表面 `#fff` / 文字 `#222`；20 张卡 0 边框 0 阴影 | 卡片靠图片与留白分层，去掉壳之后页面安静、作品更响 |
+| **巨标题一行装下站名** | 126.7px / 1.0 / 600 / uppercase；移动 42 | 一行装得下就不换行，`letter-spacing: normal` 不硬挤 |
+| **近满宽封面留 10px 呼吸缝** | 1420×1065，左右内缩 10，圆角 0 | 比全出血更容易和 1336 栅格对齐，也不会看起来「贴边」 |
+
+### 也别学它这几处
+
+- **59 张图 0 懒加载**：首屏之后的作品图全部立即请求，移动网络下是明确的性能债。
+- **间距里混着 4.2px 与 20.6479px**：em 嵌套算出来的脏值，和 8/20/30 的整数体系并存。
+- **输入字 13px + 控件 42 高**：英文界面能忍，中文与移动端偏小，按 `component-spec.md` 用 14/16。
+- **Cookie 面板压住首屏封面右下**：浮层没有避让主内容，交付时要给浮层留安全区。
+
+### 重采
+
+```bash
+node scripts/probe-ref.mjs --url https://www.awwwards.com/ --out .tmp/awwwards
+node scripts/screenshot.mjs --url https://www.awwwards.com/ --out .tmp/awwwards-shots --viewports desktop,mobile
+node scripts/audit.mjs --url https://www.awwwards.com/ --themes light
+```
+
+首页每天换站：**只对比令牌与网格，不对比标题文字**。被反爬拦下时用真实浏览器窗口重试，别把空页当结论。

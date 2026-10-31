@@ -1894,3 +1894,95 @@ grid?.addEventListener('pointermove', (e) => {
 2. 深色模式**只换令牌，不换结构**——不要给深色版另加卡片和阴影，会碎。
 3. 属性面板的分组标题要"比内容更安静"（12/600/灰）；一旦标题比值还亮，视线会被拽走。
 4. 数值 20/600 只用在**真正会被改的数值**（间距、尺寸、圆角），代码行里的 12px 不要放大。
+## 23. 奖项目录站（Awwwards 风味，实测蒸馏）
+
+### 23.1 令牌：三级明度 + 一个只做标记的强调色
+
+```css
+:root {
+  --aw-bg: #f8f8f8;          /* 画布，比纯白低一档 */
+  --aw-surface: #ffffff;     /* 搜索框 / 浮层 */
+  --aw-ink: #222222;         /* 文字与实心按钮 */
+  --aw-muted: #dedede;       /* 深底上的次级字 */
+  --aw-chip: #e9e9e9;        /* 搜索底、灰面板 */
+  --aw-mark: #fff083;        /* 只给 New / PRO 角标，全站 ≤3 处 */
+  --aw-r: 8px;               /* 主圆角：按钮、卡信息区 */
+  --aw-r-panel: 14px;        /* 浮层 */
+  --aw-side: 52px;           /* 1440 下两侧 52；390 下改 16 */
+}
+```
+
+### 23.2 顶栏：71 外壳 + 54 内条
+
+```css
+.aw-header {
+  position: sticky; top: 0; z-index: 30;
+  height: 71px; padding: 8px var(--aw-side) 0;
+  background: var(--aw-bg);
+}
+.aw-header__bar {
+  height: 54px; display: flex; align-items: center; gap: 20px;
+}
+.aw-nav { display: flex; gap: 20px; font-size: 14px; }
+.aw-search {
+  flex: 1; max-width: 460px; height: 42px;
+  display: flex; align-items: center; gap: 8px;
+  padding: 0 14px; border: 0; border-radius: var(--aw-r);
+  background: var(--aw-chip); color: var(--aw-ink); font-size: 14px;
+}
+.aw-btn {
+  height: 42px; padding: 0 20px; border-radius: var(--aw-r);
+  border: 1px solid transparent; font-size: 14px;
+}
+.aw-btn--solid { background: var(--aw-ink); color: #fff; }
+.aw-btn--ghost { background: transparent; border-color: var(--aw-ink); color: var(--aw-ink); }
+```
+
+### 23.3 今日一作：巨标题 + 近满宽封面
+
+```css
+.aw-hero { padding: 34px var(--aw-side) 0; text-align: center; }
+.aw-hero__eyebrow { font-size: 14px; line-height: 2; }
+.aw-hero__title {
+  font-size: clamp(56px, 8.8vw, 127px);   /* 1440 → 126.7；390 → 42 另设断点 */
+  line-height: 1; font-weight: 600;
+  letter-spacing: normal;                  /* 别用负字距硬挤 */
+  text-transform: uppercase;
+}
+.aw-hero__credit { display: flex; justify-content: center; align-items: center; gap: 8px; font-size: 14px; }
+@media (max-width: 640px) {
+  .aw-hero__title { font-size: 42px; }
+}
+.aw-cover {
+  width: calc(100% - 20px); margin: 34px auto 0;   /* 左右各 10px 呼吸缝 */
+  aspect-ratio: 4 / 3; overflow: hidden; border-radius: 0;
+}
+.aw-cover img { width: 100%; height: 100%; object-fit: cover; }
+```
+
+### 23.4 作品网格：2 列 658 / 3 列 432，卡不画壳
+
+```css
+.aw-grid { display: grid; gap: 30px 20px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.aw-grid--three { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+@media (max-width: 640px) {
+  .aw-grid, .aw-grid--three { grid-template-columns: minmax(0, 1fr); }
+}
+.aw-card { display: block; color: inherit; text-decoration: none; }
+.aw-card__media { aspect-ratio: 658 / 550; overflow: hidden; background: var(--aw-chip); }
+.aw-card__media img { width: 100%; height: 100%; object-fit: cover; }
+.aw-card__info { padding-top: 24px; }
+.aw-card__title { font-size: 21px; line-height: 1.3; }
+.aw-card__meta { font-size: 14px; line-height: 2; color: color-mix(in srgb, var(--aw-ink) 64%, transparent); }
+.aw-mark {
+  display: inline-block; padding: 2px 6px; border-radius: 4px;
+  background: var(--aw-mark); color: var(--aw-ink); font-size: 11px;
+}
+```
+
+### 23.5 使用说明
+
+1. **卡不画壳**只在图片稳定时成立：给 `.aw-card__media` 一个 `--aw-chip` 底色当兜底，并补 `loading="lazy"`（原站 59 张图 0 懒加载，这条别学）。
+2. 网格列距 20、行距 30，**移动端只改列数不改间距**；改间距会让两端节奏断开。
+3. 强调色最多 3 处，只做事件标记；一旦拿它当按钮底色，整页就变成促销页。
+4. 巨标题用 `clamp()` 收口，原站是 126.7 与 42 两个断点值；中文站建议上限 72，别照搬 127。

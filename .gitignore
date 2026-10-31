@@ -28,3 +28,4 @@ Thumbs.db
 
 # Agent 本地记忆
 .workbuddy-ai/
+.gh-token

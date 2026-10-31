@@ -200,7 +200,7 @@ node scripts/scaffold.mjs --persona rational --export tailwind,antd,element  # �
 
 ## 参考库完整索引
 
-- `references/design-evidence.md` — 27 个实测成功的站点（24 个 A 组：营销/产品/电商站 16 + 内容陈列站 8，另有 shadcn/linear/cal.com 三个后台）量出来的
+- `references/design-evidence.md` — 28 个实测成功的站点（25 个 A 组：营销/产品/电商站 16 + 内容陈列站 9，另有 shadcn/linear/cal.com 三个后台）量出来的
   字体、字阶、行高比、间距基数、圆角档位、表格密度、控件高度，以及「哪些能抄、哪些不能抄」。
   **不知道该定多少数值时先看这里，比凭感觉猜准。**
 - `references/wegic-design.md` — wegic.ai 单站全量蒸馏：完整 `--wg-*` 令牌、塑料按钮的 6 层内阴影、
