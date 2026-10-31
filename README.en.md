@@ -7,7 +7,7 @@
 > **Counting rule**: 28 measured sites = **Group A 25** (16 marketing/product/commerce + 9 content galleries) + **Group B 3 backend tools**. Cross-site averages stay frozen at the original 18-site baseline; newer samples only add sites and single-site entries. Totals are always 28 / Group A 25 — `selfcheck.mjs` guards this.
 > The goal is not "make it prettier" but **make the interface match what it claims to be, and actually work — with evidence**.
 
-`v1.17.0` · [latest release](https://github.com/liuzheng6621/frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9 (cropping/contrast only)` · `offline WCAG checks` · `14 executables (11 Node + 3 Python)`
+`v1.18.0` · [latest release](https://github.com/liuzheng6621/frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9 (cropping/contrast only)` · `offline WCAG checks` · `15 executables (12 Node + 3 Python)`
 
 ---
 
@@ -53,7 +53,7 @@ Start a new session after installing, then say "rebuild this page from the scree
 | --- | --- |
 | Entry | `SKILL.md` — routing table, 30-second start, quality gates, design baseline |
 | Reference library | 29 Markdown files: 17 single-site distillations + 8 general specs + 1 cross-site evidence file + 2 external rule sets + 1 workflow |
-| Executables | 14 scripts: screenshots, WCAG/CLS audit, contrast, design-system audit, flow checks, pixel diff, auth export, reference probe, batch recheck, repo hygiene, quality gates, scaffold generator, self-check |
+| Executables | 15 scripts: screenshots, WCAG/CLS audit, contrast, design-system audit, flow checks, pixel diff, auth export, reference probe, batch recheck, repo hygiene, quality gates, scaffold generator, self-check |
 | Generator | `scaffold.mjs`: five personas × seven page types × dark tokens, optional React/Vue output |
 
 ## Two modes
@@ -85,6 +85,7 @@ Generated output is a starting point, not a finished product: replace every `{{T
 | `fidelity.mjs` | Pixel-level comparison between a design file and the implementation |
 | `contrast_check.py` | Token-level contrast audit, supports `color-mix` and `.dark` |
 | `probe-ref.mjs` | Measure any reference site's real fonts, colors, radii, spacing into JSON |
+| `agent-adapter.mjs` | Generate entry files for Codex, Gemini CLI, Cursor, Windsurf, Cline, Roo, Continue, OpenHands, Aider and Zed |
 | `recheck-refs.mjs` | Re-measure all 17 single-site references, diff against a baseline, write `docs/reference-recheck.md` |
 | `auth.mjs` | Export a logged-in browser state for later audits and screenshots |
 | `crop_logo.py` | Trim, square and export brand marks |
@@ -139,6 +140,22 @@ Keyboard walk-through (Tab reachable, visible focus, Esc closes overlays) and 20
 | Motion | [`references/motion-spec.md`](references/motion-spec.md), [`holynova-motion.md`](references/holynova-motion.md) |
 
 Two files apply to every page type: [`anti-slop.md`](references/anti-slop.md) (AI tells, pre-flight list) and [`craft-floor.md`](references/craft-floor.md) (craft floor, depth languages, browser-native surfaces).
+
+## Use it from other agents
+
+Nothing here is tied to one client: the entry is `SKILL.md` and the tools are plain Node/Python.
+Generate the rule file your agent reads — pointers only, no duplicated reference library:
+
+```bash
+node scripts/agent-adapter.mjs --target codex --out <project>   # AGENTS.md
+node scripts/agent-adapter.mjs --target cursor --out <project>  # .cursor/rules/*.mdc
+node scripts/agent-adapter.mjs --all --out <project>            # every adapter
+```
+
+Supported: Codex CLI / generic (`AGENTS.md`), Gemini CLI (`GEMINI.md`), Cursor, Windsurf, Cline,
+Roo Code, Continue, OpenHands, Aider (`CONVENTIONS.md`), Zed (`.rules`).
+Installer also targets WorkBuddy: `bash install.sh --target workbuddy` (or `--target all`).
+See [`docs/agents.md`](docs/agents.md) for the loading differences and the parts this does not promise.
 
 ## Repository layout
 

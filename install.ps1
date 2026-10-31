@@ -2,7 +2,7 @@
 .SYNOPSIS
   安装 frontend-fidelity 技能（Claude Code / DSH）
 .DESCRIPTION
-  默认装到 ~\.claude\skills 与 ~\.dsh\skills；用 -Dir 可装到别处。
+  默认装到 ~\.claude\skills 与 ~\.dsh\skills；-Target workbuddy 装到 ~\.workbuddy-ai\skills；-Dir 可装到别处。
 .EXAMPLE
   irm https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/raw/master/install.ps1 | iex
 .EXAMPLE
@@ -12,7 +12,7 @@
 #>
 [CmdletBinding()]
 param(
-  [ValidateSet('claude','dsh','both')][string]$Target = 'both',
+  [ValidateSet('claude','dsh','workbuddy','both','all')][string]$Target = 'both',
   [string]$Dir,
   [string]$Ref = 'master',
   [string]$Repo = 'https://gitee.com/liu-everything_impossble/skill-frontend-fidelity.git',
@@ -28,7 +28,9 @@ function Get-Bases {
   switch ($Target) {
     'claude' { return @(Join-Path $HOME '.claude\skills') }
     'dsh'    { return @(Join-Path $HOME '.dsh\skills') }
+    'workbuddy' { return @(Join-Path $HOME '.workbuddy-ai\skills') }
     'both'   { return @((Join-Path $HOME '.claude\skills'), (Join-Path $HOME '.dsh\skills')) }
+    'all'    { return @((Join-Path $HOME '.claude\skills'), (Join-Path $HOME '.dsh\skills'), (Join-Path $HOME '.workbuddy-ai\skills')) }
   }
 }
 

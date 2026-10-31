@@ -523,6 +523,29 @@ node scripts/probe-ref.mjs --url https://example.com --no-shot # 不存截图
 
 ---
 
+### agent-adapter.mjs — 给其他 AI / Agent 生成规则入口
+
+**用途**：不同工具读不同的规则文件。按目标生成对应入口，内容只有「指路 + 三条铁律」，不复制参考库。
+
+```bash
+node scripts/agent-adapter.mjs --target codex --out ./repo
+node scripts/agent-adapter.mjs --all --out ./repo
+node scripts/agent-adapter.mjs --target gemini --print
+```
+
+| 参数 | 默认 | 说明 |
+| --- | --- | --- |
+| `--target` | 必填 | `codex` / `gemini` / `cursor` / `windsurf` / `cline` / `roo` / `continue` / `openhands` / `aider` / `zed` / `generic` / `all` |
+| `--out` | 当前目录 | 写到哪个项目根 |
+| `--skill` | 本 Skill 根目录 | 入口里引用的绝对路径 |
+| `--print` | 关 | 只打印，不落盘 |
+| `--force` | 关 | 覆盖已存在的同名文件（默认跳过并提示） |
+
+- 生成的是入口文件，不是副本；Skill 升级后不用重新生成。
+- 不覆盖已有文件：内容相同报「已是最新」，不同则跳过并提示。
+- 各家加载差异与不承诺的部分见 [`docs/agents.md`](agents.md)。
+- 退出码：`0` 成功；`2` 未知 target 或 Skill 目录不存在。
+
 ### recheck-refs.mjs — 参考站批量复测
 
 **用途**：参考库的数值是采样当天的，站点改版后会悄悄过期。一次量完 17 个单站参考，和基线对比，只报差异。

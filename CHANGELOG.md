@@ -8,6 +8,15 @@
 各版本条目首次引入的对应提交日期校正；这些日期是**提交日期，不据此宣称发行日期**。
 v1.0.0 保留初始化提交 `6da84f5`（2026-10-22）支持的日期；其余已一致的标题日期不改。
 
+## v1.18.0 - 2026-10-31
+
+- 新增 `scripts/agent-adapter.mjs`：为 Codex / Gemini CLI / Cursor / Windsurf / Cline / Roo /
+  Continue / OpenHands / Aider / Zed 生成规则入口（只写指针，不复制参考库）。脚本数 14 → 15。
+- 新增 `docs/agents.md`：各工具读哪个文件、加载差异、不承诺的部分。
+- `install.sh` / `install.ps1` 新增 `workbuddy` 目标（`~/.workbuddy-ai/skills`）与 `all`；
+  分发文件补 `README.en.md`。
+- README 中英双语补「在其他 AI / Agent 里用」章节。
+
 ## v1.17.0 - 2026-10-31
 
 - 新增 `scripts/recheck-refs.mjs`：17 个单站参考批量复测 + 基线漂移报告（`docs/reference-recheck.md`）；

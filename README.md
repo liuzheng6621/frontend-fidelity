@@ -8,7 +8,7 @@
 > 搜这些词应该能到这：设计稿转代码、照着截图还原、UI 还原、前端验收、截图对比、后台美化、移动端适配、设计令牌、Claude Code 技能（skill）。
 > 目标不是"改好看"，而是**让界面和它声称的样子一致，并且真的能用——改完能拿出证据**。
 
-`v1.17.0` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `14 个可执行脚本（11 个 Node + 3 个 Python）`
+`v1.18.0` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `15 个可执行脚本（12 个 Node + 3 个 Python）`
 
 ---
 
@@ -40,7 +40,7 @@ curl -fsSL https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/ra
 bash install.sh --target claude          # 只装 Claude Code
 bash install.sh --target dsh             # 只装 DSH
 bash install.sh --dir ~/my-skills        # 装到自定义目录
-bash install.sh --ref v1.17.0            # 锁定某个版本
+bash install.sh --ref v1.18.0            # 锁定某个版本
 bash install.sh --dry-run                # 只看会装到哪，不动文件
 ```
 
@@ -76,7 +76,7 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 
 | 维度 | 现状 | 怎么核对 |
 | --- | --- | --- |
-| 可执行验收 | **14 个脚本**（11 Node + 3 Python），全部用退出码表达结论 | `ls scripts/*.mjs scripts/*.py`、`wc -l scripts/*` |
+| 可执行验收 | **15 个脚本**（12 Node + 3 Python），全部用退出码表达结论 | `ls scripts/*.mjs scripts/*.py`、`wc -l scripts/*` |
 | 参考数据 | 28 个真实站的浏览器实测 + 17 份单站蒸馏，`references/` 共 29 份，按主题索引 | `wc -l references/*.md` |
 | 自检闭环 | 参数语义 / 递归语法 / 生成 / 对比度 / 审计 / 流程冒烟 / 框架栈 / 文档计数与链接 / 历史日期与版本一致性 | `npm run selfcheck` |
 | 文档可操作性 | 精简入口 + 按需参考库 + 分类手册，每个脚本都有参数 / 退出码 / 产物 | `SKILL.md`、`docs/scripts.md` |
@@ -91,7 +91,7 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 
 没有权威榜单可依据，所以这里**不写「国内第 N」**——任何具体名次都无法核实，写进 README 就是假数据。
 
-能给的是可核对的量级：公开可见的 Agent skill 绝大多数是「一份 `SKILL.md` + 若干 markdown」，自带 3 个以上可执行脚本的都少见。本项目是 14 个脚本 + 29 份参考 + 可执行自检，按这个量级，在国内公开的前端 / UI 类 skill 里属于第一梯队。
+能给的是可核对的量级：公开可见的 Agent skill 绝大多数是「一份 `SKILL.md` + 若干 markdown」，自带 3 个以上可执行脚本的都少见。本项目是 15 个脚本 + 29 份参考 + 可执行自检，按这个量级，在国内公开的前端 / UI 类 skill 里属于第一梯队。
 
 真正少见的是三件事同时成立：
 
@@ -158,7 +158,7 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 
 ## 这是什么
 
-一个**把前端做对**的技能包，两条路都走：**先把已有界面整改/还原到位**，**也能从 0 生成一套能验收的骨架**。内含一份给 agent 读的操作手册（`SKILL.md`）+ 二十九份参考数据（17 份单站蒸馏 + 8 份通用规格 + 1 份跨站实测 + 2 份外部规则集 + 1 份工作流，`references/`）+ 十四个能直接跑的脚本（`scripts/`）。
+一个**把前端做对**的技能包，两条路都走：**先把已有界面整改/还原到位**，**也能从 0 生成一套能验收的骨架**。内含一份给 agent 读的操作手册（`SKILL.md`）+ 二十九份参考数据（17 份单站蒸馏 + 8 份通用规格 + 1 份跨站实测 + 2 份外部规则集 + 1 份工作流，`references/`）+ 十五个能直接跑的脚本（`scripts/`）。
 
 它解决的是这类问题：
 
@@ -294,7 +294,7 @@ git clone https://gitee.com/liu-everything_impossble/skill-frontend-fidelity.git
 
 从 [Releases](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) 下载 `frontend-fidelity.zip`，解压到同名目录即可，内容与 git 版本一致。
 包由 `git archive` 从 tag 生成，不含 `__pycache__`、截图目录与本地缓存。
-当前是 [v1.17.0](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest)。
+当前是 [v1.18.0](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest)。
 
 ### 方式三：只取脚本
 
@@ -317,6 +317,30 @@ pip install pillow numpy             # numpy 可选，只影响大图裁切速�
 - playwright 的解析顺序是**先按技能目录、再按当前工作目录**，各自找 `playwright` 与 `playwright-core`（用 `createRequire` + 绝对路径，不依赖 NODE_PATH）。所以在目标项目里跑最稳：项目根有 `node_modules/playwright` 就一定能找到。
 
 ---
+
+## 在其他 AI / Agent 里用
+
+不绑定客户端。入口是 `SKILL.md`，脚本是普通 Node / Python；其他工具只要能读文件、能跑命令就能用。
+一条命令生成对应规则入口（只写指针，不复制参考库）：
+
+```bash
+node scripts/agent-adapter.mjs --target codex --out <项目>   # AGENTS.md
+node scripts/agent-adapter.mjs --target cursor --out <项目>  # .cursor/rules/*.mdc
+node scripts/agent-adapter.mjs --all --out <项目>            # 一次写全部
+```
+
+| 工具 | 生成文件 |
+| --- | --- |
+| Codex CLI / 通用 | `AGENTS.md` |
+| Gemini CLI | `GEMINI.md` |
+| Cursor | `.cursor/rules/frontend-fidelity.mdc` |
+| Windsurf | `.windsurf/rules/frontend-fidelity.md` |
+| Cline / Roo Code | `.clinerules/…` / `.roo/rules/…` |
+| Continue / OpenHands | `.continue/rules/…` / `.openhands/microagents/…` |
+| Aider / Zed | `CONVENTIONS.md` / `.rules` |
+
+安装器也支持 WorkBuddy：`bash install.sh --target workbuddy`（或 `--target all` 三端一起装）。
+各家的加载差异与不承诺的部分见 [`docs/agents.md`](docs/agents.md)。
 
 ## 仓库结构
 
