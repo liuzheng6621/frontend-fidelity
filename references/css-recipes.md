@@ -1986,3 +1986,124 @@ grid?.addEventListener('pointermove', (e) => {
 2. 网格列距 20、行距 30，**移动端只改列数不改间距**；改间距会让两端节奏断开。
 3. 强调色最多 3 处，只做事件标记；一旦拿它当按钮底色，整页就变成促销页。
 4. 巨标题用 `clamp()` 收口，原站是 126.7 与 42 两个断点值；中文站建议上限 72，别照搬 127。
+
+## 24. 移动端保真三件套（retina 1px / 两级令牌 / 控件阶梯）
+
+移动端最容易「看起来不对但说不出哪不对」的三件事。三条都能直接粘。
+
+### 24.1 retina 1px：`border: 1px` 在 3x 屏上是 3 物理像素
+
+设计稿上的发丝线，到 iPhone 上变成 3 倍粗的灰条。不是颜色错，是物理像素错。
+
+```css
+.hairline { position: relative; }
+.hairline::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border: 0 solid var(--border);
+  border-radius: inherit;
+}
+.hairline--top::after { border-top-width: 1px; }
+.hairline--bottom::after { border-bottom-width: 1px; }
+.hairline--all::after { border-width: 1px; }
+
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 2dppx) {
+  .hairline::after {
+    inset: auto; left: 0; top: 0;
+    width: 200%; height: 200%;
+    transform: scale(.5);
+    transform-origin: 0 0;
+    border-radius: calc(var(--r-md) * 2);
+  }
+}
+@media (-webkit-min-device-pixel-ratio: 3), (min-resolution: 3dppx) {
+  .hairline::after {
+    width: 300%; height: 300%;
+    transform: scale(.3333);
+    border-radius: calc(var(--r-md) * 3);
+  }
+}
+```
+
+```html
+<li class="hairline hairline--bottom">列表项</li>
+<div class="hairline hairline--all">卡片</div>
+```
+
+判据：**任何在真机上比设计稿粗的 1px 线，先查这条，别去调颜色。**
+代价是 `::after` 被占用——需要它做别的就换 `::before`，或再加一层。
+
+来源：Zarm `style/core/mixins/index.scss` 的 `onepx`。原版用 `1PX`（大写）绕过 Sass 的单位转换；
+纯 CSS 环境直接写 `1px` 即可，缩放靠媒体查询。
+
+### 24.2 两级令牌：组件变量回落到全局变量
+
+```css
+.stepper {
+  --stepper-height: var(--h-md, 44px);   /* 组件变量 → 全局变量 → 兜底值 */
+  --stepper-input-width: var(--s-11, 56px);
+  height: var(--stepper-height);
+}
+.stepper input { width: var(--stepper-input-width); }
+
+/* 局部覆盖：只影响这一个组件，不用 !important */
+.checkout .stepper { --stepper-height: var(--h-lg, 52px); }
+```
+
+三个好处：
+
+1. 组件自带默认值，不依赖全局令牌也能单独用；
+2. 覆盖粒度可控——改 `--stepper-height` 只影响 stepper，改 `--h-md` 影响所有用到它的组件；
+3. 不需要 `!important`，也不需要给每个组件写主题分支。
+
+**别一次全改**：两级变量的成本是每个组件多一层 indirection，只在真需要局部覆盖的组件上用。
+骨架目前是单级（`--control-h` 直接是值），`references/component-absorption.md` §2.2 记了这条待办。
+
+来源：Zarm 的 `@mixin define($key, $value)` → `--#{$key}: var(--#{$block}-#{$key}, #{$value})`。
+
+### 24.3 控件阶梯：28 / 36 / 44 / 52 / 60，按用途分不按断点降
+
+```css
+:root {
+  --h-xs: 28px;   /* 小号筛选、紧凑标签 */
+  --h-sm: 36px;   /* 药丸 CTA、次级按钮 */
+  --h-md: 44px;   /* 常规控件；44 是触控下限，不是中档 */
+  --h-lg: 52px;   /* 主 CTA */
+  --h-xl: 60px;   /* 购买大按钮 */
+  --tap-min: 44px;
+}
+```
+
+和 `applestore-commerce.md` 实测的 **35 / 36 / 40 / 44 / 54** 是同一思路：五档并存，按用途分。
+
+**常见错误**：拿桌面的 `--control-h`（往往 32px）直接上 390。全线偏小，而且 32 < 44 过不了触控门。
+移动端页面一律用 `--h-*`，不用 `--control-h`。
+
+```css
+/* 移动端统一替换 */
+@media (max-width: 720px) {
+  .btn { min-height: var(--tap-min); }
+  .input, .select { min-height: var(--tap-min); }
+  .icon-btn { width: var(--tap-min); height: var(--tap-min); }
+}
+```
+
+### 24.4 安全区：用工具类，不要散写 env()
+
+```css
+.safe-top { padding-top: env(safe-area-inset-top, 0px); }
+.safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
+.safe-x {
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+}
+```
+
+```html
+<header class="m-head safe-top">…</header>
+<nav class="m-tabbar safe-bottom">…</nav>
+```
+
+**别照抄 Zarm 的 `constant()`**：那是 iOS 11.0–11.2 的旧语法，2026 年不需要。

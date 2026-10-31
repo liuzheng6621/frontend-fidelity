@@ -8,6 +8,45 @@
 各版本条目首次引入的对应提交日期校正；这些日期是**提交日期，不据此宣称发行日期**。
 v1.0.0 保留初始化提交 `6da84f5`（2026-10-22）支持的日期；其余已一致的标题日期不改。
 
+## v1.23.0 - 2026-10-31
+
+吸收四个开源仓库：`ZhongAnTech/zarm`、`fex-team/GMU`、`VoltAgent/awesome-design-md`、`wasabeef/awesome-android-ui`。
+只取能落到代码里的东西，不做项目点评。
+
+### 新增
+
+- **`scaffold.mjs` 每次生成都产出 `DESIGN.md`**——给 agent 读的设计系统文档（Google Stitch 的 DESIGN.md 约定，
+  样本来自 `awesome-design-md` 的 84 份）。YAML frontmatter 存令牌（colors / typography / rounded / spacing / components，
+  `components` 用 `{colors.x}` 引用），正文写判断（Overview / Colors / Typography / Layout / Elevation / Shapes /
+  Components / Motion / Accessibility floors）。令牌全部从 `tokens` 对象派生，改人格即同步。
+- `references/component-absorption.md`：四个仓库各取什么、不取什么，含组件覆盖矩阵（Zarm 50 个 UI 组件 × 骨架有无）。
+- `references/css-recipes.md` **§24 移动端保真三件套**：retina 1px、两级令牌、控件阶梯、安全区工具类。
+- `references/component-spec.md` 补 4 张规格卡（11 → 15）：数量步进、**左滑操作**、**下拉刷新**、顶部通告条。
+  后两者是吸收过程中发现的**骨架缺项**，规格先立起来，实现下一版补。
+- `base.css` 新增 `.safe-top` / `.safe-bottom` / `.safe-x` 与 `.hairline`（`--top/--bottom/--left/--right/--all`）。
+- `tokens.css` 新增移动端控件阶梯 `--h-xs..--h-xl`（28/36/44/52/60）与 `--tap-min: 44px`。
+
+### 变更
+
+- 自检新增一门「**设计文档**」：DESIGN.md 的 frontmatter 五段必须存在且非空、所有 `{group.key}` 引用必须能解析、
+  不许出现 `[object Object]`（派生失败最常见的症状）、正文必须写明「以 tokens.css 为准」与 Accessibility floors。
+- 产物 24 → 25 个文件（多 DESIGN.md）；参考 29 → 30 份。
+- 生成文件齐备检查纳入 `DESIGN.md`。
+
+### 为什么这几条值得吸收
+
+- **retina 1px**：`border: 1px` 在 3x 屏上是 3 物理像素，是「看起来比设计稿粗」的头号原因，不是颜色问题。
+- **两级令牌**（`--组件变量: var(--全局变量, 兜底)`）：局部覆盖不用 `!important`，也不用写主题分支。
+- **控件阶梯**：Zarm 的 28/36/44/52/60 与 Apple Store 实测的 35/36/40/44/54 是同一思路——五档并存、按用途分。
+  骨架原来拿桌面 `--control-h`（32px）直接上 390，全线偏小且过不了触控门。
+- **DESIGN.md**：把设计系统从「一堆 CSS 变量」变成 agent 能直接读的契约，和本 skill 的 `SKILL.md + references/` 互补
+  （后者是「怎么做界面」的知识，前者是「这个项目长什么样」的事实）。
+
+### 明确不做的
+
+不引入任何组件库运行时；不自绘键盘 / 日历 / 级联选择器（原生控件更稳）；不做轮播自动播放（无障碍争议）；
+不把 84 份 DESIGN.md 的品牌色板搬进参考库（那是品牌资产，不是设计规律）。
+
 ## v1.22.0 - 2026-10-31
 
 关闭 README 里写明的三条 A+ 门槛，评级 A → **A+**。

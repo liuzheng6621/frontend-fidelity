@@ -272,12 +272,64 @@ const generated = [];
     const dir = join(outDir, p);
     const r = spawnSync(process.execPath, [scaffold, '--persona', p, '--pages', PAGES.join(','), '--out', dir, '--quiet'], { encoding: 'utf8' });
     if (r.status !== 0) { bad.push(`${p}: exit ${r.status} ${(r.stderr || '').split('\n')[0]}`); continue; }
-    const missing = ['tokens.css', 'base.css', 'components.css', 'depth.css', 'catalog.css', 'mobile.css', 'commerce.css', 'ui.js', ...PAGES_HTML].filter((f) => !existsSync(join(dir, f)));
+    const missing = ['DESIGN.md', 'tokens.css', 'base.css', 'components.css', 'depth.css', 'catalog.css', 'mobile.css', 'commerce.css', 'ui.js', ...PAGES_HTML].filter((f) => !existsSync(join(dir, f)));
     if (missing.length) bad.push(`${p}: 缺 ${missing.join(',')}`);
     else generated.push({ persona: p, dir });
   }
   if (bad.length) fail('生成', bad.join(' | '));
   else pass('生成', `${generated.length} 套 × ${PAGES.length} 页 → ${outDir}`);
+}
+
+// ---------- 2.5 DESIGN.md（给别的 agent 读的设计系统文档） ----------
+// 这一门防的是「派生文档和令牌漂了」：色值变成 [object Object]、令牌引用指向不存在的键、
+// 或者某次改动把 frontmatter 结构打坏。全部是纯文本校验，不需要浏览器。
+{
+  const REQUIRED_KEYS = ['colors', 'typography', 'rounded', 'spacing', 'components'];
+  const bad = [];
+  if (!generated.length) skip('设计文档', '没有生成物');
+  else {
+    for (const g of generated) {
+      const file = join(g.dir, 'DESIGN.md');
+      if (!existsSync(file)) { bad.push(`${g.persona}: 缺 DESIGN.md`); continue; }
+      const text = readFileSync(file, 'utf8');
+      const fence = text.match(/^---\n([\s\S]*?)\n---\n/);
+      if (!fence) { bad.push(`${g.persona}: 缺 YAML frontmatter`); continue; }
+      const yaml = fence[1];
+
+      // 逐行解析：顶级键（顶格）→ 二级键（两个空格）。不用 lookahead，避免 m 模式下 $ 的歧义。
+      const sections = {};
+      let cur = null;
+      for (const line of yaml.split('\n')) {
+        const top = line.match(/^([a-z][\w-]*):\s*$/);
+        if (top) { cur = top[1]; sections[cur] = new Set(); continue; }
+        const second = line.match(/^ {2}([A-Za-z][\w-]*):/);
+        if (second && cur) sections[cur].add(second[1]);
+      }
+
+      for (const key of REQUIRED_KEYS) {
+        if (!sections[key]) { bad.push(`${g.persona}: frontmatter 缺 ${key}`); continue; }
+        if (!sections[key].size) bad.push(`${g.persona}: ${key} 是空的`);
+      }
+      // 派生失败的典型症状：对象被字符串化
+      if (text.includes('[object Object]')) bad.push(`${g.persona}: 出现 [object Object]（色值没转成字符串）`);
+
+      // 令牌引用必须能解析：{colors.x} / {typography.y} / {rounded.z}
+      const refs = [...text.matchAll(/\{([a-z]+)\.([\w-]+)\}/g)];
+      for (const [, group, name] of refs) {
+        const pool = sections[group];
+        if (!pool) { bad.push(`${g.persona}: 未知引用组 {${group}}`); continue; }
+        if (!pool.has(name)) bad.push(`${g.persona}: 引用 {${group}.${name}} 不存在`);
+      }
+      if (!refs.length) bad.push(`${g.persona}: components 里没有任何令牌引用`);
+
+      // 正文必须交代「以 tokens.css 为准」，否则这份文档会被当成第二真相
+      if (!text.includes('tokens.css')) bad.push(`${g.persona}: 正文没有指向 tokens.css`);
+      // 必须写明不可协商的无障碍下限，否则它只是「风格描述」
+      if (!text.includes('Accessibility floors')) bad.push(`${g.persona}: 缺 Accessibility floors 一节`);
+    }
+    if (bad.length) fail('设计文档', [...new Set(bad)].join(' | '));
+    else pass('设计文档', `${generated.length} 套 DESIGN.md：frontmatter 完整、令牌引用全部可解析、无对象字符串化`);
+  }
 }
 
 // ---------- 3. 对比度 ----------

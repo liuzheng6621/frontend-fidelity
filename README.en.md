@@ -7,7 +7,7 @@
 > **Counting rule**: 28 measured sites = **Group A 25** (16 marketing/product/commerce + 9 content galleries) + **Group B 3 backend tools**. Cross-site averages stay frozen at the original 18-site baseline; newer samples only add sites and single-site entries. Totals are always 28 / Group A 25 — `selfcheck.mjs` guards this.
 > The goal is not "make it prettier" but **make the interface match what it claims to be, and actually work — with evidence**.
 
-`v1.22.0` · [latest release](https://github.com/liuzheng6621/frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9 (cropping/contrast only)` · `offline WCAG checks` · `16 executables (13 Node + 3 Python)`
+`v1.23.0` · [latest release](https://github.com/liuzheng6621/frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9 (cropping/contrast only)` · `offline WCAG checks` · `16 executables (13 Node + 3 Python)`
 
 ---
 
@@ -52,7 +52,7 @@ Start a new session after installing, then say "rebuild this page from the scree
 | Area | Contents |
 | --- | --- |
 | Entry | `SKILL.md` — routing table, 30-second start, quality gates, design baseline |
-| Reference library | 29 Markdown files: 17 single-site distillations + 8 general specs + 1 cross-site evidence file + 2 external rule sets + 1 workflow — plus 2 machine-readable datasets (recheck baseline / REA structure evidence) |
+| Reference library | 30 Markdown files: 17 single-site distillations + 9 general specs + 1 cross-site evidence file + 2 external rule sets + 1 workflow — plus 2 machine-readable datasets (recheck baseline / REA structure evidence) |
 | Executables | 15 scripts: screenshots, WCAG/CLS audit, contrast, design-system audit, flow checks, pixel diff, auth export, reference probe, batch recheck, repo hygiene, quality gates, scaffold generator, self-check |
 | Generator | `scaffold.mjs`: five personas × fifteen page types × dark tokens, optional React/Vue output |
 
@@ -131,12 +131,12 @@ This is a self-grade, not third-party certification. Every claim below maps to a
 | Dimension | Grade | Current state | Verify with |
 | --- | --- | --- | --- |
 | Executable checks | A+ | **16 scripts** (13 Node + 3 Python), every one reports via exit code: `0 pass / 1 check failed / 2 bad arguments or environment / 3 partial, not a pass` | `ls scripts/*.mjs scripts/*.py` |
-| Reference data | A+ | 28 real sites measured in-browser + 17 single-site distillations + **structural evidence for all 17** (landmarks / heading levels / DOM depth / `alt` coverage) + **a dated frozen snapshot**; 29 reference files + 2 machine-readable datasets | `wc -l references/*.md`, `jq . references/reference-snapshot.json` |
+| Reference data | A+ | 28 real sites measured in-browser + 17 single-site distillations + **structural evidence for all 17** (landmarks / heading levels / DOM depth / `alt` coverage) + **a dated frozen snapshot**; 30 reference files + 2 machine-readable datasets | `wc -l references/*.md`, `jq . references/reference-snapshot.json` |
 | Self-check loop | A+ | Argument semantics / recursive syntax / 15 generated pages / 645 contrast pairs / **306 audit runs (4-way parallel, 2m47s)** / design-system positive and negative cases / **4 flow suites** (12 + 6 + 42 + 45 steps) / framework stack / 11 agent entry points / doc counts and links / reference snapshot / changelog dates | `npm run selfcheck` |
 | Documentation | A | Thin entry point + on-demand reference library + per-script manuals with arguments, exit codes and artifacts | `SKILL.md`, `docs/scripts.md` |
 | Honest boundaries | A+ | Explicit non-goals (test framework, Figma import, native mini-program, visual regression as a default gate); **13 red flags** | "When not to use", [`review-rubric.md`](references/review-rubric.md) §10 |
 
-**Why A to A+** — all three gates closed in `v1.22.0`, each independently checkable:
+**Why A to A+** — all three gates closed in `v1.23.0`, each independently checkable:
 
 | # | Former gap | How it is closed now | How to verify |
 | --- | --- | --- | --- |

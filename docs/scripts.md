@@ -38,19 +38,21 @@ node scripts/scaffold.mjs --name "南风工单" --out src --pages app,form
 | `--quiet` | 少打印 | 关 |
 | `--help` / `-h` | 打印用法后退出 | — |
 
-**产出**（平铺在 `--out` 目录：9 个 CSS/JS/JSON + 各页面，全量 24 个文件）：
+**产出**（平铺在 `--out` 目录：10 个基础文件（DESIGN.md + tokens + 7 份 CSS + ui.js）+ 各页面，全量 25 个文件）：
 
 ```
 <out>/
+├── DESIGN.md            # 给 agent 读的设计系统文档：YAML 令牌 + 判断型正文（格式见 references/component-absorption.md §4）
 ├── tokens.json          # 令牌源，可喂给设计系统或其他工具
 ├── tokens.css           # 颜色/间距/字阶/圆角/阴影/动效变量，含可选 .dark
 ├── base.css             # reset、排版、焦点环、::selection、reduced-motion
 ├── components.css       # 按钮/表单/卡片/表格/标签/提示/空态/骨架/tabs/弹窗/toast + 外壳
 ├── depth.css            # 深度三派（发丝 / 软影 / 硬影）的卡片四件套；print 额外画方格纸
 ├── catalog.css          # 陈列目录页：左栏目录 + 药丸筛选 + 3 列图版 + 分页
-├── mobile.css           # 移动端壳：390 单列 + 安全区 + 底部 tab + 原生 dialog 面板
+├── mobile.css           # 四种移动形态：列表壳 / 多步向导 / 横向分栏 / 原生壳桥接
+├── commerce.css         # 电商与订单：三层价格 / SKU / 行项目 / 结算 / 状态机时间线
 ├── ui.js                # 主题切换（localStorage）、密码显隐、tabs 键盘、modal Esc
-└── *.html               # index / catalog / app / form / auth / states / mobile，按 --pages 决定
+└── *.html               # index / catalog / app / form / auth / states / mobile(+3) / product / cart / checkout / orders / order，按 --pages 决定
 ```
 
 退出码：`0` 成功；`2` 参数错（未知人格 / 未知页面名，同时打印可选值）；
@@ -123,7 +125,7 @@ node scripts/selfcheck.mjs --keep       # 保留临时目录，方便看生成�
 | --- | --- | --- |
 | 参数语义 | 纯断言（不需要浏览器）：MSYS 路径还原 5 条、按页 `--expect-text` 3 条 | `lib/common.mjs` 的参数解析被改坏了 |
 | 语法 | 递归 `node --check scripts/` 的 `.mjs`（含 `lib/`）；`python -m py_compile` 顶层 `.py` | 改脚本时手滑了 |
-| 生成 | 五套人格 × 十五类页面各生成一遍，检查 24 个产物文件齐 | `scaffold.mjs` 坏了 |
+| 生成 | 五套人格 × 十五类页面各生成一遍，检查 25 个产物文件齐 | `scaffold.mjs` 坏了 |
 | 对比度 | 对每套生成物跑 `contrast_check.py`，有未达标即失败 | 令牌改暗了/改浅了 |
 | 审计 | 内置静态服务 + `audit.mjs --themes light,dark`，十五页 × 三视口 × 双主题共 306 个渲染组合，均须 `0 错误 / 0 警告` | 生成物出现了 a11y 回归 |
 | 流程 | 用 `flow.example.json` 对骨架跑一遍完整交互，确认步骤/断言/报告链路没坏 | `flow.mjs` 坏了 |

@@ -534,6 +534,15 @@ const vars = () => {  const L = [];
   Object.entries(P.radius).forEach(([k, v]) => L.push(`  --r-${k}: ${v}px;`));
   L.push(`  --control-h: ${P.control}px;`);
   L.push(`  --control-h-sm: ${P.controlSm}px;`);
+  // 移动端控件阶梯：28 / 36 / 44 / 52 / 60。44 是触控下限，不是「中等」。
+  // 来源：Zarm 的 --za-height-xs..xl（52 个移动组件都按这一档走），
+  // 桌面人格的 --control-h 往往只有 32，直接搬到 390 上会全线偏小。
+  L.push('  --h-xs: 28px;');
+  L.push('  --h-sm: 36px;');
+  L.push('  --h-md: 44px;');
+  L.push('  --h-lg: 52px;');
+  L.push('  --h-xl: 60px;');
+  L.push('  --tap-min: 44px;');
   L.push(`  --pad-x: ${Math.round(P.control / 2.6)}px;`);
   L.push(`  --container: ${P.container}px;`);
   L.push(`  --section: ${P.section}px;`);
@@ -628,6 +637,54 @@ const baseCss = `/* base.css —— reset + 排版 + 焦点 + 减少动效 */
 [hidden] { display: none !important; }
 
 html { -webkit-text-size-adjust: 100%; }
+
+/* 安全区工具类：比在每个组件里散写 env() 更可控。
+   来源：Zarm 把 SafeArea 做成独立组件（position="top|bottom"），
+   这里降级成两个类，静态页不必为它多一层 DOM 组件。 */
+.safe-top { padding-top: env(safe-area-inset-top, 0px); }
+.safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
+.safe-x {
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+}
+
+/* 真 1px 发丝线：DPR 2/3 下用 200%/300% 宽高 + scale 压回 1 物理像素。
+   直接写 border: 1px 在 3x 屏上是 3 物理像素，看起来比设计稿粗一倍。
+   用法：<div class="hairline hairline--bottom">，或在自己的选择器上 @extend 这套属性。 */
+.hairline { position: relative; }
+.hairline::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border: 0 solid var(--border);
+  border-radius: inherit;
+}
+.hairline--top::after { border-top-width: 1px; }
+.hairline--bottom::after { border-bottom-width: 1px; }
+.hairline--left::after { border-left-width: 1px; }
+.hairline--right::after { border-right-width: 1px; }
+.hairline--all::after { border-width: 1px; }
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 2dppx) {
+  .hairline::after {
+    inset: auto;
+    left: 0;
+    top: 0;
+    width: 200%;
+    height: 200%;
+    transform: scale(0.5);
+    transform-origin: 0 0;
+    border-radius: calc(var(--r-md) * 2);
+  }
+}
+@media (-webkit-min-device-pixel-ratio: 3), (min-resolution: 3dppx) {
+  .hairline::after {
+    width: 300%;
+    height: 300%;
+    transform: scale(0.3333);
+    border-radius: calc(var(--r-md) * 3);
+  }
+}
 
 body {
   font-family: var(--font-sans);
@@ -5077,6 +5134,251 @@ const uiJs = `// ui.js —— 主题切换 / 密码显隐 / tabs 键盘 / 弹窗
 })();
 `;
 
+/* ------------------------------------------------------------ DESIGN.md 生成
+   格式取自 Google Stitch 的 DESIGN.md 约定（VoltAgent/awesome-design-md 收了 84 份真实样本）：
+   YAML frontmatter 存令牌，正文写判断。目的是让**别的 agent** 拿到一个文件就知道这套界面怎么长，
+   不用去读 CSS。令牌全部从 tokens 对象派生，改人格就跟着变，不会和 tokens.css 漂移。 */
+
+const mdColor = (c) => {
+  if (typeof c === 'string') return c;
+  if (c && typeof c === 'object' && 'h' in c) return `hsl(${c.h} ${c.s}% ${c.l}%)`;
+  return String(c);
+};
+
+const mdHex = (c) => {
+  // 只在能拿到十六进制时返回，否则退回 hsl() 表达
+  return mdColor(c);
+};
+
+function designMd() {
+  const C = tokens.color;
+  const T = tokens.type;
+  const R = tokens.radius;
+  const S = tokens.space;
+  const N = C.neutral;
+
+  const colors = [
+    ['primary', mdHex(C.brandFill || C.brand)],
+    ['on-primary', mdHex(C.onBrand)],
+    ['brand', mdHex(C.brand[600])],
+    ['ink', P.ink],
+    ['ink-muted', mdHex(N[600])],
+    ['ink-subtle', mdHex(N[500])],
+    ['canvas', '#ffffff'],
+    ['surface-1', mdHex(N[50])],
+    ['hairline', mdHex(N[200])],
+    ['success', C.semantic.ok.base],
+    ['warning', C.semantic.warn.base],
+    ['danger', C.semantic.danger.base],
+  ];
+  const colorOf = (k) => (colors.find(([n]) => n === k) || ['', ''])[1];
+
+  const typeScale = [
+    ['display', T['4xl'], tokens.lineHeight['4xl'], P.weights.head],
+    ['title', T['3xl'], tokens.lineHeight['3xl'], P.weights.head],
+    ['heading', T['2xl'], tokens.lineHeight['2xl'], P.weights.head],
+    ['subheading', T.xl, tokens.lineHeight.xl, P.weights.ui],
+    ['body', T.base, tokens.lineHeight.base, P.weights.body],
+    ['body-sm', T.sm, tokens.lineHeight.sm, P.weights.body],
+    ['caption', T.xs, tokens.lineHeight.xs, P.weights.body],
+  ];
+
+  const spacing = [
+    ['xxs', S[1]],
+    ['xs', S[2]],
+    ['sm', S[3]],
+    ['md', S[4]],
+    ['lg', S[6]],
+    ['xl', S[7]],
+    ['xxl', S[9]],
+    ['section', tokens.section],
+  ];
+
+  const radius = [
+    ['xs', R.xs],
+    ['sm', R.sm],
+    ['md', R.md],
+    ['lg', R.lg],
+    ['xl', R.xl],
+    ['pill', R.pill],
+  ];
+
+  const depthLine =
+    P.depth === 'hairline'
+      ? '- 卡片靠 1px 发丝圈分层，不用投影；hover 把圈加粗到 45% ink'
+      : P.depth === 'soft'
+        ? '- 卡片靠柔和投影分层（sh-1 / sh-2 / sh-3 三档），hover 升一档'
+        : '- 卡片靠硬投影 + 无模糊分层，hover 位移 2px';
+
+  const desc = [
+    `${P.label}骨架，人格 ${personaKey}（参照 ${P.ref}）`,
+    `品牌色相 ${accentHue}，正文 ${T.base}px / 行高 ${tokens.lineHeight.base}，控件高 ${tokens.control.md}px`,
+    `容器 ${tokens.container}px，区块间距 ${tokens.section}px，深度语言 ${P.depth}`,
+    '令牌由 scaffold.mjs 从 tokens 对象派生，改人格即同步',
+  ].join('。');
+
+  const front = [
+    '---',
+    'version: alpha',
+    `name: ${NAME}-design-system`,
+    `description: "${desc}"`,
+    '',
+    'colors:',
+    ...colors.map(([k, v]) => `  ${k}: "${v}"`),
+    '',
+    'typography:',
+    ...typeScale.flatMap(([name, size, lh, w]) => [
+      `  ${name}:`,
+      `    fontFamily: "${NAME} Sans"`,
+      `    fontSize: ${size}px`,
+      `    fontWeight: ${w}`,
+      `    lineHeight: ${lh}`,
+      `    letterSpacing: ${name === 'display' || name === 'title' ? P.tracking.head : '0'}`,
+    ]),
+    '',
+    'rounded:',
+    ...radius.map(([k, v]) => `  ${k}: ${v}px`),
+    '',
+    'spacing:',
+    ...spacing.map(([k, v]) => `  ${k}: ${v}px`),
+    '',
+    'components:',
+    '  button-primary:',
+    '    backgroundColor: "{colors.primary}"',
+    '    textColor: "{colors.on-primary}"',
+    '    typography: "{typography.body}"',
+    '    rounded: "{rounded.md}"',
+    `    height: ${tokens.control.md}px`,
+    '  button-secondary:',
+    '    backgroundColor: "{colors.canvas}"',
+    '    textColor: "{colors.ink}"',
+    '    typography: "{typography.body}"',
+    '    rounded: "{rounded.md}"',
+    `    height: ${tokens.control.md}px`,
+    '  input:',
+    '    backgroundColor: "{colors.canvas}"',
+    '    textColor: "{colors.ink}"',
+    '    typography: "{typography.body}"',
+    '    rounded: "{rounded.md}"',
+    `    height: ${tokens.control.md}px`,
+    '  card:',
+    '    backgroundColor: "{colors.canvas}"',
+    '    textColor: "{colors.ink}"',
+    '    typography: "{typography.body}"',
+    '    rounded: "{rounded.lg}"',
+    '  tag:',
+    '    backgroundColor: "{colors.surface-1}"',
+    '    textColor: "{colors.ink-muted}"',
+    '    typography: "{typography.caption}"',
+    '    rounded: "{rounded.pill}"',
+    '---',
+    '',
+    '',
+  ];
+
+  const body = [
+    `# ${NAME} · 设计系统`,
+    '',
+    '> 这份文件是给 agent 读的。改设计请改 `tokens.css`（或重跑 `scaffold.mjs`），不要只改这份文档——',
+    '> 这里的数值是派生产物，两边对不上时以 `tokens.css` 为准。',
+    '',
+    '## Overview',
+    '',
+    `- **人格**：${personaKey}（${P.label}），参照 ${P.ref}`,
+    `- **密度**：${tokens.density}`,
+    `- **深度语言**：${P.depth}（hairline / soft / hard 三派只选一派，混用会显脏）`,
+    `- **品牌色相**：${accentHue}（要换用 \`--accent <0-360>\` 重新生成，不要手调十六进制）`,
+    '',
+    '## Colors',
+    '',
+    '| 令牌 | 值 | 用途 |',
+    '| --- | --- | --- |',
+    `| \`primary\` | ${colorOf('primary')} | 主按钮底色、选中态、链接 |`,
+    `| \`on-primary\` | ${colorOf('on-primary')} | 压在主色上的文字（已过对比度门） |`,
+    `| \`ink\` | ${colorOf('ink')} | 正文与标题 |`,
+    `| \`ink-muted\` | ${colorOf('ink-muted')} | 次级说明 |`,
+    `| \`ink-subtle\` | ${colorOf('ink-subtle')} | 占位、时间戳 |`,
+    `| \`surface-1\` | ${colorOf('surface-1')} | 卡片底、表头 |`,
+    `| \`hairline\` | ${colorOf('hairline')} | 分隔线（1px 用 \`.hairline\` 类，别直接写 border） |`,
+    `| \`danger\` | ${colorOf('danger')} | 删除、错误 |`,
+    '',
+    '**只用一种强调色。** 价格、链接、主按钮共用 `primary`；不要引入第二个彩色。',
+    '促销色属于业务层（活动页），不属于设计系统。',
+    '',
+    '## Typography',
+    '',
+    `正文 ${T.base}px / ${tokens.lineHeight.base}，最小可读 12px。中文行高不要低于 1.5——`,
+    '汉字没有升降部，1.4 会显挤（这是西文能到 1.44 而中文不能的原因）。',
+    '',
+    '| 角色 | 字号 | 行高 | 字重 |',
+    '| --- | --- | --- | --- |',
+    ...typeScale.map(([name, size, lh, w]) => `| ${name} | ${size}px | ${lh} | ${w} |`),
+    '',
+    `字距只给大标题：${P.tracking.head}。正文不加字距，中文字距一加就散。`,
+    '',
+    '## Layout',
+    '',
+    `- 容器最大宽 ${tokens.container}px`,
+    `- 区块纵向间距 ${tokens.section}px`,
+    `- 间距基数 ${S[1]}px，只用 ${[S[1], S[2], S[3], S[4], S[5], S[6], S[7], S[8], S[9]].join(' / ')} 这几档`,
+    '- 移动端控件阶梯：28 / 36 / 44 / 52 / 60，**44 是触控下限，不是中档**',
+    '- 安全区用 `.safe-top` / `.safe-bottom`，不要在每个组件里散写 env()',
+    '',
+    '## Elevation & Depth',
+    '',
+    `深度语言是 **${P.depth}**：`,
+    '',
+    depthLine,
+    '',
+    '阴影三档：`--sh-1` / `--sh-2` / `--sh-3`，不要临时写第四种。',
+    '',
+    '## Shapes',
+    '',
+    `圆角六档：${radius.map(([k, v]) => `${k} ${v}px`).join(' / ')}。`,
+    '同一种元素只用一档；按钮 8、卡片 12、输入框 8、药丸 999 是常见分工。',
+    '',
+    '## Components',
+    '',
+    '骨架里的组件类，全部走令牌，改 `tokens.css` 即全局生效：',
+    '',
+    '| 组件 | 类名 | 关键约束 |',
+    '| --- | --- | --- |',
+    `| 按钮 | \`.btn\` \`.btn--primary\` \`.btn--secondary\` \`.btn--ghost\` | 高 ${tokens.control.md}px；移动端不低于 44 |`,
+    '| 输入 | `.input` `.field` `.label` `.help` `.error-text` | label 必须绑定 `for`；错误文案挂 `aria-describedby` |',
+    '| 卡片 | `.card` `.card--flat` `.card--pop` | 深度语言决定有没有投影，别两派混用 |',
+    '| 表格 | `.table` `.table-wrap` | 窄屏横向滚动，而不是压扁列 |',
+    '| 标签 | `.tag` `.tag--brand` `.tag--ok` `.tag--warn` | 文字 + 圆点，不只靠颜色区分状态 |',
+    '| 状态 | `.empty` `.skeleton` `.alert` | 空 / 错 / 载三态，每个数据区都要有 |',
+    '| 移动 | `.m-shell` `.m-tabbar` `.m-sheet` `.m-wiz` `.m-pager` `.m-native` | 四种形态各有自己的壳，不混用 |',
+    '',
+    '## Motion',
+    '',
+    `- 时长三档：${tokens.duration.fast} / ${tokens.duration.base} / ${tokens.duration.slow} ms`,
+    `- 缓动：${tokens.motion.ease.join(', ')}`,
+    '- 中位数 1 个入场动效就够（28 站实测的中位数就是 1）',
+    '- 必须尊重 `prefers-reduced-motion`，骨架已在 base.css 里全局降级',
+    '',
+    '## Accessibility floors（不可协商）',
+    '',
+    '- 正文对比度 ≥ 4.5:1；大字（≥ 18.66px 粗体 / 24px 常规）≥ 3:1',
+    '- 触控目标 ≥ 44×44，用 `--tap-min`',
+    '- 焦点可见：不许用 `outline: none` 换观感',
+    '- 每个数据区都有空 / 错 / 载三态',
+    '- 图片删掉会丢信息就必须有 `alt`；纯装饰写 `alt=""`',
+    '',
+    '## 怎么验证这份文档没漂',
+    '',
+    '```bash',
+    'node scripts/audit.mjs --url <你的页面> --themes light,dark',
+    'node scripts/contrast_check.py .',
+    'node scripts/screenshot.mjs --url <你的页面> --out .design/before',
+    '```',
+    '',
+  ];
+
+  return front.join('\n') + body.join('\n');
+}
+
 /* ------------------------------------------------------------------ 写盘 */
 
 const pageMap = {
@@ -5119,6 +5421,7 @@ if (unknown.length) {
   process.exit(2);
 }
 const files = [
+  ['DESIGN.md', designMd()],
   ['tokens.json', JSON.stringify(tokens, null, 2) + '\n'],
   ['tokens.css', tokensCss],
   ['base.css', baseCss],

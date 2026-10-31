@@ -8,7 +8,7 @@
 > 搜这些词应该能到这：设计稿转代码、照着截图还原、UI 还原、前端验收、截图对比、后台美化、移动端适配、设计令牌、Claude Code 技能（skill）。
 > 目标不是"改好看"，而是**让界面和它声称的样子一致，并且真的能用——改完能拿出证据**。
 
-`v1.22.0` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `16 个可执行脚本（13 个 Node + 3 个 Python）`
+`v1.23.0` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `16 个可执行脚本（13 个 Node + 3 个 Python）`
 
 ---
 
@@ -40,7 +40,7 @@ curl -fsSL https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/ra
 bash install.sh --target claude          # 只装 Claude Code
 bash install.sh --target dsh             # 只装 DSH
 bash install.sh --dir ~/my-skills        # 装到自定义目录
-bash install.sh --ref v1.22.0            # 锁定某个版本
+bash install.sh --ref v1.23.0            # 锁定某个版本
 bash install.sh --dry-run                # 只看会装到哪，不动文件
 ```
 
@@ -77,12 +77,12 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 | 维度 | 等级 | 现状（可核对） | 怎么核对 |
 | --- | --- | --- | --- |
 | 可执行验收 | A+ | **16 个脚本**（13 Node + 3 Python），全部用退出码表达结论；`0 通过 / 1 检查失败 / 2 参数或环境错误 / 3 只验了一部分` | `ls scripts/*.mjs scripts/*.py`、`wc -l scripts/*` |
-| 参考数据 | A+ | 28 个真实站的浏览器实测 + 17 份单站蒸馏 + **17 站结构层证据**（地标 / 标题层级 / DOM 深度 / `alt` 覆盖）+ **带日期的冻结快照**；`references/` 共 29 份参考 + 2 份机器可读数据 | `wc -l references/*.md`、`jq . references/reference-snapshot.json` |
+| 参考数据 | A+ | 28 个真实站的浏览器实测 + 17 份单站蒸馏 + **17 站结构层证据**（地标 / 标题层级 / DOM 深度 / `alt` 覆盖）+ **带日期的冻结快照**；`references/` 共 30 份参考 + 2 份机器可读数据 | `wc -l references/*.md`、`jq . references/reference-snapshot.json` |
 | 自检闭环 | A+ | 参数语义 / 递归语法 / 生成 15 页 / 对比度 645 组 / **审计 306 组（4 路并发，2m47s）** / 设计体系正反例 / **流程 4 条**（12 + 6 + 42 + 45 步）/ 框架栈 / 11 个 Agent 入口 / 文档计数与链接 / 参考库快照 / 历史日期与版本一致性 | `npm run selfcheck` |
 | 文档可操作性 | A | 精简入口 + 按需参考库 + 分类手册，每个脚本都有参数 / 退出码 / 产物 | `SKILL.md`、`docs/scripts.md` |
 | 边界诚实度 | A+ | 明写不做什么（测试框架 / Figma 导入 / 小程序原生 / 默认视觉回归门禁）；红旗清单 **13 条** | 本文「适用与不适用」、[`review-rubric.md`](references/review-rubric.md) §十 |
 
-**从 A 升到 A+ 的理由**——三条门槛在 `v1.22.0` 全部关闭，逐条可复核：
+**从 A 升到 A+ 的理由**——三条门槛在 `v1.23.0` 全部关闭，逐条可复核：
 
 | # | 原缺口 | 现在怎么补的 | 怎么验证 |
 | --- | --- | --- | --- |
@@ -99,7 +99,7 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 
 没有权威榜单可依据，所以这里**不写「国内第 N」**——任何具体名次都无法核实，写进 README 就是假数据。
 
-能给的是可核对的量级：公开可见的 Agent skill 绝大多数是「一份 `SKILL.md` + 若干 markdown」，自带 3 个以上可执行脚本的都少见。本项目是 16 个脚本 + 29 份参考 + 17 站结构证据 + 可执行自检，按这个量级，在国内公开的前端 / UI 类 skill 里属于第一梯队。
+能给的是可核对的量级：公开可见的 Agent skill 绝大多数是「一份 `SKILL.md` + 若干 markdown」，自带 3 个以上可执行脚本的都少见。本项目是 16 个脚本 + 30 份参考 + 17 站结构证据 + 可执行自检，按这个量级，在国内公开的前端 / UI 类 skill 里属于第一梯队。
 
 真正少见的是三件事同时成立：
 
@@ -166,7 +166,7 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 
 ## 这是什么
 
-一个**把前端做对**的技能包，两条路都走：**先把已有界面整改/还原到位**，**也能从 0 生成一套能验收的骨架**。内含一份给 agent 读的操作手册（`SKILL.md`）+ 二十九份参考数据（17 份单站蒸馏 + 8 份通用规格 + 1 份跨站实测 + 2 份外部规则集 + 1 份工作流，`references/`）+ 十六个能直接跑的脚本（`scripts/`）。
+一个**把前端做对**的技能包，两条路都走：**先把已有界面整改/还原到位**，**也能从 0 生成一套能验收的骨架**。内含一份给 agent 读的操作手册（`SKILL.md`）+ 三十份参考数据（17 份单站蒸馏 + 9 份通用规格 + 1 份跨站实测 + 2 份外部规则集 + 1 份工作流，`references/`）+ 十六个能直接跑的脚本（`scripts/`）。
 
 它解决的是这类问题：
 
@@ -302,7 +302,7 @@ git clone https://gitee.com/liu-everything_impossble/skill-frontend-fidelity.git
 
 从 [Releases](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) 下载 `frontend-fidelity.zip`，解压到同名目录即可，内容与 git 版本一致。
 包由 `git archive` 从 tag 生成，不含 `__pycache__`、截图目录与本地缓存。
-当前是 [v1.22.0](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest)。
+当前是 [v1.23.0](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest)。
 
 ### 方式三：只取脚本
 
