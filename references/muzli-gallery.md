@@ -313,3 +313,25 @@ node E:\SKIl.1\.tools\probe-muz6.mjs   # 卡片外链目标与 UTM
 2. **`probe-ref.mjs` 默认 45s 超时会失败**（本次实测 `Timeout 45000ms exceeded`），要采令牌请先改等待策略，或直接用上面这些专门脚本。
 3. **`article` 里有广告卡**：数卡片数量会多 1–5 个；判断「这条是不是内容」看外链域名（`me.muz.li` 是内容，`addons/chrome` 是广告）。
 4. **`hover` 无变化是结论不是漏测**：连测三次（含 `filter/box-shadow/transform/color`）全部相同，说明确无 hover 样式——写进「别照抄」而不是当成脚本失败。
+
+---
+
+## 结构证据（REA 被动采集，2026-10-31）
+
+> 采集地址 `https://muz.li/inspiration/motion-design/`，1440×900 无头 Chromium，CDP 被动读 DOM 与无障碍树：不执行脚本、不点击、不导航。
+> 数字是采集时刻的快照，样式数值见 `references/design-evidence.md`；本层只回答「结构怎么搭」。
+
+| 指标 | 值 |
+| --- | --- |
+| DOM 节点 | 1893 |
+| 无障碍节点 | 1405 |
+| DOM 深度（最大 / 均值） | 17 / 12.1 |
+| 地标 | 21 个：`banner` / `main` / `contentinfo` / `navigation` / `complementary` / `main` / `navigation` / `navigation` / `navigation` / `navigation` / `navigation` / `navigation` / `navigation` / `navigation` / `navigation` / `navigation` / `navigation` / `navigation` / `navigation` / `navigation` / `navigation` |
+| 标题层级 | h1×1 + h2×3 + h3×68 + h5×4 |
+| 语义标签 | `header`×2 `nav`×17 `main`×2 `section`×8 `article`×66 `aside`×1 `footer`×1 |
+| 带 aria-* 的元素 | 27 |
+| 图片 alt 覆盖 | 61/61 |
+| 链接 / 图片 / 按钮 / 标题 | 216 / 67 / 0 / 76 |
+| 标签频次 Top 6 | `a`×231 `p`×95 `h3`×68 `article`×66 `::before`×64 `img`×61 |
+
+**判读**：**21 个地标、其中 17 个 `navigation`、2 个 `main`**——样本里地标最多；页头页脚各一份、筛选与分页各成 `nav`。66 个 `article` 配 68 个 `h3`（1 个 `h1` + 3 个 `h2` 之后直接进 h3）。**`button` 计数为 0**：216 个链接全靠 `<a>`，没有一个是按钮。

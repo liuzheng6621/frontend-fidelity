@@ -39,6 +39,8 @@
  *   expectUrl      "包含的片段"
  *   expectCount    { "selector": "tr", "value": 6 } 或 { "selector": "tr", "min": 3, "max": 20 }
  *   expectValue    { "selector": "#email", "value": "qa@example.com" }
+ *   expectFocus    { "selector": "#email" }            焦点落在该元素
+ *   expectFocusVisible { "selector": "#email" }        焦点可见（:focus-visible）
  *   screenshot     "文件名"
  *
  * 步骤通用字段：timeout（ms，覆盖 --timeout）、desc（失败日志里显示）、optional（失败不拦路）
@@ -77,6 +79,8 @@ const ACTIONS = [
   'expectUrl',
   'expectCount',
   'expectValue',
+  'expectFocus',
+  'expectFocusVisible',
   'screenshot',
 ];
 
@@ -91,7 +95,7 @@ const stripAnsi = (s) => String(s).replace(/\u001b\[[0-9;]*m/g, '');
  */
 function validateSteps(steps) {
   const problems = [];
-  const needSelector = ['click', 'expectVisible', 'expectHidden', 'expectCount', 'expectValue'];
+  const needSelector = ['click', 'expectVisible', 'expectHidden', 'expectCount', 'expectValue', 'expectFocus', 'expectFocusVisible'];
   steps.forEach((step, i) => {
     const idx = i + 1;
     let action;
@@ -146,6 +150,8 @@ const STRING_KEY = {
   expectUrl: 'url',
   expectCount: 'selector',
   expectValue: 'selector',
+  expectFocus: 'selector',
+  expectFocusVisible: 'selector',
   screenshot: 'name',
 };
 
@@ -312,6 +318,22 @@ async function runStep(page, step, index, ctx) {
         `${sel} 数量满足 ${v.value ?? `[${v.min ?? 0}, ${v.max ?? '∞'}]`}`,
       );
       return `${sel} = ${await page.locator(sel).count()}`;
+    }
+    case 'expectFocus':
+    case 'expectFocusVisible': {
+      const sel = String(v.selector || raw);
+      if (!sel) throw new Error(`${action} 需要 selector`);
+      const visibleOnly = action === 'expectFocusVisible';
+      await waitFor(
+        async () => page.evaluate(({ s, vis }) => {
+          const el = document.activeElement;
+          if (!el || !el.matches(s)) return false;
+          return vis ? el.matches(':focus-visible') : true;
+        }, { s: sel, vis: visibleOnly }).catch(() => false),
+        timeout,
+        `焦点在 ${sel}${visibleOnly ? ' 且 :focus-visible 生效' : ''}`,
+      );
+      return sel;
     }
     case 'expectValue': {
       const sel = String(v.selector);

@@ -402,6 +402,17 @@ else {
       const m = tail.match(/共 (\d+) 步/);
       if (fr.status === 0) pass('流程', `示例流程 ${m ? m[1] + ' 步' : ''}全过（${g0.persona}）`);
       else fail('流程', (tail.trim() || `exit ${fr.status}`).slice(0, 200));
+
+      // 移动端焦点流程：验证 expectFocus / expectFocusVisible 与原生 dialog 关闭
+      const fm = await runNodeAsync([
+        join(SCRIPTS, 'flow.mjs'),
+        '--flow', join(SCRIPTS, 'flow.mobile.example.json'),
+        '--base', `http://127.0.0.1:${port}/${g0.persona}`,
+        '--out', join(outDir, 'flow-mobile'),
+      ]);
+      const fmTail = (fm.out || '').split('\n').filter((l) => l.includes('合计')).pop() || '';
+      if (fm.status === 0) pass('流程（移动端焦点）', fmTail.trim());
+      else fail('流程（移动端焦点）', (fmTail.trim() || `exit ${fm.status}`).slice(0, 200));
     }
   } finally {
     server.close();
@@ -471,6 +482,24 @@ else {
     else pass('框架栈', `${files.length} 个 tsx/ts/vue 语法通过，类名引用 ${used.size} 个全部有定义`);
   }
 }
+// ---------- 4.7 Agent 适配器 ----------
+{
+  const dir = join(outDir, 'adapters');
+  const adapter = join(SCRIPTS, 'agent-adapter.mjs');
+  const first = await runNodeAsync([adapter, '--target', 'all', '--out', dir, '--check']);
+  const second = await runNodeAsync([adapter, '--target', 'all', '--out', dir]);
+  const bad = await runNodeAsync([adapter, '--target', 'nope']);
+  const files = ['AGENTS.md', 'GEMINI.md', '.cursor/rules/frontend-fidelity.mdc', '.windsurf/rules/frontend-fidelity.md',
+    '.clinerules/frontend-fidelity.md', '.roo/rules/frontend-fidelity.md', '.continue/rules/frontend-fidelity.md',
+    '.openhands/microagents/frontend-fidelity.md', 'CONVENTIONS.md', '.rules', 'FRONTEND-FIDELITY.md'];
+  const missing = files.filter((f) => !existsSync(join(dir, f)));
+  if (first.status !== 0) fail('Agent 适配器', `首次生成失败：${(first.out || '').slice(-200)}`);
+  else if (missing.length) fail('Agent 适配器', `缺文件：${missing.join(', ')}`);
+  else if (second.status !== 0 || !/未变 11/.test(second.out)) fail('Agent 适配器', '重复执行不幂等');
+  else if (bad.status !== 2) fail('Agent 适配器', `未知 target 应退出 2，实际 ${bad.status}`);
+  else pass('Agent 适配器', `11 个入口 + 幂等 + 未知 target 退出 2`);
+}
+
 // ---------- 5. 文档门 ----------
 {
   try {

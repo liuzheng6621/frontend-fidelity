@@ -1,0 +1,45 @@
+name: 问题反馈
+description: 脚本报错、检查误报/漏报、文档数值对不上
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        先跑 `node scripts/selfcheck.mjs --skip-audit`，把失败项贴进来。
+  - type: input
+    id: version
+    attributes:
+      label: 版本
+      description: package.json 里的 version，或 tag
+      placeholder: v1.19.0
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: 影响范围
+      options:
+        - audit.mjs
+        - scaffold.mjs
+        - selfcheck.mjs
+        - flow.mjs / fidelity.mjs
+        - recheck-refs.mjs
+        - agent-adapter.mjs
+        - 参考库数值
+        - 文档 / 安装
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: 复现命令
+      description: 完整命令 + 关键输出（不要只贴截图）
+      render: bash
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期望与实际
+    validations:
+      required: true

@@ -348,3 +348,25 @@ node scripts/probe-ref.mjs --url https://js.design/ --out .tmp/ref --name jsdesi
 - **毛玻璃头部**：`getComputedStyle(header).backdropFilter`，以及 `top` 是不是被促销条顶到了 40px。
 - **画布页本身**（`/workspace`）：需要登录态。用 `scripts/auth.mjs` 导出登录 Cookie 后带
   `--storage-state` 再采；没有账号时，这一页只能靠官方截图，不采也罢。
+
+---
+
+## 结构证据（REA 被动采集，2026-10-31）
+
+> 采集地址 `https://js.design/`，1440×900 无头 Chromium，CDP 被动读 DOM 与无障碍树：不执行脚本、不点击、不导航。
+> 数字是采集时刻的快照，样式数值见 `references/design-evidence.md`；本层只回答「结构怎么搭」。
+
+| 指标 | 值 |
+| --- | --- |
+| DOM 节点 | 1988 |
+| 无障碍节点 | 1872 |
+| DOM 深度（最大 / 均值） | 30 / 19.9 |
+| 地标 | 3 个：`navigation` / `main` / `contentinfo` |
+| 标题层级 | h1×1 + h2×8 + h3×10 |
+| 语义标签 | `nav`×1 `main`×1 `section`×12 `footer`×1 |
+| 带 aria-* 的元素 | 7 |
+| 图片 alt 覆盖 | 81/127 |
+| 链接 / 图片 / 按钮 / 标题 | 8 / 138 / 5 / 19 |
+| 标签频次 Top 6 | `div`×737 `p`×137 `img`×127 `span`×94 `path`×72 `svg`×54 |
+
+**判读**：**深度均值 19.9、最大 30——全样本最深**（737 个 `div` 套 12 个 `section`）。127 张 `<img>` 里 **46 张没有 `alt`**，而 `aria-*` 属性只落在 7 个节点上。地标 3 个（navigation / main / contentinfo）齐全，说明结构层做了、内容层没跟上。

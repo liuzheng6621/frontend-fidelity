@@ -1,0 +1,2255 @@
+{
+  "generatedAt": "2026-10-31T07:00:17.826Z",
+  "method": "REA (mcp__rea__inspect_web_page) 通过 CDP 被动采集：不执行 JS、不导航、不点击、不改页面。每站一个 1440×900 无头 Chromium 页面，domcontentloaded 后等 3.5s 再采。统计口径：DOM 节点数取 total_nodes；深度按 parent_index 回溯到 #document 的元素层数；heading 层级取无障碍节点 states.level；alt 覆盖只判断 alt 属性是否存在，不判断内容。",
+  "caveats": [
+    "DOM 快照是采集时刻的状态，轮播/懒加载未触发的节点不在内。",
+    "aria-* 计数统计「带 aria-* 属性的元素节点数」，不等于无障碍质量。",
+    "alt 覆盖统计属性是否存在，空 alt（装饰图）也算「带 alt」。",
+    "本层只描述结构（地标 / 标题 / 语义标签 / 深度 / 属性覆盖），样式数值见 design-evidence.md。"
+  ],
+  "sites": {
+    "awwwards": {
+      "site": "awwwards",
+      "url": "https://www.awwwards.com/",
+      "title": "Awwwards - Website Awards - Best Web Design Trends",
+      "domNodes": 4073,
+      "a11yNodes": 1336,
+      "scripts": 4,
+      "resources": 1,
+      "frames": 1,
+      "landmarks": [
+        "banner",
+        "contentinfo",
+        "navigation"
+      ],
+      "headingLevels": {
+        "1": 1,
+        "2": 10,
+        "3": 29
+      },
+      "semanticTags": {
+        "header": 1,
+        "nav": 2,
+        "section": 1,
+        "footer": 1
+      },
+      "tagTop": [
+        [
+          "div",
+          466
+        ],
+        [
+          "a",
+          199
+        ],
+        [
+          "li",
+          145
+        ],
+        [
+          "span",
+          98
+        ],
+        [
+          "path",
+          75
+        ],
+        [
+          "g",
+          74
+        ],
+        [
+          "svg",
+          63
+        ],
+        [
+          "img",
+          60
+        ],
+        [
+          "strong",
+          48
+        ],
+        [
+          "figure",
+          43
+        ],
+        [
+          "ul",
+          42
+        ],
+        [
+          "h3",
+          41
+        ]
+      ],
+      "depthMax": 23,
+      "depthAvg": 15,
+      "ariaAttrNodes": 43,
+      "imgAlt": {
+        "imgs": 60,
+        "withAlt": 60
+      },
+      "links": 112,
+      "headings": 40,
+      "images": 63,
+      "buttons": 1,
+      "forms": 1,
+      "roleTop": [
+        [
+          "none",
+          306
+        ],
+        [
+          "InlineTextBox",
+          228
+        ],
+        [
+          "StaticText",
+          201
+        ],
+        [
+          "generic",
+          155
+        ],
+        [
+          "link",
+          112
+        ],
+        [
+          "listitem",
+          73
+        ],
+        [
+          "image",
+          63
+        ],
+        [
+          "strong",
+          42
+        ],
+        [
+          "heading",
+          40
+        ],
+        [
+          "figure",
+          38
+        ]
+      ],
+      "capturedAt": "2026-10-31T06:56:57.343Z"
+    },
+    "vercel": {
+      "site": "vercel",
+      "url": "https://vercel.com/login",
+      "title": "Login – Vercel",
+      "domNodes": 413,
+      "a11yNodes": 123,
+      "scripts": 116,
+      "resources": 103,
+      "frames": 1,
+      "landmarks": [
+        "banner",
+        "main",
+        "navigation",
+        "form",
+        "form",
+        "navigation"
+      ],
+      "headingLevels": {
+        "1": 1
+      },
+      "semanticTags": {
+        "header": 1,
+        "nav": 2,
+        "main": 1,
+        "footer": 1,
+        "form": 2
+      },
+      "tagTop": [
+        [
+          "script",
+          127
+        ],
+        [
+          "link",
+          40
+        ],
+        [
+          "div",
+          27
+        ],
+        [
+          "span",
+          22
+        ],
+        [
+          "meta",
+          14
+        ],
+        [
+          "button",
+          7
+        ],
+        [
+          "a",
+          6
+        ],
+        [
+          "img",
+          6
+        ],
+        [
+          "svg",
+          4
+        ],
+        [
+          "path",
+          4
+        ],
+        [
+          "style",
+          3
+        ],
+        [
+          "nav",
+          2
+        ]
+      ],
+      "depthMax": 16,
+      "depthAvg": 6.1,
+      "ariaAttrNodes": 15,
+      "imgAlt": {
+        "imgs": 6,
+        "withAlt": 6
+      },
+      "links": 6,
+      "headings": 1,
+      "images": 4,
+      "buttons": 8,
+      "forms": 1,
+      "roleTop": [
+        [
+          "none",
+          32
+        ],
+        [
+          "StaticText",
+          25
+        ],
+        [
+          "InlineTextBox",
+          25
+        ],
+        [
+          "generic",
+          10
+        ],
+        [
+          "button",
+          8
+        ],
+        [
+          "link",
+          6
+        ],
+        [
+          "image",
+          4
+        ],
+        [
+          "navigation",
+          2
+        ],
+        [
+          "form",
+          2
+        ],
+        [
+          "paragraph",
+          2
+        ]
+      ],
+      "capturedAt": "2026-10-31T06:56:57.614Z"
+    },
+    "mastergo": {
+      "site": "mastergo",
+      "url": "https://mastergo.com/",
+      "title": "MasterGo (莫高设计) 官网 - AI 时代的数字界面生产平台",
+      "domNodes": 2125,
+      "a11yNodes": 1360,
+      "scripts": 1,
+      "resources": 12,
+      "frames": 1,
+      "landmarks": [
+        "main"
+      ],
+      "headingLevels": {
+        "1": 4
+      },
+      "semanticTags": {
+        "header": 1,
+        "main": 1,
+        "section": 2
+      },
+      "tagTop": [
+        [
+          "div",
+          484
+        ],
+        [
+          "img",
+          178
+        ],
+        [
+          "g",
+          103
+        ],
+        [
+          "li",
+          83
+        ],
+        [
+          "span",
+          69
+        ],
+        [
+          "a",
+          69
+        ],
+        [
+          "p",
+          57
+        ],
+        [
+          "path",
+          47
+        ],
+        [
+          "style",
+          43
+        ],
+        [
+          "link",
+          28
+        ],
+        [
+          "svg",
+          19
+        ],
+        [
+          "rect",
+          17
+        ]
+      ],
+      "depthMax": 28,
+      "depthAvg": 15.2,
+      "ariaAttrNodes": 1,
+      "imgAlt": {
+        "imgs": 178,
+        "withAlt": 84
+      },
+      "links": 69,
+      "headings": 4,
+      "images": 175,
+      "buttons": 12,
+      "forms": 0,
+      "roleTop": [
+        [
+          "generic",
+          295
+        ],
+        [
+          "InlineTextBox",
+          293
+        ],
+        [
+          "StaticText",
+          208
+        ],
+        [
+          "none",
+          184
+        ],
+        [
+          "image",
+          175
+        ],
+        [
+          "link",
+          69
+        ],
+        [
+          "listitem",
+          64
+        ],
+        [
+          "paragraph",
+          43
+        ],
+        [
+          "button",
+          12
+        ],
+        [
+          "list",
+          4
+        ]
+      ],
+      "capturedAt": "2026-10-31T06:56:57.873Z"
+    },
+    "juejin": {
+      "site": "juejin",
+      "url": "https://juejin.cn/",
+      "title": "稀土掘金",
+      "domNodes": 2605,
+      "a11yNodes": 1190,
+      "scripts": 4,
+      "resources": 0,
+      "frames": 1,
+      "landmarks": [
+        "banner",
+        "main",
+        "navigation",
+        "navigation",
+        "complementary",
+        "region:进行中的活动",
+        "navigation",
+        "search"
+      ],
+      "headingLevels": {
+        "2": 1
+      },
+      "semanticTags": {
+        "header": 2,
+        "nav": 5,
+        "main": 1,
+        "section": 3,
+        "aside": 1,
+        "form": 1
+      },
+      "tagTop": [
+        [
+          "div",
+          405
+        ],
+        [
+          "a",
+          148
+        ],
+        [
+          "li",
+          136
+        ],
+        [
+          "span",
+          123
+        ],
+        [
+          "svg",
+          91
+        ],
+        [
+          "circle",
+          85
+        ],
+        [
+          "path",
+          78
+        ],
+        [
+          "link",
+          69
+        ],
+        [
+          "script",
+          44
+        ],
+        [
+          "ul",
+          38
+        ],
+        [
+          "::before",
+          24
+        ],
+        [
+          "img",
+          22
+        ]
+      ],
+      "depthMax": 27,
+      "depthAvg": 18.1,
+      "ariaAttrNodes": 11,
+      "imgAlt": {
+        "imgs": 22,
+        "withAlt": 22
+      },
+      "links": 134,
+      "headings": 1,
+      "images": 69,
+      "buttons": 7,
+      "forms": 0,
+      "roleTop": [
+        [
+          "InlineTextBox",
+          268
+        ],
+        [
+          "StaticText",
+          191
+        ],
+        [
+          "none",
+          186
+        ],
+        [
+          "generic",
+          160
+        ],
+        [
+          "link",
+          134
+        ],
+        [
+          "listitem",
+          128
+        ],
+        [
+          "image",
+          69
+        ],
+        [
+          "list",
+          34
+        ],
+        [
+          "button",
+          7
+        ],
+        [
+          "navigation",
+          3
+        ]
+      ],
+      "capturedAt": "2026-10-31T06:56:58.148Z"
+    },
+    "sspai": {
+      "site": "sspai",
+      "url": "https://sspai.com/",
+      "title": "少数派 - 高效工作，品质生活",
+      "domNodes": 1656,
+      "a11yNodes": 1035,
+      "scripts": 5,
+      "resources": 0,
+      "frames": 1,
+      "landmarks": [
+        "banner",
+        "complementary",
+        "complementary",
+        "navigation"
+      ],
+      "headingLevels": {},
+      "semanticTags": {
+        "header": 1,
+        "nav": 1,
+        "article": 12,
+        "aside": 2
+      },
+      "tagTop": [
+        [
+          "div",
+          363
+        ],
+        [
+          "span",
+          137
+        ],
+        [
+          "a",
+          103
+        ],
+        [
+          "img",
+          71
+        ],
+        [
+          "i",
+          69
+        ],
+        [
+          "path",
+          39
+        ],
+        [
+          "button",
+          36
+        ],
+        [
+          "::before",
+          36
+        ],
+        [
+          "p",
+          24
+        ],
+        [
+          "script",
+          19
+        ],
+        [
+          "meta",
+          15
+        ],
+        [
+          "article",
+          12
+        ]
+      ],
+      "depthMax": 27,
+      "depthAvg": 14.6,
+      "ariaAttrNodes": 17,
+      "imgAlt": {
+        "imgs": 71,
+        "withAlt": 55
+      },
+      "links": 86,
+      "headings": 0,
+      "images": 57,
+      "buttons": 14,
+      "forms": 0,
+      "roleTop": [
+        [
+          "none",
+          387
+        ],
+        [
+          "InlineTextBox",
+          194
+        ],
+        [
+          "StaticText",
+          132
+        ],
+        [
+          "generic",
+          119
+        ],
+        [
+          "link",
+          86
+        ],
+        [
+          "image",
+          57
+        ],
+        [
+          "paragraph",
+          21
+        ],
+        [
+          "button",
+          14
+        ],
+        [
+          "article",
+          12
+        ],
+        [
+          "listitem",
+          5
+        ]
+      ],
+      "capturedAt": "2026-10-31T06:56:58.509Z"
+    },
+    "yuque": {
+      "site": "yuque",
+      "url": "https://www.yuque.com/",
+      "title": "语雀，为每一个人提供优秀的文档和知识库工具",
+      "domNodes": 671,
+      "a11yNodes": 523,
+      "scripts": 12,
+      "resources": 0,
+      "frames": 1,
+      "landmarks": [],
+      "headingLevels": {
+        "2": 5,
+        "3": 2,
+        "4": 10
+      },
+      "semanticTags": {},
+      "tagTop": [
+        [
+          "div",
+          133
+        ],
+        [
+          "a",
+          41
+        ],
+        [
+          "img",
+          36
+        ],
+        [
+          "li",
+          36
+        ],
+        [
+          "link",
+          33
+        ],
+        [
+          "path",
+          32
+        ],
+        [
+          "g",
+          30
+        ],
+        [
+          "script",
+          23
+        ],
+        [
+          "span",
+          22
+        ],
+        [
+          "p",
+          21
+        ],
+        [
+          "meta",
+          17
+        ],
+        [
+          "::before",
+          10
+        ]
+      ],
+      "depthMax": 26,
+      "depthAvg": 15.3,
+      "ariaAttrNodes": 3,
+      "imgAlt": {
+        "imgs": 36,
+        "withAlt": 1
+      },
+      "links": 40,
+      "headings": 17,
+      "images": 44,
+      "buttons": 3,
+      "forms": 0,
+      "roleTop": [
+        [
+          "InlineTextBox",
+          105
+        ],
+        [
+          "StaticText",
+          91
+        ],
+        [
+          "none",
+          80
+        ],
+        [
+          "generic",
+          70
+        ],
+        [
+          "image",
+          44
+        ],
+        [
+          "link",
+          40
+        ],
+        [
+          "listitem",
+          26
+        ],
+        [
+          "paragraph",
+          20
+        ],
+        [
+          "heading",
+          17
+        ],
+        [
+          "menuitem",
+          9
+        ]
+      ],
+      "capturedAt": "2026-10-31T06:56:58.780Z"
+    },
+    "zcool": {
+      "site": "zcool",
+      "url": "https://www.zcool.com.cn/discover/17",
+      "title": "UI设计素材_UI设计作品,海报,作品集欣赏下载-站酷ZCOOL",
+      "domNodes": 12392,
+      "a11yNodes": 2709,
+      "scripts": 5,
+      "resources": 0,
+      "frames": 1,
+      "landmarks": [
+        "banner",
+        "main",
+        "navigation:站酷主导航",
+        "search"
+      ],
+      "headingLevels": {
+        "1": 1,
+        "2": 27
+      },
+      "semanticTags": {
+        "header": 1,
+        "nav": 1,
+        "main": 1,
+        "section": 19,
+        "footer": 1,
+        "form": 1
+      },
+      "tagTop": [
+        [
+          "path",
+          1496
+        ],
+        [
+          "div",
+          1074
+        ],
+        [
+          "symbol",
+          720
+        ],
+        [
+          "g",
+          492
+        ],
+        [
+          "span",
+          390
+        ],
+        [
+          "a",
+          296
+        ],
+        [
+          "rect",
+          260
+        ],
+        [
+          "stop",
+          225
+        ],
+        [
+          "use",
+          182
+        ],
+        [
+          "img",
+          170
+        ],
+        [
+          "svg",
+          157
+        ],
+        [
+          "circle",
+          147
+        ]
+      ],
+      "depthMax": 21,
+      "depthAvg": 10.4,
+      "ariaAttrNodes": 172,
+      "imgAlt": {
+        "imgs": 170,
+        "withAlt": 168
+      },
+      "links": 273,
+      "headings": 28,
+      "images": 311,
+      "buttons": 3,
+      "forms": 1,
+      "roleTop": [
+        [
+          "none",
+          867
+        ],
+        [
+          "generic",
+          711
+        ],
+        [
+          "image",
+          311
+        ],
+        [
+          "link",
+          273
+        ],
+        [
+          "InlineTextBox",
+          265
+        ],
+        [
+          "StaticText",
+          243
+        ],
+        [
+          "heading",
+          28
+        ],
+        [
+          "button",
+          3
+        ],
+        [
+          "RootWebArea",
+          1
+        ],
+        [
+          "banner",
+          1
+        ]
+      ],
+      "capturedAt": "2026-10-31T06:56:59.054Z"
+    },
+    "uishijie": {
+      "site": "uishijie",
+      "url": "http://www.uishijie.com/ui/",
+      "title": "UI设计作品欣赏 - UI世界",
+      "domNodes": 1351,
+      "a11yNodes": 796,
+      "scripts": 6,
+      "resources": 7,
+      "frames": 1,
+      "landmarks": [
+        "form"
+      ],
+      "headingLevels": {
+        "2": 2
+      },
+      "semanticTags": {
+        "form": 1
+      },
+      "tagTop": [
+        [
+          "li",
+          187
+        ],
+        [
+          "div",
+          98
+        ],
+        [
+          "a",
+          74
+        ],
+        [
+          "span",
+          58
+        ],
+        [
+          "br",
+          48
+        ],
+        [
+          "img",
+          27
+        ],
+        [
+          "p",
+          26
+        ],
+        [
+          "meta",
+          9
+        ],
+        [
+          "script",
+          9
+        ],
+        [
+          "::after",
+          7
+        ],
+        [
+          "ol",
+          6
+        ],
+        [
+          "ul",
+          4
+        ]
+      ],
+      "depthMax": 10,
+      "depthAvg": 8.1,
+      "ariaAttrNodes": 0,
+      "imgAlt": {
+        "imgs": 27,
+        "withAlt": 25
+      },
+      "links": 74,
+      "headings": 2,
+      "images": 25,
+      "buttons": 1,
+      "forms": 1,
+      "roleTop": [
+        [
+          "InlineTextBox",
+          259
+        ],
+        [
+          "StaticText",
+          209
+        ],
+        [
+          "link",
+          74
+        ],
+        [
+          "none",
+          64
+        ],
+        [
+          "LineBreak",
+          48
+        ],
+        [
+          "listitem",
+          46
+        ],
+        [
+          "generic",
+          35
+        ],
+        [
+          "paragraph",
+          26
+        ],
+        [
+          "image",
+          25
+        ],
+        [
+          "list",
+          3
+        ]
+      ],
+      "capturedAt": "2026-10-31T06:56:59.349Z"
+    },
+    "stylekit": {
+      "site": "stylekit",
+      "url": "https://www.stylekit.top/zh/styles",
+      "title": "149 种网页与 UI 设计风格 | StyleKit",
+      "domNodes": 1659,
+      "a11yNodes": 919,
+      "scripts": 47,
+      "resources": 47,
+      "frames": 1,
+      "landmarks": [
+        "banner",
+        "banner",
+        "navigation",
+        "main",
+        "contentinfo",
+        "navigation",
+        "region",
+        "navigation",
+        "navigation",
+        "form",
+        "navigation"
+      ],
+      "headingLevels": {
+        "1": 1,
+        "2": 1,
+        "3": 12
+      },
+      "semanticTags": {
+        "header": 1,
+        "nav": 9,
+        "main": 1,
+        "section": 3,
+        "footer": 1,
+        "form": 1
+      },
+      "tagTop": [
+        [
+          "div",
+          462
+        ],
+        [
+          "path",
+          167
+        ],
+        [
+          "span",
+          153
+        ],
+        [
+          "a",
+          94
+        ],
+        [
+          "button",
+          79
+        ],
+        [
+          "svg",
+          79
+        ],
+        [
+          "p",
+          48
+        ],
+        [
+          "script",
+          44
+        ],
+        [
+          "meta",
+          29
+        ],
+        [
+          "h3",
+          25
+        ],
+        [
+          "link",
+          17
+        ],
+        [
+          "nav",
+          9
+        ]
+      ],
+      "depthMax": 19,
+      "depthAvg": 11.4,
+      "ariaAttrNodes": 162,
+      "imgAlt": {
+        "imgs": 3,
+        "withAlt": 3
+      },
+      "links": 54,
+      "headings": 14,
+      "images": 29,
+      "buttons": 46,
+      "forms": 2,
+      "roleTop": [
+        [
+          "none",
+          257
+        ],
+        [
+          "InlineTextBox",
+          216
+        ],
+        [
+          "StaticText",
+          183
+        ],
+        [
+          "generic",
+          64
+        ],
+        [
+          "link",
+          54
+        ],
+        [
+          "button",
+          46
+        ],
+        [
+          "image",
+          29
+        ],
+        [
+          "paragraph",
+          27
+        ],
+        [
+          "heading",
+          14
+        ],
+        [
+          "navigation",
+          5
+        ]
+      ],
+      "capturedAt": "2026-10-31T06:56:59.609Z"
+    },
+    "wegic": {
+      "site": "wegic",
+      "url": "https://wegic.ai/zh-cn",
+      "title": "Wegic：几分钟搭建专属网站 | AI 网站构建器",
+      "domNodes": 2390,
+      "a11yNodes": 1355,
+      "scripts": 16,
+      "resources": 13,
+      "frames": 1,
+      "landmarks": [
+        "main",
+        "navigation"
+      ],
+      "headingLevels": {
+        "1": 1,
+        "2": 7,
+        "3": 4
+      },
+      "semanticTags": {
+        "nav": 1,
+        "main": 1,
+        "section": 2
+      },
+      "tagTop": [
+        [
+          "div",
+          577
+        ],
+        [
+          "g",
+          454
+        ],
+        [
+          "path",
+          281
+        ],
+        [
+          "clippath",
+          98
+        ],
+        [
+          "stop",
+          87
+        ],
+        [
+          "script",
+          67
+        ],
+        [
+          "img",
+          67
+        ],
+        [
+          "span",
+          63
+        ],
+        [
+          "svg",
+          57
+        ],
+        [
+          "mask",
+          48
+        ],
+        [
+          "use",
+          48
+        ],
+        [
+          "link",
+          44
+        ]
+      ],
+      "depthMax": 26,
+      "depthAvg": 13.6,
+      "ariaAttrNodes": 40,
+      "imgAlt": {
+        "imgs": 67,
+        "withAlt": 67
+      },
+      "links": 24,
+      "headings": 12,
+      "images": 80,
+      "buttons": 40,
+      "forms": 1,
+      "roleTop": [
+        [
+          "none",
+          434
+        ],
+        [
+          "generic",
+          328
+        ],
+        [
+          "InlineTextBox",
+          224
+        ],
+        [
+          "StaticText",
+          193
+        ],
+        [
+          "image",
+          80
+        ],
+        [
+          "button",
+          40
+        ],
+        [
+          "link",
+          24
+        ],
+        [
+          "paragraph",
+          13
+        ],
+        [
+          "heading",
+          12
+        ],
+        [
+          "Video",
+          2
+        ]
+      ],
+      "capturedAt": "2026-10-31T06:57:38.989Z"
+    },
+    "jsdesign": {
+      "site": "jsdesign",
+      "url": "https://js.design/",
+      "title": "即时设计 - 专业 UI 设计工具，在线协作更高效",
+      "domNodes": 1988,
+      "a11yNodes": 1872,
+      "scripts": 6,
+      "resources": 23,
+      "frames": 1,
+      "landmarks": [
+        "navigation",
+        "main",
+        "contentinfo"
+      ],
+      "headingLevels": {
+        "1": 1,
+        "2": 8,
+        "3": 10
+      },
+      "semanticTags": {
+        "nav": 1,
+        "main": 1,
+        "section": 12,
+        "footer": 1
+      },
+      "tagTop": [
+        [
+          "div",
+          737
+        ],
+        [
+          "p",
+          137
+        ],
+        [
+          "img",
+          127
+        ],
+        [
+          "span",
+          94
+        ],
+        [
+          "path",
+          72
+        ],
+        [
+          "svg",
+          54
+        ],
+        [
+          "g",
+          54
+        ],
+        [
+          "i",
+          49
+        ],
+        [
+          "li",
+          39
+        ],
+        [
+          "::after",
+          36
+        ],
+        [
+          "rect",
+          28
+        ],
+        [
+          "defs",
+          21
+        ]
+      ],
+      "depthMax": 30,
+      "depthAvg": 19.9,
+      "ariaAttrNodes": 7,
+      "imgAlt": {
+        "imgs": 127,
+        "withAlt": 81
+      },
+      "links": 8,
+      "headings": 19,
+      "images": 138,
+      "buttons": 5,
+      "forms": 3,
+      "roleTop": [
+        [
+          "none",
+          610
+        ],
+        [
+          "generic",
+          380
+        ],
+        [
+          "InlineTextBox",
+          287
+        ],
+        [
+          "StaticText",
+          244
+        ],
+        [
+          "image",
+          138
+        ],
+        [
+          "paragraph",
+          96
+        ],
+        [
+          "listitem",
+          39
+        ],
+        [
+          "heading",
+          19
+        ],
+        [
+          "LineBreak",
+          15
+        ],
+        [
+          "strong",
+          11
+        ]
+      ],
+      "capturedAt": "2026-10-31T06:57:39.406Z"
+    },
+    "uinotes": {
+      "site": "uinotes",
+      "url": "https://uinotes.com/",
+      "title": "UI Notes - 真实产品 UI 设计灵感库",
+      "domNodes": 1433,
+      "a11yNodes": 562,
+      "scripts": 10,
+      "resources": 20,
+      "frames": 1,
+      "landmarks": [
+        "banner",
+        "navigation",
+        "navigation"
+      ],
+      "headingLevels": {},
+      "semanticTags": {
+        "header": 1,
+        "nav": 2
+      },
+      "tagTop": [
+        [
+          "div",
+          269
+        ],
+        [
+          "span",
+          91
+        ],
+        [
+          "img",
+          80
+        ],
+        [
+          "a",
+          73
+        ],
+        [
+          "script",
+          10
+        ],
+        [
+          "meta",
+          8
+        ],
+        [
+          "link",
+          6
+        ],
+        [
+          "li",
+          5
+        ],
+        [
+          "nav",
+          2
+        ],
+        [
+          "::before",
+          2
+        ],
+        [
+          "p",
+          2
+        ],
+        [
+          "html",
+          1
+        ]
+      ],
+      "depthMax": 13,
+      "depthAvg": 10.1,
+      "ariaAttrNodes": 0,
+      "imgAlt": {
+        "imgs": 80,
+        "withAlt": 80
+      },
+      "links": 29,
+      "headings": 0,
+      "images": 81,
+      "buttons": 1,
+      "forms": 1,
+      "roleTop": [
+        [
+          "generic",
+          193
+        ],
+        [
+          "none",
+          120
+        ],
+        [
+          "image",
+          81
+        ],
+        [
+          "InlineTextBox",
+          66
+        ],
+        [
+          "StaticText",
+          65
+        ],
+        [
+          "link",
+          29
+        ],
+        [
+          "navigation",
+          2
+        ],
+        [
+          "RootWebArea",
+          1
+        ],
+        [
+          "banner",
+          1
+        ],
+        [
+          "strong",
+          1
+        ]
+      ],
+      "capturedAt": "2026-10-31T06:57:39.865Z"
+    },
+    "luckymaomi": {
+      "site": "luckymaomi",
+      "url": "https://luckymaomi.github.io/ui/",
+      "title": "UI",
+      "domNodes": 3852,
+      "a11yNodes": 718,
+      "scripts": 3,
+      "resources": 16,
+      "frames": 1,
+      "landmarks": [
+        "banner",
+        "main",
+        "navigation",
+        "region"
+      ],
+      "headingLevels": {
+        "2": 15
+      },
+      "semanticTags": {
+        "header": 1,
+        "nav": 1,
+        "main": 1,
+        "section": 1,
+        "article": 143
+      },
+      "tagTop": [
+        [
+          "div",
+          721
+        ],
+        [
+          "i",
+          715
+        ],
+        [
+          "a",
+          579
+        ],
+        [
+          "p",
+          287
+        ],
+        [
+          "span",
+          146
+        ],
+        [
+          "article",
+          143
+        ],
+        [
+          "img",
+          143
+        ],
+        [
+          "h2",
+          143
+        ],
+        [
+          "meta",
+          19
+        ],
+        [
+          "path",
+          12
+        ],
+        [
+          "button",
+          11
+        ],
+        [
+          "option",
+          11
+        ]
+      ],
+      "depthMax": 12,
+      "depthAvg": 9.5,
+      "ariaAttrNodes": 162,
+      "imgAlt": {
+        "imgs": 143,
+        "withAlt": 143
+      },
+      "links": 67,
+      "headings": 15,
+      "images": 0,
+      "buttons": 9,
+      "forms": 1,
+      "roleTop": [
+        [
+          "article",
+          143
+        ],
+        [
+          "InlineTextBox",
+          125
+        ],
+        [
+          "StaticText",
+          108
+        ],
+        [
+          "none",
+          106
+        ],
+        [
+          "generic",
+          94
+        ],
+        [
+          "link",
+          67
+        ],
+        [
+          "paragraph",
+          30
+        ],
+        [
+          "heading",
+          15
+        ],
+        [
+          "option",
+          11
+        ],
+        [
+          "button",
+          9
+        ]
+      ],
+      "capturedAt": "2026-10-31T06:57:40.358Z"
+    },
+    "muzli": {
+      "site": "muzli",
+      "url": "https://muz.li/inspiration/motion-design/",
+      "title": "60+ Best motion design Design Ideas (2026 Trends) | Muzli",
+      "domNodes": 1893,
+      "a11yNodes": 1405,
+      "scripts": 4,
+      "resources": 27,
+      "frames": 1,
+      "landmarks": [
+        "banner",
+        "main",
+        "contentinfo",
+        "navigation",
+        "complementary",
+        "main",
+        "navigation",
+        "navigation",
+        "navigation",
+        "navigation",
+        "navigation",
+        "navigation",
+        "navigation",
+        "navigation",
+        "navigation",
+        "navigation",
+        "navigation",
+        "navigation",
+        "navigation",
+        "navigation",
+        "navigation"
+      ],
+      "headingLevels": {
+        "1": 1,
+        "2": 3,
+        "3": 68,
+        "5": 4
+      },
+      "semanticTags": {
+        "header": 2,
+        "nav": 17,
+        "main": 2,
+        "section": 8,
+        "article": 66,
+        "aside": 1,
+        "footer": 1
+      },
+      "tagTop": [
+        [
+          "a",
+          231
+        ],
+        [
+          "p",
+          95
+        ],
+        [
+          "h3",
+          68
+        ],
+        [
+          "article",
+          66
+        ],
+        [
+          "::before",
+          64
+        ],
+        [
+          "img",
+          61
+        ],
+        [
+          "div",
+          52
+        ],
+        [
+          "span",
+          52
+        ],
+        [
+          "li",
+          39
+        ],
+        [
+          "link",
+          38
+        ],
+        [
+          "meta",
+          23
+        ],
+        [
+          "nav",
+          17
+        ]
+      ],
+      "depthMax": 17,
+      "depthAvg": 12.1,
+      "ariaAttrNodes": 27,
+      "imgAlt": {
+        "imgs": 61,
+        "withAlt": 61
+      },
+      "links": 216,
+      "headings": 76,
+      "images": 67,
+      "buttons": 0,
+      "forms": 0,
+      "roleTop": [
+        [
+          "InlineTextBox",
+          402
+        ],
+        [
+          "StaticText",
+          315
+        ],
+        [
+          "link",
+          216
+        ],
+        [
+          "none",
+          151
+        ],
+        [
+          "heading",
+          76
+        ],
+        [
+          "image",
+          67
+        ],
+        [
+          "article",
+          66
+        ],
+        [
+          "paragraph",
+          34
+        ],
+        [
+          "listitem",
+          28
+        ],
+        [
+          "generic",
+          20
+        ]
+      ],
+      "capturedAt": "2026-10-31T06:58:24.591Z"
+    },
+    "apple": {
+      "site": "apple",
+      "url": "https://www.apple.com.cn/",
+      "title": "Apple (中国大陆) - 官方网站",
+      "domNodes": 2906,
+      "a11yNodes": 834,
+      "scripts": 31,
+      "resources": 57,
+      "frames": 1,
+      "landmarks": [
+        "main",
+        "contentinfo",
+        "navigation",
+        "region",
+        "navigation"
+      ],
+      "headingLevels": {
+        "1": 1,
+        "2": 4,
+        "3": 15
+      },
+      "semanticTags": {
+        "nav": 2,
+        "main": 1,
+        "section": 4,
+        "aside": 1,
+        "footer": 1,
+        "form": 1
+      },
+      "tagTop": [
+        [
+          "a",
+          274
+        ],
+        [
+          "div",
+          273
+        ],
+        [
+          "li",
+          257
+        ],
+        [
+          "span",
+          184
+        ],
+        [
+          "link",
+          157
+        ],
+        [
+          "svg",
+          80
+        ],
+        [
+          "path",
+          71
+        ],
+        [
+          "ul",
+          60
+        ],
+        [
+          "button",
+          45
+        ],
+        [
+          "h2",
+          36
+        ],
+        [
+          "source",
+          34
+        ],
+        [
+          "script",
+          28
+        ]
+      ],
+      "depthMax": 22,
+      "depthAvg": 12.6,
+      "ariaAttrNodes": 194,
+      "imgAlt": {
+        "imgs": 16,
+        "withAlt": 16
+      },
+      "links": 86,
+      "headings": 20,
+      "images": 10,
+      "buttons": 13,
+      "forms": 0,
+      "roleTop": [
+        [
+          "none",
+          211
+        ],
+        [
+          "InlineTextBox",
+          167
+        ],
+        [
+          "StaticText",
+          136
+        ],
+        [
+          "link",
+          86
+        ],
+        [
+          "listitem",
+          79
+        ],
+        [
+          "generic",
+          68
+        ],
+        [
+          "list",
+          23
+        ],
+        [
+          "heading",
+          20
+        ],
+        [
+          "button",
+          13
+        ],
+        [
+          "paragraph",
+          12
+        ]
+      ],
+      "capturedAt": "2026-10-31T06:58:25.040Z"
+    },
+    "applestore": {
+      "site": "applestore",
+      "url": "https://www.apple.com.cn/shop/buy-iphone",
+      "title": "购买 iPhone - Apple (中国大陆)",
+      "domNodes": 3701,
+      "a11yNodes": 2118,
+      "scripts": 35,
+      "resources": 9,
+      "frames": 1,
+      "landmarks": [
+        "main",
+        "contentinfo",
+        "navigation",
+        "navigation",
+        "navigation",
+        "navigation"
+      ],
+      "headingLevels": {
+        "1": 1,
+        "2": 7,
+        "3": 47
+      },
+      "semanticTags": {
+        "nav": 3,
+        "aside": 1,
+        "footer": 1,
+        "form": 1
+      },
+      "tagTop": [
+        [
+          "div",
+          643
+        ],
+        [
+          "span",
+          309
+        ],
+        [
+          "li",
+          301
+        ],
+        [
+          "a",
+          292
+        ],
+        [
+          "svg",
+          89
+        ],
+        [
+          "path",
+          78
+        ],
+        [
+          "ul",
+          68
+        ],
+        [
+          "script",
+          63
+        ],
+        [
+          "img",
+          56
+        ],
+        [
+          "button",
+          47
+        ],
+        [
+          "h3",
+          47
+        ],
+        [
+          "stop",
+          42
+        ]
+      ],
+      "depthMax": 26,
+      "depthAvg": 15.3,
+      "ariaAttrNodes": 138,
+      "imgAlt": {
+        "imgs": 56,
+        "withAlt": 56
+      },
+      "links": 105,
+      "headings": 55,
+      "images": 58,
+      "buttons": 43,
+      "forms": 0,
+      "roleTop": [
+        [
+          "InlineTextBox",
+          607
+        ],
+        [
+          "none",
+          410
+        ],
+        [
+          "StaticText",
+          341
+        ],
+        [
+          "generic",
+          252
+        ],
+        [
+          "listitem",
+          170
+        ],
+        [
+          "link",
+          105
+        ],
+        [
+          "image",
+          58
+        ],
+        [
+          "heading",
+          55
+        ],
+        [
+          "button",
+          43
+        ],
+        [
+          "list",
+          42
+        ]
+      ],
+      "capturedAt": "2026-10-31T06:58:25.575Z"
+    },
+    "holynova": {
+      "site": "holynova",
+      "url": "https://holynova.github.io/",
+      "title": "holynova · Where Craft Lives | 作品集 Detail 视觉版",
+      "domNodes": 1132,
+      "a11yNodes": 521,
+      "scripts": 1,
+      "resources": 16,
+      "frames": 1,
+      "landmarks": [
+        "banner",
+        "main",
+        "contentinfo"
+      ],
+      "headingLevels": {
+        "1": 1,
+        "3": 12
+      },
+      "semanticTags": {
+        "header": 1,
+        "main": 1,
+        "section": 1,
+        "article": 12,
+        "footer": 1
+      },
+      "tagTop": [
+        [
+          "div",
+          105
+        ],
+        [
+          "span",
+          87
+        ],
+        [
+          "a",
+          42
+        ],
+        [
+          "button",
+          32
+        ],
+        [
+          "path",
+          30
+        ],
+        [
+          "svg",
+          29
+        ],
+        [
+          "::before",
+          24
+        ],
+        [
+          "::after",
+          24
+        ],
+        [
+          "img",
+          14
+        ],
+        [
+          "p",
+          14
+        ],
+        [
+          "article",
+          12
+        ],
+        [
+          "picture",
+          12
+        ]
+      ],
+      "depthMax": 13,
+      "depthAvg": 9.7,
+      "ariaAttrNodes": 111,
+      "imgAlt": {
+        "imgs": 14,
+        "withAlt": 14
+      },
+      "links": 42,
+      "headings": 13,
+      "images": 18,
+      "buttons": 27,
+      "forms": 1,
+      "roleTop": [
+        [
+          "none",
+          124
+        ],
+        [
+          "InlineTextBox",
+          112
+        ],
+        [
+          "StaticText",
+          100
+        ],
+        [
+          "generic",
+          53
+        ],
+        [
+          "link",
+          42
+        ],
+        [
+          "button",
+          27
+        ],
+        [
+          "image",
+          18
+        ],
+        [
+          "heading",
+          13
+        ],
+        [
+          "paragraph",
+          13
+        ],
+        [
+          "article",
+          12
+        ]
+      ],
+      "capturedAt": "2026-10-31T06:58:26.013Z"
+    }
+  }
+}

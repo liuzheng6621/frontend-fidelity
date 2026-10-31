@@ -307,3 +307,25 @@ const ctx = await chromium.launch({
 图墙的列距看相邻卡片 `getBoundingClientRect().left` 差值（24）；行距看 `top` 差值（300）；
 字号频次遍历叶子元素的 `fontSize`；圆角频次同理。移动端判定只要一句：
 `document.documentElement.scrollWidth === window.innerWidth`（本站为 1200 ≠ 390，判定失败）。
+
+---
+
+## 结构证据（REA 被动采集，2026-10-31）
+
+> 采集地址 `https://www.zcool.com.cn/discover/17`，1440×900 无头 Chromium，CDP 被动读 DOM 与无障碍树：不执行脚本、不点击、不导航。
+> 数字是采集时刻的快照，样式数值见 `references/design-evidence.md`；本层只回答「结构怎么搭」。
+
+| 指标 | 值 |
+| --- | --- |
+| DOM 节点 | 12392 |
+| 无障碍节点 | 2709 |
+| DOM 深度（最大 / 均值） | 21 / 10.4 |
+| 地标 | 4 个：`banner` / `main` / `navigation:站酷主导航` / `search` |
+| 标题层级 | h1×1 + h2×27 |
+| 语义标签 | `header`×1 `nav`×1 `main`×1 `section`×19 `footer`×1 `form`×1 |
+| 带 aria-* 的元素 | 172 |
+| 图片 alt 覆盖 | 168/170 |
+| 链接 / 图片 / 按钮 / 标题 | 273 / 311 / 3 / 28 |
+| 标签频次 Top 6 | `path`×1496 `div`×1074 `symbol`×720 `g`×492 `span`×390 `a`×296 |
+
+**判读**：12,392 个 DOM 节点、1,496 个 `<path>`、720 个 `<symbol>`、182 个 `<use>`——**图标走 SVG sprite**，所以节点数极大而脚本只有 5 个。地标 4 个（banner / main / navigation「站酷主导航」/ search），19 个 `section` 分区，`aria-*` 落在 172 个节点上。170 张图 168 张带 `alt`。

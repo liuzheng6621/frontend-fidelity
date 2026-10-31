@@ -242,3 +242,25 @@ node <skill>/scripts/screenshot.mjs \
 2. **页面是 `float` 布局**，`getBoundingClientRect` 的 `y` 值在滚动后会变，量之前先 `scrollTo(0,0)`。
 3. **移动端截图看起来和桌面一样**不是 bug：它真的没有响应式，`docW` 永远是 1500。
    判断一个站有没有适配，看 `document.documentElement.scrollWidth` 是否等于 `window.innerWidth`。
+
+---
+
+## 结构证据（REA 被动采集，2026-10-31）
+
+> 采集地址 `http://www.uishijie.com/ui/`，1440×900 无头 Chromium，CDP 被动读 DOM 与无障碍树：不执行脚本、不点击、不导航。
+> 数字是采集时刻的快照，样式数值见 `references/design-evidence.md`；本层只回答「结构怎么搭」。
+
+| 指标 | 值 |
+| --- | --- |
+| DOM 节点 | 1351 |
+| 无障碍节点 | 796 |
+| DOM 深度（最大 / 均值） | 10 / 8.1 |
+| 地标 | 1 个：`form` |
+| 标题层级 | h2×2 |
+| 语义标签 | `form`×1 |
+| 带 aria-* 的元素 | 0 |
+| 图片 alt 覆盖 | 25/27 |
+| 链接 / 图片 / 按钮 / 标题 | 74 / 25 / 1 / 2 |
+| 标签频次 Top 6 | `li`×187 `div`×98 `a`×74 `span`×58 `br`×48 `img`×27 |
+
+**判读**：**唯一的地标是一个 `form`**（搜索），没有 header/nav/main。`aria-*` 属性 **0 个节点**。DOM 深度均值 8.1、最大 10——**全样本最扁平**：`li` 187 个直接铺开，不套壳。2 个 `h2` 装着导航文字（用标题做导航），`br` 出现 48 次，靠换行排版。

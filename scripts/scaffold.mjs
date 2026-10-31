@@ -1644,11 +1644,30 @@ const mobileCss = `/* mobile.css —— 390 单列壳：安全区 / 底部 tab /
   background: var(--bg);
   color: var(--ink-2);
   font-size: var(--t-sm);
-  text-decoration: none;
+  font-family: inherit;
+  cursor: pointer;
 }
 .m-pill:hover { color: var(--ink); border-color: color-mix(in srgb, var(--ink) 28%, transparent); }
-.m-pill[aria-current="true"] { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+.m-pill[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--bg); }
 .m-pill__count { opacity: .66; font-variant-numeric: tabular-nums; }
+
+.m-search {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  height: 46px; /* 1px 边框 ×2 后，内部输入仍是 44 触控高度 */
+  padding: 0 var(--s-3);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  color: var(--ink-2);
+}
+.m-search:focus-within { border-color: var(--brand); box-shadow: 0 0 0 2px color-mix(in srgb, var(--brand) 24%, transparent); }
+.m-search__icon svg { width: 18px; height: 18px; }
+.m-search input { flex: 1; min-width: 0; height: 100%; border: 0; background: transparent; font-size: var(--t-sm); color: var(--ink); }
+.m-search input:focus-visible { outline: none; }
+.m-count { color: var(--ink-2); }
+.m-empty { padding: var(--s-5) 0; text-align: center; font-size: var(--t-sm); color: var(--ink-2); }
 
 .m-list { display: grid; gap: var(--s-3); }
 .m-item {
@@ -1715,23 +1734,6 @@ const mobileCss = `/* mobile.css —— 390 单列壳：安全区 / 底部 tab /
 .m-tab:hover { color: var(--ink); }
 .m-tab[aria-current="page"] { color: var(--brand-ink); }
 
-.m-fab {
-  position: fixed;
-  right: max(var(--s-4), env(safe-area-inset-right));
-  bottom: calc(56px + env(safe-area-inset-bottom) + var(--s-4));
-  z-index: 40;
-  width: 56px;
-  height: 56px;
-  display: grid;
-  place-items: center;
-  border: 0;
-  border-radius: 50%;
-  background: var(--brand-fill);
-  color: var(--on-brand);
-  box-shadow: var(--sh-2);
-}
-.m-fab:hover { background: var(--brand-600); }
-.m-fab:active { translate: 0 1px; }
 
 /* 底部面板用原生 <dialog>：Esc、焦点陷阱、::backdrop 都由浏览器给 */
 .m-sheet {
@@ -2411,6 +2413,9 @@ const mobileHtml = head('工单', '<link rel="stylesheet" href="mobile.css">\n')
       <p class="m-head__sub">12 条待处理 · 今天</p>
     </div>
     <div class="m-head__spacer"></div>
+    <button class="m-icon-btn" type="button" aria-label="新建工单" onclick="document.getElementById('new-ticket').showModal()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+    </button>
     <button class="m-icon-btn" type="button" aria-label="搜索工单">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
     </button>
@@ -2424,15 +2429,24 @@ const mobileHtml = head('工单', '<link rel="stylesheet" href="mobile.css">\n')
       <div class="m-kpi"><div class="m-kpi__label">平均响应</div><div class="m-kpi__value num">1.8h</div></div>
     </section>
 
-    <nav class="m-pills" aria-label="按状态筛选">
-      <a class="m-pill" href="#" aria-current="true">全部 <span class="m-pill__count">12</span></a>
-      <a class="m-pill" href="#">待处理 <span class="m-pill__count">4</span></a>
-      <a class="m-pill" href="#">进行中 <span class="m-pill__count">6</span></a>
-      <a class="m-pill" href="#">已完成 <span class="m-pill__count">2</span></a>
-    </nav>
+    <label class="m-search">
+      <span class="m-search__icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+      </span>
+      <input type="search" data-search placeholder="搜索标题或工单号" aria-label="搜索工单">
+    </label>
 
-    <div class="m-list">
-      <a class="m-item" href="./app.html">
+    <div class="m-pills" role="group" aria-label="按状态筛选">
+      <button class="m-pill" type="button" data-filter="all" aria-pressed="true">全部 <span class="m-pill__count">5</span></button>
+      <button class="m-pill" type="button" data-filter="todo" aria-pressed="false">待处理 <span class="m-pill__count">1</span></button>
+      <button class="m-pill" type="button" data-filter="doing" aria-pressed="false">进行中 <span class="m-pill__count">2</span></button>
+      <button class="m-pill" type="button" data-filter="done" aria-pressed="false">已完成 <span class="m-pill__count">2</span></button>
+    </div>
+
+    <p class="m-count tiny">共 <span data-count>5</span> 条</p>
+
+    <div class="m-list" data-filter-list>
+      <a class="m-item" href="./app.html" data-status="doing">
         <span class="m-avatar" aria-hidden="true">张</span>
         <span>
           <span class="m-item__title">导出报表时超时，重试三次都失败</span>
@@ -2440,7 +2454,7 @@ const mobileHtml = head('工单', '<link rel="stylesheet" href="mobile.css">\n')
         </span>
         <span class="m-item__side"><span class="tag tag--warn"><span class="dot"></span>进行中</span></span>
       </a>
-      <a class="m-item" href="./app.html">
+      <a class="m-item" href="./app.html" data-status="todo">
         <span class="m-avatar" aria-hidden="true">李</span>
         <span>
           <span class="m-item__title">邀请成员收不到邮件</span>
@@ -2448,7 +2462,7 @@ const mobileHtml = head('工单', '<link rel="stylesheet" href="mobile.css">\n')
         </span>
         <span class="m-item__side"><span class="tag tag--danger"><span class="dot"></span>待处理</span></span>
       </a>
-      <a class="m-item" href="./app.html">
+      <a class="m-item" href="./app.html" data-status="done">
         <span class="m-avatar" aria-hidden="true">王</span>
         <span>
           <span class="m-item__title">账单地址无法修改</span>
@@ -2456,7 +2470,7 @@ const mobileHtml = head('工单', '<link rel="stylesheet" href="mobile.css">\n')
         </span>
         <span class="m-item__side"><span class="tag tag--ok"><span class="dot"></span>已完成</span></span>
       </a>
-      <a class="m-item" href="./app.html">
+      <a class="m-item" href="./app.html" data-status="doing">
         <span class="m-avatar" aria-hidden="true">赵</span>
         <span>
           <span class="m-item__title">API 返回 429，需要提高限流阈值</span>
@@ -2464,7 +2478,7 @@ const mobileHtml = head('工单', '<link rel="stylesheet" href="mobile.css">\n')
         </span>
         <span class="m-item__side"><span class="tag tag--warn"><span class="dot"></span>进行中</span></span>
       </a>
-      <a class="m-item" href="./app.html">
+      <a class="m-item" href="./app.html" data-status="done">
         <span class="m-avatar" aria-hidden="true">陈</span>
         <span>
           <span class="m-item__title">希望支持批量删除</span>
@@ -2473,6 +2487,7 @@ const mobileHtml = head('工单', '<link rel="stylesheet" href="mobile.css">\n')
         <span class="m-item__side"><span class="tag"><span class="dot"></span>已归档</span></span>
       </a>
     </div>
+    <p class="m-empty" data-empty hidden>没有匹配的工单，换个筛选或关键词。</p>
     <p class="m-end">没有更多了</p>
   </main>
 
@@ -2496,9 +2511,6 @@ const mobileHtml = head('工单', '<link rel="stylesheet" href="mobile.css">\n')
   </nav>
 </div>
 
-<button class="m-fab" type="button" aria-label="新建工单" onclick="document.getElementById('new-ticket').showModal()">
-  <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
-</button>
 
 <dialog class="m-sheet" id="new-ticket" aria-labelledby="new-ticket-title">
   <div class="m-sheet__grip" aria-hidden="true"></div>
@@ -2596,6 +2608,39 @@ const uiJs = `// ui.js —— 主题切换 / 密码显隐 / tabs 键盘 / 弹窗
     var m = document.querySelector(sel);
     if (m) m.classList.remove('is-open');
   };
+
+  // 列表筛选 + 搜索：data-filter / data-search / [data-status] / [data-empty]
+  function applyFilters() {
+    var list = document.querySelector('[data-filter-list]');
+    if (!list) return;
+    var active = document.querySelector('[data-filter][aria-pressed="true"]');
+    var status = active ? active.getAttribute('data-filter') : 'all';
+    var input = document.querySelector('[data-search]');
+    var q = input ? input.value.trim().toLowerCase() : '';
+    var shown = 0;
+    Array.prototype.forEach.call(list.querySelectorAll('[data-status]'), function (el) {
+      var okStatus = status === 'all' || el.getAttribute('data-status') === status;
+      var okText = !q || (el.textContent || '').toLowerCase().indexOf(q) >= 0;
+      var show = okStatus && okText;
+      el.hidden = !show;
+      if (show) shown++;
+    });
+    var empty = document.querySelector('[data-empty]');
+    if (empty) empty.hidden = shown > 0;
+    var count = document.querySelector('[data-count]');
+    if (count) count.textContent = String(shown);
+  }
+  window.applyFilters = applyFilters;
+  document.addEventListener('click', function (e) {
+    var f = e.target.closest('[data-filter]');
+    if (!f) return;
+    document.querySelectorAll('[data-filter]').forEach(function (b) { b.setAttribute('aria-pressed', String(b === f)); });
+    applyFilters();
+  });
+  document.addEventListener('input', function (e) {
+    if (e.target.closest('[data-search]')) applyFilters();
+  });
+  applyFilters();
 })();
 `;
 

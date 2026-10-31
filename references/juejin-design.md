@@ -217,3 +217,25 @@ axe `color-contrast` 为桌面 152 处、移动 87 处；`list` 各 1，`listite
 
 复采时仍只访问首页、不登录、不爬全站；通用探针的 `cards=0` 或 `main=1440×60` 是选择器启发式结果。
 三栏、条目和右栏应以 `main.main-container`、`.index-nav`、`.timeline-entry-list`、`li[data-growing-title="entryList"]`、`.index-aside` 定向量测为准。
+
+---
+
+## 结构证据（REA 被动采集，2026-10-31）
+
+> 采集地址 `https://juejin.cn/`，1440×900 无头 Chromium，CDP 被动读 DOM 与无障碍树：不执行脚本、不点击、不导航。
+> 数字是采集时刻的快照，样式数值见 `references/design-evidence.md`；本层只回答「结构怎么搭」。
+
+| 指标 | 值 |
+| --- | --- |
+| DOM 节点 | 2605 |
+| 无障碍节点 | 1190 |
+| DOM 深度（最大 / 均值） | 27 / 18.1 |
+| 地标 | 8 个：`banner` / `main` / `navigation` / `navigation` / `complementary` / `region:进行中的活动` / `navigation` / `search` |
+| 标题层级 | h2×1 |
+| 语义标签 | `header`×2 `nav`×5 `main`×1 `section`×3 `aside`×1 `form`×1 |
+| 带 aria-* 的元素 | 11 |
+| 图片 alt 覆盖 | 22/22 |
+| 链接 / 图片 / 按钮 / 标题 | 134 / 69 / 7 / 1 |
+| 标签频次 Top 6 | `div`×405 `a`×148 `li`×136 `span`×123 `svg`×91 `circle`×85 |
+
+**判读**：8 个地标（banner / main / 3 个 navigation / complementary / region「进行中的活动」/ search）——**样本里地标最细的一个**：活动区用 `region` 命名、搜索用 `search` 地标，两者都不靠 class 表达。整页只有 1 个标题（`h2`，**没有 h1**），信息层级靠 5 个 `nav` 切区。深度均值 18.1，偏深。

@@ -232,3 +232,25 @@ node scripts/screenshot.mjs --url https://uinotes.com/ --out ./shots --name un -
 1. **长图会因为懒加载截空。** 先滚动到底再截（`screenshot.mjs --full` 有滚动，但仍建议手动分段截），或直接用脚本切图：`python shot-split2.py un-desktop.png un-d 2400 1400`。
 2. **`.sample` 在未滚动时 `src` 为空**（2×2 占位图），要量截图尺寸必须等懒加载触发。
 3. **移动端测不到「重排」**，只会测到 `innerWidth = 1420` —— 这本身就是结论（见第六节第 1 条），不要误判成脚本出错。
+
+---
+
+## 结构证据（REA 被动采集，2026-10-31）
+
+> 采集地址 `https://uinotes.com/`，1440×900 无头 Chromium，CDP 被动读 DOM 与无障碍树：不执行脚本、不点击、不导航。
+> 数字是采集时刻的快照，样式数值见 `references/design-evidence.md`；本层只回答「结构怎么搭」。
+
+| 指标 | 值 |
+| --- | --- |
+| DOM 节点 | 1433 |
+| 无障碍节点 | 562 |
+| DOM 深度（最大 / 均值） | 13 / 10.1 |
+| 地标 | 3 个：`banner` / `navigation` / `navigation` |
+| 标题层级 | 无 heading |
+| 语义标签 | `header`×1 `nav`×2 |
+| 带 aria-* 的元素 | 0 |
+| 图片 alt 覆盖 | 80/80 |
+| 链接 / 图片 / 按钮 / 标题 | 29 / 81 / 1 / 0 |
+| 标签频次 Top 6 | `div`×269 `span`×91 `img`×80 `a`×73 `script`×10 `meta`×8 |
+
+**判读**：**0 个 heading、0 个 `aria-*` 节点、0 个 `section`**——最大的字用 `div` 装（与样式层结论一致）。地标 3 个（banner + 2 个 navigation），深度 13 / 10.1，`div` 269 个。80 张 `<img>` **全部带 `alt`**：图片是唯一内容，所以 `alt` 是刚需。

@@ -536,13 +536,16 @@ node scripts/agent-adapter.mjs --target gemini --print
 | 参数 | 默认 | 说明 |
 | --- | --- | --- |
 | `--target` | 必填 | `codex` / `gemini` / `cursor` / `windsurf` / `cline` / `roo` / `continue` / `openhands` / `aider` / `zed` / `generic` / `all` |
+| `--lang` | `zh` | `zh` / `en`：入口正文语言 |
+| `--check` | 关 | 写后校验标记块与 Skill 路径；失败退出 1 |
 | `--out` | 当前目录 | 写到哪个项目根 |
 | `--skill` | 本 Skill 根目录 | 入口里引用的绝对路径 |
 | `--print` | 关 | 只打印，不落盘 |
 | `--force` | 关 | 覆盖已存在的同名文件（默认跳过并提示） |
 
 - 生成的是入口文件，不是副本；Skill 升级后不用重新生成。
-- 不覆盖已有文件：内容相同报「已是最新」，不同则跳过并提示。
+- **只维护 `<!-- frontend-fidelity:begin/end -->` 之间的块**：块外规则原样保留；文件已存在但无标记块则追加，不覆盖。
+- 幂等：块内容相同报「未变」，不写盘；`--force` 才整文件重写。
 - 各家加载差异与不承诺的部分见 [`docs/agents.md`](agents.md)。
 - 退出码：`0` 成功；`2` 未知 target 或 Skill 目录不存在。
 
@@ -562,13 +565,14 @@ node scripts/recheck-refs.mjs --strict              # 有站点不可达时退�
 | --- | --- | --- |
 | `--only` | 全部 | 逗号分隔的站点 key（见脚本内 `SITES`） |
 | `--concurrency` | `4` | 并发探针数，1–6 |
-| `--timeout` | `90` | 单站超时秒数，超时即 `failed` |
+| `--timeout` | `90` | 单站超时秒数（≥15），超时即 `failed` |
 | `--update-baseline` | 关 | 用本次可达结果重写 `references/recheck-baseline.json` |
 | `--strict` | 关 | 有失败站点时退出 1 |
 
 - 逐站调用 `probe-ref.mjs`，解析其 JSON，抽 H1 / 正文 / 控件高 / 主字体 / 底色 / 卡片 / 懒加载图。
 - 基线首次运行自动建立；**失败站点不写入基线**——被拦、超时、下线不能当成「没变化」。
-- 报告只报差异，不改写单站结论；确认改版后再手工更新对应 `references/*-design.md`。
+- 首次采样标 `首次采样（无基线）`，与「无变化」分开；`--only` 默认把报告写到 `.design/recheck/`，不覆盖 `docs/reference-recheck.md`，加 `--report` 才覆盖。
+- 报告只报差异，不改写单站结论；**探针复测 ≠ REA 逆向**：只验证可达性与关键计算值，不做 DOM/脚本结构分析。
 - 退出码：`0` 正常；`1` 加了 `--strict` 且有站点失败；`2` 参数错。
 
 ### fidelity.mjs — 像素级还原验收（设计稿 vs 实现）

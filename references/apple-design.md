@@ -207,3 +207,25 @@ iPhone Duo 还有桌面、移动两份 mp4；桌面审计记录两次 `ERR_ABORT
 | 最适用 | 品牌首页、硬件发布、旗舰产品合集 | AI 产品叙事、强转化首页 | 中文 SaaS、工具功能与对比说明 |
 
 一句话分工：需要「产品本身就是视觉」时读 Apple；需要「按钮有手感」读 Wegic；需要「功能装进卡片」读即时设计，三套外壳不要混用。
+
+---
+
+## 结构证据（REA 被动采集，2026-10-31）
+
+> 采集地址 `https://www.apple.com.cn/`，1440×900 无头 Chromium，CDP 被动读 DOM 与无障碍树：不执行脚本、不点击、不导航。
+> 数字是采集时刻的快照，样式数值见 `references/design-evidence.md`；本层只回答「结构怎么搭」。
+
+| 指标 | 值 |
+| --- | --- |
+| DOM 节点 | 2906 |
+| 无障碍节点 | 834 |
+| DOM 深度（最大 / 均值） | 22 / 12.6 |
+| 地标 | 5 个：`main` / `contentinfo` / `navigation` / `region` / `navigation` |
+| 标题层级 | h1×1 + h2×4 + h3×15 |
+| 语义标签 | `nav`×2 `main`×1 `section`×4 `aside`×1 `footer`×1 `form`×1 |
+| 带 aria-* 的元素 | 194 |
+| 图片 alt 覆盖 | 16/16 |
+| 链接 / 图片 / 按钮 / 标题 | 86 / 10 / 13 / 20 |
+| 标签频次 Top 6 | `a`×274 `div`×273 `li`×257 `span`×184 `link`×157 `svg`×80 |
+
+**判读**：5 个地标（main / contentinfo / navigation / region / navigation）。**`<img>` 只有 16 张，`<svg>` 有 80 个**——产品图走矢量，位图极少；16 张全带 `alt`。`aria-*` 落在 **194 个节点**上（全样本最高），45 个 `button` 对 274 个 `a`。标题 20 个（1 个 h1）。

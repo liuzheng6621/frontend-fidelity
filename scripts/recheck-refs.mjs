@@ -8,7 +8,7 @@
  *
  * 用法：
  *   node scripts/recheck-refs.mjs                       # 全量复测，报告写 docs/reference-recheck.md
- *   node scripts/recheck-refs.mjs --only awwwards,muzli # 只测指定站点
+ *   node scripts/recheck-refs.mjs --only awwwards,muzli # 只测指定站点（报告写 .design/，不覆盖全量）
  *   node scripts/recheck-refs.mjs --concurrency 3 --timeout 90
  *   node scripts/recheck-refs.mjs --update-baseline     # 用本次结果重写基线（确认改版后再用）
  *   node scripts/recheck-refs.mjs --strict              # 有站点不可达时退出 1
@@ -55,9 +55,15 @@ const has = (k) => argv.includes(`--${k}`);
 const arg = (k, d) => { const i = argv.indexOf(`--${k}`); return i >= 0 && argv[i + 1] ? argv[i + 1] : d; };
 const only = arg('only', '') ? arg('only', '').split(',').map((s) => s.trim()).filter(Boolean) : null;
 const concurrency = Math.max(1, Math.min(6, Number(arg('concurrency', '4')) || 4));
-const timeoutMs = Math.max(15000, Number(arg('timeout', '90')) || 90) * 1000;
+const timeoutSec = Number(arg('timeout', '90'));
+if (!Number.isFinite(timeoutSec) || timeoutSec < 15) {
+  console.error('--timeout 需要 ≥ 15（秒）');
+  process.exit(2);
+}
+const timeoutMs = timeoutSec * 1000;
 const updateBaseline = has('update-baseline');
 const strict = has('strict');
+const writeReport = has('report'); // --only 默认不覆盖全量报告
 
 const sites = only ? SITES.filter((s) => only.includes(s.name)) : SITES;
 if (!sites.length) {
@@ -112,13 +118,15 @@ async function readProbe(outDir) {
 }
 
 const same = (a, b, tol = 1) => {
-  if (a === null || b === null || a === undefined || b === undefined) return true;
+  // 只有「两边都测到了」才比数值；一边为空另一边有值，本身就是变化
+  if (a === undefined || b === undefined) return true;
+  if (a === null || b === null) return a === b;
   if (typeof a === 'number' && typeof b === 'number') return Math.abs(a - b) <= tol;
   return a === b;
 };
 
 function diff(before, after) {
-  if (!before) return [];
+  if (!before) return null; // 没有基线：首次采样，不等于「没变化」
   const out = [];
   for (const [key, label, tol] of [
     ['h1', 'H1', 2], ['body', '正文', 1], ['control', '控件高', 2],
@@ -158,8 +166,10 @@ async function worker() {
     try {
       const m = await readProbe(outDir);
       const drift = diff(baseline[site.name], m);
-      results[i] = { site, status: 'ok', ms: run.ms, metrics: m, drift };
-      console.log(`OK ${m.h1 ?? '-'}px / ${m.body ?? '-'}px${drift.length ? ' · 变化 ' + drift.join('，') : ''}`);
+      const state = drift === null ? 'first' : drift.length ? 'drift' : 'same';
+      results[i] = { site, status: 'ok', ms: run.ms, metrics: m, drift, state };
+      const note = state === 'first' ? ' · 首次采样' : drift.length ? ' · 变化 ' + drift.join('，') : '';
+      console.log(`OK ${m.h1 ?? '-'}px / ${m.body ?? '-'}px${note}`);
     } catch (e) {
       results[i] = { site, status: 'failed', error: `解析失败：${e.message}`, ms: run.ms };
       console.log('FAIL 解析');
@@ -171,7 +181,8 @@ await Promise.all(Array.from({ length: concurrency }, worker));
 
 const ok = results.filter((r) => r.status === 'ok');
 const failed = results.filter((r) => r.status === 'failed');
-const drifted = ok.filter((r) => r.drift.length);
+const drifted = ok.filter((r) => r.state === 'drift');
+const firsts = ok.filter((r) => r.state === 'first');
 
 if (updateBaseline) {
   const next = { ...baseline };
@@ -184,7 +195,7 @@ const stamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0'
 const rows = results.map((r) => {
   if (r.status !== 'ok') return `| ${r.site.label} | ❌ 不可达 | ${r.error} | — |`;
   const m = r.metrics;
-  const drift = r.drift.length ? r.drift.join('；') : '无变化';
+  const drift = r.state === 'first' ? '首次采样（无基线）' : r.drift.length ? r.drift.join('；') : '无变化';
   return `| ${r.site.label} | ✅ | H1 ${m.h1 ?? '—'} / 正文 ${m.body ?? '—'} / 控件 ${m.control ?? '—'} / ${m.font || '—'} | ${drift} |`;
 });
 
@@ -202,7 +213,7 @@ ${rows.join('\n')}
 
 ## 统计
 
-- 可达 **${ok.length}** / 失败 **${failed.length}** / 有数值变化 **${drifted.length}**。
+- 可达 **${ok.length}** / 失败 **${failed.length}** / 有数值变化 **${drifted.length}** / 首次采样 **${firsts.length}**。
 - 基线：\`references/recheck-baseline.json\`（${Object.keys(baseline).length} 个站点；\`--update-baseline\` 才会重写）。
 ${failed.length ? `- 失败站点：${failed.map((r) => `${r.site.name}（${r.error}）`).join('；')}。被拦、超时与下线不写入基线，别当成「没变化」。\n` : ''}
 ## 复跑
@@ -214,12 +225,15 @@ node scripts/recheck-refs.mjs --update-baseline  # 确认改版后重设基线
 \`\`\`
 `;
 
-await mkdir(path.dirname(REPORT), { recursive: true });
-await writeFile(REPORT, md, 'utf8');
+const reportPath = only && !writeReport
+  ? path.join(ROOT, '.design', 'recheck', `report-${sites.map((x) => x.name).join('-')}.md`)
+  : REPORT;
+await mkdir(path.dirname(reportPath), { recursive: true });
+await writeFile(reportPath, md, 'utf8');
 await writeFile(path.join(ROOT, '.design', 'recheck', 'report.json'), `${JSON.stringify({ generatedAt: now.toISOString(), results }, null, 2)}\n`, 'utf8');
 
 console.log('');
 console.log(`合计：可达 ${ok.length} / 失败 ${failed.length} / 有变化 ${drifted.length}`);
-console.log(`报告：${REPORT}`);
+console.log(`报告：${reportPath}${only && !writeReport ? '（--only 不覆盖全量报告，加 --report 才写 docs/）' : ''}`);
 if (updateBaseline) console.log(`基线已更新：${BASELINE}`);
 if (strict && failed.length) process.exit(1);

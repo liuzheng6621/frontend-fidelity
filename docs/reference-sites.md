@@ -1,3 +1,9 @@
+> **两层证据，别混用。**
+> 本文件 + 各单站蒸馏正文 = **样式层**：字号 / 行高 / 间距 / 圆角 / 阴影 / 色板，来自 `probe-ref.mjs` 读 `getComputedStyle`。
+> 每份蒸馏末尾的「结构证据（REA 被动采集）」+ [`references/design-evidence.md`](../references/design-evidence.md) §七 = **结构层**：
+> 地标 / 标题层级 / DOM 深度 / `aria-*` 覆盖 / `img alt` 覆盖 / `button` 与 `a` 的分工，来自 REA 经 CDP 被动读 DOM 与无障碍树。
+> 原始数据在 [`references/rea-structure.json`](../references/rea-structure.json)。要「照着搭结构」看结构层；要「照着调数值」看样式层。
+
 ## 参考站蒸馏：wegic.ai
 
 2026-02 对 `https://wegic.ai/zh-cn` 做了一次完整采集（1440×900 / 390×844，读 `getComputedStyle` + `:root` 计算值 + `document.fonts`，截 14 屏），

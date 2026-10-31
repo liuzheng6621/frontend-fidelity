@@ -11,7 +11,9 @@ description: >-
   参考站实测探针、仓库残留清理、跑项目自带的质量门，以及 scaffold.mjs 一键生成骨架。
   参考库是 28 个真实站的实测数据 + 十七份单站蒸馏（营销页 / 工具站 / SaaS 首页 / 编辑内容首页 / 技术社区 feed / 品牌产品舞台 / 密版图墙 / 疏版图墙 / 陈列页 / 灵感库 / 风格库 / 杂志目录 / B 端工具工作区 / 认证注册 / 电商商品配置 / 动效 / 奖项目录；28 = A 组 25 + 3 后台工具站），
   外加动效规格、工艺底线、反模板清单与视觉细则层（含浏览器原生表面、三把锁、动效五档与三档降级），
-  按页面类型对到具体文件与配方小节。
+  按页面类型对到具体文件与配方小节。证据分两层：计算样式（字号 / 行高 / 间距 / 圆角 / 阴影）
+  与 REA 被动采集的结构层（地标 / 标题层级 / DOM 深度 / aria 覆盖 / 图片 alt），
+  结论写在 `design-evidence.md` 第二、七节，原始数据在 `rea-structure.json`。
   不用于：纯逻辑 bug 修复；插画/海报等纯视觉创作（那属于 canvas-design）。
 license: MIT
 ---
@@ -73,6 +75,7 @@ node scripts/scaffold.mjs --ref-url https://linear.app --out ui --pages app,form
 | 电商商品详情 / SKU 选择 | `warm` | `landing,form` | `applestore-commerce.md` |
 | 移动 H5 / 小程序 WebView（列表 + 底部 tab + 底部面板） | `rational`（工具）或 `warm`（消费） | `mobile` | `design-evidence.md` 的 390 单列 / gap 12 / tab 4 项，`applestore-commerce.md` 的控件高 |
 | 奖项目录 / 榜单 / 每日一作 | `magazine` 或 `editorial` | `catalog`（加 `landing` 做今日一作） | `awwwards-design.md` |
+| 要「结构怎么搭」的证据（地标 / 标题层级 / DOM 深度 / `alt` 覆盖 / `button` vs `a`） | 任意 | — | `design-evidence.md` §七（17 站 REA 结构层）+ 各单站蒸馏末尾「结构证据」小节 + `rea-structure.json` |
 
 ```bash
 node scripts/scaffold.mjs --persona <人格> --pages <页面> --out ui --verify

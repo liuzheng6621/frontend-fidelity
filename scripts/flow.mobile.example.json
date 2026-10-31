@@ -1,0 +1,12 @@
+{
+  "name": "移动端：新建面板焦点与关闭",
+  "start": "mobile.html",
+  "steps": [
+    { "click": "[aria-label=\"新建工单\"]" },
+    { "expectVisible": "#new-ticket" },
+    { "expectFocus": "#m-title" },
+    { "expectFocusVisible": "#m-title" },
+    { "press": "Escape" },
+    { "expectHidden": "#new-ticket" }
+  ]
+}

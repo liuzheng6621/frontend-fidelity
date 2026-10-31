@@ -345,3 +345,25 @@ node .tools/probe-lm4.mjs && node .tools/probe-lm5.mjs && node .tools/probe-lm6.
 1. **根域名 404**，必须直接开 `/ui/`；`https://luckymaomi.github.io/` 只有 12 个元素。
 2. **`document.styleSheets` 里只有一份 31KB 的 Tailwind v4 产物**（`_astro/BaseLayout.*.css`），`@keyframes` 为 0——动效详情页与 showcase 的 keyframes 在**各自页面**的样式里，必须逐页采。
 3. PowerShell 里 `curl.exe` 返回的是**行数组**，`.Length` 是行数不是字节数（我第一次读 HTML 得到「7 bytes」）；要 `-join "`n"` 之后再量。
+
+---
+
+## 结构证据（REA 被动采集，2026-10-31）
+
+> 采集地址 `https://luckymaomi.github.io/ui/`，1440×900 无头 Chromium，CDP 被动读 DOM 与无障碍树：不执行脚本、不点击、不导航。
+> 数字是采集时刻的快照，样式数值见 `references/design-evidence.md`；本层只回答「结构怎么搭」。
+
+| 指标 | 值 |
+| --- | --- |
+| DOM 节点 | 3852 |
+| 无障碍节点 | 718 |
+| DOM 深度（最大 / 均值） | 12 / 9.5 |
+| 地标 | 4 个：`banner` / `main` / `navigation` / `region` |
+| 标题层级 | h2×15 |
+| 语义标签 | `header`×1 `nav`×1 `main`×1 `section`×1 `article`×143 |
+| 带 aria-* 的元素 | 162 |
+| 图片 alt 覆盖 | 143/143 |
+| 链接 / 图片 / 按钮 / 标题 | 67 / 0 / 9 / 15 |
+| 标签频次 Top 6 | `div`×721 `i`×715 `a`×579 `p`×287 `span`×146 `article`×143 |
+
+**判读**：**143 个 `article` / 143 个 `h2` / 143 个 `<img>` 一一对应**——卡 = `article`，卡标题 = `h2`，图必带 `alt`。但无障碍树里 `image` 计数为 0：143 张图 `alt` 全为空串，按装饰图处理。`aria-*` 落在 162 个节点上，深度只有 12 / 9.5：**语义密度高、嵌套浅**。

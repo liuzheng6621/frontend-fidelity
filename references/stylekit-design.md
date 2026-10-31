@@ -285,3 +285,25 @@ node scripts/probe-ref.mjs --url https://www.stylekit.top/zh/styles \
 1. **全站 2880×19508 的长截图截到一半就全白**——因为它无限滚动懒挂载，`screenshot.mjs` 的整页模式拿不到后续卡片。要看下半页就 `window.scrollTo` 分段截，或直接数 `已显示 N / M` 那行。
 2. **圆角会量出 `3.35544e+07px`**，那是 `rounded-full` 的 `calc(infinity * 1px)`，别当异常值丢掉。
 3. **深色模式点了没反应**——不要为了凑一个"深色令牌表"去臆造，如实写"未取到"。
+
+---
+
+## 结构证据（REA 被动采集，2026-10-31）
+
+> 采集地址 `https://www.stylekit.top/zh/styles`，1440×900 无头 Chromium，CDP 被动读 DOM 与无障碍树：不执行脚本、不点击、不导航。
+> 数字是采集时刻的快照，样式数值见 `references/design-evidence.md`；本层只回答「结构怎么搭」。
+
+| 指标 | 值 |
+| --- | --- |
+| DOM 节点 | 1659 |
+| 无障碍节点 | 919 |
+| DOM 深度（最大 / 均值） | 19 / 11.4 |
+| 地标 | 11 个：`banner` / `banner` / `navigation` / `main` / `contentinfo` / `navigation` / `region` / `navigation` / `navigation` / `form` / `navigation` |
+| 标题层级 | h1×1 + h2×1 + h3×12 |
+| 语义标签 | `header`×1 `nav`×9 `main`×1 `section`×3 `footer`×1 `form`×1 |
+| 带 aria-* 的元素 | 162 |
+| 图片 alt 覆盖 | 3/3 |
+| 链接 / 图片 / 按钮 / 标题 | 54 / 29 / 46 / 14 |
+| 标签频次 Top 6 | `div`×462 `path`×167 `span`×153 `a`×94 `button`×79 `svg`×79 |
+
+**判读**：**11 个地标、其中 9 个 `navigation`**——把筛选器、分页、侧栏全声明成导航区，屏幕阅读器可以逐个跳过。标题是 1 个 `h1` + 1 个 `h2` + 12 个 `h3`，**卡片标题统一用 h3**。46 个 `button` 对 54 个 `a`：可点但不是跳转的一律 `button`。`aria-*` 落在 162 个节点上。

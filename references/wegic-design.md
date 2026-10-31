@@ -378,3 +378,25 @@ node scripts/probe-ref.mjs --url https://wegic.ai/zh-cn --out .tmp/ref --name we
 #   - 令牌用 getComputedStyle(document.documentElement) 遍历属性名，筛 --wg / --radius / --font
 #   - 站点字体是 self-hosted inter 可变字体；Damion 只在 4 处 eyebrow
 ```
+
+---
+
+## 结构证据（REA 被动采集，2026-10-31）
+
+> 采集地址 `https://wegic.ai/zh-cn`，1440×900 无头 Chromium，CDP 被动读 DOM 与无障碍树：不执行脚本、不点击、不导航。
+> 数字是采集时刻的快照，样式数值见 `references/design-evidence.md`；本层只回答「结构怎么搭」。
+
+| 指标 | 值 |
+| --- | --- |
+| DOM 节点 | 2390 |
+| 无障碍节点 | 1355 |
+| DOM 深度（最大 / 均值） | 26 / 13.6 |
+| 地标 | 2 个：`main` / `navigation` |
+| 标题层级 | h1×1 + h2×7 + h3×4 |
+| 语义标签 | `nav`×1 `main`×1 `section`×2 |
+| 带 aria-* 的元素 | 40 |
+| 图片 alt 覆盖 | 67/67 |
+| 链接 / 图片 / 按钮 / 标题 | 24 / 80 / 40 / 12 |
+| 标签频次 Top 6 | `div`×577 `g`×454 `path`×281 `clippath`×98 `stop`×87 `script`×67 |
+
+**判读**：**454 个 `<g>` + 281 个 `<path>` + 98 个 `clipPath` + 48 个 `mask`**——首屏视觉是内联 SVG 不是位图，67 张 `<img>` 全部带 `alt`。地标只 2 个（main / navigation），深度最大 26。无障碍树里出现 2 个 `Video` 角色：装饰性视频走真 `<video>` 而非背景图。

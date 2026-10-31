@@ -7,7 +7,7 @@
 > **Counting rule**: 28 measured sites = **Group A 25** (16 marketing/product/commerce + 9 content galleries) + **Group B 3 backend tools**. Cross-site averages stay frozen at the original 18-site baseline; newer samples only add sites and single-site entries. Totals are always 28 / Group A 25 — `selfcheck.mjs` guards this.
 > The goal is not "make it prettier" but **make the interface match what it claims to be, and actually work — with evidence**.
 
-`v1.18.0` · [latest release](https://github.com/liuzheng6621/frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9 (cropping/contrast only)` · `offline WCAG checks` · `15 executables (12 Node + 3 Python)`
+`v1.20.0` · [latest release](https://github.com/liuzheng6621/frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9 (cropping/contrast only)` · `offline WCAG checks` · `15 executables (12 Node + 3 Python)`
 
 ---
 
@@ -52,7 +52,7 @@ Start a new session after installing, then say "rebuild this page from the scree
 | Area | Contents |
 | --- | --- |
 | Entry | `SKILL.md` — routing table, 30-second start, quality gates, design baseline |
-| Reference library | 29 Markdown files: 17 single-site distillations + 8 general specs + 1 cross-site evidence file + 2 external rule sets + 1 workflow |
+| Reference library | 29 Markdown files: 17 single-site distillations + 8 general specs + 1 cross-site evidence file + 2 external rule sets + 1 workflow — plus 2 machine-readable datasets (recheck baseline / REA structure evidence) |
 | Executables | 15 scripts: screenshots, WCAG/CLS audit, contrast, design-system audit, flow checks, pixel diff, auth export, reference probe, batch recheck, repo hygiene, quality gates, scaffold generator, self-check |
 | Generator | `scaffold.mjs`: five personas × seven page types × dark tokens, optional React/Vue output |
 

@@ -223,3 +223,25 @@ curl -O https://mastergo.com/images/home/design2.png
 curl -O https://mastergo.com/images/home/prototype2.png
 curl -O https://mastergo.com/images/home/develop2.png
 ```
+
+---
+
+## 结构证据（REA 被动采集，2026-10-31）
+
+> 采集地址 `https://mastergo.com/`，1440×900 无头 Chromium，CDP 被动读 DOM 与无障碍树：不执行脚本、不点击、不导航。
+> 数字是采集时刻的快照，样式数值见 `references/design-evidence.md`；本层只回答「结构怎么搭」。
+
+| 指标 | 值 |
+| --- | --- |
+| DOM 节点 | 2125 |
+| 无障碍节点 | 1360 |
+| DOM 深度（最大 / 均值） | 28 / 15.2 |
+| 地标 | 1 个：`main` |
+| 标题层级 | h1×4 |
+| 语义标签 | `header`×1 `main`×1 `section`×2 |
+| 带 aria-* 的元素 | 1 |
+| 图片 alt 覆盖 | 84/178 |
+| 链接 / 图片 / 按钮 / 标题 | 69 / 175 / 12 / 4 |
+| 标签频次 Top 6 | `div`×484 `img`×178 `g`×103 `li`×83 `span`×69 `a`×69 |
+
+**判读**：**地标只有 1 个 `main`**——没有 banner、没有 navigation、没有 contentinfo。标题层级是 4 个 `h1`（每个区块各自起 h1），无障碍树里 `aria-*` 属性**只有 1 个节点**。178 张 `<img>` 里 84 张带 `alt`，**94 张没有**——图片墙靠视觉，不靠文本。

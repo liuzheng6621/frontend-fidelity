@@ -8,7 +8,7 @@
 > 搜这些词应该能到这：设计稿转代码、照着截图还原、UI 还原、前端验收、截图对比、后台美化、移动端适配、设计令牌、Claude Code 技能（skill）。
 > 目标不是"改好看"，而是**让界面和它声称的样子一致，并且真的能用——改完能拿出证据**。
 
-`v1.18.0` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `15 个可执行脚本（12 个 Node + 3 个 Python）`
+`v1.20.0` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `15 个可执行脚本（12 个 Node + 3 个 Python）`
 
 ---
 
@@ -40,7 +40,7 @@ curl -fsSL https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/ra
 bash install.sh --target claude          # 只装 Claude Code
 bash install.sh --target dsh             # 只装 DSH
 bash install.sh --dir ~/my-skills        # 装到自定义目录
-bash install.sh --ref v1.18.0            # 锁定某个版本
+bash install.sh --ref v1.20.0            # 锁定某个版本
 bash install.sh --dry-run                # 只看会装到哪，不动文件
 ```
 
@@ -77,7 +77,7 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 | 维度 | 现状 | 怎么核对 |
 | --- | --- | --- |
 | 可执行验收 | **15 个脚本**（12 Node + 3 Python），全部用退出码表达结论 | `ls scripts/*.mjs scripts/*.py`、`wc -l scripts/*` |
-| 参考数据 | 28 个真实站的浏览器实测 + 17 份单站蒸馏，`references/` 共 29 份，按主题索引 | `wc -l references/*.md` |
+| 参考数据 | 28 个真实站的浏览器实测 + 17 份单站蒸馏，`references/` 共 29 份参考 + 2 份机器可读数据（复测基线 / REA 结构证据），按主题索引 | `wc -l references/*.md`、`jq . references/rea-structure.json` |
 | 自检闭环 | 参数语义 / 递归语法 / 生成 / 对比度 / 审计 / 流程冒烟 / 框架栈 / 文档计数与链接 / 历史日期与版本一致性 | `npm run selfcheck` |
 | 文档可操作性 | 精简入口 + 按需参考库 + 分类手册，每个脚本都有参数 / 退出码 / 产物 | `SKILL.md`、`docs/scripts.md` |
 | 边界诚实度 | 明写不做什么（测试框架 / Figma / 小程序原生 / 默认视觉回归门禁），红旗清单 8 条 | 本文「适用与不适用」、`review-rubric.md` |
@@ -91,7 +91,7 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 
 没有权威榜单可依据，所以这里**不写「国内第 N」**——任何具体名次都无法核实，写进 README 就是假数据。
 
-能给的是可核对的量级：公开可见的 Agent skill 绝大多数是「一份 `SKILL.md` + 若干 markdown」，自带 3 个以上可执行脚本的都少见。本项目是 15 个脚本 + 29 份参考 + 可执行自检，按这个量级，在国内公开的前端 / UI 类 skill 里属于第一梯队。
+能给的是可核对的量级：公开可见的 Agent skill 绝大多数是「一份 `SKILL.md` + 若干 markdown」，自带 3 个以上可执行脚本的都少见。本项目是 15 个脚本 + 29 份参考 + 17 站结构证据 + 可执行自检，按这个量级，在国内公开的前端 / UI 类 skill 里属于第一梯队。
 
 真正少见的是三件事同时成立：
 
@@ -294,7 +294,7 @@ git clone https://gitee.com/liu-everything_impossble/skill-frontend-fidelity.git
 
 从 [Releases](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) 下载 `frontend-fidelity.zip`，解压到同名目录即可，内容与 git 版本一致。
 包由 `git archive` 从 tag 生成，不含 `__pycache__`、截图目录与本地缓存。
-当前是 [v1.18.0](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest)。
+当前是 [v1.20.0](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest)。
 
 ### 方式三：只取脚本
 
@@ -569,7 +569,7 @@ node scripts/flow.mjs --flow order.json --base http://localhost:5173 --continue
 }
 ```
 
-13 个动作：`goto` / `click` / `fill` / `select` / `press` / `wait` / `expectText` / `expectVisible` / `expectHidden` / `expectUrl` / `expectCount` / `expectValue` / `screenshot`。每步可加 `timeout`、`desc`、`optional`。完整动作表与参数见 [`docs/scripts.md`](docs/scripts.md)。
+15 个动作：`goto` / `click` / `fill` / `select` / `press` / `wait` / `expectText` / `expectVisible` / `expectHidden` / `expectUrl` / `expectCount` / `expectValue` / `expectFocus` / `expectFocusVisible` / `screenshot`。每步可加 `timeout`、`desc`、`optional`。完整动作表与参数见 [`docs/scripts.md`](docs/scripts.md)。
 
 产物：`<out>/flow-report.json`（每步 `ok` / `ms` / `error` / 截图名）+ 截图，失败必截 `fail-<序号>.png`。退出码 **0** 全过 / **1** 有步骤失败（标了 `optional` 的不算）/ **2** 流程文件写错——写错在开跑前就列出来，不会跑到一半才崩。
 

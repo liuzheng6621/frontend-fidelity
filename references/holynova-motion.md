@@ -277,3 +277,25 @@ node E:\SKIl.1\.tools\probe-hn3.mjs   # hover 前后计算值对比 + 无限滚�
 - **直接用 `getComputedStyle` 读不到"规则原文"**，必须遍历 `document.styleSheets[].cssRules`（含 `@media`/`@supports` 内层），否则拿不到 reduced-motion 块与 `::before/::after` 的定义。
 - 伪元素的样式要 `getComputedStyle(el, '::before')`，`hover` 状态用 `locator.hover()` 后再读，读完再 `mouse.move(0,0)` 复位。
 - PowerShell 5.1 的 `ConvertFrom-Json` 遇到大小写不同的同名键（如 `splitType` / `SplitType`）会报「重复的键」——用 node 读 JSON。
+
+---
+
+## 结构证据（REA 被动采集，2026-10-31）
+
+> 采集地址 `https://holynova.github.io/`，1440×900 无头 Chromium，CDP 被动读 DOM 与无障碍树：不执行脚本、不点击、不导航。
+> 数字是采集时刻的快照，样式数值见 `references/design-evidence.md`；本层只回答「结构怎么搭」。
+
+| 指标 | 值 |
+| --- | --- |
+| DOM 节点 | 1132 |
+| 无障碍节点 | 521 |
+| DOM 深度（最大 / 均值） | 13 / 9.7 |
+| 地标 | 3 个：`banner` / `main` / `contentinfo` |
+| 标题层级 | h1×1 + h3×12 |
+| 语义标签 | `header`×1 `main`×1 `section`×1 `article`×12 `footer`×1 |
+| 带 aria-* 的元素 | 111 |
+| 图片 alt 覆盖 | 14/14 |
+| 链接 / 图片 / 按钮 / 标题 | 42 / 18 / 27 / 13 |
+| 标签频次 Top 6 | `div`×105 `span`×87 `a`×42 `button`×32 `path`×30 `svg`×29 |
+
+**判读**：3 个地标（banner / main / contentinfo）。12 个 `article` 配 12 个 `<picture>`——**每个作品一个 article、一个 picture**。标题 1 个 `h1` 直接跳 12 个 `h3`，**跳过 h2**（视觉层级不按文档层级走）。`aria-*` 落在 111 个节点上，27 个 `button` 对 42 个 `a`。
