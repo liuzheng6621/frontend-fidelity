@@ -53,6 +53,132 @@ const AXE_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
 /** axe impact → 本工具的级别：serious/critical 说明有用户真的用不了。 */
 const AXE_LEVEL = { critical: 'error', serious: 'error', moderate: 'warn', minor: 'warn' };
 
+/** 可选设计体系基线；既有项目优先传自己的令牌，不强推一套新体系。 */
+export function normalizeDesignSystem(input = {}) {
+  const defaults = {
+    spacingBase: 4, tolerance: 0.25, maxFontSizes: 7, maxRadii: 4, maxShadows: 3,
+    fontSizes: null, spacingValues: null, radii: null, ignoreSelectors: [],
+  };
+  if (!input || typeof input !== 'object' || Array.isArray(input)) throw new Error('设计体系配置必须是 JSON 对象');
+  for (const key of Object.keys(input)) {
+    if (!Object.hasOwn(defaults, key)) throw new Error(`未知设计体系配置项：${key}`);
+  }
+  const config = { ...defaults, ...input };
+  for (const key of ['spacingBase', 'tolerance']) {
+    if (typeof config[key] !== 'number' || !Number.isFinite(config[key]) || config[key] < 0 || (key === 'spacingBase' && !config[key])) {
+      throw new Error(`${key} 必须是${key === 'spacingBase' ? '正' : '非负'}有限数值`);
+    }
+  }
+  if (config.tolerance >= config.spacingBase / 2) throw new Error('tolerance 必须小于 spacingBase / 2，避免全部间距被放行');
+  for (const key of ['maxFontSizes', 'maxRadii', 'maxShadows']) {
+    if (!Number.isInteger(config[key]) || config[key] < (key === 'maxFontSizes' ? 1 : 0)) {
+      throw new Error(`${key} 必须是${key === 'maxFontSizes' ? '正' : '非负'}整数`);
+    }
+  }
+  for (const key of ['fontSizes', 'spacingValues', 'radii']) {
+    const values = config[key];
+    if (values === null) continue;
+    if (!Array.isArray(values) || !values.length || values.some((v) => typeof v !== 'number' || !Number.isFinite(v) || v < 0 || (key === 'fontSizes' && v === 0))) {
+      throw new Error(`${key} 必须是非空数值数组或 null（字号须为正数，其余可为 0）`);
+    }
+    config[key] = [...new Set(values)].sort((a, b) => a - b);
+  }
+  if (!Array.isArray(config.ignoreSelectors) || config.ignoreSelectors.some((s) => typeof s !== 'string' || !s.trim())) {
+    throw new Error('ignoreSelectors 必须是非空 CSS 选择器字符串组成的数组');
+  }
+  return config;
+}
+
+/** 只统计当前渲染态；不推断 CSS 源码是否用了变量，也不把启发式警告当错误。 */
+export async function collectDesignSystem(page, config, strict = false) {
+  return page.evaluate(({ config: c, strict: isStrict }) => {
+    const buckets = { fontSizes: [], spacing: [], radii: [], shadows: [] };
+    const invalid = { fontSizes: [], spacing: [], radii: [] };
+    let elements = 0;
+    let ignoredElements = 0;
+    let pillCorners = 0;
+    for (const selector of c.ignoreSelectors) document.querySelector(selector); // 无效选择器不能静默忽略
+    const ignored = ['[data-fidelity-ignore="design-system"]', ...c.ignoreSelectors].join(',');
+    const label = (el) => {
+      if (el.id) return `#${CSS.escape(el.id)}`;
+      const classes = typeof el.className === 'string' ? el.className.trim().split(/\s+/).filter(Boolean).slice(0, 2) : [];
+      return el.tagName.toLowerCase() + classes.map((s) => `.${CSS.escape(s)}`).join('');
+    };
+    const record = (list, value, selector, property) => {
+      const found = list.find((b) => typeof value === 'number' ? Math.abs(b.value - value) <= c.tolerance : b.value === value);
+      const entry = found || { value, count: 0, examples: [] };
+      if (!found) list.push(entry);
+      entry.count++;
+      if (entry.examples.length < 3) entry.examples.push({ selector, property });
+    };
+    const add = (key, value, selector, property) => {
+      // 先用原值判合规，再聚类统计；8.2px 不能把超容差的 8.4px 吞掉。
+      const allowed = key === 'fontSizes' ? c.fontSizes : key === 'spacing' ? c.spacingValues : key === 'radii' ? c.radii : null;
+      const bad = allowed ? !near(value, allowed) : key === 'spacing' && Math.abs(value - Math.round(value / c.spacingBase) * c.spacingBase) > c.tolerance;
+      if (bad) record(invalid[key], value, selector, property);
+      record(buckets[key], value, selector, property);
+    };
+    const px = (s) => /^-?\d+(?:\.\d+)?px$/.test(s) ? Number.parseFloat(s) : null;
+    const near = (value, allowed) => allowed.some((v) => Math.abs(v - value) <= c.tolerance);
+    for (const el of document.querySelectorAll('body, body *')) {
+      if (el.closest(ignored)) { ignoredElements++; continue; }
+      // SVG 内部单位、隐藏内容和 display:contents 不是当前可见 CSS 盒子。
+      if (el.namespaceURI !== 'http://www.w3.org/1999/xhtml') continue;
+      const r = el.getBoundingClientRect();
+      const s = getComputedStyle(el);
+      if (!r.width || !r.height || s.display === 'none' || s.visibility !== 'visible' || typeof el.checkVisibility === 'function' && !el.checkVisibility({ opacityProperty: true, visibilityProperty: true })) continue;
+      elements++;
+      const selector = label(el);
+      const hasText = [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim()) || el.matches('input:not([type="hidden"]), textarea, select');
+      if (hasText) {
+        const size = px(s.fontSize);
+        if (size !== null && size > 0) add('fontSizes', size, selector, 'font-size');
+      }
+      // Typed OM 保留 auto/%，避免把居中外边距、百分比流式间距当作离散令牌。
+      const typed = typeof el.computedStyleMap === 'function' ? el.computedStyleMap() : null;
+      for (const property of ['padding-top', 'padding-right', 'padding-bottom', 'padding-left', 'margin-top', 'margin-right', 'margin-bottom', 'margin-left', 'row-gap', 'column-gap']) {
+        const declared = typed?.get(property)?.toString() || '';
+        if (/auto|%/.test(declared)) continue;
+        if ((property === 'row-gap' || property === 'column-gap') && !/flex|grid|columns/.test(s.display) && s.columnCount === 'auto') continue;
+        const value = px(s.getPropertyValue(property));
+        // 小于半个基数的位移是发丝线/视觉补偿（sr-only 的 -1px、描边对齐），不是间距档位。
+        if (value !== null && Math.abs(value) >= c.spacingBase / 2 - c.tolerance) add('spacing', Math.abs(value), selector, property);
+      }
+      for (const property of ['border-top-left-radius', 'border-top-right-radius', 'border-bottom-right-radius', 'border-bottom-left-radius']) {
+        const parts = s.getPropertyValue(property).split(/\s+/);
+        const radius = (v, size) => v.endsWith('%') ? Number.parseFloat(v) * size / 100 : px(v);
+        const x = radius(parts[0], r.width);
+        const y = radius(parts[1] || parts[0], r.height);
+        if (x === null || y === null) continue;
+        if (x >= r.width / 2 - c.tolerance && y >= r.height / 2 - c.tolerance) { pillCorners++; continue; }
+        for (const value of new Set([x, y])) {
+          if (value > c.tolerance) add('radii', value, selector, property);
+        }
+      }
+      if (s.boxShadow && s.boxShadow !== 'none') add('shadows', s.boxShadow.replace(/\s+/g, ' ').trim(), selector, 'box-shadow');
+    }
+    for (const key of ['fontSizes', 'spacing', 'radii']) buckets[key].sort((a, b) => a.value - b.value);
+    const issues = [];
+    const push = (kind, message, entries) => issues.push({
+      level: isStrict ? 'error' : 'warn', check: `design-system-${kind}`, message,
+      selector: entries[0]?.examples[0]?.selector || null,
+      examples: entries.slice(0, 8),
+    });
+    const checkScale = (key, allowed, max, kind, name) => {
+      const values = buckets[key];
+      const bad = invalid[key];
+      if (bad.length) push(kind, `${name}未在已声明档位内：${bad.map((b) => b.value).join(', ')}px（容差 ${c.tolerance}px）`, bad);
+      else if (!allowed && values.length > max) push(kind, `${name}共 ${values.length} 档，超过预算 ${max} 档；请核对是否有随手微调值`, values);
+    };
+    checkScale('fontSizes', c.fontSizes, c.maxFontSizes, 'font-sizes', '可见文本字号');
+    checkScale('radii', c.radii, c.maxRadii, 'radii', '非全圆角');
+    const offGrid = invalid.spacing;
+    if (offGrid.length) push('spacing', `间距不在${c.spacingValues ? '已声明档位' : `${c.spacingBase}px 网格`}内：${offGrid.map((b) => b.value).join(', ')}px（负外边距按绝对值核对）`, offGrid);
+    if (buckets.shadows.length > c.maxShadows) push('shadows', `box-shadow 共 ${buckets.shadows.length} 套，超过预算 ${c.maxShadows} 套（每个完整声明算一套，不按逗号层数计数）`, buckets.shadows);
+    return { stats: { elements, ignoredElements, pillCorners, ...buckets }, issues };
+  }, { config, strict });
+}
+
 /** 页面上下文里执行的结构检查。返回 issue 数组。 */
 async function collectStructure(page, ctx) {
   return page.evaluate(({ viewport, expectText }) => {
@@ -284,6 +410,30 @@ async function main() {
     wait: '800',
   });
 
+  if (args.help) {
+    console.log('用法：node scripts/audit.mjs --url <url> [--themes light,dark] [--design-system [config.json]] [--strict-design-system]\n' +
+      '  --design-system         检查字号/间距/圆角/阴影，默认仅警告\n' +
+      '  --design-system <json>  使用已有项目的设计体系配置\n' +
+      '  --strict-design-system 把设计体系警告升级为错误（需启用 --design-system）\n' +
+      '完整参数与配置结构见 docs/scripts.md。');
+    return;
+  }
+  let designSystem = null;
+  const strictDesignSystem = flag(args, 'strict-design-system');
+  try {
+    if (flag(args, 'design-system')) {
+      const value = args['design-system'];
+      const input = value === true || /^true$/i.test(String(value))
+        ? {} : JSON.parse(await readFile(path.resolve(String(value)), 'utf8'));
+      designSystem = normalizeDesignSystem(input);
+    }
+    if (strictDesignSystem && !designSystem) throw new Error('--strict-design-system 需要同时启用 --design-system');
+  } catch (e) {
+    console.error(`设计体系配置错误：${e.message}`);
+    process.exitCode = 2;
+    return;
+  }
+
   // --base 把 /pricing 这类相对路径拼成绝对 URL
   const baseUrl = args.base && args.base !== true ? String(args.base).replace(/\/+$/, '') + '/' : '';
 
@@ -341,6 +491,8 @@ async function main() {
       expectText: expectMap ? String(args['expect-text']) : null,
       axe: wantAxe,
       reducedMotion,
+      designSystem,
+      strictDesignSystem,
     },
     axeVersion: null,
     targets: [],
@@ -348,58 +500,80 @@ async function main() {
   };
 
   const browser = await chromium.launch();
-  for (const theme of themes) {
-    for (const v of viewports) {
-      const context = await browser.newContext(
-        contextOptions({ viewport: v, theme, reducedMotion, storageState }),
-      );
-      const page = await context.newPage();
-      await page.addInitScript(installClsObserver);
-      if (theme === 'dark') await context.addInitScript(forceDark);
-      const watcher = watchPage(page);
-
-      for (let ti = 0; ti < targets.length; ti++) {
-        const url = targets[ti];
-        const expectText = expectMap ? (expectMap.perPage ? expectMap.perPage[ti] : expectMap.all) : null;
-        const t = { url, viewport: v, theme, issues: [], axe: null, consoleErrors: [], httpErrors: [], cls: 0 };
-        try {
-          await goto(page, url);
-          if (waitMs) await page.waitForTimeout(waitMs);
-          t.issues = await collectStructure(page, { viewport: v, expectText });
-          t.cls = Number(await page.evaluate(() => window.__cls__ ?? 0).catch(() => 0));
-          if (reducedMotion === 'reduce') {
-            const looping = await collectMotion(page);
-            for (const m of looping) {
-              t.issues.push({
-                level: 'warn',
-                check: 'motion-not-reduced',
-                message: `「减少动效」已开启但仍在循环播放：${m.animation}`,
-                selector: m.selector,
-              });
-            }
-          }
-          if (wantAxe) {
-            const axe = await runAxe(page);
-            if (axe?.error) {
-              t.issues.push({ level: 'warn', check: 'axe-unavailable', message: axe.error });
-            } else if (axe) {
-              report.axeVersion = axe.version;
-              t.axe = axe.violations;
-            }
-          }
-          const noise = watcher.take();
-          t.consoleErrors = noise.consoleErrors;
-          t.httpErrors = noise.httpErrors;
-        } catch (e) {
-          t.issues.push({ level: 'error', check: 'navigation', message: e.message.slice(0, 300) });
-          watcher.take();
-        }
-        report.targets.push(t);
+  try {
+    if (designSystem?.ignoreSelectors.length) {
+      const probe = await browser.newPage();
+      try {
+        await probe.evaluate((selectors) => {
+          for (const selector of selectors) document.querySelector(selector);
+        }, designSystem.ignoreSelectors);
+      } catch (e) {
+        console.error(`设计体系配置错误：ignoreSelectors 含无效选择器：${e.message}`);
+        process.exitCode = 2;
+        return;
+      } finally {
+        if (!probe.isClosed()) await probe.close();
       }
-      await context.close();
     }
+    for (const theme of themes) {
+      for (const v of viewports) {
+        const context = await browser.newContext(
+          contextOptions({ viewport: v, theme, reducedMotion, storageState }),
+        );
+        const page = await context.newPage();
+        await page.addInitScript(installClsObserver);
+        if (theme === 'dark') await context.addInitScript(forceDark);
+        const watcher = watchPage(page);
+
+        for (let ti = 0; ti < targets.length; ti++) {
+          const url = targets[ti];
+          const expectText = expectMap ? (expectMap.perPage ? expectMap.perPage[ti] : expectMap.all) : null;
+          const t = { url, viewport: v, theme, issues: [], axe: null, consoleErrors: [], httpErrors: [], cls: 0 };
+          try {
+            await goto(page, url);
+            if (waitMs) await page.waitForTimeout(waitMs);
+            t.issues = await collectStructure(page, { viewport: v, expectText });
+            if (designSystem) {
+              const ds = await collectDesignSystem(page, designSystem, strictDesignSystem);
+              t.designSystem = ds.stats;
+              t.issues.push(...ds.issues);
+            }
+            t.cls = Number(await page.evaluate(() => window.__cls__ ?? 0).catch(() => 0));
+            if (reducedMotion === 'reduce') {
+              const looping = await collectMotion(page);
+              for (const m of looping) {
+                t.issues.push({
+                  level: 'warn',
+                  check: 'motion-not-reduced',
+                  message: `「减少动效」已开启但仍在循环播放：${m.animation}`,
+                  selector: m.selector,
+                });
+              }
+            }
+            if (wantAxe) {
+              const axe = await runAxe(page);
+              if (axe?.error) {
+                t.issues.push({ level: 'warn', check: 'axe-unavailable', message: axe.error });
+              } else if (axe) {
+                report.axeVersion = axe.version;
+                t.axe = axe.violations;
+              }
+            }
+            const noise = watcher.take();
+            t.consoleErrors = noise.consoleErrors;
+            t.httpErrors = noise.httpErrors;
+          } catch (e) {
+            t.issues.push({ level: 'error', check: 'navigation', message: e.message.slice(0, 300) });
+            watcher.take();
+          }
+          report.targets.push(t);
+        }
+        await context.close();
+      }
+    }
+  } finally {
+    await browser.close();
   }
-  await browser.close();
 
   // ---- 汇总 ----
   const axeByLevel = (t) =>
@@ -437,6 +611,7 @@ async function main() {
     );
     const show = [
       ...t.issues.filter((i) => i.level === 'error').slice(0, 6),
+      ...t.issues.filter((i) => i.level === 'warn' && i.check.startsWith('design-system-')),
       ...(t.axe || [])
         .filter((v) => AXE_LEVEL[v.impact] === 'error')
         .slice(0, 4)
@@ -453,4 +628,9 @@ async function main() {
   process.exit(report.totals.error > 0 ? 1 : 0);
 }
 
-main();
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  main().catch((e) => {
+    console.error(e.message);
+    process.exitCode = 2;
+  });
+}

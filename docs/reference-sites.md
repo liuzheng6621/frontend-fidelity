@@ -3,13 +3,13 @@
 2026-02 对 `https://wegic.ai/zh-cn` 做了一次完整采集（1440×900 / 390×844，读 `getComputedStyle` + `:root` 计算值 + `document.fonts`，截 14 屏），
 把它的设计语言拆成四块写进了技能：
 
-- **[`references/wegic-design.md`](references/wegic-design.md)** — 单站全量：完整 `--wg-*` 令牌表（背景三件套 / ink 与 white 双 ramp / 薄荷品牌色十档 / 语义色）、
+- **[`references/wegic-design.md`](../references/wegic-design.md)** — 单站全量：完整 `--wg-*` 令牌表（背景三件套 / ink 与 white 双 ramp / 薄荷品牌色十档 / 语义色）、
   圆角分工、按钮厚度的 6 层内阴影、字阶实测（86.4 / 56 / 48 / 40 / 36 / 34 / 28 / 20 / 15 / 13）、区块高度节奏、
   组件尺寸（主按钮 126×48、暗卡 392×441、FAQ 行 64、感言卡 370×208），以及**「能搬什么 / 不能搬什么」对照表**。
-- **[`references/design-evidence.md`](references/design-evidence.md)** — Wegic 作为 A 组第 10 个样本并入跨站统计
+- **[`references/design-evidence.md`](../references/design-evidence.md)** — Wegic 作为 A 组第 10 个样本并入跨站统计
   （正文均值仍 15.2、H1 均值 82.8、圆角与间距频次、阴影两派）。
-- **[`references/css-recipes.md`](references/css-recipes.md) 第 12 节** — 可粘贴代码：塑料按钮（侧壁 4→2→0）、发丝圈、暗卡、暖白输入框、逐字入场（含静态回退）。
-- **[`SKILL.md`](SKILL.md)** — 视觉细则里新增三条硬规则：字距只对大标题微放、次级文字用「同色相 + alpha」派生、发丝圈与内阴影优先于 border；反例清单也补了三条。
+- **[`references/css-recipes.md`](../references/css-recipes.md) 第 12 节** — 可粘贴代码：塑料按钮（侧壁 4→2→0）、发丝圈、暗卡、暖白输入框、逐字入场（含静态回退）。
+- **[`SKILL.md`](../SKILL.md)** — 视觉细则里新增三条硬规则：字距只对大标题微放、次级文字用「同色相 + alpha」派生、发丝圈与内阴影优先于 border；反例清单也补了三条。
 
 ### 三招值得直接搬
 
@@ -40,14 +40,14 @@ node scripts/probe-ref.mjs --url https://wegic.ai/zh-cn --out .tmp/ref --name we
 
 它是 **wegic.ai 的反面**：那边是纯黑舞台 + 一件塑料制品，这边是冷灰蓝底板 + 一叠彩色纸卡。两份对照读，能看清「一页一处强调色」有两条完全不同的实现路径。
 
-- **[`references/jsdesign-design.md`](references/jsdesign-design.md)** — 单站全量：令牌表（冷灰蓝 `#f3f7fb` / 唯一实色 `#009dff` 64 处 / 三色阶段 pill）、三套阴影的职责分工、
+- **[`references/jsdesign-design.md`](../references/jsdesign-design.md)** — 单站全量：令牌表（冷灰蓝 `#f3f7fb` / 唯一实色 `#009dff` 64 处 / 三色阶段 pill）、三套阴影的职责分工、
   字阶实测（52 / 44.564 / 40 / 37.05 / 32 / 30.797 / 24 / 19.5 / 15 / 14.846 / 13）、
   区块高度节奏（130px 单位）、组件尺寸（主按钮 97×42、输入+按钮组 414×54、三色彩卡 1100×480、对比卡 537），
   以及**七处它自己没做好的**。
-- **[`references/design-evidence.md`](references/design-evidence.md)** — 作为 A 组第 11 个样本并入跨站统计：
+- **[`references/design-evidence.md`](../references/design-evidence.md)** — 作为 A 组第 11 个样本并入跨站统计：
   正文均值降到 **15.0**、H1 均值 **78.9**、浅色站变 **7/11**；并新增三类反例（13px 正文、H2/H3 倒挂、非整数尺寸）。
-- **[`references/css-recipes.md`](references/css-recipes.md) 第 13 节** — 可粘贴代码：八色网格渐变（含白雾罩对比度）、负扩散阴影三件套、分屏功能卡、输入+按钮同容器、阶段 pill、对比列、毛玻璃头部。
-- **[`SKILL.md`](SKILL.md)** — 参考文件节加了这份文档；跨站统计与「不要照搬」表补了 5 行硬约束。
+- **[`references/css-recipes.md`](../references/css-recipes.md) 第 13 节** — 可粘贴代码：八色网格渐变（含白雾罩对比度）、负扩散阴影三件套、分屏功能卡、输入+按钮同容器、阶段 pill、对比列、毛玻璃头部。
+- **[`SKILL.md`](../SKILL.md)** — 参考文件节加了这份文档；跨站统计与「不要照搬」表补了 5 行硬约束。
 
 ### 三招值得直接搬
 
@@ -254,10 +254,10 @@ node scripts/screenshot.mjs --url https://uinotes.com/ --out ./shots --name un -
 
 | 产出 | 内容 |
 |---|---|
-| [`references/luckymaomi-catalog.md`](references/luckymaomi-catalog.md)（24.4KB / 十一节） | 26 个令牌全表、字阶六档（76/950·40/950·18/400·13·12·11）、卡片六段结构（457×477 / 16:9 静态 SVG / 徽标 36×25 / 色板行 25×14）、hover 三件事、动效预算（3 条 transition 全 100ms linear）、动效库 10 域 57 条的元数据与重放机制、showcase 两层 keyframes、三层 IA、七处别照抄 |
-| [`references/css-recipes.md`](references/css-recipes.md) §20 | `.paper-grid`（两条 1px 渐变方格纸）、`.hard-card`（hover 描黑 + 硬阴影 + `:active` 用 `translate` 压缩影）、`.meta-bar`（元数据黑条）、`.spec-strip`（把规格印成四格）、`.compact-item`、`.animation-stage` + `.animation-replay`、`march`/`stamp` 两条 keyframes |
-| [`references/motion-spec.md`](references/motion-spec.md) 二·补 / 二·补二 | **三种时长口径**（手感派 spring 220–300ms / 弹性派 400ms / **印刷派 linear 100ms**）与「动效索引用『触发时机 · 时长』当第二行」的元数据约定 + 重放实现 |
-| [`references/design-evidence.md`](references/design-evidence.md) | A 组第 16 行 + 16 行补充表；正文均值 14.8 → **14.7px**、浅色 11 → **12** 站 |
+| [`references/luckymaomi-catalog.md`](../references/luckymaomi-catalog.md)（24.4KB / 十一节） | 26 个令牌全表、字阶六档（76/950·40/950·18/400·13·12·11）、卡片六段结构（457×477 / 16:9 静态 SVG / 徽标 36×25 / 色板行 25×14）、hover 三件事、动效预算（3 条 transition 全 100ms linear）、动效库 10 域 57 条的元数据与重放机制、showcase 两层 keyframes、三层 IA、七处别照抄 |
+| [`references/css-recipes.md`](../references/css-recipes.md) §20 | `.paper-grid`（两条 1px 渐变方格纸）、`.hard-card`（hover 描黑 + 硬阴影 + `:active` 用 `translate` 压缩影）、`.meta-bar`（元数据黑条）、`.spec-strip`（把规格印成四格）、`.compact-item`、`.animation-stage` + `.animation-replay`、`march`/`stamp` 两条 keyframes |
+| [`references/motion-spec.md`](../references/motion-spec.md) 二·补 / 二·补二 | **三种时长口径**（手感派 spring 220–300ms / 弹性派 400ms / **印刷派 linear 100ms**）与「动效索引用『触发时机 · 时长』当第二行」的元数据约定 + 重放实现 |
+| [`references/design-evidence.md`](../references/design-evidence.md) | A 组第 16 行 + 16 行补充表；正文均值 14.8 → **14.7px**、浅色 11 → **12** 站 |
 
 三招值得直接搬：
 
@@ -293,10 +293,10 @@ node .tools/probe-lm6.mjs   # 10 域条目（时机·时长）、单条详情重
 
 | 产出 | 落在哪 | 里面有什么 |
 | --- | --- | --- |
-| 单站全量蒸馏 | [`references/muzli-gallery.md`](references/muzli-gallery.md)（20.3KB / 十一节） | 气质四特征 · 令牌（电光蓝 `#2e54ff` + 一个黑的四档 alpha + 4/6/999 三档圆角）· 字阶（Instrument Serif 48/1.0 刊头 + Poppins 正文，296:9）· 版式节奏（65 / 220 / 1108 / 348×309 / 896 / 584）· 组件配方（无壳卡片、35px 药丸、New 徽标、左栏、页脚 10% 面板）· 信息架构（目录 → 外链自家社区带 UTM → SEO 长文 + All collections）· 动效（10 个 keyframes 无一作用在卡片）· 七处没做好 · 能搬/不能搬 · 十步复现 · 重采四坑 |
-| 可粘贴配方 | [`references/css-recipes.md`](references/css-recipes.md) §21 | `.mz-shell`（左栏 220 + 主区）、`.mz-rail`（sticky + 自己滚动）、`.mz-h1`（衬线 48/1.05）、`.mz-pills` / `.mz-pill[aria-current]`、`.mz-grid` + `.mz-card`（图 `aspect-ratio: 348/230` + 4px + 发丝环）、`.mz-badge`、`.mz-footer`；**并补上原站缺的三笔**：hover 环加深 + 图微提亮 + 标题下划线、`:focus-visible` |
-| 跨站统计 | [`references/design-evidence.md`](references/design-evidence.md) | A 组第 17 行 + 16 行补充表；正文均值 **14.7 → 14.6px**、H1 均值 **72.6 → 70.8px**（14 站有 h1）、浅色 12 → **13** 站；招式 40–42；反例 +3 行（卡片零 hover / 广告与内容同构 / 两套过滤语义） |
-| 入口路由 | [`SKILL.md`](SKILL.md) | 「细则去哪找」加一行「要杂志目录气质：左栏目录 + 3 列图版 + 衬线刊头 + 一个电光蓝」 |
+| 单站全量蒸馏 | [`references/muzli-gallery.md`](../references/muzli-gallery.md)（20.3KB / 十一节） | 气质四特征 · 令牌（电光蓝 `#2e54ff` + 一个黑的四档 alpha + 4/6/999 三档圆角）· 字阶（Instrument Serif 48/1.0 刊头 + Poppins 正文，296:9）· 版式节奏（65 / 220 / 1108 / 348×309 / 896 / 584）· 组件配方（无壳卡片、35px 药丸、New 徽标、左栏、页脚 10% 面板）· 信息架构（目录 → 外链自家社区带 UTM → SEO 长文 + All collections）· 动效（10 个 keyframes 无一作用在卡片）· 七处没做好 · 能搬/不能搬 · 十步复现 · 重采四坑 |
+| 可粘贴配方 | [`references/css-recipes.md`](../references/css-recipes.md) §21 | `.mz-shell`（左栏 220 + 主区）、`.mz-rail`（sticky + 自己滚动）、`.mz-h1`（衬线 48/1.05）、`.mz-pills` / `.mz-pill[aria-current]`、`.mz-grid` + `.mz-card`（图 `aspect-ratio: 348/230` + 4px + 发丝环）、`.mz-badge`、`.mz-footer`；**并补上原站缺的三笔**：hover 环加深 + 图微提亮 + 标题下划线、`:focus-visible` |
+| 跨站统计 | [`references/design-evidence.md`](../references/design-evidence.md) | A 组第 17 行 + 16 行补充表；正文均值 **14.7 → 14.6px**、H1 均值 **72.6 → 70.8px**（14 站有 h1）、浅色 12 → **13** 站；招式 40–42；反例 +3 行（卡片零 hover / 广告与内容同构 / 两套过滤语义） |
+| 入口路由 | [`SKILL.md`](../SKILL.md) | 「细则去哪找」加一行「要杂志目录气质：左栏目录 + 3 列图版 + 衬线刊头 + 一个电光蓝」 |
 
 **三招值得直接搬**
 
@@ -326,7 +326,7 @@ node E:\SKIl.1\.tools\probe-muz6.mjs   # 卡片外链目标与 UTM（51 张全�
 ## 参考站蒸馏：MasterGo（B 端工具界面）
 
 `https://mastergo.com/` 是"设计协作工具"的官网，但值得学的不是它的营销页（渐变 + 按钮 + logo 墙，任何 SaaS 都长这样），
-而是**它的工具界面实例**与**资源社区里什么被真用**。完整实测在 [`references/mastergo-b2b.md`](references/mastergo-b2b.md)（14KB / 八节）。
+而是**它的工具界面实例**与**资源社区里什么被真用**。完整实测在 [`references/mastergo-b2b.md`](../references/mastergo-b2b.md)（14KB / 八节）。
 
 | 产出 | 内容 |
 | --- | --- |
@@ -334,7 +334,7 @@ node E:\SKIl.1\.tools\probe-muz6.mjs   # 卡片外链目标与 UTM（51 张全�
 | 属性面板字段语言 | 组间只给 1px 线；深色面板只换令牌不换结构；命中区 ≥44×44；数值 20/600 |
 | 代码面板 + 盒子模型图 | 底 `#1E1E1E` / 属性 `#7A7A7A` / 值 `#FFF` / 数值 `#7FB1FF`；嵌套矩形四条边各一个 10px 数字，比四行 `padding` 直观 |
 | 社区统计 | 24 张资源卡：大厂组件库 11 / B 端整页与大屏 7 / 移动端 4 / 图标 1；**B 端整页使用数 98.2k > TDesign 46.7k > AntDesign 4.0 Light 42.5k** |
-| 可抄配方 | [`references/css-recipes.md`](references/css-recipes.md) §22：三栏工作区 / 属性面板 / 盒子模型图 / 代码面板 |
+| 可抄配方 | [`references/css-recipes.md`](../references/css-recipes.md) §22：三栏工作区 / 属性面板 / 盒子模型图 / 代码面板 |
 
 **三招值得直接搬**：
 
@@ -353,7 +353,7 @@ curl -O https://mastergo.com/images/home/design2.png      # 1800×1536，比任�
 ## 参考站蒸馏：少数派 sspai.com
 
 2026-10-27 采集首页（1440 / 390 双视口，`getComputedStyle` + 元素矩形 + 双视口审计），完整实测在
-[`references/sspai-design.md`](references/sspai-design.md)。它是语料里第一个**中文科技媒体编辑型首页**：
+[`references/sspai-design.md`](../references/sspai-design.md)。它是语料里第一个**中文科技媒体编辑型首页**：
 左中右三栏不是等宽卡片网格，而是「小侧栏 + 大编辑板 + 小侧栏」的报纸式版面。
 
 | 产出 | 内容 |
@@ -379,7 +379,7 @@ curl -O https://mastergo.com/images/home/design2.png      # 1800×1536，比任�
 
 ## 参考站蒸馏：语雀 yuque.com
 
-2026-10-27 采集首页，完整实测在 [`references/yuque-design.md`](references/yuque-design.md)。它的价值有两层：
+2026-10-27 采集首页，完整实测在 [`references/yuque-design.md`](../references/yuque-design.md)。它的价值有两层：
 **SaaS 首页的模块节奏**，以及一个**必须提前识别的工程陷阱**——首页是内部滚动容器，不是文档滚动。
 
 | 产出 | 内容 |
@@ -409,7 +409,7 @@ node scripts/probe-ref.mjs --url https://www.yuque.com/ --out .probe --name yuqu
 
 ## 参考站蒸馏：掘金 juejin.cn
 
-2026-10-27 采集首页（三栏 feed，桌面 / 移动双视口），完整实测在 [`references/juejin-design.md`](references/juejin-design.md)。
+2026-10-27 采集首页（三栏 feed，桌面 / 移动双视口），完整实测在 [`references/juejin-design.md`](../references/juejin-design.md)。
 它和 UI 世界、站酷同属"内容站"，但**不是图墙，而是高密度文字 feed**——语料里第一个真正意义上的社区信息流样本。
 
 | 产出 | 内容 |
@@ -436,7 +436,7 @@ node scripts/probe-ref.mjs --url https://www.yuque.com/ --out .probe --name yuqu
 
 ## 参考站蒸馏：苹果中国 apple.com.cn
 
-2026-10-27 采集首页，完整实测在 [`references/apple-design.md`](references/apple-design.md)。它不是 SaaS，也不是内容站，
+2026-10-27 采集首页，完整实测在 [`references/apple-design.md`](../references/apple-design.md)。它不是 SaaS，也不是内容站，
 而是**全幅产品舞台 + 极薄界面层**：界面上几乎没有"容器"和"卡片"，所有结构都由图片舞台和 12px 白沟承担。
 
 | 产出 | 内容 |
@@ -462,7 +462,7 @@ node scripts/probe-ref.mjs --url https://www.yuque.com/ --out .probe --name yuqu
 
 ## 参考站蒸馏：Vercel 注册页（认证与多步表单）
 
-2026-10-27 采集 `vercel.com/login` 与 `/signup`，完整实测在 [`references/vercel-auth.md`](references/vercel-auth.md)。
+2026-10-27 采集 `vercel.com/login` 与 `/signup`，完整实测在 [`references/vercel-auth.md`](../references/vercel-auth.md)。
 补的是 `scaffold` 里 `auth.html` 一直没有数值依据这件事。它的特点是**一屏装完的窄列 + 一列同规格按钮**，
 没有卡片、没有分割线、没有第二套色。
 
@@ -491,7 +491,7 @@ node scripts/probe-ref.mjs --url https://www.yuque.com/ --out .probe --name yuqu
 ## 参考站蒸馏：Apple Store 商品配置页（电商）
 
 2026-10-27 采集 `apple.com.cn/shop/buy-iphone` 与 `/buy-iphone/iphone-17`，完整实测在
-[`references/applestore-commerce.md`](references/applestore-commerce.md)。补的是商品详情/配置页这一形态的空缺：
+[`references/applestore-commerce.md`](../references/applestore-commerce.md)。补的是商品详情/配置页这一形态的空缺：
 价格分层、SKU 选择、加购按钮。
 
 | 产出 | 内容 |
@@ -527,8 +527,8 @@ node scripts/probe-ref.mjs --url https://www.yuque.com/ --out .probe --name yuqu
 
 | 文件 | 内容 |
 | --- | --- |
-| [`references/holynova-motion.md`](references/holynova-motion.md)（15.9KB / 十一节） | 令牌（1 条 `cubic-bezier(.16,1,.3,1)` + 六档时长 120–400ms）、三条 keyframes 原文、hover 四件套的规则与前后实测对照、聚光卡的 `::before`/`::after` 完整源码与四个坑、批量入场、reduced-motion、七处别照抄、十步搬用清单、重采方法 |
-| [`references/css-recipes.md`](references/css-recipes.md) §19 | 可直接粘贴的 `.spotlight-card` + 两个光层 + 浮出按钮 + 入场 + 降级 + 十行 pointermove JS |
+| [`references/holynova-motion.md`](../references/holynova-motion.md)（15.9KB / 十一节） | 令牌（1 条 `cubic-bezier(.16,1,.3,1)` + 六档时长 120–400ms）、三条 keyframes 原文、hover 四件套的规则与前后实测对照、聚光卡的 `::before`/`::after` 完整源码与四个坑、批量入场、reduced-motion、七处别照抄、十步搬用清单、重采方法 |
+| [`references/css-recipes.md`](../references/css-recipes.md) §19 | 可直接粘贴的 `.spotlight-card` + 两个光层 + 浮出按钮 + 入场 + 降级 + 十行 pointermove JS |
 | `references/motion-spec.md` | §十 增加指路；§十一 来源补 holynova 实测值 |
 | `SKILL.md` | 细则路由表加一行「卡片 hover 怎么活起来 / 聚光描边」；速查数字补「hover 要四件套一起变」；参考文件节加条目 |
 
@@ -561,8 +561,8 @@ node E:\SKIl.1\.tools\probe-hn3.mjs   # hover 前后计算值对比 + 无限滚�
 
 | 产出 | 来源 | 拿走什么 | 怎么用 |
 | --- | --- | --- | --- |
-| [`references/craft-floor.md`](references/craft-floor.md)（11.8KB / 十节） | impeccable 的 `skill/reference/craft-floor.md`（Apache-2.0，**只蒸馏判据，未复制原文**） | 九条做完才看的 verify（对比度 4.5/3、深度须偏移+模糊、标题上间距 > 下间距、行宽 65–75ch、一个有意识的动效时刻、五态与键盘焦点、**浏览器原生表面**、文案、覆盖）；深度三选一（发丝/边距/阴影，禁幽灵卡）；四件原生表面 CSS；骨架层默认别做；表面禁令表；材质诚实；裁剪原则 | 交付前最后过一遍；把它当「手感」的底线，不是风格建议 |
-| [`references/anti-slop.md`](references/anti-slop.md)（22.3KB / 十节） | design-taste-frontend 的单文件技能（1,206 行；原文件未声明许可证，**规则重写，未复制原文与附录**） | Design Read 一句话；**三档旋钮**（VARIANCE / MOTION / DENSITY，基线 8/6/4）；官方设计系统怎么选；hero 四条硬规则；布局族与 Z 字上限；**三把锁**（主题/色/形状）；图片优先级；**8 组 AI tell**；中文站改写条款；**34 条 pre-flight** | 从 0 生成时第 2 步之后、第 6 步之前各过一遍；做重设计时先用它判断「现在这套是不是默认答案」 |
+| [`references/craft-floor.md`](../references/craft-floor.md)（11.8KB / 十节） | impeccable 的 `skill/reference/craft-floor.md`（Apache-2.0，**只蒸馏判据，未复制原文**） | 九条做完才看的 verify（对比度 4.5/3、深度须偏移+模糊、标题上间距 > 下间距、行宽 65–75ch、一个有意识的动效时刻、五态与键盘焦点、**浏览器原生表面**、文案、覆盖）；深度三选一（发丝/边距/阴影，禁幽灵卡）；四件原生表面 CSS；骨架层默认别做；表面禁令表；材质诚实；裁剪原则 | 交付前最后过一遍；把它当「手感」的底线，不是风格建议 |
+| [`references/anti-slop.md`](../references/anti-slop.md)（22.3KB / 十节） | design-taste-frontend 的单文件技能（1,206 行；原文件未声明许可证，**规则重写，未复制原文与附录**） | Design Read 一句话；**三档旋钮**（VARIANCE / MOTION / DENSITY，基线 8/6/4）；官方设计系统怎么选；hero 四条硬规则；布局族与 Z 字上限；**三把锁**（主题/色/形状）；图片优先级；**8 组 AI tell**；中文站改写条款；**34 条 pre-flight** | 从 0 生成时第 2 步之后、第 6 步之前各过一遍；做重设计时先用它判断「现在这套是不是默认答案」 |
 
 ### 三招值得直接搬
 
@@ -576,7 +576,7 @@ node E:\SKIl.1\.tools\probe-hn3.mjs   # hover 前后计算值对比 + 无限滚�
 
 - **impeccable 的「全禁 eyebrow」太绝对**：本站语料里 eyebrow 在 4 个营销站上都成立。裁决见 `craft-floor.md` 第八节——取「密度 ≤ ⌈节数 ÷ 3⌉」，产品站不用，全站只留 1–2 个。
 - **design-taste 的英文条款不能直搬中文站**：em-dash 全禁在中文里要改成「——」且一页 ≤ 2 处；衬线标题必须补 `"Songti SC","Source Han Serif SC"` 字体栈；别用「张三/李四」。第七节整节是中文改写条款。
-- **两份都不管「数据从哪来」**：`{{TODO: 要什么}}` 占位规范仍以 [`references/copy-and-content.md`](references/copy-and-content.md) 为准。
+- **两份都不管「数据从哪来」**：`{{TODO: 要什么}}` 占位规范仍以 [`references/copy-and-content.md`](../references/copy-and-content.md) 为准。
 
 ### 重取
 

@@ -25,3 +25,6 @@ Thumbs.db
 .idea/
 .vscode/
 .workbuddy/
+
+# Agent 本地记忆
+.workbuddy-ai/

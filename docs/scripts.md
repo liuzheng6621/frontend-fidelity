@@ -2,11 +2,14 @@
 
 ### scaffold.mjs — 从 0 生成前端骨架
 
-一次性产出设计令牌 + 组件样式 + 六类页面，拿到就能跑、能量、能改。**模式 B 的第一步**。
+一次性产出设计令牌 + 组件样式 + 七类页面（含移动端壳），拿到就能跑、能量、能改。**模式 B 的第一步**。
 
 ```bash
 # 后台：令牌 + 组件 + 落地页/列表/表单/认证/状态页
 node scripts/scaffold.mjs --persona rational --out src --pages landing,app,form,auth,states
+
+# 移动端 H5：390 单列壳 + 安全区 + 4 项底部 tab + 原生 dialog 底部面板
+node scripts/scaffold.mjs --persona warm --out h5 --pages mobile --verify
 
 # 换品牌色相（深色令牌默认生成，要关用 --no-dark）
 node scripts/scaffold.mjs --persona warm --accent 20 --out preview --pages landing,form
@@ -22,7 +25,7 @@ node scripts/scaffold.mjs --name "南风工单" --out src --pages app,form
 | --- | --- | --- |
 | `--persona` | `rational`（SaaS/后台，方正克制）／`editorial`（内容、品牌站，字重轻留白大）／`warm`（消费级、社区，暖色圆角厚）／`print`（印刷品：方格纸 + 墨框 + 4px 硬阴影）／`magazine`（杂志目录：衬线刊头 + 电光蓝 + 无壳图版） | `rational` |
 | `--out` | 输出目录 | `ui-scaffold` |
-| `--pages` | 逗号分隔：`landing,catalog,app,form,auth,states` | `landing,app` |
+| `--pages` | 逗号分隔：`landing,catalog,app,form,auth,states,mobile` | `landing,app` |
 | `--stack` | `html` / `react` / `vue` / `all`：额外产出框架版（默认 `html`） | `html` |
 | `--accent` | 覆盖品牌色相 0–360（不填用该人格默认） | 人格预设 |
 | `--no-dark` | 不生成 `.dark` 令牌块（默认生成，主题开关不该是死按钮） | 开 |
@@ -35,7 +38,7 @@ node scripts/scaffold.mjs --name "南风工单" --out src --pages app,form
 | `--quiet` | 少打印 | 关 |
 | `--help` / `-h` | 打印用法后退出 | — |
 
-**产出**（平铺在 `--out` 目录：6 个 CSS/JS + 各页面，全量 13 个文件）：
+**产出**（平铺在 `--out` 目录：7 个 CSS/JS + 各页面，全量 14 个文件）：
 
 ```
 <out>/
@@ -45,8 +48,9 @@ node scripts/scaffold.mjs --name "南风工单" --out src --pages app,form
 ├── components.css       # 按钮/表单/卡片/表格/标签/提示/空态/骨架/tabs/弹窗/toast + 外壳
 ├── depth.css            # 深度三派（发丝 / 软影 / 硬影）的卡片四件套；print 额外画方格纸
 ├── catalog.css          # 陈列目录页：左栏目录 + 药丸筛选 + 3 列图版 + 分页
+├── mobile.css           # 移动端壳：390 单列 + 安全区 + 底部 tab + 原生 dialog 面板
 ├── ui.js                # 主题切换（localStorage）、密码显隐、tabs 键盘、modal Esc
-└── *.html               # index / catalog / app / form / auth / states，按 --pages 决定
+└── *.html               # index / catalog / app / form / auth / states / mobile，按 --pages 决定
 ```
 
 退出码：`0` 成功；`2` 参数错（未知人格 / 未知页面名，同时打印可选值）；
@@ -94,7 +98,7 @@ src/react/                     src/vue/
 
 两个坑写在生成物 README 里：`NODE_ENV=production` 的终端里 `npm install` 会跳过 devDependencies（用 `npm install --include=dev`）；
 `{{TODO: …}}` 在 JSX 里会被当成对象字面量，所以生成物统一走 `todo('…')` 函数。
-**生成物已过 `audit.mjs` 的明暗双主题验证**：五套人格 × 六类页面 × 明暗 = 60 组，0 error / 0 warn / 0 axe 违规（`node scripts/selfcheck.mjs` 一条命令可复现）；令牌对比度门每个 113 组 / 0 组未达标。
+**生成物已过 `audit.mjs` 的明暗双主题验证**：五套人格 × 七类页面 × 三视口 × 明暗 = 210 个渲染组合，0 error / 0 warn / 0 axe 违规（`node scripts/selfcheck.mjs` 一条命令可复现）；令牌对比度门每个 119 组 / 0 组未达标。
 但它只保证「层级、间距、状态、可访问性」这些硬骨头，文案全是 `{{TODO: ...}}` 占位——
 你的活是把它们换成真内容（见 `references/copy-and-content.md`），别直接当成品交付。
 
@@ -106,38 +110,44 @@ src/react/                     src/vue/
 
 ```bash
 node scripts/selfcheck.mjs              # 全跑（没有 playwright 时自动跳过审计）
-node scripts/selfcheck.mjs --skip-audit # 只跑参数语义 + 语法 + 生成 + 对比度 + 文档数字 + 版本号，秒级，CI 用
+node scripts/selfcheck.mjs --skip-audit # 跳过浏览器审计/流程/设计体系回归；其余检查仍执行，供快速 CI 使用
 npm run selfcheck                       # 同上，走 package.json 里的脚本
 node scripts/selfcheck.mjs --keep       # 保留临时目录，方便看生成物
 ```
 
-八步，任何一步失败都以非 0 退出：
+贡献者先执行 `npm install`（Playwright + esbuild），完整审计另需 `npx playwright install chromium`。esbuild 只供框架生成物语法检查，运行普通截图/审计不需要它。
+
+分项检查，任何已执行项失败都以非 0 退出；缺依赖或显式跳过时，结尾列出未执行项，不宣称完整通过：
 
 | 步骤 | 做什么 | 失败含义 |
 | --- | --- | --- |
 | 参数语义 | 纯断言（不需要浏览器）：MSYS 路径还原 5 条、按页 `--expect-text` 3 条 | `lib/common.mjs` 的参数解析被改坏了 |
-| 语法 | `node --check` 所有 `scripts/*.mjs`、`python -m py_compile` 所有 `scripts/*.py` | 改脚本时手滑了 |
-| 生成 | 五套人格 × 六类页面各生成一遍，检查 13 个产物文件齐 | `scaffold.mjs` 坏了 |
+| 语法 | 递归 `node --check scripts/` 的 `.mjs`（含 `lib/`）；`python -m py_compile` 顶层 `.py` | 改脚本时手滑了 |
+| 生成 | 五套人格 × 七类页面各生成一遍，检查 14 个产物文件齐 | `scaffold.mjs` 坏了 |
 | 对比度 | 对每套生成物跑 `contrast_check.py`，有未达标即失败 | 令牌改暗了/改浅了 |
-| 审计 | 内置静态服务 + `audit.mjs --themes light,dark`，60 组都要 `0 错误 / 0 警告` | 生成物出现了 a11y 回归 |
+| 审计 | 内置静态服务 + `audit.mjs --themes light,dark`，五套 × 七页 × 三视口 × 双主题共 210 个渲染组合，均须 `0 错误 / 0 警告` | 生成物出现了 a11y 回归 |
 | 流程 | 用 `flow.example.json` 对骨架跑一遍完整交互，确认步骤/断言/报告链路没坏 | `flow.mjs` 坏了 |
-| 文档数字 | 见下 | 站点数 / 均值在文档里漂了 |
+| 设计体系回归 | 合规 / 越档 / strict / 允许列表 / 忽略与未启用对照；无效配置反例 | 新审计漏报、误报或退出码协议被改坏 |
+| 框架栈 | React / Vue 生成、类名对齐；有 esbuild 时检查 TSX / TS 语法 | 框架生成物不自洽；缺 esbuild 明确列为未执行项 |
+| 文档数字与规则回归 | 当前计数、冻结均值、中文数字及正反例，见下 | 站点数 / 份数 / 均值在文档里漂了 |
+| 文档链接 | README / SKILL / CHANGELOG / docs / references 的 Markdown 相对文件链接 | 文件改名或移动后断链；不检查远程与标题锚点 |
+| 历史日期与版本顺序 | 日期合法、非未来、新到旧；版本严格递减 | 日期倒挂、缺失或重复版本 |
 | 版本号 | `package.json` 的 version 与 README 徽标 / 安装示例 /「当前是」、`install.sh` 示例、CHANGELOG 首条逐一比对 | 发版时漏改某处，按文档判版本的人读到旧号 |
 
-第七步「文档数字」以 `references/design-evidence.md` 的「采集成功 N 个站 / A 组 N」为准，扫七份文档
-（`README.md`、`SKILL.md`、`references/design-evidence.md`、`references/craft-floor.md`、`references/visual-system.md`、
-`docs/reference-sites.md`、`docs/scripts.md`）
-里的四种写法——`N 个真实站`、`N 个实测站点`、`N 站实测`、`A 组 N`——任何一处与样本头不一致即失败。
+「文档数字」以 `references/design-evidence.md` 的站点头与冻结跨站统计为准，检查 README、SKILL、design-evidence、craft-floor、visual-system、workflow 及 docs 下两份手册。
+兼容 `N 个真实站` / `N 个实测站` / `N 个实测成功站点` / `N 站实测` / `A 组 N` / `语料全量 N 站`，以及中文数字。
+单站蒸馏份数从磁盘单站文件统计，顶层可执行脚本数从 `.mjs` / `.py` 文件统计；`N 份单站蒸馏`、`N 个能直接跑的脚本` 的中文数字写法也不能绕过检查。
+README 当前跨站正文 / H1 均值必须等于冻结基线；单站条目中明确记录的历史演变数值不强改。必要文档缺失或基准不可解析直接失败，不能作为跳过项。
 
 这一项是补出来的：这类数字在本项目已经漂过三次，且都漂在「换个说法就绕过检查」上——
 `visual-system.md` 整个文件不在扫描范围；`craft-floor.md` 里那种「数字 + 站实测」的连写不匹配旧正则，躲过了两版检查。
 **要么统一写法，要么改检查，别指望记得住。**
 
-第八步「版本号」同理：版本号手写在五处，README 元信息曾连续两个版本停在 `v1.9.2`，两次替换都没命中。
+「版本号」同理：版本号手写在五处，README 元信息曾连续两个版本停在 `v1.9.2`，两次替换都没命中。
 它只比对「应当等于当前版本」的写法——README 徽标、`--ref` 示例、「当前是 vX.Y.Z」、`install.sh` 示例、CHANGELOG 首条；
 历史条目里的旧版本号不参与比对。
 
-CI 在 `.github/workflows/selfcheck.yml`：推 PR 时跑 fast 路径（不装浏览器），手动触发跑完整 60 组审计。
+CI 在 `.github/workflows/selfcheck.yml`：push / PR / 手动触发均配置 fast 与 audit 两个任务；完整审计覆盖 210 个渲染组合，另跑设计体系回归。长审计使用后台任务，不把前台超时误判为脚本失败。
 ### screenshot.mjs — 多视口 / 多主题全页截图
 
 **用途**：一次拍齐 3 视口 × 2 主题，自动滚动触发懒加载，记录 console 错误与 CLS。
@@ -216,6 +226,9 @@ node scripts/audit.mjs --url http://localhost:5173/ --no-axe
 | `--axe` | 开 | `--no-axe` 关闭 WCAG 检测（只跑结构检查） |
 | `--wait` | `800` | 导航后等待 ms |
 | `--out` | `audit-report.json` | 报告路径 |
+| `--design-system` | 关 | 裸参数使用默认基线；跟 JSON 路径则使用项目自己的字号/间距/圆角档位与预算，默认仅警告 |
+| `--strict-design-system` | 关 | 将 `design-system-*` 警告升级为 error；必须同时启用 `--design-system` |
+| `--help` | – | 打印设计体系审计入口；完整参数见本节 |
 
 **检查项**
 
@@ -231,15 +244,52 @@ node scripts/audit.mjs --url http://localhost:5173/ --no-axe
 | error | `axe:<rule>` | axe serious / critical 违规（缺 label、对比度不足、ARIA 误用等） |
 | warn | `text-clipped` | 文本被裁切且没有省略号 |
 | warn | `font-too-small` | 正文 < 12px |
-| warn | `small-tap-target` | 移动端点击区 < 32px |
+| warn | `small-tap-target` | 移动端点击区 < 44×44px；正文行内链接豁免，复选框按 label 量 |
 | warn | `icon-button-no-label` | 图标按钮无 `aria-label` / `title` |
 | warn | `motion-not-reduced` | 减少动效下仍无限循环 |
 | warn | `axe:<rule>` | axe moderate / minor 违规 |
 | 报告 | `layout-shift` | CLS > 0.1 时提示 |
+| warn / strict 时 error | `design-system-font-sizes` | 未声明字号，或未提供字阶时超过档数预算 |
+| warn / strict 时 error | `design-system-spacing` | padding / margin / gap 不在已声明档位或默认网格内 |
+| warn / strict 时 error | `design-system-radii` | 非全圆角未声明，或超过档数预算 |
+| warn / strict 时 error | `design-system-shadows` | 完整 `box-shadow` 声明套数超过预算 |
 
 - axe 只跑 **WCAG 2.1 A/AA** 规则集（`wcag2a`、`wcag2aa`、`wcag21a`、`wcag21aa`），跳过 best-practice，避免刷屏。
 - `audit-report.json` 里每条违规都带 `helpUrl` 与命中节点的 HTML 片段，能直接定位。
-- **退出码：有 error 时为 1**，可直接当 CI 门禁。
+- **退出码：有 error 时为 1；参数/配置错误时为 2**。默认设计体系警告不改变退出码，核定配置后用 strict 作 CI 门禁。
+
+#### 设计体系一致性：先声明，再验收
+
+```bash
+# 首轮找漂移，不强制改既有设计体系
+node scripts/audit.mjs --url http://localhost:5173/ --themes light,dark --design-system
+# 项目令牌已确定后，作为 CI 门禁
+node scripts/audit.mjs --url http://localhost:5173/ --design-system design-system.json --strict-design-system
+```
+
+配置文件示例（**CSS px**，不是设备像素；只填写需要覆盖的键即可）：
+
+```json
+{
+  "spacingBase": 4,
+  "tolerance": 0.25,
+  "maxFontSizes": 7,
+  "maxRadii": 4,
+  "maxShadows": 3,
+  "fontSizes": [12, 13, 14, 15, 16, 20, 24, 32],
+  "spacingValues": [2, 4, 8, 12, 16, 24, 32, 48, 64],
+  "radii": [2, 4, 8, 12],
+  "ignoreSelectors": [".third-party-widget"]
+}
+```
+
+- 默认 `spacingBase=4`、`tolerance=0.25px`、字号预算 7 档、非全圆角预算 4 档、阴影预算 3 套；三个允许列表默认 `null`。
+- 提供 `fontSizes` / `radii` 后，以允许列表取代对应档数预算；提供 `spacingValues` 后，以列表取代网格。既有体系的 15px、17px 字号不因数值本身判错。
+- 字号只统计直接文本与表单控件；间距只统计 padding / margin / gap，负外边距按绝对值。`auto` 居中外边距与百分比流式间距不作离散网格检查；小于半个间距基数的位移（如 `sr-only` 的 -1px、描边对齐）视为光学补偿，不计入档位。
+- 全圆/胶囊单独计数，不占非全圆角预算；每个完整 `box-shadow` 声明算一套（多层阴影不是多套）。不同颜色或不同状态会成为不同声明，需按实际体系配置预算。
+- 不统计隐藏元素、SVG 内部单位与无 CSS 盒子的节点；`ignoreSelectors` 或 `data-fidelity-ignore="design-system"` 跳过对应子树，豁免须在交付记录解释。
+- 报告 `options.designSystem` 保存实际配置；每页 `designSystem` 给出档位、频次与选择器/属性示例；问题也进入 `issues`。未启用时，不增加每页设计体系统计。
+- 只覆盖**当前渲染状态**，不证明 hover / focus / 错误态齐全，也不证明源码使用了变量。流式字体、第三方控件或浏览器原生样式可能需要人工复核；机器统计不能替代截图评审。
 
 ---
 

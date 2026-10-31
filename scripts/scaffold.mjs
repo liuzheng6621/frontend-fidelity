@@ -13,6 +13,7 @@
  *   components.css   按钮/表单/卡片/表格/标签/提示/空态/骨架/tabs/弹窗/toast/应用外壳
  *   depth.css        卡片四件套（hover / focus-within / active），随 --depth 换语言
  *   catalog.css      陈列页（左栏目录 + 3 列图版 + 药丸筛选 + 分页）
+ *   mobile.css       移动端壳（390 单列 + 安全区 + 底部 tab + 原生 dialog 面板）
  *   ui.js            主题切换 + tabs + 弹窗焦点管理（无依赖）
  *   index.html       营销落地页（--pages landing）
  *   catalog.html     陈列目录页（--pages catalog）
@@ -20,6 +21,7 @@
  *   form.html        表单页（--pages form）
  *   auth.html        认证页（--pages auth）
  *   states.html      空/错/载三态（--pages states）
+ *   mobile.html      移动端列表壳（--pages mobile）
  *
  * 生成的是**骨架**：结构、令牌、状态都到位，内容和品牌要你自己换。
  * 交付前必须跑：audit.mjs + screenshot.mjs + contrast_check.py（见 SKILL.md）。
@@ -46,7 +48,7 @@ if (has('help') || has('h')) {
 
   --persona rational|editorial|warm|print|magazine   人格预设（默认 rational）
   --out <dir>                         输出目录（默认 ui-scaffold）
-  --pages landing,catalog,app,form,auth,states  要生成哪些页面（默认 landing,app）
+  --pages landing,catalog,app,form,auth,states,mobile  要生成哪些页面（默认 landing,app）
   --stack html|react|vue|all          额外生成哪个框架版本（默认 html，只出静态页）
   --accent <hue 0-360>                覆盖品牌色相
   --no-dark                           不生成 .dark 令牌块（默认生成，主题开关才有效）
@@ -1563,7 +1565,192 @@ const catalogCss = `/* catalog.css */
   .cat__pill { min-height: 44px; padding-inline: var(--s-4); }
   .cat__pager a, .cat__pager span { min-width: 44px; height: 44px; }
 }
-`;const head = (title, extra = '') => `<!doctype html>
+`;
+/* ------------------------------------------------------------------ mobile.css */
+
+const mobileCss = `/* mobile.css —— 390 单列壳：安全区 / 底部 tab / 原生 dialog 底部面板
+   只在 mobile.html 引入；桌面宽度下居中成 430 预览列，不改变其他页面。 */
+
+.m-shell {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  min-height: 100dvh;
+  max-width: 430px;
+  margin-inline: auto;
+  background: var(--bg);
+  border-inline: 1px solid var(--border);
+}
+@media (max-width: 430px) {
+  .m-shell { border-inline: 0; }
+}
+
+.m-head {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: var(--s-2) var(--s-2) var(--s-2) var(--s-4);
+  padding-top: max(var(--s-2), env(safe-area-inset-top));
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.m-head__title { font-size: var(--t-lg); font-weight: var(--fw-head); letter-spacing: var(--track-head); }
+.m-head__sub { font-size: var(--t-xs); color: var(--ink-2); }
+.m-head__spacer { flex: 1; }
+.m-icon-btn {
+  width: 44px;
+  height: 44px;
+  display: inline-grid;
+  place-items: center;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--ink-2);
+}
+.m-icon-btn:hover { background: var(--surface-hover); color: var(--ink); }
+.m-icon-btn svg { width: 22px; height: 22px; }
+
+.m-main {
+  display: grid;
+  align-content: start;
+  gap: var(--s-4);
+  padding: var(--s-4) var(--s-4) var(--s-6);
+}
+
+.m-kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-2); }
+.m-kpi { padding: var(--s-3); background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-md); }
+.m-kpi__label { font-size: var(--t-xs); color: var(--ink-2); }
+.m-kpi__value { margin-top: 2px; font-size: var(--t-lg); font-weight: var(--fw-head); }
+
+.m-pills {
+  display: flex;
+  gap: var(--s-2);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.m-pills::-webkit-scrollbar { display: none; }
+.m-pill {
+  flex: none;
+  min-height: 44px;
+  padding: 0 var(--s-4);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-1);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--ink-2);
+  font-size: var(--t-sm);
+  text-decoration: none;
+}
+.m-pill:hover { color: var(--ink); border-color: color-mix(in srgb, var(--ink) 28%, transparent); }
+.m-pill[aria-current="true"] { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+.m-pill__count { opacity: .66; font-variant-numeric: tabular-nums; }
+
+.m-list { display: grid; gap: var(--s-3); }
+.m-item {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) auto;
+  gap: var(--s-3);
+  align-items: start;
+  min-height: 72px;
+  padding: var(--s-3);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  color: inherit;
+  text-decoration: none;
+}
+.m-item:hover { border-color: color-mix(in srgb, var(--ink) 22%, transparent); }
+.m-item:active { translate: 0 1px; }
+.m-avatar {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--brand-50);
+  color: var(--brand-ink);
+  font-size: var(--t-sm);
+  font-weight: var(--fw-ui);
+}
+.m-item__title {
+  font-size: var(--t-base);
+  font-weight: var(--fw-ui);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.m-item__meta { margin-top: 2px; font-size: var(--t-xs); color: var(--ink-2); }
+.m-item__side { display: grid; justify-items: end; gap: var(--s-1); }
+.m-end { padding: var(--s-2) 0 var(--s-4); text-align: center; font-size: var(--t-xs); color: var(--ink-2); }
+
+.m-tabbar {
+  position: sticky;
+  bottom: 0;
+  z-index: 30;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  background: color-mix(in srgb, var(--bg) 94%, transparent);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--border);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.m-tab {
+  min-height: 56px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 2px;
+  color: var(--ink-3);
+  font-size: var(--t-xs);
+  text-decoration: none;
+}
+.m-tab svg { width: 22px; height: 22px; }
+.m-tab:hover { color: var(--ink); }
+.m-tab[aria-current="page"] { color: var(--brand-ink); }
+
+.m-fab {
+  position: fixed;
+  right: max(var(--s-4), env(safe-area-inset-right));
+  bottom: calc(56px + env(safe-area-inset-bottom) + var(--s-4));
+  z-index: 40;
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: var(--brand-fill);
+  color: var(--on-brand);
+  box-shadow: var(--sh-2);
+}
+.m-fab:hover { background: var(--brand-600); }
+.m-fab:active { translate: 0 1px; }
+
+/* 底部面板用原生 <dialog>：Esc、焦点陷阱、::backdrop 都由浏览器给 */
+.m-sheet {
+  width: min(430px, 100%);
+  margin: auto auto 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--r-lg) var(--r-lg) 0 0;
+  background: var(--raised);
+  color: var(--ink);
+}
+.m-sheet::backdrop { background: rgb(0 0 0 / .42); }
+.m-sheet__grip { width: 36px; height: 4px; margin: var(--s-2) auto; border-radius: 999px; background: var(--border); }
+.m-sheet__body { display: grid; gap: var(--s-3); padding: 0 var(--s-4) calc(var(--s-5) + env(safe-area-inset-bottom)); }
+.m-sheet__title { font-size: var(--t-lg); font-weight: var(--fw-head); }
+.m-sheet__actions { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-2); margin-top: var(--s-2); }
+`;
+
+const head = (title, extra = '') => `<!doctype html>
 <html lang="zh-CN" data-theme="light">
 <head>
 <meta charset="utf-8">
@@ -2215,6 +2402,128 @@ const catalogHtml = head('目录') + shellNote(['site-header', 'rail', 'breadcru
   </div>
 </footer>
 ` + tail();
+const mobileHtml = head('工单', '<link rel="stylesheet" href="mobile.css">\n')
+  + shellNote(['app-bar', 'kpis', 'segmented-filter', 'list', 'fab', 'sheet', 'tabbar'])
+  + `<div class="m-shell">
+  <header class="m-head">
+    <div>
+      <h1 class="m-head__title">工单</h1>
+      <p class="m-head__sub">12 条待处理 · 今天</p>
+    </div>
+    <div class="m-head__spacer"></div>
+    <button class="m-icon-btn" type="button" aria-label="搜索工单">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+    </button>
+    <button class="m-icon-btn" type="button" data-theme-toggle aria-label="切换主题"><span aria-hidden="true" data-icon>◐</span></button>
+  </header>
+
+  <main class="m-main" id="main">
+    <section class="m-kpis" aria-label="今日概览">
+      <div class="m-kpi"><div class="m-kpi__label">待处理</div><div class="m-kpi__value num">12</div></div>
+      <div class="m-kpi"><div class="m-kpi__label">今日完成</div><div class="m-kpi__value num">28</div></div>
+      <div class="m-kpi"><div class="m-kpi__label">平均响应</div><div class="m-kpi__value num">1.8h</div></div>
+    </section>
+
+    <nav class="m-pills" aria-label="按状态筛选">
+      <a class="m-pill" href="#" aria-current="true">全部 <span class="m-pill__count">12</span></a>
+      <a class="m-pill" href="#">待处理 <span class="m-pill__count">4</span></a>
+      <a class="m-pill" href="#">进行中 <span class="m-pill__count">6</span></a>
+      <a class="m-pill" href="#">已完成 <span class="m-pill__count">2</span></a>
+    </nav>
+
+    <div class="m-list">
+      <a class="m-item" href="./app.html">
+        <span class="m-avatar" aria-hidden="true">张</span>
+        <span>
+          <span class="m-item__title">导出报表时超时，重试三次都失败</span>
+          <span class="m-item__meta">#10231 · 2 分钟前</span>
+        </span>
+        <span class="m-item__side"><span class="tag tag--warn"><span class="dot"></span>进行中</span></span>
+      </a>
+      <a class="m-item" href="./app.html">
+        <span class="m-avatar" aria-hidden="true">李</span>
+        <span>
+          <span class="m-item__title">邀请成员收不到邮件</span>
+          <span class="m-item__meta">#10230 · 18 分钟前</span>
+        </span>
+        <span class="m-item__side"><span class="tag tag--danger"><span class="dot"></span>待处理</span></span>
+      </a>
+      <a class="m-item" href="./app.html">
+        <span class="m-avatar" aria-hidden="true">王</span>
+        <span>
+          <span class="m-item__title">账单地址无法修改</span>
+          <span class="m-item__meta">#10229 · 1 小时前</span>
+        </span>
+        <span class="m-item__side"><span class="tag tag--ok"><span class="dot"></span>已完成</span></span>
+      </a>
+      <a class="m-item" href="./app.html">
+        <span class="m-avatar" aria-hidden="true">赵</span>
+        <span>
+          <span class="m-item__title">API 返回 429，需要提高限流阈值</span>
+          <span class="m-item__meta">#10228 · 3 小时前</span>
+        </span>
+        <span class="m-item__side"><span class="tag tag--warn"><span class="dot"></span>进行中</span></span>
+      </a>
+      <a class="m-item" href="./app.html">
+        <span class="m-avatar" aria-hidden="true">陈</span>
+        <span>
+          <span class="m-item__title">希望支持批量删除</span>
+          <span class="m-item__meta">#10227 · 昨天</span>
+        </span>
+        <span class="m-item__side"><span class="tag"><span class="dot"></span>已归档</span></span>
+      </a>
+    </div>
+    <p class="m-end">没有更多了</p>
+  </main>
+
+  <nav class="m-tabbar" aria-label="底部导航">
+    <a class="m-tab" href="./index.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1z"></path></svg>
+      首页
+    </a>
+    <a class="m-tab" href="./mobile.html" aria-current="page">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"></path></svg>
+      工单
+    </a>
+    <a class="m-tab" href="./states.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20 15a3 3 0 0 1-3 3H8l-4 3V6a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3z"></path></svg>
+      消息
+    </a>
+    <a class="m-tab" href="./auth.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="8" r="3.5"></circle><path d="M5 20a7 7 0 0 1 14 0"></path></svg>
+      我的
+    </a>
+  </nav>
+</div>
+
+<button class="m-fab" type="button" aria-label="新建工单" onclick="document.getElementById('new-ticket').showModal()">
+  <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+</button>
+
+<dialog class="m-sheet" id="new-ticket" aria-labelledby="new-ticket-title">
+  <div class="m-sheet__grip" aria-hidden="true"></div>
+  <form method="dialog" class="m-sheet__body">
+    <h2 class="m-sheet__title" id="new-ticket-title">新建工单</h2>
+    <div class="field">
+      <label class="label" for="m-title">标题<span class="req" aria-hidden="true">*</span></label>
+      <input class="input" id="m-title" name="title" required autofocus placeholder="一句话说清问题">
+    </div>
+    <div class="field">
+      <label class="label" for="m-priority">优先级</label>
+      <select class="select" id="m-priority" name="priority">
+        <option>普通</option>
+        <option>紧急</option>
+        <option>低</option>
+      </select>
+    </div>
+    <p class="tiny">{{TODO: 提交后接真实接口，并给出成功提示}}</p>
+    <div class="m-sheet__actions">
+      <button class="btn btn--secondary" value="cancel" formnovalidate>取消</button>
+      <button class="btn btn--primary" value="create">创建</button>
+    </div>
+  </form>
+</dialog>
+` + tail();
 const uiJs = `// ui.js —— 主题切换 / 密码显隐 / tabs 键盘 / 弹窗（无依赖，约 2KB）
 (function () {
   var root = document.documentElement;
@@ -2299,8 +2608,9 @@ const pageMap = {
   form: 'form.html',
   auth: 'auth.html',
   states: 'states.html',
+  mobile: 'mobile.html',
 };
-const built = { landing: landingHtml, catalog: catalogHtml, app: appHtml, form: formHtml, auth: authHtml, states: statesHtml };
+const built = { landing: landingHtml, catalog: catalogHtml, app: appHtml, form: formHtml, auth: authHtml, states: statesHtml, mobile: mobileHtml };
 const unknown = pages.filter((x) => !pageMap[x]);
 if (unknown.length) {
   console.error(`未知页面：${unknown.join(', ')}（可选：${Object.keys(pageMap).join(' / ')}）`);
@@ -2313,6 +2623,7 @@ const files = [
   ['components.css', componentsCss],
   ['depth.css', depthCss],
   ['catalog.css', catalogCss],
+  ['mobile.css', mobileCss],
   ['ui.js', uiJs],
 ];
 for (const k of pages) files.push([pageMap[k], built[k]]);
