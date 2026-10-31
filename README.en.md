@@ -7,7 +7,7 @@
 > **Counting rule**: 28 measured sites = **Group A 25** (16 marketing/product/commerce + 9 content galleries) + **Group B 3 backend tools**. Cross-site averages stay frozen at the original 18-site baseline; newer samples only add sites and single-site entries. Totals are always 28 / Group A 25 — `selfcheck.mjs` guards this.
 > The goal is not "make it prettier" but **make the interface match what it claims to be, and actually work — with evidence**.
 
-`v1.23.0` · [latest release](https://github.com/liuzheng6621/frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9 (cropping/contrast only)` · `offline WCAG checks` · `16 executables (13 Node + 3 Python)`
+`v1.23.1` · [latest release](https://github.com/liuzheng6621/frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9 (cropping/contrast only)` · `offline WCAG checks` · `16 executables (13 Node + 3 Python)`
 
 ---
 
@@ -136,7 +136,7 @@ This is a self-grade, not third-party certification. Every claim below maps to a
 | Documentation | A | Thin entry point + on-demand reference library + per-script manuals with arguments, exit codes and artifacts | `SKILL.md`, `docs/scripts.md` |
 | Honest boundaries | A+ | Explicit non-goals (test framework, Figma import, native mini-program, visual regression as a default gate); **13 red flags** | "When not to use", [`review-rubric.md`](references/review-rubric.md) §10 |
 
-**Why A to A+** — all three gates closed in `v1.23.0`, each independently checkable:
+**Why A to A+** — all three gates closed in `v1.23.1`, each independently checkable:
 
 | # | Former gap | How it is closed now | How to verify |
 | --- | --- | --- | --- |

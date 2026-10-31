@@ -21,7 +21,7 @@
  *   node scripts/selfcheck.mjs --keep          # 保留临时目录，便于看生成物
  */
 import { spawn, spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { strict as assert } from 'node:assert';
 import { basename, dirname, extname, join, relative, resolve } from 'node:path';
@@ -661,6 +661,32 @@ else {
     if (bad.length) fail('文档数字', [...new Set(bad)].join(' | '));
     else pass('文档数字', `${expected.sites} 站 / A 组 ${expected.groupA} / 磁盘蒸馏 ${expected.distillations} 份 / 顶层脚本 ${expected.scripts} 个；冻结均值 ${means.body}/${means.h1}px`);
   } catch (e) { fail('文档数字', e.message); }
+
+  // 参考库索引：超过 40KB 的单份参考必须自带分节索引。
+  // 理由：路由表只能把 agent 带到「文件」，带不到「第几节」；没有索引就得整读 80KB。
+  try {
+    const refDir = join(ROOT, 'references');
+    const LIMIT = 40000;
+    const big = readdirSync(refDir)
+      .filter((f) => f.endsWith('.md'))
+      .map((f) => ({ f, size: statSync(join(refDir, f)).size }))
+      .filter((x) => x.size > LIMIT);
+    const issues = [];
+    for (const { f, size } of big) {
+      const text = readFileSync(join(refDir, f), 'utf8');
+      const head = text.split('\n').slice(0, 60).join('\n');
+      if (!/^## 索引/m.test(head)) {
+        issues.push(`${f}（${Math.round(size / 1024)}KB）前 60 行没有「## 索引」`);
+        continue;
+      }
+      // 索引表的行数要覆盖得住正文的节数，否则是假索引
+      const sections = (text.match(/^## (?!索引)/gm) || []).length;
+      const rows = (head.match(/^\| §/gm) || []).length;
+      if (rows < sections - 1) issues.push(`${f}：正文 ${sections} 节，索引只列了 ${rows} 行`);
+    }
+    if (issues.length) fail('参考库索引', issues.join(' | '));
+    else pass('参考库索引', big.length ? `${big.length} 份超 40KB 的参考都有分节索引：${big.map((x) => x.f).join(' / ')}` : '没有超 40KB 的单份参考');
+  } catch (e) { fail('参考库索引', e.message); }
 
   // 参考库快照：必须带日期、日期不能是未来、每个站点要有可比对的关键值。
   // 这一门防的是「有人手改快照把漂移抹掉」，以及「冻结时漏写 capturedAt」。

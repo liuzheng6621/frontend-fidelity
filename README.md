@@ -8,7 +8,7 @@
 > 搜这些词应该能到这：设计稿转代码、照着截图还原、UI 还原、前端验收、截图对比、后台美化、移动端适配、设计令牌、Claude Code 技能（skill）。
 > 目标不是"改好看"，而是**让界面和它声称的样子一致，并且真的能用——改完能拿出证据**。
 
-`v1.23.0` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `16 个可执行脚本（13 个 Node + 3 个 Python）`
+`v1.23.1` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `16 个可执行脚本（13 个 Node + 3 个 Python）`
 
 ---
 
@@ -40,7 +40,7 @@ curl -fsSL https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/ra
 bash install.sh --target claude          # 只装 Claude Code
 bash install.sh --target dsh             # 只装 DSH
 bash install.sh --dir ~/my-skills        # 装到自定义目录
-bash install.sh --ref v1.23.0            # 锁定某个版本
+bash install.sh --ref v1.23.1            # 锁定某个版本
 bash install.sh --dry-run                # 只看会装到哪，不动文件
 ```
 
@@ -82,7 +82,7 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 | 文档可操作性 | A | 精简入口 + 按需参考库 + 分类手册，每个脚本都有参数 / 退出码 / 产物 | `SKILL.md`、`docs/scripts.md` |
 | 边界诚实度 | A+ | 明写不做什么（测试框架 / Figma 导入 / 小程序原生 / 默认视觉回归门禁）；红旗清单 **13 条** | 本文「适用与不适用」、[`review-rubric.md`](references/review-rubric.md) §十 |
 
-**从 A 升到 A+ 的理由**——三条门槛在 `v1.23.0` 全部关闭，逐条可复核：
+**从 A 升到 A+ 的理由**——三条门槛在 `v1.23.1` 全部关闭，逐条可复核：
 
 | # | 原缺口 | 现在怎么补的 | 怎么验证 |
 | --- | --- | --- | --- |
@@ -302,7 +302,7 @@ git clone https://gitee.com/liu-everything_impossble/skill-frontend-fidelity.git
 
 从 [Releases](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) 下载 `frontend-fidelity.zip`，解压到同名目录即可，内容与 git 版本一致。
 包由 `git archive` 从 tag 生成，不含 `__pycache__`、截图目录与本地缓存。
-当前是 [v1.23.0](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest)。
+当前是 [v1.23.1](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest)。
 
 ### 方式三：只取脚本
 
