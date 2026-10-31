@@ -7,7 +7,7 @@
 > **Counting rule**: 28 measured sites = **Group A 25** (16 marketing/product/commerce + 9 content galleries) + **Group B 3 backend tools**. Cross-site averages stay frozen at the original 18-site baseline; newer samples only add sites and single-site entries. Totals are always 28 / Group A 25 — `selfcheck.mjs` guards this.
 > The goal is not "make it prettier" but **make the interface match what it claims to be, and actually work — with evidence**.
 
-`v1.21.0` · [latest release](https://github.com/liuzheng6621/frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9 (cropping/contrast only)` · `offline WCAG checks` · `15 executables (12 Node + 3 Python)`
+`v1.21.1` · [latest release](https://github.com/liuzheng6621/frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9 (cropping/contrast only)` · `offline WCAG checks` · `15 executables (12 Node + 3 Python)`
 
 ---
 
@@ -123,6 +123,28 @@ It counts visible text sizes, padding/margin/gap, non-pill radii and full `box-s
 | Design system | `audit.mjs --design-system <config>` | no drift, or declared exceptions |
 
 Keyboard walk-through (Tab reachable, visible focus, Esc closes overlays) and 200% zoom remain manual steps — do not skip them.
+
+## Self-assessment: A (all five dimensions at A, three things short of A+)
+
+This is a self-grade, not third-party certification. Every claim below maps to a file you can open or a command you can run.
+
+| Dimension | Grade | Current state | Verify with |
+| --- | --- | --- | --- |
+| Executable checks | A | **15 scripts** (12 Node + 3 Python), every one reports via exit code: `0 pass / 1 check failed / 2 bad arguments or environment / 3 partial, not a pass` | `ls scripts/*.mjs scripts/*.py` |
+| Reference data | A | 28 real sites measured in-browser + 17 single-site distillations + **structural evidence for all 17** (landmarks / heading levels / DOM depth / `alt` coverage); 29 reference files + 2 machine-readable datasets | `wc -l references/*.md`, `jq . references/rea-structure.json` |
+| Self-check loop | A | Argument semantics / recursive syntax / 10 generated pages / 615 contrast pairs / **246 audit runs** / design-system positive and negative cases / **3 flow suites** (12 + 6 + 42 steps) / framework stack / 11 agent entry points / doc counts and links / changelog dates | `npm run selfcheck` |
+| Documentation | A | Thin entry point + on-demand reference library + per-script manuals with arguments, exit codes and artifacts | `SKILL.md`, `docs/scripts.md` |
+| Honest boundaries | A | Explicit non-goals (test framework, Figma import, native mini-program, visual regression as a default gate); **13 red flags** | "When not to use", [`review-rubric.md`](references/review-rubric.md) §10 |
+
+**What A+ would require**, stated up front so it does not drift: all five dimensions at A **and no known scenario gap**. Three remain:
+
+| # | Gap | Type | Done when |
+| --- | --- | --- | --- |
+| 1 | Payment callback / order state machine / refunds are not in the skeleton | Scenario | The commerce flow runs from "place order" to "order detail with state transitions" |
+| 2 | Mobile has exactly one shell (list + bottom tabs + bottom sheet) | Scenario | Multi-step wizard, horizontal paging, and native-bridge shells each have a template |
+| 3 | The reference library has no snapshot, so values drift when sites redesign | Mechanism | A dated value snapshot exists; `recheck-refs.mjs` reports drift without touching the baseline |
+
+The grade moves only when all three are closed — **not when more files are added**.
 
 ## Which reference to copy
 

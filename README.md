@@ -8,7 +8,7 @@
 > 搜这些词应该能到这：设计稿转代码、照着截图还原、UI 还原、前端验收、截图对比、后台美化、移动端适配、设计令牌、Claude Code 技能（skill）。
 > 目标不是"改好看"，而是**让界面和它声称的样子一致，并且真的能用——改完能拿出证据**。
 
-`v1.21.0` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `15 个可执行脚本（12 个 Node + 3 个 Python）`
+`v1.21.1` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `15 个可执行脚本（12 个 Node + 3 个 Python）`
 
 ---
 
@@ -40,7 +40,7 @@ curl -fsSL https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/ra
 bash install.sh --target claude          # 只装 Claude Code
 bash install.sh --target dsh             # 只装 DSH
 bash install.sh --dir ~/my-skills        # 装到自定义目录
-bash install.sh --ref v1.21.0            # 锁定某个版本
+bash install.sh --ref v1.21.1            # 锁定某个版本
 bash install.sh --dry-run                # 只看会装到哪，不动文件
 ```
 
@@ -72,20 +72,27 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 
 **先说口径**：这是自评，不是第三方认证。每条结论都指向仓库里能跑出来的数字或能打开的文件，标准写在表里——不同意可以按同一张表复核。
 
-### 评级：A
+### 评级：A（五个维度全 A，A+ 还差三件事）
 
-| 维度 | 现状 | 怎么核对 |
-| --- | --- | --- |
-| 可执行验收 | **15 个脚本**（12 Node + 3 Python），全部用退出码表达结论 | `ls scripts/*.mjs scripts/*.py`、`wc -l scripts/*` |
-| 参考数据 | 28 个真实站的浏览器实测 + 17 份单站蒸馏，`references/` 共 29 份参考 + 2 份机器可读数据（复测基线 / REA 结构证据），按主题索引 | `wc -l references/*.md`、`jq . references/rea-structure.json` |
-| 自检闭环 | 参数语义 / 递归语法 / 生成 / 对比度 / 审计 / 流程冒烟 / 框架栈 / 文档计数与链接 / 历史日期与版本一致性 | `npm run selfcheck` |
-| 文档可操作性 | 精简入口 + 按需参考库 + 分类手册，每个脚本都有参数 / 退出码 / 产物 | `SKILL.md`、`docs/scripts.md` |
-| 边界诚实度 | 明写不做什么（测试框架 / Figma / 小程序原生 / 默认视觉回归门禁），红旗清单 8 条 | 本文「适用与不适用」、`review-rubric.md` |
+| 维度 | 等级 | 现状（可核对） | 怎么核对 |
+| --- | --- | --- | --- |
+| 可执行验收 | A | **15 个脚本**（12 Node + 3 Python），全部用退出码表达结论；`0 通过 / 1 检查失败 / 2 参数或环境错误 / 3 只验了一部分` | `ls scripts/*.mjs scripts/*.py`、`wc -l scripts/*` |
+| 参考数据 | A | 28 个真实站的浏览器实测 + 17 份单站蒸馏 + **17 站结构层证据**（地标 / 标题层级 / DOM 深度 / `alt` 覆盖），`references/` 共 29 份参考 + 2 份机器可读数据 | `wc -l references/*.md`、`jq . references/rea-structure.json` |
+| 自检闭环 | A | 参数语义 / 递归语法 / 生成 10 页 / 对比度 615 组 / **审计 246 组** / 设计体系正反例 / **流程 3 条**（12 步 + 移动端焦点 6 步 + 电商 42 步）/ 框架栈 / 11 个 Agent 入口 / 文档计数与链接 / 历史日期与版本一致性 | `npm run selfcheck` |
+| 文档可操作性 | A | 精简入口 + 按需参考库 + 分类手册，每个脚本都有参数 / 退出码 / 产物 | `SKILL.md`、`docs/scripts.md` |
+| 边界诚实度 | A | 明写不做什么（测试框架 / Figma 导入 / 小程序原生 / 默认视觉回归门禁）；红旗清单 **13 条** | 本文「适用与不适用」、[`review-rubric.md`](references/review-rubric.md) §十 |
 
-没给 A+ 的理由，写在明面上：
+**A+ 的门槛**写在这里，免得下次含糊：五个维度都到 A，**且没有已知的场景缺口**。现在有三条：
 
-1. **支付与订单状态未覆盖**——商品详情、购物车、结算三页已落到生成器（三层价格、36px 色块 SKU、行项目改量、步骤条与必填校验都有），但支付网关回调、订单状态机、退款流程不在这套骨架里。
-2. **移动端壳只有一种形态**——`mobile.html` 覆盖列表 + 底部 tab + 底部面板；底部导航以外的移动模式（多步向导、横向滑动分栏、原生壳桥接）仍需按项目补。
+| # | 缺口 | 类型 | 补上之后 |
+| --- | --- | --- | --- |
+| 1 | 支付回调 / 订单状态机 / 退款流程不在骨架里 | 场景 | 电商链路能从「提交订单」走到「订单详情 + 状态流转」 |
+| 2 | 移动端只有「列表 + 底部 tab + 底部面板」一种形态 | 场景 | 多步向导、横向滑动分栏、原生壳桥接至少各一个模板 |
+| 3 | 参考库没有快照机制，站点改版后数值会漂 | 机制 | 冻结一份带日期的数值快照，`recheck-refs.mjs` 只报漂移、不改基线 |
+
+三条都补上才会改这个字。**不靠「又加了多少文件」升级**——加页数不加覆盖面，等级不动。
+
+已从 A 的扣分项里移出的两条（`v1.20.0` / `v1.21.1` 补的）：参考库只有样式层、没有结构层；电商结算流程完全没有模板。
 
 ### 国内定位：第一梯队（不宣称名次）
 
@@ -294,7 +301,7 @@ git clone https://gitee.com/liu-everything_impossble/skill-frontend-fidelity.git
 
 从 [Releases](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) 下载 `frontend-fidelity.zip`，解压到同名目录即可，内容与 git 版本一致。
 包由 `git archive` 从 tag 生成，不含 `__pycache__`、截图目录与本地缓存。
-当前是 [v1.21.0](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest)。
+当前是 [v1.21.1](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest)。
 
 ### 方式三：只取脚本
 
