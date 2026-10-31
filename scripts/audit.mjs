@@ -220,6 +220,15 @@ async function collectStructure(page, ctx) {
       const hasOwnText = [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim());
       if (!hasOwnText) continue;
       const s = getComputedStyle(el);
+      // 视觉隐藏不是裁切：sr-only（1×1 + clip rect）与 clip-path: inset(50%) 都是无障碍标准写法，
+      // 文本本来就该看不见，不能按「被裁掉」报。
+      const box = el.getBoundingClientRect();
+      const visuallyHidden =
+        box.width <= 2 ||
+        box.height <= 2 ||
+        (s.clip && s.clip !== 'auto' && /rect\(\s*0/.test(s.clip)) ||
+        (s.clipPath && /inset\(\s*50%/.test(s.clipPath));
+      if (visuallyHidden) continue;
       if (
         el.scrollWidth > el.clientWidth + 2 &&
         s.overflowX !== 'visible' &&

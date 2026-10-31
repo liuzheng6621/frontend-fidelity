@@ -72,7 +72,8 @@ node scripts/scaffold.mjs --ref-url https://linear.app --out ui --pages app,form
 | SaaS / 知识工具营销首页 | `editorial` | `landing` | `yuque-design.md` |
 | 技术社区 / 信息流 feed | `rational` | `catalog` | `juejin-design.md` |
 | 品牌产品发布页 / 硬件舞台 | `editorial` | `landing` | `apple-design.md` |
-| 电商商品详情 / SKU 选择 | `warm` | `landing,form` | `applestore-commerce.md` |
+| 电商商品详情 / SKU 选择 | `warm` | `product`（加 `cart,checkout` 走完整流程） | `applestore-commerce.md` |
+| 购物车 / 结算流程 | `warm` 或 `rational` | `cart,checkout` | `applestore-commerce.md` 的控件高五档 + `page-patterns.md` 的电商流程一节 |
 | 移动 H5 / 小程序 WebView（列表 + 底部 tab + 底部面板） | `rational`（工具）或 `warm`（消费） | `mobile` | `design-evidence.md` 的 390 单列 / gap 12 / tab 4 项，`applestore-commerce.md` 的控件高 |
 | 奖项目录 / 榜单 / 每日一作 | `magazine` 或 `editorial` | `catalog`（加 `landing` 做今日一作） | `awwwards-design.md` |
 | 要「结构怎么搭」的证据（地标 / 标题层级 / DOM 深度 / `alt` 覆盖 / `button` vs `a`） | 任意 | — | `design-evidence.md` §七（17 站 REA 结构层）+ 各单站蒸馏末尾「结构证据」小节 + `rea-structure.json` |

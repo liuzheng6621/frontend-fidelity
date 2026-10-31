@@ -1,0 +1,57 @@
+{
+  "name": "电商：选 SKU → 加购 → 购物车改量 → 结算校验",
+  "start": "product.html",
+  "steps": [
+    { "desc": "换颜色：组头文字跟着变", "click": "[data-swatch=\"深空黑\"]" },
+    { "expectText": { "selector": "[data-swatch-name]", "text": "深空黑" } },
+    { "desc": "换容量：主价按增量重算（5199 + 1600）", "click": "[data-spec=\"512GB\"]" },
+    { "expectText": { "selector": "[data-price]", "text": "RMB 6,799" } },
+    { "desc": "数量 +1，减号从禁用变可用", "click": "[data-qty-inc]" },
+    { "expectValue": { "selector": "[data-qty-input]", "value": "2" } },
+    { "desc": "加购只改角标，不跳页", "click": "[data-add-to-cart]" },
+    { "expectText": { "selector": "[data-cart-feedback]", "text": "已加入购物车：2 件" } },
+    { "expectText": { "selector": "[data-cart-count]", "text": "5" } },
+
+    { "goto": "cart.html" },
+    { "expectCount": { "selector": "[data-line]", "value": 3 } },
+    { "expectText": { "selector": "[data-sum-subtotal]", "text": "RMB 7,027" } },
+
+    { "desc": "改第二行数量 → 行小计与总计同步", "click": "[data-line]:nth-child(2) [data-qty-inc]" },
+    { "expectText": { "selector": "[data-line]:nth-child(2) [data-line-total]", "text": "RMB 1,798" } },
+    { "expectText": { "selector": "[data-sum-total]", "text": "RMB 7,926" } },
+
+    { "desc": "删第一行", "click": "[data-line]:nth-child(1) [data-line-del]" },
+    { "expectCount": { "selector": "[data-line]", "value": 2 } },
+    { "expectText": { "selector": "[data-sum-total]", "text": "RMB 1,927" } },
+
+    { "desc": "优惠码 10%", "fill": { "selector": "#promo", "value": "SAVE10" } },
+    { "click": "[data-promo]" },
+    { "expectText": { "selector": "[data-promo-msg]", "text": "已应用 SAVE10" } },
+    { "expectText": { "selector": "[data-sum-total]", "text": "RMB 1,734" } },
+
+    { "desc": "清空购物车 → 空态出现、摘要隐藏", "click": "[data-line]:nth-child(1) [data-line-del]" },
+    { "click": "[data-line]:nth-child(1) [data-line-del]" },
+    { "expectVisible": "[data-cart-empty]" },
+    { "expectHidden": ".co-summary" },
+
+    { "goto": "checkout.html" },
+    { "desc": "空表单提交被拦，焦点回到第一个错字段", "click": "button[type=submit]" },
+    { "expectVisible": "[data-error-for=\"co-name\"]" },
+    { "expectFocus": "#co-name" },
+
+    { "fill": { "selector": "#co-name", "value": "张三" } },
+    { "fill": { "selector": "#co-phone", "value": "12345" } },
+    { "click": "button[type=submit]" },
+    { "expectVisible": "[data-error-for=\"co-phone\"]" },
+
+    { "desc": "手机号补齐 11 位后通过", "fill": { "selector": "#co-phone", "value": "13800138000" } },
+    { "fill": { "selector": "#co-street", "value": "科技园路 1 号 3 层" } },
+    { "click": "button[type=submit]" },
+    { "expectHidden": "[data-error-for=\"co-phone\"]" },
+    { "expectText": { "selector": "button[type=submit]", "text": "提交中…" } },
+
+    { "desc": "改配送方式：运费联动进总额", "click": "input[name=\"ship\"][value=\"fast\"]" },
+    { "expectText": { "selector": "[data-ship-fee]", "text": "RMB 18" } },
+    { "screenshot": "checkout-fast" }
+  ]
+}

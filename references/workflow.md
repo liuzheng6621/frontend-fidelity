@@ -15,8 +15,8 @@
 | `scripts/crop_logo.py` | Logo 裁边、正方形化、导出尺寸 | 拿到品牌图之后 |
 | `scripts/hygiene.mjs` | 找无引用组件/资源/样式、重复路由 | 改版收尾、合并前 |
 | `scripts/run_checks.mjs` | 跑项目自带的 lint/typecheck/test/build | 交付前最后一步 |
-| `scripts/scaffold.mjs` | 从 0 生成骨架：五套人格（含印刷/杂志）+ 深度三派 + 七类页面（含移动端壳） + 生成期对比度自检；`--stack html\|react\|vue\|all` 出框架版；`--ref-url` 量参考站覆盖人格；`--verify` 生成即验收；`--export` 导出 Tailwind/AntD/Element 令牌 | 要从零做一个页面/后台/落地页/陈列目录时，先生成再改 |
-| `scripts/selfcheck.mjs` | 一键自检：语法 + 五套人格各生成 7 页 + 对比度 + 210 个渲染组合审计 + 设计体系正反例 + 框架栈语法与类名对齐 | 动过技能本身（脚本/人格/文档数字/框架层）之后 |
+| `scripts/scaffold.mjs` | 从 0 生成骨架：五套人格（含印刷/杂志）+ 深度三派 + 十类页面（含移动端壳、电商三页） + 生成期对比度自检；`--stack html\|react\|vue\|all` 出框架版；`--ref-url` 量参考站覆盖人格；`--verify` 生成即验收；`--export` 导出 Tailwind/AntD/Element 令牌 | 要从零做一个页面/后台/落地页/陈列目录时，先生成再改 |
+| `scripts/selfcheck.mjs` | 一键自检：语法 + 五套人格各生成 10 页 + 对比度 + 246 个渲染组合审计 + 设计体系正反例 + 框架栈语法与类名对齐 | 动过技能本身（脚本/人格/文档数字/框架层）之后 |
 | `scripts/fidelity.mjs` | 像素级还原验收：设计稿 vs 实现，自动截图 + 差异热力 + 三联图 + 退出码 | 「照这张稿做完了没有」要用数字回答时 |
 | `scripts/pixel_diff.py` | 上面的比对引擎（Pillow + numpy，可单独用） | 已有两张图、只想要差异报告 |
 | `scripts/probe-ref.mjs` | 量任意参考站的真实字体/字阶/配色/圆角/间距/控件高度 | 想「像这个站」但说不清具体数值时 |
@@ -132,7 +132,7 @@ node scripts/scaffold.mjs --ref-url https://linear.app --pages app,form      # �
 node scripts/scaffold.mjs --persona rational --export tailwind,antd,element  # 令牌导出到别的体系
 ```
 
-产出 `tokens.css / base.css / components.css / depth.css / catalog.css / mobile.css / ui.js` + 七类页面（含移动端壳），摘要里还会打印**深度语言**（hairline / soft / hard）、动效阶梯与**生成期对比度自检**（三组关键配对，不达标会直接指出来）。
+产出 `tokens.css / base.css / components.css / depth.css / catalog.css / mobile.css / commerce.css / ui.js` + 十类页面（含移动端壳、电商三页），摘要里还会打印**深度语言**（hairline / soft / hard）、动效阶梯与**生成期对比度自检**（三组关键配对，不达标会直接指出来）。
 `--stack react|vue|all` 会额外出前端工程：`react-router-dom` / `vue-router` 真路由（`/` 与 `/catalog`）、`src/lib/api.ts`（`fetchJson` + `useAsync` 三态 + 竞态保护）、`tailwind.preset.js` + `tailwind.css`（Tailwind v4 `@theme` 桥）。
 深色令牌**默认生成**（主题开关不是死按钮），要关掉用 `--no-dark`。
 `--ref-url` / `--ref-json` 把探针实测值（品牌色相、底色、字号阶梯、控件高、圆角、密度）盖到人格字段上，逼近 80%，剩下 20% 改 `tokens.css`。

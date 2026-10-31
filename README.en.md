@@ -2,12 +2,12 @@
 
 [中文](README.md) | **English**
 
-> Two ways to work: **existing UI** — rebuild from a design file or screenshot, or clean up a live admin panel, H5 page, mini-program webview, multi-end consistency, logo and brand assets; **no UI yet** — generate a verifiable skeleton from tokens (tokens + components + seven page types, mobile shell included), then fill in real content and states.
+> Two ways to work: **existing UI** — rebuild from a design file or screenshot, or clean up a live admin panel, H5 page, mini-program webview, multi-end consistency, logo and brand assets; **no UI yet** — generate a verifiable skeleton from tokens (tokens + components + ten page types, mobile shell and a three-page commerce flow included), then fill in real content and states.
 > The reference library is **28 real sites measured element by element + 17 single-site distillations** (marketing, tool sites, SaaS homepages, editorial homepages, developer feeds, product stages, dense and sparse galleries, catalog pages, inspiration libraries, style directories, magazine indexes, B2B workspaces, auth, commerce configuration, motion), plus **two distilled external rule sets** (craft floor / anti-slop checklist). Pick by page type in [Which reference to copy](#which-reference-to-copy).
 > **Counting rule**: 28 measured sites = **Group A 25** (16 marketing/product/commerce + 9 content galleries) + **Group B 3 backend tools**. Cross-site averages stay frozen at the original 18-site baseline; newer samples only add sites and single-site entries. Totals are always 28 / Group A 25 — `selfcheck.mjs` guards this.
 > The goal is not "make it prettier" but **make the interface match what it claims to be, and actually work — with evidence**.
 
-`v1.20.0` · [latest release](https://github.com/liuzheng6621/frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9 (cropping/contrast only)` · `offline WCAG checks` · `15 executables (12 Node + 3 Python)`
+`v1.21.0` · [latest release](https://github.com/liuzheng6621/frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9 (cropping/contrast only)` · `offline WCAG checks` · `15 executables (12 Node + 3 Python)`
 
 ---
 
@@ -54,7 +54,7 @@ Start a new session after installing, then say "rebuild this page from the scree
 | Entry | `SKILL.md` — routing table, 30-second start, quality gates, design baseline |
 | Reference library | 29 Markdown files: 17 single-site distillations + 8 general specs + 1 cross-site evidence file + 2 external rule sets + 1 workflow — plus 2 machine-readable datasets (recheck baseline / REA structure evidence) |
 | Executables | 15 scripts: screenshots, WCAG/CLS audit, contrast, design-system audit, flow checks, pixel diff, auth export, reference probe, batch recheck, repo hygiene, quality gates, scaffold generator, self-check |
-| Generator | `scaffold.mjs`: five personas × seven page types × dark tokens, optional React/Vue output |
+| Generator | `scaffold.mjs`: five personas × ten page types × dark tokens, optional React/Vue output |
 
 ## Two modes
 
@@ -78,7 +78,7 @@ Generated output is a starting point, not a finished product: replace every `{{T
 
 | Script | What it does |
 | --- | --- |
-| `scaffold.mjs` | Generate tokens + components + pages; five personas, seven page types, dark tokens, React/Vue output |
+| `scaffold.mjs` | Generate tokens + components + pages; five personas, ten page types, dark tokens, React/Vue output |
 | `screenshot.mjs` | Multi-viewport, multi-theme full-page screenshots with CLS and console capture |
 | `audit.mjs` | Structure + axe WCAG 2.1 A/AA + CLS + motion; `--design-system` checks type/spacing/radius/shadow against a declared system |
 | `flow.mjs` | Declarative interaction checks: fill form → submit → expect success; per-step screenshots |

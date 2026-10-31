@@ -14,7 +14,8 @@
  *   depth.css        卡片四件套（hover / focus-within / active），随 --depth 换语言
  *   catalog.css      陈列页（左栏目录 + 3 列图版 + 药丸筛选 + 分页）
  *   mobile.css       移动端壳（390 单列 + 安全区 + 底部 tab + 原生 dialog 面板）
- *   ui.js            主题切换 + tabs + 弹窗焦点管理（无依赖）
+ *   commerce.css     电商三页（三层价格 / 36px 色块 SKU / 行项目 / 结算步骤条）
+ *   ui.js            主题切换 + tabs + 弹窗焦点管理 + SKU / 购物车（无依赖）
  *   index.html       营销落地页（--pages landing）
  *   catalog.html     陈列目录页（--pages catalog）
  *   app.html         管理端列表页（--pages app）
@@ -22,6 +23,9 @@
  *   auth.html        认证页（--pages auth）
  *   states.html      空/错/载三态（--pages states）
  *   mobile.html      移动端列表壳（--pages mobile）
+ *   product.html     商品详情（--pages product）
+ *   cart.html        购物车（--pages cart）
+ *   checkout.html    结算（--pages checkout）
  *
  * 生成的是**骨架**：结构、令牌、状态都到位，内容和品牌要你自己换。
  * 交付前必须跑：audit.mjs + screenshot.mjs + contrast_check.py（见 SKILL.md）。
@@ -48,7 +52,8 @@ if (has('help') || has('h')) {
 
   --persona rational|editorial|warm|print|magazine   人格预设（默认 rational）
   --out <dir>                         输出目录（默认 ui-scaffold）
-  --pages landing,catalog,app,form,auth,states,mobile  要生成哪些页面（默认 landing,app）
+  --pages landing,catalog,app,form,auth,states,mobile,product,cart,checkout
+                                      要生成哪些页面（默认 landing,app）
   --stack html|react|vue|all          额外生成哪个框架版本（默认 html，只出静态页）
   --accent <hue 0-360>                覆盖品牌色相
   --no-dark                           不生成 .dark 令牌块（默认生成，主题开关才有效）
@@ -611,6 +616,11 @@ const baseCss = `/* base.css —— reset + 排版 + 焦点 + 减少动效 */
 
 *, *::before, *::after { box-sizing: border-box; }
 * { margin: 0; }
+
+/* [hidden] 必须能压住组件自己的 display：
+   .co-summary { display: flex } 这类声明特异性高于 UA 的 [hidden] { display: none }，
+   不写 !important 会出现「JS 设了 hidden 但元素还在」。 */
+[hidden] { display: none !important; }
 
 html { -webkit-text-size-adjust: 100%; }
 
@@ -2536,7 +2546,924 @@ const mobileHtml = head('工单', '<link rel="stylesheet" href="mobile.css">\n')
   </form>
 </dialog>
 ` + tail();
-const uiJs = `// ui.js —— 主题切换 / 密码显隐 / tabs 键盘 / 弹窗（无依赖，约 2KB）
+/* --------------------------------------------------- 电商三页：product / cart / checkout */
+
+const coHead = (title) =>
+  head(title, '<link rel="stylesheet" href="commerce.css">\n');
+
+const coHeader = (current) => `<a class="skip-link" href="#main">跳到主内容</a>
+
+<header class="site-header">
+  <div class="container site-header__in">
+    <a class="brand" href="./index.html">
+      <span class="brand__mark" aria-hidden="true">${NAME.slice(0, 1)}</span>
+      <span>${NAME}</span>
+    </a>
+    <nav class="site-nav" aria-label="主导航">
+      <a href="./catalog.html">全部商品</a>
+      <a href="./product.html"${current === 'product' ? ' aria-current="page"' : ''}>商品详情</a>
+      <a href="./cart.html"${current === 'cart' ? ' aria-current="page"' : ''}>购物车</a>
+      <a href="./checkout.html"${current === 'checkout' ? ' aria-current="page"' : ''}>结算</a>
+    </nav>
+    <div class="site-header__actions">
+      <a class="btn btn--ghost btn--sm" href="./cart.html">
+        购物车
+        <span class="tag" data-cart-count aria-live="polite">3</span>
+      </a>
+    </div>
+  </div>
+</header>
+`;
+
+const productHtml = coHead('商品详情') + shellNote(['site-header', 'breadcrumb', 'gallery', 'info', 'price-3l', 'sku-swatch', 'sku-spec', 'qty', 'cta', 'facts', 'spec-table', 'related']) + coHeader('product') + `
+<main class="co-shell" id="main">
+  <nav class="co-crumbs" aria-label="面包屑">
+    <a href="./index.html">首页</a>
+    <span class="co-crumbs__sep" aria-hidden="true">/</span>
+    <a href="./catalog.html">全部商品</a>
+    <span class="co-crumbs__sep" aria-hidden="true">/</span>
+    <span aria-current="page">{{TODO: 分类名}}</span>
+  </nav>
+
+  <div class="co-pdp">
+    <!-- 图集：左缩略图条 + 主图。缩略图是 button，不是 a——点了不换 URL -->
+    <div class="co-gallery">
+      <div class="co-thumbs" role="group" aria-label="商品图片">
+        <button class="co-thumb" type="button" aria-pressed="true" aria-label="查看第 1 张图" data-thumb>
+          <span class="co-thumb__art" aria-hidden="true"></span>
+        </button>
+        <button class="co-thumb" type="button" aria-pressed="false" aria-label="查看第 2 张图" data-thumb>
+          <span class="co-thumb__art" aria-hidden="true"></span>
+        </button>
+        <button class="co-thumb" type="button" aria-pressed="false" aria-label="查看第 3 张图" data-thumb>
+          <span class="co-thumb__art" aria-hidden="true"></span>
+        </button>
+        <button class="co-thumb" type="button" aria-pressed="false" aria-label="查看第 4 张图" data-thumb>
+          <span class="co-thumb__art" aria-hidden="true"></span>
+        </button>
+      </div>
+      <div class="co-stage">
+        <div class="co-stage__art" role="img" aria-label="{{TODO: 商品主图，换成真实 img 并写 alt}}"></div>
+      </div>
+    </div>
+
+    <div class="co-info">
+      <div>
+        <h1 class="co-title">{{TODO: 商品名}}</h1>
+        <p class="co-sub">{{TODO: 一句话说明它解决什么问题，不超过 40 字}}</p>
+      </div>
+
+      <!-- 三层价格：主价不放大，只加字重（国内电商习惯放大到 24–32，是另一流派） -->
+      <p class="co-price">
+        <span class="co-price__main" data-price>RMB 5,999</span>
+        <span class="co-price__inst">或 RMB 250/月 (24 期)</span>
+        <span class="co-price__note">含税价，运费在结算页计算</span>
+      </p>
+
+      <!-- SKU 组一：颜色 = 36px 圆点，不显示颜色名，名字只在 aria-label 里 -->
+      <div class="co-group">
+        <div class="co-group__head">
+          <span class="co-group__label" id="sku-color-label">颜色</span>
+          <span class="co-group__value" data-swatch-name>薰衣草紫</span>
+        </div>
+        <div class="co-swatches" role="group" aria-labelledby="sku-color-label">
+          <button class="co-swatch" type="button" aria-pressed="true" aria-label="薰衣草紫" data-swatch="薰衣草紫" style="--sw:#c9c0e0"></button>
+          <button class="co-swatch" type="button" aria-pressed="false" aria-label="深空黑" data-swatch="深空黑" style="--sw:#2b2b2e"></button>
+          <button class="co-swatch" type="button" aria-pressed="false" aria-label="雾岩白" data-swatch="雾岩白" style="--sw:#e8e6e1"></button>
+          <button class="co-swatch" type="button" aria-pressed="false" aria-label="海盐蓝" data-swatch="海盐蓝" style="--sw:#9fb6cc"></button>
+          <button class="co-swatch" type="button" aria-pressed="false" aria-label="赤陶橙" data-swatch="赤陶橙" style="--sw:#c97b56"></button>
+        </div>
+      </div>
+
+      <!-- SKU 组二：规格 = 文字按钮，和颜色圆点形状不同，一眼分得清两组 -->
+      <div class="co-group">
+        <div class="co-group__head">
+          <span class="co-group__label" id="sku-spec-label">存储容量</span>
+          <span class="co-group__value" data-spec-name>256GB</span>
+        </div>
+        <div class="co-specs" role="group" aria-labelledby="sku-spec-label">
+          <button class="co-spec" type="button" aria-pressed="false" data-spec="128GB" data-delta="0">128GB</button>
+          <button class="co-spec" type="button" aria-pressed="true" data-spec="256GB" data-delta="800">256GB<span class="co-spec__delta">+800</span></button>
+          <button class="co-spec" type="button" aria-pressed="false" data-spec="512GB" data-delta="1600">512GB<span class="co-spec__delta">+1,600</span></button>
+        </div>
+      </div>
+
+      <div class="co-buy">
+        <div class="co-qty">
+          <button type="button" aria-label="减少数量" data-qty-dec>−</button>
+          <input type="number" inputmode="numeric" min="1" max="99" value="1" step="1" aria-label="购买数量" data-qty-input>
+          <button type="button" aria-label="增加数量" data-qty-inc>+</button>
+        </div>
+        <button class="btn btn--primary co-cta co-cta--wide" type="button" data-add-to-cart>加入购物车</button>
+        <button class="btn btn--secondary co-cta" type="button" data-buy-now>立即购买</button>
+      </div>
+      <p class="tiny" data-cart-feedback role="status" aria-live="polite"></p>
+
+      <dl class="co-facts">
+        <div class="co-facts__row"><dt>配送</dt><dd>{{TODO: 今天下单，预计 X 月 X 日送达}}</dd></div>
+        <div class="co-facts__row"><dt>保障</dt><dd>7 天无理由退货 · 1 年质保 · 支持以旧换新</dd></div>
+        <div class="co-facts__row"><dt>库存</dt><dd><span class="tag tag--brand">现货</span> 仅剩 12 件</dd></div>
+      </dl>
+    </div>
+  </div>
+
+  <section class="section" aria-labelledby="spec-title">
+    <h2 class="section__title" id="spec-title">规格参数</h2>
+    <div class="card card--flat">
+      <table class="co-table">
+        <caption class="sr-only">商品规格参数表</caption>
+        <tbody>
+          <tr><th scope="row">型号</th><td>{{TODO: 型号}}</td></tr>
+          <tr><th scope="row">尺寸</th><td>{{TODO: 长 × 宽 × 高 mm}}</td></tr>
+          <tr><th scope="row">重量</th><td>{{TODO: xxx g}}</td></tr>
+          <tr><th scope="row">接口</th><td>{{TODO: 接口清单}}</td></tr>
+          <tr><th scope="row">包装清单</th><td>{{TODO: 主机 ×1、说明书 ×1、数据线 ×1}}</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="rel-title">
+    <h2 class="section__title" id="rel-title">同类商品</h2>
+    <div class="co-related">
+      <a class="co-rel" href="./product.html">
+        <span class="co-rel__art" role="img" aria-label="{{TODO: 商品缩略图 alt}}"></span>
+        <span class="co-rel__name">{{TODO: 商品名}}</span>
+        <span class="co-rel__price">RMB 4,299 起</span>
+      </a>
+      <a class="co-rel" href="./product.html">
+        <span class="co-rel__art" role="img" aria-label="{{TODO: 商品缩略图 alt}}"></span>
+        <span class="co-rel__name">{{TODO: 商品名}}</span>
+        <span class="co-rel__price">RMB 6,999 起</span>
+      </a>
+      <a class="co-rel" href="./product.html">
+        <span class="co-rel__art" role="img" aria-label="{{TODO: 商品缩略图 alt}}"></span>
+        <span class="co-rel__name">{{TODO: 商品名}}</span>
+        <span class="co-rel__price">RMB 2,199 起</span>
+      </a>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container site-footer__in">
+    <p class="muted">© {{TODO: 年份}} ${NAME}</p>
+    <nav class="site-footer__links" aria-label="页脚导航">
+      <a href="./index.html">首页</a>
+      <a href="./catalog.html">全部商品</a>
+      <a href="./cart.html">购物车</a>
+    </nav>
+  </div>
+</footer>
+` + tail();
+
+const cartHtml = coHead('购物车') + shellNote(['site-header', 'page-head', 'line-items', 'qty-stepper', 'summary', 'promo', 'empty-state']) + coHeader('cart') + `
+<main class="co-shell" id="main">
+  <div class="page__head">
+    <div>
+      <h1 class="page__title">购物车</h1>
+      <p class="page__desc">共 <span data-cart-lines>3</span> 件商品，<span data-cart-units>3</span> 件。价格以结算页为准。</p>
+    </div>
+    <div class="page__actions">
+      <a class="btn btn--ghost btn--sm" href="./catalog.html">继续购物</a>
+    </div>
+  </div>
+
+  <div class="co-cart">
+    <div>
+      <ul class="co-lines" data-cart-list>
+        <li class="co-line" data-line data-unit="5999">
+          <span class="co-line__art" role="img" aria-label="{{TODO: 商品缩略图 alt}}"></span>
+          <div>
+            <p class="co-line__name">{{TODO: 商品名}}</p>
+            <p class="co-line__meta">薰衣草紫 · 256GB</p>
+          </div>
+          <div class="co-qty">
+            <button type="button" aria-label="减少数量" data-qty-dec>−</button>
+            <input type="number" inputmode="numeric" min="1" max="99" value="1" step="1" aria-label="购买数量" data-qty-input>
+            <button type="button" aria-label="增加数量" data-qty-inc>+</button>
+          </div>
+          <span class="co-line__price">RMB 5,999</span>
+          <span class="co-line__total" data-line-total>RMB 5,999</span>
+          <button class="co-line__del" type="button" data-line-del>删除</button>
+        </li>
+
+        <li class="co-line" data-line data-unit="899">
+          <span class="co-line__art" role="img" aria-label="{{TODO: 商品缩略图 alt}}"></span>
+          <div>
+            <p class="co-line__name">{{TODO: 配件名}}</p>
+            <p class="co-line__meta">深空黑 · 标准版</p>
+          </div>
+          <div class="co-qty">
+            <button type="button" aria-label="减少数量" data-qty-dec>−</button>
+            <input type="number" inputmode="numeric" min="1" max="99" value="1" step="1" aria-label="购买数量" data-qty-input>
+            <button type="button" aria-label="增加数量" data-qty-inc>+</button>
+          </div>
+          <span class="co-line__price">RMB 899</span>
+          <span class="co-line__total" data-line-total>RMB 899</span>
+          <button class="co-line__del" type="button" data-line-del>删除</button>
+        </li>
+
+        <li class="co-line" data-line data-unit="129">
+          <span class="co-line__art" role="img" aria-label="{{TODO: 商品缩略图 alt}}"></span>
+          <div>
+            <p class="co-line__name">{{TODO: 耗材名}}</p>
+            <p class="co-line__meta">两件装</p>
+          </div>
+          <div class="co-qty">
+            <button type="button" aria-label="减少数量" data-qty-dec>−</button>
+            <input type="number" inputmode="numeric" min="1" max="99" value="1" step="1" aria-label="购买数量" data-qty-input>
+            <button type="button" aria-label="增加数量" data-qty-inc>+</button>
+          </div>
+          <span class="co-line__price">RMB 129</span>
+          <span class="co-line__total" data-line-total>RMB 129</span>
+          <button class="co-line__del" type="button" data-line-del>删除</button>
+        </li>
+      </ul>
+
+      <!-- 空车态：最后一件被删掉时显示，不是重定向到别的页 -->
+      <div class="empty" data-cart-empty hidden>
+        <div class="empty__icon" aria-hidden="true">◇</div>
+        <p class="empty__title">购物车是空的</p>
+        <p class="empty__text">挑一件再回来，或者看看同类商品。</p>
+        <a class="btn btn--primary" href="./catalog.html">去逛逛</a>
+      </div>
+    </div>
+
+    <aside class="co-summary" aria-labelledby="sum-title">
+      <h2 class="co-summary__title" id="sum-title">订单摘要</h2>
+      <div class="co-summary__row">
+        <span>商品小计</span>
+        <span class="co-summary__num" data-sum-subtotal>RMB 7,027</span>
+      </div>
+      <div class="co-summary__row">
+        <span>运费</span>
+        <span class="co-summary__num">免运费</span>
+      </div>
+      <div class="co-summary__row">
+        <span>优惠</span>
+        <span class="co-summary__num" data-sum-discount>− RMB 0</span>
+      </div>
+      <div class="co-summary__row co-summary__row--total">
+        <span>应付</span>
+        <span class="co-summary__num" data-sum-total>RMB 7,027</span>
+      </div>
+
+      <div class="co-promo">
+        <label class="sr-only" for="promo">优惠码</label>
+        <input class="input" id="promo" name="promo" placeholder="输入优惠码" autocomplete="off">
+        <button class="btn btn--secondary" type="button" data-promo>使用</button>
+      </div>
+      <p class="co-summary__note" data-promo-msg role="status" aria-live="polite"></p>
+
+      <a class="btn btn--primary btn--block" href="./checkout.html">去结算</a>
+      <p class="co-summary__note">结算前可修改地址与配送方式，提交订单才会扣款。</p>
+    </aside>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container site-footer__in">
+    <p class="muted">© {{TODO: 年份}} ${NAME}</p>
+    <nav class="site-footer__links" aria-label="页脚导航">
+      <a href="./index.html">首页</a>
+      <a href="./catalog.html">全部商品</a>
+      <a href="./product.html">商品详情</a>
+    </nav>
+  </div>
+</footer>
+` + tail();
+
+const checkoutHtml = coHead('结算') + shellNote(['checkout-header', 'steps', 'address', 'shipping', 'payment', 'order-summary', 'submit']) + `<a class="skip-link" href="#main">跳到主内容</a>
+
+<header class="site-header">
+  <div class="container site-header__in">
+    <a class="brand" href="./index.html">
+      <span class="brand__mark" aria-hidden="true">${NAME.slice(0, 1)}</span>
+      <span>${NAME}</span>
+    </a>
+    <p class="muted">安全结算 · 全程加密</p>
+  </div>
+</header>
+
+<main class="co-shell" id="main">
+  <div class="page__head">
+    <div>
+      <h1 class="page__title">结算</h1>
+      <p class="page__desc">三步填完，提交前可以随时回上一步改。</p>
+    </div>
+  </div>
+
+  <!-- 步骤条：aria-current="step" 标当前步，已完成的加 .co-step--done -->
+  <ol class="co-steps" data-steps>
+    <li class="co-step" aria-current="step" data-step="1"><span class="co-step__no">1</span>收货地址</li>
+    <li class="co-step" data-step="2"><span class="co-step__no">2</span>配送方式</li>
+    <li class="co-step" data-step="3"><span class="co-step__no">3</span>支付</li>
+  </ol>
+
+  <div class="co-checkout">
+    <form class="co-form" data-checkout-form novalidate>
+      <section class="co-panel" aria-labelledby="addr-title">
+        <h2 class="co-panel__title" id="addr-title">收货地址</h2>
+        <div class="form-grid">
+          <div class="field">
+            <label class="label" for="co-name">收货人<span class="req" aria-hidden="true">*</span></label>
+            <input class="input" id="co-name" name="name" required autocomplete="name" placeholder="真实姓名">
+            <p class="error-text" data-error-for="co-name" hidden>请填写收货人</p>
+          </div>
+          <div class="field">
+            <label class="label" for="co-phone">手机号<span class="req" aria-hidden="true">*</span></label>
+            <input class="input" id="co-phone" name="phone" required inputmode="tel" autocomplete="tel" placeholder="11 位手机号">
+            <p class="error-text" data-error-for="co-phone" hidden>请填写 11 位手机号</p>
+          </div>
+          <div class="field field--full">
+            <label class="label" for="co-street">详细地址<span class="req" aria-hidden="true">*</span></label>
+            <input class="input" id="co-street" name="street" required autocomplete="street-address" placeholder="街道、门牌号、楼层">
+            <p class="error-text" data-error-for="co-street" hidden>请填写详细地址</p>
+          </div>
+          <div class="field">
+            <label class="label" for="co-city">城市</label>
+            <input class="input" id="co-city" name="city" autocomplete="address-level2" placeholder="城市">
+          </div>
+          <div class="field">
+            <label class="label" for="co-zip">邮编</label>
+            <input class="input" id="co-zip" name="zip" inputmode="numeric" autocomplete="postal-code" placeholder="6 位邮编">
+          </div>
+        </div>
+      </section>
+
+      <section class="co-panel" aria-labelledby="ship-title">
+        <h2 class="co-panel__title" id="ship-title">配送方式</h2>
+        <p class="co-panel__hint">运费在提交前锁定，不会因为改地址而变动。</p>
+        <div class="co-options">
+          <label class="co-option">
+            <input type="radio" name="ship" value="std" checked>
+            <span class="co-option__body">
+              <span class="co-option__name">标准配送</span>
+              <span class="co-option__meta">2–4 个工作日送达</span>
+            </span>
+            <span class="co-option__price">免运费</span>
+          </label>
+          <label class="co-option">
+            <input type="radio" name="ship" value="fast">
+            <span class="co-option__body">
+              <span class="co-option__name">次日达</span>
+              <span class="co-option__meta">今天 18:00 前下单，明天送达</span>
+            </span>
+            <span class="co-option__price">RMB 18</span>
+          </label>
+          <label class="co-option">
+            <input type="radio" name="ship" value="pickup">
+            <span class="co-option__body">
+              <span class="co-option__name">门店自提</span>
+              <span class="co-option__meta">{{TODO: 门店名}} · 营业至 21:00</span>
+            </span>
+            <span class="co-option__price">免运费</span>
+          </label>
+        </div>
+      </section>
+
+      <section class="co-panel" aria-labelledby="pay-title">
+        <h2 class="co-panel__title" id="pay-title">支付方式</h2>
+        <div class="co-options">
+          <label class="co-option">
+            <input type="radio" name="pay" value="card" checked>
+            <span class="co-option__body">
+              <span class="co-option__name">银行卡</span>
+              <span class="co-option__meta">支持储蓄卡与信用卡</span>
+            </span>
+          </label>
+          <label class="co-option">
+            <input type="radio" name="pay" value="wallet">
+            <span class="co-option__body">
+              <span class="co-option__name">钱包余额</span>
+              <span class="co-option__meta">可用余额 RMB 1,240</span>
+            </span>
+          </label>
+          <label class="co-option">
+            <input type="radio" name="pay" value="later">
+            <span class="co-option__body">
+              <span class="co-option__name">分期付款</span>
+              <span class="co-option__meta">3 / 6 / 12 / 24 期，年化费率见协议</span>
+            </span>
+          </label>
+        </div>
+      </section>
+
+      <div class="sticky-bar">
+        <p class="sticky-bar__hint">提交即表示同意《购买条款》与《隐私政策》。</p>
+        <div class="sticky-bar__actions">
+          <a class="btn btn--ghost" href="./cart.html">返回购物车</a>
+          <button class="btn btn--primary co-cta" type="submit">提交订单</button>
+        </div>
+      </div>
+    </form>
+
+    <aside class="co-summary" aria-labelledby="co-sum-title">
+      <h2 class="co-summary__title" id="co-sum-title">订单摘要</h2>
+      <div class="co-mini">
+        <div class="co-mini__item">
+          <span class="co-mini__art" role="img" aria-label="{{TODO: 商品缩略图 alt}}"></span>
+          <span class="co-mini__name">{{TODO: 商品名}}<br><span class="muted">薰衣草紫 · 256GB</span></span>
+          <span class="co-mini__num">×1</span>
+        </div>
+        <div class="co-mini__item">
+          <span class="co-mini__art" role="img" aria-label="{{TODO: 商品缩略图 alt}}"></span>
+          <span class="co-mini__name">{{TODO: 配件名}}</span>
+          <span class="co-mini__num">×1</span>
+        </div>
+      </div>
+      <div class="co-summary__row">
+        <span>商品小计</span>
+        <span class="co-summary__num">RMB 6,898</span>
+      </div>
+      <div class="co-summary__row">
+        <span>运费</span>
+        <span class="co-summary__num" data-ship-fee>免运费</span>
+      </div>
+      <div class="co-summary__row co-summary__row--total">
+        <span>应付</span>
+        <span class="co-summary__num" data-checkout-total>RMB 6,898</span>
+      </div>
+      <p class="co-summary__note">价格含税。发票在订单完成后可申请。</p>
+    </aside>
+  </div>
+</main>
+` + tail();
+
+
+
+/* ------------------------------------------------------------------ commerce.css */
+
+const commerceCss = `/* commerce.css —— 商品详情 / 购物车 / 结算
+   只在 product.html / cart.html / checkout.html 引入。
+   口径见 references/applestore-commerce.md：三层价格（主价不放大，只加字重）、
+   36px 色块 SKU、两组 SKU 用不同形状区分、主 CTA 44 高。 */
+
+.co-shell {
+  width: 100%;
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 0 var(--s-5) var(--s-11);
+}
+
+/* ---------- 面包屑 ---------- */
+.co-crumbs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-2);
+  padding: var(--s-5) 0 var(--s-4);
+  font-size: var(--t-sm);
+  color: var(--ink-3);
+}
+.co-crumbs a { color: var(--ink-3); text-decoration: none; }
+.co-crumbs a:hover { color: var(--ink); text-decoration: underline; }
+.co-crumbs__sep { color: var(--ink-4); }
+
+/* ---------- 商品详情：左图右信息 ---------- */
+.co-pdp {
+  display: grid;
+  grid-template-columns: minmax(0, 1.12fr) minmax(0, 1fr);
+  gap: var(--s-9);
+  align-items: start;
+}
+
+.co-gallery {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s-3);
+  position: sticky;
+  top: var(--s-6);
+}
+.co-thumbs {
+  display: flex;
+  flex-direction: row;
+  gap: var(--s-2);
+  order: 2;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: thin;
+}
+.co-thumb {
+  width: 72px;
+  height: 72px;
+  flex: 0 0 auto;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  cursor: pointer;
+  overflow: hidden;
+  transition: border-color var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease);
+}
+.co-thumb__art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background:
+    radial-gradient(120% 120% at 30% 20%, color-mix(in srgb, var(--brand) 16%, transparent), transparent 70%),
+    linear-gradient(160deg, color-mix(in srgb, var(--brand) 8%, var(--surface)), var(--surface));
+}
+.co-thumb[aria-pressed="true"] {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 1px var(--brand);
+}
+.co-thumb:hover { border-color: var(--ink-4); }
+
+.co-stage {
+  order: 1;
+  aspect-ratio: 4 / 3;
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+.co-stage__art {
+  width: 64%;
+  height: 64%;
+  border-radius: var(--r-xl);
+  background:
+    radial-gradient(120% 120% at 20% 10%, color-mix(in srgb, var(--brand) 22%, transparent), transparent 60%),
+    linear-gradient(160deg, color-mix(in srgb, var(--brand) 12%, var(--surface)), var(--bg));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 8%, transparent);
+}
+
+/* ---------- 右侧信息列 ---------- */
+.co-info { display: flex; flex-direction: column; gap: var(--s-5); }
+.co-title {
+  margin: 0;
+  font-size: var(--t-3xl);
+  line-height: var(--lh-3xl);
+  font-weight: var(--fw-head);
+  letter-spacing: var(--track-head);
+}
+.co-sub { margin: 0; font-size: var(--t-base); line-height: var(--lh-base); color: var(--ink-2); }
+
+/* 三层价格：主价 / 分期 / 小字注 —— 不要拼成一行字符串 */
+.co-price { display: flex; flex-direction: column; gap: 2px; margin: 0; }
+.co-price__main {
+  font-size: var(--t-lg);
+  line-height: var(--lh-lg);
+  font-weight: var(--fw-head);
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.co-price__inst {
+  font-size: var(--t-base);
+  line-height: var(--lh-base);
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+.co-price__note { font-size: var(--t-xs); line-height: var(--lh-xs); color: var(--ink-3); }
+
+/* SKU 组：颜色=圆点，规格=文字按钮，两组形状不同 */
+.co-group { display: flex; flex-direction: column; gap: var(--s-2); }
+.co-group__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-3);
+}
+.co-group__label { font-size: var(--t-base); font-weight: var(--fw-ui); color: var(--ink); }
+.co-group__value { font-size: var(--t-sm); color: var(--ink-2); }
+
+.co-swatches { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+.co-swatch {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  background: var(--sw, var(--surface));
+  cursor: pointer;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 14%, transparent);
+  transition: border-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+}
+.co-swatch[aria-pressed="true"] { border-color: var(--brand); }
+.co-swatch:hover { transform: scale(1.06); }
+
+.co-specs { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+.co-spec {
+  min-height: 40px;
+  padding: 0 var(--s-4);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--bg);
+  color: var(--ink);
+  font-size: var(--t-base);
+  font-weight: var(--fw-ui);
+  cursor: pointer;
+  transition: border-color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease);
+}
+.co-spec:hover { border-color: var(--ink-4); background: var(--surface-hover); }
+.co-spec[aria-pressed="true"] {
+  border-color: var(--brand);
+  box-shadow: inset 0 0 0 1px var(--brand);
+  color: var(--brand-ink);
+}
+.co-spec__delta { margin-left: var(--s-2); font-size: var(--t-xs); color: var(--ink-3); }
+
+/* 数量步进 */
+.co-buy { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-3); }
+.co-qty {
+  display: inline-flex;
+  align-items: stretch;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  background: var(--bg);
+}
+.co-qty button {
+  width: 40px;
+  min-height: 44px;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font-size: var(--t-lg);
+  line-height: 1;
+  cursor: pointer;
+}
+.co-qty button:hover { background: var(--surface-hover); }
+.co-qty button:disabled { color: var(--ink-4); cursor: not-allowed; }
+.co-qty input {
+  width: 52px;
+  min-height: 44px;
+  border: 0;
+  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  text-align: center;
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  background: transparent;
+  -moz-appearance: textfield;
+}
+.co-qty input::-webkit-outer-spin-button,
+.co-qty input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+.co-cta { min-height: 44px; padding: 0 var(--s-7); font-size: var(--t-base); }
+.co-cta--wide { flex: 1 1 220px; }
+
+.co-facts {
+  display: grid;
+  gap: var(--s-3);
+  padding: var(--s-4) 0 0;
+  margin: 0;
+  border-top: 1px solid var(--border);
+  font-size: var(--t-sm);
+  color: var(--ink-2);
+}
+.co-facts__row { display: flex; gap: var(--s-3); }
+.co-facts dt { flex: 0 0 64px; color: var(--ink-3); }
+.co-facts dd { margin: 0; }
+
+/* 规格参数表 */
+.co-table { width: 100%; border-collapse: collapse; font-size: var(--t-base); }
+.co-table th,
+.co-table td { padding: var(--s-3) var(--s-4); text-align: left; border-bottom: 1px solid var(--border); }
+.co-table th { width: 180px; font-weight: var(--fw-ui); color: var(--ink-2); }
+.co-table tr:last-child th,
+.co-table tr:last-child td { border-bottom: 0; }
+
+/* 相关推荐 */
+.co-related { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-4); }
+.co-rel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  padding: var(--s-3);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background: var(--raised);
+  text-decoration: none;
+  color: inherit;
+}
+.co-rel:hover { border-color: var(--ink-4); }
+.co-rel__art {
+  aspect-ratio: 16 / 10;
+  border-radius: var(--r-md);
+  background: linear-gradient(150deg, color-mix(in srgb, var(--brand) 10%, var(--surface)), var(--surface));
+}
+.co-rel__name { font-size: var(--t-base); font-weight: var(--fw-ui); }
+.co-rel__price { font-size: var(--t-sm); color: var(--ink-2); font-variant-numeric: tabular-nums; }
+
+/* ---------- 购物车 ---------- */
+.co-cart { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: var(--s-7); align-items: start; }
+.co-lines { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.co-line {
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr) auto auto auto auto;
+  align-items: center;
+  gap: var(--s-4);
+  padding: var(--s-4) 0;
+  border-bottom: 1px solid var(--border);
+}
+.co-line:first-child { border-top: 1px solid var(--border); }
+.co-line__art {
+  width: 88px;
+  height: 88px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--border);
+  background: linear-gradient(150deg, color-mix(in srgb, var(--brand) 10%, var(--surface)), var(--surface));
+}
+.co-line__name { font-size: var(--t-base); font-weight: var(--fw-ui); margin: 0 0 2px; }
+.co-line__meta { font-size: var(--t-sm); color: var(--ink-3); margin: 0; }
+.co-line__price,
+.co-line__total {
+  font-size: var(--t-base);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: var(--ink);
+}
+.co-line__price { color: var(--ink-3); font-size: var(--t-sm); }
+.co-line__total { font-weight: var(--fw-head); }
+.co-line__del {
+  min-height: 44px;
+  padding: 0 var(--s-3);
+  border: 1px solid transparent;
+  border-radius: var(--r-md);
+  background: transparent;
+  color: var(--ink-3);
+  font-size: var(--t-sm);
+  cursor: pointer;
+}
+.co-line__del:hover { color: var(--danger-ink); border-color: var(--border); background: var(--danger-bg); }
+
+.co-summary {
+  position: sticky;
+  top: var(--s-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  padding: var(--s-5);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background: var(--raised);
+}
+.co-summary__title { margin: 0; font-size: var(--t-lg); font-weight: var(--fw-head); }
+.co-summary__row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--s-3);
+  font-size: var(--t-base);
+  color: var(--ink-2);
+}
+.co-summary__row--total {
+  padding-top: var(--s-3);
+  border-top: 1px solid var(--border);
+  font-size: var(--t-lg);
+  font-weight: var(--fw-head);
+  color: var(--ink);
+}
+.co-summary__num { font-variant-numeric: tabular-nums; }
+.co-summary__note { margin: 0; font-size: var(--t-xs); line-height: var(--lh-xs); color: var(--ink-3); }
+
+.co-promo { display: flex; gap: var(--s-2); }
+.co-promo .input { flex: 1 1 auto; min-width: 0; }
+
+/* ---------- 结算 ---------- */
+.co-checkout { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: var(--s-7); align-items: start; }
+.co-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2) var(--s-5);
+  list-style: none;
+  margin: 0 0 var(--s-6);
+  padding: 0;
+  font-size: var(--t-sm);
+  color: var(--ink-3);
+}
+.co-step { display: flex; align-items: center; gap: var(--s-2); }
+.co-step__no {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  font-size: var(--t-xs);
+  font-variant-numeric: tabular-nums;
+}
+.co-step[aria-current="step"] { color: var(--ink); font-weight: var(--fw-ui); }
+/* 圆底必须用 --brand-fill：--brand 是浅色调，白字压上去在暖色人格下只有 1.68:1 */
+.co-step[aria-current="step"] .co-step__no { background: var(--brand-fill); border-color: var(--brand-fill); color: var(--on-brand); }
+.co-step--done .co-step__no { background: var(--ok-bg); border-color: var(--ok); color: var(--ok-ink); }
+
+.co-panel {
+  padding: var(--s-5);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background: var(--raised);
+  margin-bottom: var(--s-4);
+}
+.co-panel__title { margin: 0 0 var(--s-4); font-size: var(--t-lg); font-weight: var(--fw-head); }
+.co-panel__hint { margin: calc(var(--s-2) * -1) 0 var(--s-4); font-size: var(--t-sm); color: var(--ink-3); }
+
+.co-options { display: flex; flex-direction: column; gap: var(--s-2); }
+.co-option {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-3);
+  min-height: 44px;
+  padding: var(--s-3) var(--s-4);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--bg);
+  cursor: pointer;
+}
+.co-option:hover { border-color: var(--ink-4); }
+.co-option:has(input:checked) {
+  border-color: var(--brand);
+  box-shadow: inset 0 0 0 1px var(--brand);
+}
+.co-option input { margin: 3px 0 0; accent-color: var(--brand); }
+.co-option__body { display: flex; flex-direction: column; gap: 2px; }
+.co-option__name { font-size: var(--t-base); font-weight: var(--fw-ui); color: var(--ink); }
+.co-option__meta { font-size: var(--t-sm); color: var(--ink-3); }
+.co-option__price { margin-left: auto; font-size: var(--t-base); font-variant-numeric: tabular-nums; color: var(--ink); }
+
+/* 结算里的订单摘要复用 .co-summary 的骨架，去掉 sticky */
+.co-checkout .co-summary { position: sticky; }
+/* 结算底栏要压住滚动内容，半透明会让下面的选项透出来，读起来像重影 */
+.co-form { padding-bottom: var(--s-4); }
+.co-form .sticky-bar {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  box-shadow: 0 -8px 24px color-mix(in srgb, var(--ink) 6%, transparent);
+  backdrop-filter: none;
+}
+.co-mini { display: flex; flex-direction: column; gap: var(--s-3); }
+.co-mini__item { display: flex; gap: var(--s-3); align-items: center; font-size: var(--t-sm); color: var(--ink-2); }
+.co-mini__art {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 auto;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--border);
+  background: linear-gradient(150deg, color-mix(in srgb, var(--brand) 10%, var(--surface)), var(--surface));
+}
+.co-mini__name { flex: 1 1 auto; min-width: 0; }
+.co-mini__num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* ---------- 响应式 ---------- */
+@media (max-width: 1080px) {
+  .co-pdp { grid-template-columns: minmax(0, 1fr); gap: var(--s-6); }
+  .co-gallery { position: static; }
+  .co-cart,
+  .co-checkout { grid-template-columns: minmax(0, 1fr); }
+  .co-summary { position: static; }
+}
+
+@media (max-width: 720px) {
+  .co-shell { padding: 0 var(--s-4) var(--s-9); }
+  .co-related { grid-template-columns: minmax(0, 1fr); }
+  .co-line {
+    grid-template-columns: 72px minmax(0, 1fr) auto;
+    grid-template-areas:
+      'art name del'
+      'art qty total';
+    row-gap: var(--s-2);
+  }
+  .co-line__art { grid-area: art; width: 72px; height: 72px; }
+  .co-line__name { grid-area: name; }
+  .co-line .co-qty { grid-area: qty; justify-self: start; }
+  .co-line__price { display: none; }
+  .co-line__total { grid-area: total; justify-self: end; }
+  .co-line__del { grid-area: del; justify-self: end; }
+  .co-cta--wide { flex: 1 1 100%; }
+  .co-table th { width: 96px; }
+  /* 结算底栏：窄屏把提示和按钮拆两行，否则提示被挤成一列字 */
+  .co-form .sticky-bar { flex-wrap: wrap; gap: var(--s-2); padding: var(--s-3) var(--s-4); }
+  .co-form .sticky-bar__hint { order: 2; flex: 1 1 100%; }
+  .co-form .sticky-bar__actions { order: 1; flex: 1 1 100%; margin-inline-start: 0; }
+  .co-form .sticky-bar__actions .btn { flex: 1 1 auto; min-height: 44px; }
+}
+
+/* 触控目标下限：390 下所有可点元素至少 44 高 */
+@media (max-width: 720px) {
+  .co-swatch { width: 44px; height: 44px; }
+  .co-spec { min-height: 44px; }
+  .co-qty button { width: 44px; }
+  .co-thumb { width: 64px; height: 64px; }
+  /* 面包屑在窄屏容易只剩 20px 高，撑到 44 才够点 */
+  .co-crumbs { gap: 0; padding: var(--s-2) 0; }
+  .co-crumbs a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0 var(--s-1);
+  }
+  .co-crumbs__sep { display: none; }
+}
+`;
+
+const uiJs = `// ui.js —— 主题切换 / 密码显隐 / tabs 键盘 / 弹窗 / 商品 SKU 与购物车（无依赖）
 (function () {
   var root = document.documentElement;
   var KEY = 'ui-theme';
@@ -2640,6 +3567,232 @@ const uiJs = `// ui.js —— 主题切换 / 密码显隐 / tabs 键盘 / 弹窗
   document.addEventListener('input', function (e) {
     if (e.target.closest('[data-search]')) applyFilters();
   });
+  // ---------- 电商：图集 / SKU / 数量 / 购物车 / 结算 ----------
+  function rmb(n) {
+    return 'RMB ' + Math.round(n).toLocaleString('en-US');
+  }
+
+  // 图集：缩略图互斥
+  document.addEventListener('click', function (e) {
+    var thumb = e.target.closest && e.target.closest('[data-thumb]');
+    if (!thumb) return;
+    var group = thumb.closest('.co-thumbs');
+    if (!group) return;
+    group.querySelectorAll('[data-thumb]').forEach(function (b) {
+      b.setAttribute('aria-pressed', String(b === thumb));
+    });
+  });
+
+  // 颜色 SKU：圆点互斥 + 回写组头文字
+  document.addEventListener('click', function (e) {
+    var sw = e.target.closest && e.target.closest('[data-swatch]');
+    if (!sw) return;
+    var group = sw.closest('.co-swatches');
+    if (!group) return;
+    group.querySelectorAll('[data-swatch]').forEach(function (b) {
+      b.setAttribute('aria-pressed', String(b === sw));
+    });
+    var label = document.querySelector('[data-swatch-name]');
+    if (label) label.textContent = sw.getAttribute('data-swatch') || '';
+  });
+
+  // 规格 SKU：文字按钮互斥 + 价格增量（主价不放大，只改数字）
+  var priceBase = null;
+  function syncSpec(btn) {
+    var group = btn.closest('.co-specs');
+    if (group) {
+      group.querySelectorAll('[data-spec]').forEach(function (b) {
+        b.setAttribute('aria-pressed', String(b === btn));
+      });
+    }
+    var label = document.querySelector('[data-spec-name]');
+    if (label) label.textContent = btn.getAttribute('data-spec') || '';
+    var priceEl = document.querySelector('[data-price]');
+    if (!priceEl) return;
+    var delta = Number(btn.getAttribute('data-delta') || 0);
+    if (priceBase === null) {
+      var cur = Number(String(priceEl.textContent).replace(/[^\\d.]/g, '')) || 0;
+      priceBase = cur - delta;
+    }
+    priceEl.textContent = rmb(priceBase + delta);
+  }
+  document.addEventListener('click', function (e) {
+    var spec = e.target.closest && e.target.closest('[data-spec]');
+    if (spec) syncSpec(spec);
+  });
+  // 初始化：用「默认选中项」反推基准价，否则第一次点击会拿新档位的增量去减旧价格
+  var specDefault = document.querySelector('[data-spec][aria-pressed="true"]');
+  if (specDefault) syncSpec(specDefault);
+
+  // 数量步进：任何 .co-qty 都生效，钳在 1–99
+  function readQty(box) {
+    var input = box.querySelector('[data-qty-input]');
+    var v = input ? parseInt(input.value, 10) : 1;
+    if (!isFinite(v) || v < 1) v = 1;
+    if (v > 99) v = 99;
+    if (input) input.value = String(v);
+    var dec = box.querySelector('[data-qty-dec]');
+    if (dec) dec.disabled = v <= 1;
+    return v;
+  }
+  document.addEventListener('click', function (e) {
+    var inc = e.target.closest && e.target.closest('[data-qty-inc]');
+    var dec = e.target.closest && e.target.closest('[data-qty-dec]');
+    if (!inc && !dec) return;
+    var box = (inc || dec).closest('.co-qty');
+    if (!box) return;
+    var input = box.querySelector('[data-qty-input]');
+    if (!input) return;
+    var v = readQty(box);
+    input.value = String(inc ? Math.min(99, v + 1) : Math.max(1, v - 1));
+    readQty(box);
+    recalcCart();
+  });
+  document.addEventListener('change', function (e) {
+    if (!e.target.closest || !e.target.closest('[data-qty-input]')) return;
+    readQty(e.target.closest('.co-qty'));
+    recalcCart();
+  });
+  document.querySelectorAll('.co-qty').forEach(readQty);
+
+  // 加入购物车：只改角标 + 提示，不跳页
+  document.addEventListener('click', function (e) {
+    var add = e.target.closest && e.target.closest('[data-add-to-cart]');
+    var buy = e.target.closest && e.target.closest('[data-buy-now]');
+    if (!add && !buy) return;
+    var box = document.querySelector('.co-qty');
+    var qty = box ? readQty(box) : 1;
+    var badge = document.querySelector('[data-cart-count]');
+    if (badge) badge.textContent = String((parseInt(badge.textContent, 10) || 0) + qty);
+    var fb = document.querySelector('[data-cart-feedback]');
+    if (fb) {
+      fb.textContent = buy
+        ? '已选中 ' + qty + ' 件，正在跳转结算…'
+        : '已加入购物车：' + qty + ' 件';
+    }
+    if (buy) {
+      setTimeout(function () {
+        window.location.href = './checkout.html';
+      }, 600);
+    }
+  });
+
+  // 购物车：删行 / 汇总 / 空态
+  function recalcCart() {
+    var list = document.querySelector('[data-cart-list]');
+    if (!list) return;
+    var lines = list.querySelectorAll('[data-line]');
+    var units = 0;
+    var subtotal = 0;
+    lines.forEach(function (li) {
+      var unit = Number(li.getAttribute('data-unit') || 0);
+      var box = li.querySelector('.co-qty');
+      var qty = box ? readQty(box) : 1;
+      var total = unit * qty;
+      units += qty;
+      subtotal += total;
+      var cell = li.querySelector('[data-line-total]');
+      if (cell) cell.textContent = rmb(total);
+    });
+    var discount = Number(list.getAttribute('data-discount') || 0);
+    var setNum = function (sel, text) {
+      var el = document.querySelector(sel);
+      if (el) el.textContent = text;
+    };
+    setNum('[data-cart-lines]', String(lines.length));
+    setNum('[data-cart-units]', String(units));
+    setNum('[data-sum-subtotal]', rmb(subtotal));
+    setNum('[data-sum-discount]', '− ' + rmb(discount));
+    setNum('[data-sum-total]', rmb(Math.max(0, subtotal - discount)));
+    var empty = document.querySelector('[data-cart-empty]');
+    if (empty) empty.hidden = lines.length > 0;
+    var sum = document.querySelector('.co-summary');
+    if (sum) sum.hidden = lines.length === 0;
+    var badge = document.querySelector('[data-cart-count]');
+    if (badge) badge.textContent = String(units);
+  }
+
+  document.addEventListener('click', function (e) {
+    var del = e.target.closest && e.target.closest('[data-line-del]');
+    if (!del) return;
+    var line = del.closest('[data-line]');
+    if (line) line.remove();
+    recalcCart();
+  });
+
+  // 优惠码：只做前端演示，真实校验必须在服务端
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest || !e.target.closest('[data-promo]')) return;
+    var input = document.querySelector('#promo');
+    var msg = document.querySelector('[data-promo-msg]');
+    var list = document.querySelector('[data-cart-list]');
+    if (!input || !list) return;
+    var code = String(input.value || '').trim().toUpperCase();
+    var subtotal = 0;
+    list.querySelectorAll('[data-line]').forEach(function (li) {
+      var box = li.querySelector('.co-qty');
+      subtotal += Number(li.getAttribute('data-unit') || 0) * (box ? readQty(box) : 1);
+    });
+    if (code === 'SAVE10') {
+      list.setAttribute('data-discount', String(Math.round(subtotal * 0.1)));
+      if (msg) msg.textContent = '已应用 SAVE10：立减 10%。';
+    } else if (!code) {
+      list.setAttribute('data-discount', '0');
+      if (msg) msg.textContent = '请输入优惠码。';
+    } else {
+      list.setAttribute('data-discount', '0');
+      if (msg) msg.textContent = '优惠码「' + code + '」无效或已过期。';
+    }
+    recalcCart();
+  });
+  recalcCart();
+
+  // 结算：运费联动 + 必填校验（只拦明显空值，真实规则在服务端）
+  var shipFees = { std: 0, fast: 18, pickup: 0 };
+  function recalcCheckout() {
+    var totalEl = document.querySelector('[data-checkout-total]');
+    var feeEl = document.querySelector('[data-ship-fee]');
+    if (!totalEl) return;
+    var base = Number(totalEl.getAttribute('data-base') || 0);
+    if (!base) {
+      base = Number(String(totalEl.textContent).replace(/[^\\d.]/g, '')) || 0;
+      totalEl.setAttribute('data-base', String(base));
+    }
+    var picked = document.querySelector('input[name="ship"]:checked');
+    var fee = picked ? shipFees[picked.value] || 0 : 0;
+    if (feeEl) feeEl.textContent = fee ? rmb(fee) : '免运费';
+    totalEl.textContent = rmb(base + fee);
+  }
+  document.querySelectorAll('input[name="ship"]').forEach(function (r) {
+    r.addEventListener('change', recalcCheckout);
+  });
+
+  var coForm = document.querySelector('[data-checkout-form]');
+  if (coForm) {
+    coForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var bad = 0;
+      coForm.querySelectorAll('[required]').forEach(function (input) {
+        var err = coForm.querySelector('[data-error-for="' + input.id + '"]');
+        var ok = String(input.value || '').trim().length > 0;
+        if (input.id === 'co-phone') ok = /^\\d{11}$/.test(String(input.value || '').trim());
+        if (err) err.hidden = ok;
+        input.setAttribute('aria-invalid', String(!ok));
+        if (!ok) bad += 1;
+      });
+      if (bad) {
+        var first = coForm.querySelector('[aria-invalid="true"]');
+        if (first) first.focus();
+        return;
+      }
+      var btn = coForm.querySelector('[type="submit"]');
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = '提交中…';
+      }
+    });
+  }
+
   applyFilters();
 })();
 `;
@@ -2654,8 +3807,22 @@ const pageMap = {
   auth: 'auth.html',
   states: 'states.html',
   mobile: 'mobile.html',
+  product: 'product.html',
+  cart: 'cart.html',
+  checkout: 'checkout.html',
 };
-const built = { landing: landingHtml, catalog: catalogHtml, app: appHtml, form: formHtml, auth: authHtml, states: statesHtml, mobile: mobileHtml };
+const built = {
+  landing: landingHtml,
+  catalog: catalogHtml,
+  app: appHtml,
+  form: formHtml,
+  auth: authHtml,
+  states: statesHtml,
+  mobile: mobileHtml,
+  product: productHtml,
+  cart: cartHtml,
+  checkout: checkoutHtml,
+};
 const unknown = pages.filter((x) => !pageMap[x]);
 if (unknown.length) {
   console.error(`未知页面：${unknown.join(', ')}（可选：${Object.keys(pageMap).join(' / ')}）`);
@@ -2669,6 +3836,7 @@ const files = [
   ['depth.css', depthCss],
   ['catalog.css', catalogCss],
   ['mobile.css', mobileCss],
+  ['commerce.css', commerceCss],
   ['ui.js', uiJs],
 ];
 for (const k of pages) files.push([pageMap[k], built[k]]);

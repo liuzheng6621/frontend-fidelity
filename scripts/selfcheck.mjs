@@ -33,8 +33,12 @@ import { resolvePython, undoMsysPath, expectTextsFor } from './lib/common.mjs';
 const HERE = fileURLToPath(new URL('.', import.meta.url));
 const SCRIPTS = resolve(HERE);
 const ALL_PERSONAS = ['rational', 'editorial', 'warm', 'print', 'magazine'];
-const PAGES = ['landing', 'catalog', 'app', 'form', 'auth', 'states', 'mobile'];
-const PAGES_HTML = ['index.html', 'catalog.html', 'app.html', 'form.html', 'auth.html', 'states.html', 'mobile.html'];
+const PAGES = ['landing', 'catalog', 'app', 'form', 'auth', 'states', 'mobile', 'product', 'cart', 'checkout'];
+const PAGES_HTML = ['index.html', 'catalog.html', 'app.html', 'form.html', 'auth.html', 'states.html', 'mobile.html', 'product.html', 'cart.html', 'checkout.html'];
+// 电商三页只在 rational / warm 两套令牌下跑审计：它们的差异来自颜色与间距令牌，
+// 两套已覆盖冷/暖两端；全 5 套会把自检时长推到 10 分钟以上，收益不成比例。
+const COMMERCE_HTML = ['product.html', 'cart.html', 'checkout.html'];
+const COMMERCE_PERSONAS = ['rational', 'warm'];
 
 const argv = process.argv.slice(2);
 const flag = (n) => argv.includes(n);
@@ -260,7 +264,7 @@ const generated = [];
     const dir = join(outDir, p);
     const r = spawnSync(process.execPath, [scaffold, '--persona', p, '--pages', PAGES.join(','), '--out', dir, '--quiet'], { encoding: 'utf8' });
     if (r.status !== 0) { bad.push(`${p}: exit ${r.status} ${(r.stderr || '').split('\n')[0]}`); continue; }
-    const missing = ['tokens.css', 'base.css', 'components.css', 'depth.css', 'catalog.css', 'mobile.css', 'ui.js', ...PAGES_HTML].filter((f) => !existsSync(join(dir, f)));
+    const missing = ['tokens.css', 'base.css', 'components.css', 'depth.css', 'catalog.css', 'mobile.css', 'commerce.css', 'ui.js', ...PAGES_HTML].filter((f) => !existsSync(join(dir, f)));
     if (missing.length) bad.push(`${p}: 缺 ${missing.join(',')}`);
     else generated.push({ persona: p, dir });
   }
@@ -341,7 +345,9 @@ else {
   let combos = 0;
   try {
     for (const g of generated) {
+      const commerce = COMMERCE_PERSONAS.includes(g.persona);
       for (const pg of PAGES_HTML) {
+        if (!commerce && COMMERCE_HTML.includes(pg)) continue;
         const r = await runNodeAsync([audit, '--url', `http://127.0.0.1:${port}/${g.persona}/${pg}`, '--themes', 'light,dark', '--viewports', 'desktop,tablet,mobile', '--out', join(outDir, `audit-${g.persona}-${pg}.json`)]);
         combos += 6;
         const out = r.out || '';
@@ -350,7 +356,15 @@ else {
       }
     }
     if (bad.length) fail('审计', bad.join(' | '));
-    else pass('审计', `${generated.length} 套 × ${PAGES.length} 页 × 三视口 × 明暗 = ${combos} 组 0 错误 / 0 警告`);
+    else {
+      const commerceCombos = COMMERCE_PERSONAS.filter((p) => generated.some((g) => g.persona === p)).length * COMMERCE_HTML.length * 6;
+      const coreCombos = combos - commerceCombos;
+      pass(
+        '审计',
+        `${generated.length} 套 × ${PAGES.length} 页 × 三视口 × 明暗 = ${combos} 组 0 错误 / 0 警告` +
+          `（核心 ${PAGES_HTML.length - COMMERCE_HTML.length} 页 × ${generated.length} 套 = ${coreCombos}，电商 ${COMMERCE_HTML.length} 页 × ${COMMERCE_PERSONAS.length} 套 = ${commerceCombos}）`,
+      );
+    }
 
     // 新门默认只给警告；strict、项目允许列表与忽略边界也必须能复现。
     {
@@ -413,6 +427,17 @@ else {
       const fmTail = (fm.out || '').split('\n').filter((l) => l.includes('合计')).pop() || '';
       if (fm.status === 0) pass('流程（移动端焦点）', fmTail.trim());
       else fail('流程（移动端焦点）', (fmTail.trim() || `exit ${fm.status}`).slice(0, 200));
+
+      // 电商流程：选 SKU → 加购 → 购物车改量/删行/优惠码 → 结算校验
+      const fc = await runNodeAsync([
+        join(SCRIPTS, 'flow.mjs'),
+        '--flow', join(SCRIPTS, 'flow.commerce.example.json'),
+        '--base', `http://127.0.0.1:${port}/${COMMERCE_PERSONAS.find((p) => generated.some((g) => g.persona === p)) || g0.persona}`,
+        '--out', join(outDir, 'flow-commerce'),
+      ]);
+      const fcTail = (fc.out || '').split('\n').filter((l) => l.includes('合计')).pop() || '';
+      if (fc.status === 0) pass('流程（电商）', fcTail.trim());
+      else fail('流程（电商）', (fcTail.trim() || `exit ${fc.status}`).slice(0, 200));
     }
   } finally {
     server.close();

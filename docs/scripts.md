@@ -2,7 +2,7 @@
 
 ### scaffold.mjs — 从 0 生成前端骨架
 
-一次性产出设计令牌 + 组件样式 + 七类页面（含移动端壳），拿到就能跑、能量、能改。**模式 B 的第一步**。
+一次性产出设计令牌 + 组件样式 + 十类页面（含移动端壳与电商三页），拿到就能跑、能量、能改。**模式 B 的第一步**。
 
 ```bash
 # 后台：令牌 + 组件 + 落地页/列表/表单/认证/状态页
@@ -38,7 +38,7 @@ node scripts/scaffold.mjs --name "南风工单" --out src --pages app,form
 | `--quiet` | 少打印 | 关 |
 | `--help` / `-h` | 打印用法后退出 | — |
 
-**产出**（平铺在 `--out` 目录：7 个 CSS/JS + 各页面，全量 14 个文件）：
+**产出**（平铺在 `--out` 目录：9 个 CSS/JS/JSON + 各页面，全量 19 个文件）：
 
 ```
 <out>/
@@ -98,7 +98,7 @@ src/react/                     src/vue/
 
 两个坑写在生成物 README 里：`NODE_ENV=production` 的终端里 `npm install` 会跳过 devDependencies（用 `npm install --include=dev`）；
 `{{TODO: …}}` 在 JSX 里会被当成对象字面量，所以生成物统一走 `todo('…')` 函数。
-**生成物已过 `audit.mjs` 的明暗双主题验证**：五套人格 × 七类页面 × 三视口 × 明暗 = 210 个渲染组合，0 error / 0 warn / 0 axe 违规（`node scripts/selfcheck.mjs` 一条命令可复现）；令牌对比度门每个 119 组 / 0 组未达标。
+**生成物已过 `audit.mjs` 的明暗双主题验证**：五套人格 × 十类页面 × 三视口 × 明暗 = 246 个渲染组合，0 error / 0 warn / 0 axe 违规（`node scripts/selfcheck.mjs` 一条命令可复现）；令牌对比度门每个 123 组 / 0 组未达标。
 但它只保证「层级、间距、状态、可访问性」这些硬骨头，文案全是 `{{TODO: ...}}` 占位——
 你的活是把它们换成真内容（见 `references/copy-and-content.md`），别直接当成品交付。
 
@@ -123,9 +123,9 @@ node scripts/selfcheck.mjs --keep       # 保留临时目录，方便看生成�
 | --- | --- | --- |
 | 参数语义 | 纯断言（不需要浏览器）：MSYS 路径还原 5 条、按页 `--expect-text` 3 条 | `lib/common.mjs` 的参数解析被改坏了 |
 | 语法 | 递归 `node --check scripts/` 的 `.mjs`（含 `lib/`）；`python -m py_compile` 顶层 `.py` | 改脚本时手滑了 |
-| 生成 | 五套人格 × 七类页面各生成一遍，检查 14 个产物文件齐 | `scaffold.mjs` 坏了 |
+| 生成 | 五套人格 × 十类页面各生成一遍，检查 19 个产物文件齐 | `scaffold.mjs` 坏了 |
 | 对比度 | 对每套生成物跑 `contrast_check.py`，有未达标即失败 | 令牌改暗了/改浅了 |
-| 审计 | 内置静态服务 + `audit.mjs --themes light,dark`，五套 × 七页 × 三视口 × 双主题共 210 个渲染组合，均须 `0 错误 / 0 警告` | 生成物出现了 a11y 回归 |
+| 审计 | 内置静态服务 + `audit.mjs --themes light,dark`，五套 × 十页 × 三视口 × 双主题共 246 个渲染组合，均须 `0 错误 / 0 警告` | 生成物出现了 a11y 回归 |
 | 流程 | 用 `flow.example.json` 对骨架跑一遍完整交互，确认步骤/断言/报告链路没坏 | `flow.mjs` 坏了 |
 | 设计体系回归 | 合规 / 越档 / strict / 允许列表 / 忽略与未启用对照；无效配置反例 | 新审计漏报、误报或退出码协议被改坏 |
 | 框架栈 | React / Vue 生成、类名对齐；有 esbuild 时检查 TSX / TS 语法 | 框架生成物不自洽；缺 esbuild 明确列为未执行项 |
@@ -147,7 +147,7 @@ README 当前跨站正文 / H1 均值必须等于冻结基线；单站条目中�
 它只比对「应当等于当前版本」的写法——README 徽标、`--ref` 示例、「当前是 vX.Y.Z」、`install.sh` 示例、CHANGELOG 首条；
 历史条目里的旧版本号不参与比对。
 
-CI 在 `.github/workflows/selfcheck.yml`：push / PR / 手动触发均配置 fast 与 audit 两个任务；完整审计覆盖 210 个渲染组合，另跑设计体系回归。长审计使用后台任务，不把前台超时误判为脚本失败。
+CI 在 `.github/workflows/selfcheck.yml`：push / PR / 手动触发均配置 fast 与 audit 两个任务；完整审计覆盖 246 个渲染组合，另跑设计体系回归。长审计使用后台任务，不把前台超时误判为脚本失败。
 ### screenshot.mjs — 多视口 / 多主题全页截图
 
 **用途**：一次拍齐 3 视口 × 2 主题，自动滚动触发懒加载，记录 console 错误与 CLS。
