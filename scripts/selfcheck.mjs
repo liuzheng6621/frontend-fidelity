@@ -525,7 +525,7 @@ else {
   } catch (e) { fail('文档数字', e.message); }
 
   try {
-    const markdown = ['README.md', 'SKILL.md', 'CHANGELOG.md'];
+    const markdown = readdirSync(ROOT).filter((f) => f.endsWith('.md'));
     const walk = (dir) => {
       for (const e of readdirSync(join(ROOT, dir), { withFileTypes: true })) {
         const rel = join(dir, e.name);
