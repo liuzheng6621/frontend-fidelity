@@ -9,12 +9,16 @@
  *   node <skill>/scripts/audit.mjs --url http://localhost:5173/ --expect-text "订单列表"
  *   node <skill>/scripts/audit.mjs --pages pages.txt --themes light,dark --out audit.json
  *   node <skill>/scripts/audit.mjs --url http://localhost:5173/admin --storage-state auth.json
+ *   node <skill>/scripts/audit.mjs --url http://localhost:4173/ --red-flags          # 反模式红旗（warn）
+ *   node <skill>/scripts/audit.mjs --url http://localhost:4173/ --red-flags --strict-red-flags
  *
  * 检查分两级：
  *   error —— 页面坏了（内容为空、横向溢出、坏图、Logo 拉伸、交互元素重叠、
  *            导航失败、axe 的 serious/critical 违规）
  *   warn  —— 需要人工看图确认（文本裁切、点击区过小、字号过小、图标按钮无名字、
- *            axe 的 moderate/minor 违规、CLS 偏高、无障碍降级模式下仍在循环的动效）
+ *            axe 的 moderate/minor 违规、CLS 偏高、无障碍降级模式下仍在循环的动效、
+ *            red-flag-*：anti-slop §八 pre-flight 的可机械判定项，需 --red-flags，
+ *            --strict-red-flags 时升级为 error）
  *
  * 所有检查都是启发式的：报告的是「待确认」，删除任何资源/组件前必须人工核实。
  *
@@ -359,6 +363,212 @@ async function collectStructure(page, ctx) {
   }, ctx);
 }
 
+/**
+ * 红旗检查（--red-flags）：把 references/anti-slop.md §八 pre-flight 里
+ * 可以机械判定的子集沉成退出码——「反模式优先」的正确形态不是把文档前置，
+ * 而是让违规直接变成可执行的失败项。全部是启发式，默认 warn 级只指方向；
+ * --strict-red-flags 升级为 error（与 --design-system / --strict-design-system 同一套语义）。
+ */
+async function collectRedFlags(page, ctx) {
+  return page.evaluate(({ viewport }) => {
+    const issues = [];
+    const push = (check, message, selector) =>
+      issues.push({ level: 'warn', check: `red-flag-${check}`, message, viewport, selector: selector || null });
+    const sel = (el) => {
+      const cls = el.className && typeof el.className === 'string'
+        ? '.' + el.className.trim().split(/\s+/).slice(0, 2).join('.')
+        : '';
+      return `${el.tagName.toLowerCase()}${cls}`;
+    };
+    const visible = (el) => {
+      const r = el.getBoundingClientRect();
+      return r.width > 0 && r.height > 0;
+    };
+
+    // hero 定位：显式命名优先，其次 main / body 的第一个 section
+    const hero =
+      document.querySelector('[class*="hero"], [id*="hero"]') ||
+      document.querySelector('main section') ||
+      document.querySelector('body > section');
+
+    // ---- hero（anti-slop §八「hero」）----
+    const h1 = hero?.querySelector('h1') || document.querySelector('h1');
+    if (hero && h1 && hero.contains(h1) && visible(h1)) {
+      // 块级元素 getClientRects() 只返回一个盒子，行数要用 Range 的每行 rect 数
+      const range = document.createRange();
+      range.selectNodeContents(h1);
+      const lines = new Set(
+        [...range.getClientRects()].filter((r) => r.width > 0 && r.height > 0).map((r) => Math.round(r.top)),
+      ).size;
+      if (lines > 2) {
+        push('hero-h1-lines', `hero 标题有 ${lines} 行（> 2 行）：缩短文案，或加宽容器 / 调小字号`, sel(h1));
+      }
+      const pt = Number.parseFloat(getComputedStyle(hero).paddingTop) || 0;
+      if (pt > 96) {
+        push('hero-top-padding', `hero 顶部内边距 ${Math.round(pt)}px（> 6rem=96px）：内容浮在视口半腰，CTA 容易被顶出首屏`, sel(hero));
+      }
+      const versionHit = (hero.innerText || '').match(/\bv\d+\.\d+(?:\.\d+)?\b/i);
+      if (versionHit) {
+        push('hero-version', `hero 里出现版本号样式的文字 "${versionHit[0]}"：版本号属于 changelog / 页脚，不属于卖点位`, sel(hero));
+      }
+      const cta =
+        hero.querySelector('a[class*="btn"], a[class*="cta"], button[class*="btn"], a[class*="button"], [class*="cta"] a') ||
+        hero.querySelector('a[href], button');
+      if (cta) {
+        const text = (cta.innerText || '').trim().replace(/\s+/g, ' ');
+        const cjk = (text.match(/[\u4e00-\u9fff]/g) || []).length;
+        const latin = (text.replace(/[\u4e00-\u9fff]/g, ' ').match(/[A-Za-z0-9]+/g) || []).length;
+        const words = latin + Math.ceil(cjk / 2); // 中文按 2 字 ≈ 1 词折算
+        if (words > 3) {
+          push('cta-words', `主 CTA 文案 "${text.slice(0, 24)}" 约 ${words} 词（> 3 词）：主 CTA 收进 1–2 词，解释性动作放次级按钮`, sel(cta));
+        }
+      }
+    }
+
+    // ---- 结构与节奏（§八「结构与节奏」）----
+    // 只认真正的导航：nav 元素，或至少含 2 个链接的 header（纯标题头不算导航）
+    const nav =
+      document.querySelector('header nav, nav') ||
+      [...document.querySelectorAll('header')].find((h) => h.querySelectorAll('a').length >= 2) ||
+      null;
+    if (nav && visible(nav)) {
+      const h = nav.getBoundingClientRect().height;
+      // 纵向侧边导航天然高，「导航单行 ≤80px」只约束横向顶部导航：
+      // 链接大多各占一行（行数 ≥ 链接数一半且 ≥2）就判定为侧边栏，跳过
+      const links = [...nav.querySelectorAll('a')].filter(visible);
+      const rows = new Set(links.map((a) => Math.round(a.getBoundingClientRect().top / 8)));
+      const stackedVertical = rows.size >= 2 && rows.size >= links.length * 0.5;
+      if (!stackedVertical && h > 80) {
+        push('nav-height', `导航高度 ${Math.round(h)}px（> 80px）：顶部导航应单行，多行说明菜单项塞得太满`, sel(nav));
+      }
+    }
+    // 三张等大功能卡：grid/flex 容器恰好 3 个等宽子项，每个都是「标题 + 正文」
+    for (const container of document.querySelectorAll('body *')) {
+      if (container.children.length !== 3) continue;
+      if (container.closest('footer, header, nav')) continue;
+      const display = getComputedStyle(container).display;
+      if (!/^(grid|inline-grid|flex|inline-flex)$/.test(display)) continue;
+      const kids = [...container.children];
+      if (!kids.every(visible)) continue;
+      const widths = kids.map((k) => Math.round(k.getBoundingClientRect().width));
+      if (Math.max(...widths) - Math.min(...widths) > 2 || widths[0] < 120) continue;
+      const uniform = kids.every(
+        (k) =>
+          k.querySelector('h1, h2, h3, h4, h5, h6, [class*="title"], [class*="heading"]') &&
+          (k.innerText || '').trim().length > 20,
+      );
+      if (uniform) {
+        push('three-equal-cards', '三张等大功能卡（3 个等宽格子、各带标题+正文）：最高频的模板痕迹，改不对称布局 / bento / 图文交替，或让其中一格换形态', sel(container));
+        break;
+      }
+    }
+    // 长列表（>5 项）只用 <ul> + divide-y
+    for (const list of document.querySelectorAll('ul, ol')) {
+      const items = [...list.children].filter((k) => k.tagName === 'LI');
+      if (items.length <= 5) continue;
+      let divided = 0;
+      for (const li of items) {
+        const s = getComputedStyle(li);
+        const hasTop = Number.parseFloat(s.borderTopWidth) > 0 && s.borderTopStyle !== 'none';
+        const hasBottom = Number.parseFloat(s.borderBottomWidth) > 0 && s.borderBottomStyle !== 'none';
+        if (hasTop || hasBottom) divided++;
+      }
+      if (divided >= items.length - 1) {
+        push('long-list-divide', `${items.length} 项长列表只用 <ul> + 分隔线：超过 5 项换表格 / 卡片 / 折叠分组，并给分页或虚拟滚动`, sel(list));
+        break;
+      }
+    }
+    // 同一意图只有一个标签：导航里出现重复链接文案
+    if (nav) {
+      const seen = new Map();
+      for (const a of nav.querySelectorAll('a')) {
+        const t = (a.innerText || '').trim().toLowerCase();
+        if (!t || t.length > 24) continue;
+        seen.set(t, (seen.get(t) || 0) + 1);
+      }
+      for (const [t, n] of seen) {
+        if (n > 1) {
+          push('duplicate-intent', `导航里同一标签 "${t}" 出现 ${n} 次：同一意图只保留一个入口`, sel(nav));
+          break;
+        }
+      }
+    }
+    // 表单（§八「三把锁与对比度」）：placeholder 不能当标签
+    let phNoLabel = 0;
+    let phFirst = null;
+    for (const inp of document.querySelectorAll('input:not([type="hidden"]), textarea')) {
+      if (!inp.placeholder) continue;
+      if (inp.getAttribute('aria-label') || inp.getAttribute('aria-labelledby')) continue;
+      if (inp.id && document.querySelector(`label[for="${CSS.escape(inp.id)}"]`)) continue;
+      if (inp.closest('label')) continue;
+      phNoLabel++;
+      phFirst = phFirst || sel(inp);
+    }
+    if (phNoLabel) {
+      push('placeholder-as-label', `${phNoLabel} 个表单控件只有 placeholder 当标签（无 label / aria-label）：输入后提示就消失，读屏也拿不到名字`, phFirst);
+    }
+
+    // ---- 动效与工程（§八「动效与工程」）----
+    let hasKeyframes = false;
+    let hasReduceQuery = false;
+    let sheetsReadable = true;
+    const animatedLayout = new Set();
+    const LAYOUT_PROPS = /^(top|right|bottom|left|width|height|margin(-top|-right|-bottom|-left)?|padding(-top|-right|-bottom|-left)?)$/;
+    for (const sheet of document.styleSheets) {
+      let rules;
+      try {
+        rules = sheet.cssRules;
+      } catch {
+        sheetsReadable = false; // 跨域样式表读不了，判不了就不硬判
+        continue;
+      }
+      const walk = (list) => {
+        for (const r of list) {
+          const name = r.constructor?.name || '';
+          if (name === 'CSSKeyframesRule') {
+            hasKeyframes = true;
+            for (const kf of r.cssRules) {
+              for (let i = 0; i < (kf.style?.length || 0); i++) {
+                const prop = kf.style[i];
+                if (LAYOUT_PROPS.test(prop)) animatedLayout.add(`${r.name} 改 ${prop}`);
+              }
+            }
+            continue;
+          }
+          if (name === 'CSSMediaRule' && /prefers-reduced-motion/.test(r.conditionText || r.media?.mediaText || '')) {
+            hasReduceQuery = true;
+          }
+          if (r.cssRules) walk(r.cssRules);
+        }
+      };
+      walk(rules);
+    }
+    if (sheetsReadable && hasKeyframes && !hasReduceQuery) {
+      push('no-reduced-motion', '定义了 @keyframes 动画但全站没有 prefers-reduced-motion 媒体查询：动效敏感用户关不掉它', null);
+    }
+    if (animatedLayout.size) {
+      push('animated-layout-props', `动画直接改布局属性（${[...animatedLayout].slice(0, 4).join('；')}）：每帧触发重排，换 transform / opacity`, null);
+    }
+    {
+      let inlineJs = '';
+      for (const s of document.querySelectorAll('script:not([src])')) inlineJs += s.textContent || '';
+      if (/addEventListener\(\s*['"]scroll['"]/.test(inlineJs)) {
+        push('scroll-listener', "内联脚本用 addEventListener('scroll') 驱动行为：换 IntersectionObserver 或 position: sticky", null);
+      }
+    }
+    let infinite = 0;
+    for (const el of document.querySelectorAll('body *')) {
+      const s = getComputedStyle(el);
+      if (s.animationName !== 'none' && /infinite/.test(s.animationIterationCount)) infinite++;
+    }
+    if (infinite > 8) {
+      push('infinite-flood', `${infinite} 个元素在无限循环动画（> 8 处）：无限循环铺满屏幕会抢正文注意力，跑马灯 ≤ 1 处`, null);
+    }
+
+    return issues;
+  }, ctx);
+}
+
 /** 在「减少动效」偏好下仍然无限循环的动效：这类动效没有承载状态变化。 */
 async function collectMotion(page) {
   return page.evaluate(() => {
@@ -420,10 +630,12 @@ async function main() {
   });
 
   if (args.help) {
-    console.log('用法：node scripts/audit.mjs --url <url> [--themes light,dark] [--design-system [config.json]] [--strict-design-system]\n' +
+    console.log('用法：node scripts/audit.mjs --url <url> [--themes light,dark] [--design-system [config.json]] [--strict-design-system] [--red-flags] [--strict-red-flags]\n' +
       '  --design-system         检查字号/间距/圆角/阴影，默认仅警告\n' +
       '  --design-system <json>  使用已有项目的设计体系配置\n' +
       '  --strict-design-system 把设计体系警告升级为错误（需启用 --design-system）\n' +
+      '  --red-flags             红旗检查：anti-slop §八 pre-flight 的可机械判定项（hero/结构/表单/动效），默认仅警告\n' +
+      '  --strict-red-flags      把红旗警告升级为错误（需启用 --red-flags）\n' +
       '完整参数与配置结构见 docs/scripts.md。');
     return;
   }
@@ -439,6 +651,13 @@ async function main() {
     if (strictDesignSystem && !designSystem) throw new Error('--strict-design-system 需要同时启用 --design-system');
   } catch (e) {
     console.error(`设计体系配置错误：${e.message}`);
+    process.exitCode = 2;
+    return;
+  }
+  const wantRedFlags = flag(args, 'red-flags');
+  const strictRedFlags = flag(args, 'strict-red-flags');
+  if (strictRedFlags && !wantRedFlags) {
+    console.error('--strict-red-flags 需要同时启用 --red-flags');
     process.exitCode = 2;
     return;
   }
@@ -502,6 +721,8 @@ async function main() {
       reducedMotion,
       designSystem,
       strictDesignSystem,
+      redFlags: wantRedFlags,
+      strictRedFlags,
     },
     axeVersion: null,
     targets: [],
@@ -542,6 +763,10 @@ async function main() {
             await goto(page, url);
             if (waitMs) await page.waitForTimeout(waitMs);
             t.issues = await collectStructure(page, { viewport: v, expectText });
+            if (wantRedFlags) {
+              const rf = await collectRedFlags(page, { viewport: v });
+              t.issues.push(...(strictRedFlags ? rf.map((i) => ({ ...i, level: 'error' })) : rf));
+            }
             if (designSystem) {
               const ds = await collectDesignSystem(page, designSystem, strictDesignSystem);
               t.designSystem = ds.stats;
@@ -620,7 +845,7 @@ async function main() {
     );
     const show = [
       ...t.issues.filter((i) => i.level === 'error').slice(0, 6),
-      ...t.issues.filter((i) => i.level === 'warn' && i.check.startsWith('design-system-')),
+      ...t.issues.filter((i) => i.level === 'warn' && (i.check.startsWith('design-system-') || i.check.startsWith('red-flag-'))),
       ...(t.axe || [])
         .filter((v) => AXE_LEVEL[v.impact] === 'error')
         .slice(0, 4)

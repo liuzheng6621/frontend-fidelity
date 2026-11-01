@@ -299,7 +299,7 @@ node scripts/scaffold.mjs --persona rational --export tailwind,antd,element  # �
 - `references/anti-slop.md` — **反模板清单**（来源：design-taste-frontend 的 1,206 行规则集，规则重写，未复制原文）：
   Design Read 一句话、**三档旋钮**（VARIANCE / MOTION / DENSITY，含与三套人格的对照值）、官方设计系统怎么选、
   hero 四条硬规则、布局族与 Z 字上限、**三把锁**（主题·色·形状）、图片优先级、**8 组 AI tell**（编号 eyebrow /
-  装饰状态点 / 斜体降部 / 假预览 / 长列表评分条 / 动效）、中文站改写条款、**34 条 pre-flight**。
+  装饰状态点 / 斜体降部 / 假预览 / 长列表评分条 / 动效）、中文站改写条款、**38 条 pre-flight**。
   **从 0 生成时，第 2 步（生成骨架）之后、第 6 步（验收）之前都要过一遍。**
 - `references/review-rubric.md` — 交付前逐项勾的验收清单（含脚本命令与判定标准）。
 - `README.md` — 脚本全部参数与常见问题。

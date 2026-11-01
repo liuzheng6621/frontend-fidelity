@@ -618,6 +618,71 @@ def hex_of(rgb) -> str:
     return "#" + "".join(f"{int(round(_clamp(c) * 255)):02x}" for c in rgb[:3])
 
 
+def _mix(c1, c2, t: float):
+    """线性混合两个 sRGB 颜色，t=0 全 c1、t=1 全 c2。"""
+    return tuple(c1[i] * (1 - t) + c2[i] * t for i in range(3))
+
+
+def _quantized_contrast(rgb, fixed_rgb) -> float:
+    """量化到 8 位 hex 之后的实测对比度——建议值必须量化后仍达标，不然就是骗人的。"""
+    return contrast(parse_color(hex_of(rgb))[:3], fixed_rgb)
+
+
+def _fix_toward(base_rgb, fixed_rgb, required):
+    """
+    把 base 向黑或白（取对 fixed 对比度更大的端点，即「加深」或「提亮」）二分混到
+    刚好达到 required。二分直接在量化后的 hex 上判定，保证返回的色值落地就达标；
+    返回 (hex, ratio, 方向词)；端点也不达标时返回 None
+    （黑白端点对任意背景的对比度 max ≥ √21 ≈ 4.58，AA 4.5 内理论不会发生）。
+    """
+    black, white = (0.0, 0.0, 0.0), (1.0, 1.0, 1.0)
+    if contrast(black, fixed_rgb) >= contrast(white, fixed_rgb):
+        extreme, direction = black, "加深"
+    else:
+        extreme, direction = white, "提亮"
+    base_hex = hex_of(base_rgb)
+    if _quantized_contrast(_mix(base_rgb, extreme, 1.0), fixed_rgb) < required:
+        return None
+    lo, hi = 0.0, 1.0
+    for _ in range(32):
+        mid = (lo + hi) / 2
+        if _quantized_contrast(_mix(base_rgb, extreme, mid), fixed_rgb) >= required:
+            hi = mid
+        else:
+            lo = mid
+    c = _mix(base_rgb, extreme, hi)
+    hx = hex_of(c)
+    if hx == base_hex:
+        # 量化把结果顶回了原色（连续解离达标只差一丝）：继续向端点步进，
+        # 直到色值真的变了且量化后达标——建议和输入同色等于没建议。
+        t = hi
+        while t < 1.0:
+            t = min(1.0, t + 0.005)
+            c2 = _mix(base_rgb, extreme, t)
+            hx2 = hex_of(c2)
+            if hx2 != base_hex and _quantized_contrast(c2, fixed_rgb) >= required:
+                hx, c = hx2, c2
+                break
+    return hx, round(_quantized_contrast(c, fixed_rgb), 2), direction
+
+
+def suggest_fix(fg_rgb, bg_rgb, required):
+    """
+    不达标时给「可以直接抄」的目标色：前景加深/提亮到刚好达标，
+    或前景不动、背景加深/提亮到刚好达标。二分只调明度不改色相，
+    建议值是下限——想留余量可以再多混一点。
+    """
+    fg_fix = _fix_toward(tuple(fg_rgb), tuple(bg_rgb), required)
+    bg_fix = _fix_toward(tuple(bg_rgb), tuple(fg_rgb), required)
+    if not fg_fix or not bg_fix:
+        return None
+    return {
+        "fgHex": fg_fix[0], "fgRatio": fg_fix[1], "fgDirection": fg_fix[2],
+        "bgHex": bg_fix[0], "bgRatio": bg_fix[1], "bgDirection": bg_fix[2],
+        "required": required,
+    }
+
+
 def self_test() -> int:
     cases = [
         ("#fff", (1, 1, 1)),
@@ -646,6 +711,19 @@ def self_test() -> int:
     # WCAG 经典示例 #777 on #fff ≈ 4.48（临界不通过）
     r2 = contrast(parse_color("#777")[:3], parse_color("#fff")[:3])
     print(f"      #777 on #fff = {r2:.2f}（AA 正文 4.5 需略深一点）")
+    # 建议色必须真的达标：#777 on #fff → 前景应给出 ≈#767676（4.5+:1）
+    fix = suggest_fix(parse_color("#777")[:3], parse_color("#fff")[:3], AA_NORMAL)
+    ok_fix = (
+        fix is not None
+        and contrast(parse_color(fix["fgHex"])[:3], parse_color("#fff")[:3]) >= AA_NORMAL
+        and contrast(parse_color("#777")[:3], parse_color(fix["bgHex"])[:3]) >= AA_NORMAL
+    )
+    print(
+        f"{'ok ' if ok_fix else 'FAIL'} suggest_fix #777 on #fff → "
+        f"前景 {fix and fix['fgDirection']}至 {fix and fix['fgHex']}（{fix and fix['fgRatio']}:1）"
+        f" / 背景 {fix and fix['bgDirection']}至 {fix and fix['bgHex']}（{fix and fix['bgRatio']}:1）"
+    )
+    bad += 0 if ok_fix else 1
     print("self-test:", "PASS" if bad == 0 else f"{bad} FAILED")
     return 0 if bad == 0 else 1
 
@@ -715,6 +793,13 @@ def main() -> int:
         r = contrast(fgc[:3], bgc[:3])
         verdict = "PASS" if r >= AA_NORMAL else "FAIL"
         print(f"{verdict} 对比度 {r:.2f}:1  {hex_of(fgc)} on {hex_of(bgc)}（AA 正文要求 {AA_NORMAL}）")
+        if r < AA_NORMAL:
+            fix = suggest_fix(fgc[:3], bgc[:3], AA_NORMAL)
+            if fix:
+                print(
+                    f"  ↳ 建议：前景{fix['fgDirection']}至 {fix['fgHex']}（实测 {fix['fgRatio']}:1）；"
+                    f"或背景{fix['bgDirection']}至 {fix['bgHex']}（前景不变，{fix['bgRatio']}:1）"
+                )
         return 0 if r >= AA_NORMAL else 1
 
     pairs = [] if args.tokens_only else same_element_pairs(text, light, dark, files)
@@ -740,13 +825,18 @@ def main() -> int:
         required = AA_NORMAL if p["mode"] in ("token", "element", "on") else AA_UI
         if args.strict:
             required = AA_NORMAL
-        results.append({**p, "ratio": round(r, 2), "required": required, "pass": r >= required})
+        entry = {**p, "ratio": round(r, 2), "required": required, "pass": r >= required}
+        if not entry["pass"]:
+            # 失败必须带「下一步做什么」：给出可直接抄的达标目标色
+            entry["fix"] = suggest_fix(p["fg_rgb"], p["bg_rgb"], required)
+        results.append(entry)
 
     results.sort(key=lambda x: x["ratio"])
     failures = [r for r in results if not r["pass"]]
 
     print(f"\n参与判定的配色对 {len(results)} 组（按对比度升序）：")
     shown = results if args.all else results[:60]
+    fix_count = 0
     for r in shown:
         tag = "info" if r.get("soft") else ("PASS" if r["pass"] else "FAIL")
         fg = " / ".join(r["fg"]) if isinstance(r["fg"], tuple) else str(r["fg"])
@@ -754,6 +844,13 @@ def main() -> int:
             f"  {tag:4s} {r['ratio']:5.2f}:1 (需 {r['required']})  "
             f"{hex_of(r['fg_rgb'])} on {hex_of(r['bg_rgb'])}  [{r['mode']}] {fg}"
         )
+        fix = r.get("fix")
+        if fix and fix_count < 20:
+            print(
+                f"        ↳ 建议：前景{fix['fgDirection']}至 {fix['fgHex']}（{fix['fgRatio']}:1）；"
+                f"或背景{fix['bgDirection']}至 {fix['bgHex']}（前景不变，{fix['bgRatio']}:1）"
+            )
+            fix_count += 1
     if len(results) > 60:
         print(f"  ... 另有 {len(results) - 60} 组未显示（--all 看全部）")
 
@@ -762,6 +859,7 @@ def main() -> int:
     print(f"\n合计：{len(results)} 组，{len(failures)} 组未达标{tail}")
     if failures:
         print("优先修最低的几组；正文永远按 4.5 要求，大标题/图标才可放宽到 3.0。")
+        print("每条 FAIL 下的「↳ 建议」是二分算出的刚好达标色（只调明度不改色相），可直接抄，留余量就再多混一点。")
         print("深色主题不要靠「反色」偷懒——两套主题要各自校验。")
 
     if args.json_out:
@@ -781,6 +879,7 @@ def main() -> int:
                             "required": r["required"],
                             "pass": r["pass"],
                             "dark": r["dark"],
+                            "fix": r.get("fix"),
                         }
                         for r in results
                     ],

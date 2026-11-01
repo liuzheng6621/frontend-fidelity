@@ -1,0 +1,629 @@
+{
+  "note": "冻结基线 + 关键实测值的结构化查询层。给 scripts/lookup.mjs 用：一行命令拿到「值 + 判据 + 出处」，不必把 618 行的 design-evidence.md 读进上下文。每条必须带 source.anchor（源文件里能逐字定位的片段，比对时忽略 * 号）；`node scripts/lookup.mjs --verify` 逐条回定位，selfcheck 的「基线漂移」门会跑它。改了源 md 导致行号漂移 → 跑 `node scripts/lookup.mjs --fix` 更新行号；锚点文字本身变了 → 必须人工核对数值后同步改这里，不许只改锚点。",
+  "createdAt": "2026-11-01",
+  "baseline": {
+    "sites": 18,
+    "definition": "A 组 18 站（12 营销/产品 + 6 内容陈列）。2026-10-27 新增的站只并入计数与单站条目，不重算跨站统计——数字冻结在原基线上，避免历史结论随样本漂移。",
+    "frozenMeans": {
+      "bodyFontPx": 14.7,
+      "h1FontPx": 69.8
+    }
+  },
+  "entries": [
+    {
+      "id": "body-font-size",
+      "topic": "正文字号（18 站冻结基线）",
+      "aliases": [
+        "正文字号",
+        "body font size",
+        "14.7",
+        "字号均值",
+        "正文均值",
+        "body size"
+      ],
+      "value": "均值 14.7px；中位数 14.0px（18 值：10,12,12,13,13,13,14,14,14,14,15,15,16,16,16,18,20,20）",
+      "verdict": "营销/产品页正文 14–16px；内容站可压到 13–14（站酷 14px 承担 934 处，靠字重与层级提密度）；后台 13–14px。低于 13 是事故不是风格。",
+      "status": "frozen-18",
+      "source": {
+        "file": "references/design-evidence.md",
+        "line": 334,
+        "section": "§二 跨站统计",
+        "anchor": "正文字号：均值 14.7px"
+      }
+    },
+    {
+      "id": "body-line-height",
+      "topic": "正文行高比",
+      "aliases": [
+        "行高",
+        "line-height",
+        "1.42",
+        "正文行高"
+      ],
+      "value": "均值 1.42（区间 1.15–1.60）",
+      "verdict": "正文行高 1.4–1.6；内容密集站也不低于 1.35；大标题另算（见 h1-line-height）。",
+      "status": "frozen-18",
+      "source": {
+        "file": "references/design-evidence.md",
+        "line": 334,
+        "section": "§二 跨站统计",
+        "anchor": "正文行高比均值 1.42（1.15–1.60）"
+      }
+    },
+    {
+      "id": "h1-font-size",
+      "topic": "H1 字号（18 站冻结基线）",
+      "aliases": [
+        "h1",
+        "主标题",
+        "大标题",
+        "69.8",
+        "hero 标题"
+      ],
+      "value": "均值 69.8px（区间 36–140；18 站里 15 站有 h1）",
+      "verdict": "营销 hero 56–96px 常见；目录/内容站 36–48 是常规做法（StyleKit 36、Muzli 48、站酷 40）；后台绝不能照搬营销站大标题。",
+      "status": "frozen-18",
+      "source": {
+        "file": "references/design-evidence.md",
+        "line": 335,
+        "section": "§二 跨站统计",
+        "anchor": "H1：均值 69.8px"
+      }
+    },
+    {
+      "id": "h1-line-height",
+      "topic": "H1 行高比",
+      "aliases": [
+        "标题行高",
+        "h1 line-height",
+        "0.80"
+      ],
+      "value": "0.80–1.51（大标题压到小于 1 的行高是普遍做法；即时设计 40/1.51 是另一端）",
+      "verdict": "展示型大标题行高 0.9–1.1；只有标题本身当正文用时才放到 1.5。",
+      "status": "frozen-18",
+      "source": {
+        "file": "references/design-evidence.md",
+        "line": 335,
+        "section": "§二 跨站统计",
+        "anchor": "行高比 0.80–1.51"
+      }
+    },
+    {
+      "id": "h1-body-ratio",
+      "topic": "H1 / 正文 字号比",
+      "aliases": [
+        "字号比",
+        "标题正文比",
+        "2.3",
+        "8.8"
+      ],
+      "value": "2.3 – 8.8 倍（营销站语境；内容站下限下探：站酷 40/14=2.9、StyleKit 36/16=2.25）",
+      "verdict": "页面主角不是标题时（目录站、图墙、后台），标题退回 2–3 倍；营销 hero 才用 4–8 倍。",
+      "status": "frozen-18",
+      "source": {
+        "file": "references/design-evidence.md",
+        "line": 336,
+        "section": "§二 跨站统计",
+        "anchor": "H1 / 正文 字号比：2.3 – 8.8 倍"
+      }
+    },
+    {
+      "id": "theme-mix",
+      "topic": "主题分布（浅色/深色）",
+      "aliases": [
+        "深色",
+        "浅色",
+        "dark",
+        "light",
+        "主题"
+      ],
+      "value": "浅色 14 / 深色 3 / 黑白交替 1（Wegic）",
+      "verdict": "浅色仍是企业站默认，深色是差异化选择而非标配；黑白交替是产品站叙事手法，对后台没有参考价值。",
+      "status": "frozen-18",
+      "source": {
+        "file": "references/design-evidence.md",
+        "line": 332,
+        "section": "§二 跨站统计",
+        "anchor": "浅色 14 / 深色 3 / 黑白交替 1"
+      }
+    },
+    {
+      "id": "webfont-usage",
+      "topic": "webfont 使用率",
+      "aliases": [
+        "webfont",
+        "@font-face",
+        "字体加载",
+        "系统栈"
+      ],
+      "value": "14 站里 11 站自带 webfont；4 个零 @font-face 的全是中文站（即时设计、UI 世界、站酷、UI Notes）",
+      "verdict": "中文 webfont 动辄几 MB，中文工具站/内容站把首屏速度排在品牌字前面——这是中文站才成立的取舍，英文站照抄会失去个性。中文渲染交给 PingFang/微软雅黑兜底。",
+      "status": "frozen-18",
+      "source": {
+        "file": "references/design-evidence.md",
+        "line": 338,
+        "section": "§二 跨站统计",
+        "anchor": "14 站里 11 站自带 webfont"
+      }
+    },
+    {
+      "id": "mono-second-font",
+      "topic": "等宽第二字体",
+      "aliases": [
+        "mono",
+        "等宽",
+        "第二字体"
+      ],
+      "value": "第二字体是等宽（mono）的有 6/12（Suisse Intl Mono、Geist Mono、IBM Plex Mono、TheGoodMonolith、Berkeley Mono、Fragment Mono）",
+      "verdict": "mono 用途统一：编号、标签、元信息、版本号、时间戳。另一派用手写/衬线做批注层（Wegic Damion、Muzli Instrument Serif 只当刊头）。",
+      "status": "frozen-18",
+      "source": {
+        "file": "references/design-evidence.md",
+        "line": 342,
+        "section": "§二 跨站统计",
+        "anchor": "第二字体是等宽（mono）的有 6/12"
+      }
+    },
+    {
+      "id": "font-trio",
+      "topic": "三件套字体分工（StyleKit）",
+      "aliases": [
+        "三件套",
+        "衬线标题",
+        "字体分工",
+        "playfair"
+      ],
+      "value": "衬线写标题、无衬线排正文、等宽只做标签与数值（Playfair Display + Albert Sans + Fragment Mono）",
+      "verdict": "中文标题没有中文衬线兜底会落系统宋体，复现时必须补 Songti SC 与 Source Han Serif SC。",
+      "status": "site-detail",
+      "source": {
+        "file": "references/design-evidence.md",
+        "line": 345,
+        "section": "§二 跨站统计",
+        "anchor": "衬线写标题、无衬线排正文、等宽只做标签与数值"
+      }
+    },
+    {
+      "id": "spacing-frequency",
+      "topic": "间距频次与基数",
+      "aliases": [
+        "间距",
+        "spacing",
+        "gap",
+        "基数 4",
+        "间距频次"
+      ],
+      "value": "16px(7) ≈ 8px(7) > 4px(4) ≈ 12px(4) > 20·6·24(各 2–3)；Wegic gap 4px 出现 38 次",
+      "verdict": "间距基数是 4。派生值 6.4/7.47/11.2 来自缩放系数而非手写像素——学节奏别学小数，按 13 的倍数落盘会得到没法标注的值（即时设计反例：22.2857/30.797/44.564）。",
+      "status": "frozen-18",
+      "source": {
+        "file": "references/design-evidence.md",
+        "line": 348,
+        "section": "§二 跨站统计",
+        "anchor": "间距频次：16px(7) ≈ 8px(7) > 4px(4) ≈ 12px(4)"
+      }
+    },
+    {
+      "id": "radius-dual-track",
+      "topic": "圆角双轨制",
+      "aliases": [
+        "圆角",
+        "radius",
+        "双轨",
+        "胶囊",
+        "border-radius"
+      ],
+      "value": "频次：50%(6，头像/圆形) → 2px(4) → 24px(4) → 4px(3) ≈ 9999px(3) ≈ 999px(3) ≈ 50px(3)。双轨制：小控件 2–8px 方一点，胶囊 999/9999px 用于标签与 CTA",
+      "verdict": "圆角必须一眼看出内外层级；同一语义用两个值才是乱，档多不等于乱。",
+      "status": "frozen-18",
+      "source": {
+        "file": "references/design-evidence.md",
+        "line": 355,
+        "section": "§二 跨站统计",
+        "anchor": "双轨制：小控件 2–8px 方一点"
+      }
+    },
+    {
+      "id": "radius-ladder-zcool",
+      "topic": "圆角档位范例：站酷六档",
+      "aliases": [
+        "站酷圆角",
+        "六档",
+        "4/8/10/12/16/24"
+      ],
+      "value": "4/8/10/12/16/24 六档，每档有明确归属：输入 4、按钮描边 8、主按钮 10、卡 12、胶囊 16、模态 24",
+      "verdict": "内容社区的胶囊用 16 而不是 999——要一点硬度，不做气泡感。",
+      "status": "site-detail",
+      "source": {
+        "file": "references/design-evidence.md",
+        "line": 359,
+        "section": "§二 跨站统计",
+        "anchor": "六档（4/8/10/12/16/24）"
+      }
+    },
+    {
+      "id": "radius-ladder-uinotes",
+      "topic": "圆角档位范例：UI Notes 随盒子变大",
+      "aliases": [
+        "ui notes 圆角",
+        "随盒子变大",
+        "2/4/6/16/20/24"
+      ],
+      "value": "2/4/6/16/20/24 六档线性阶梯：促销小钮 2 → 搜索框 4 → 信息胶囊 6 → 截图槽 16 → 登录胶囊 20（=半高全圆）→ 应用图标 24（80 的 30%）",
+      "verdict": "没有一档是随手写的 8px，也没有一档跳级。",
+      "status": "site-detail",
+      "source": {
+        "file": "references/design-evidence.md",
+        "line": 363,
+        "section": "§二 跨站统计",
+        "anchor": "2 / 4 / 6 / 16 / 20 / 24 六档，随盒子变大"
+      }
+    },
+    {
+      "id": "radius-ladder-wegic",
+      "topic": "圆角档位范例：Wegic 单一主力",
+      "aliases": [
+        "wegic 圆角",
+        "12px",
+        "主力档"
+      ],
+      "value": "12px(48 次) 单一主力 → 20px 暗卡 → 9999 标签 → 58 大媒体框",
+      "verdict": "一个主力档吃掉大多数场景，是比六档更省事的分工。",
+      "status": "site-detail",
+      "source": {
+        "file": "references/design-evidence.md",
+        "line": 356,
+        "section": "§二 跨站统计",
+        "anchor": "12px(48 次) 单一主力"
+      }
+    },
+    {
+      "id": "radius-anti-pattern",
+      "topic": "圆角反例：无递进的多档",
+      "aliases": [
+        "圆角反例",
+        "七档",
+        "即时设计圆角"
+      ],
+      "value": "即时设计七档圆角（7.43 / 8 / 10 / 11.14 / 12 / 13 / 14.86 / 20 / 22.29 / 1000）没有递进关系，来自 em 缩放",
+      "verdict": "档位之间要能一眼看出层级；小数档没有递进关系就只剩记忆成本。",
+      "status": "site-detail",
+      "source": {
+        "file": "references/design-evidence.md",
+        "line": 357,
+        "section": "§二 跨站统计",
+        "anchor": "七档圆角（7.43 / 8 / 10 / 11.14 / 12 / 13 / 14.86 / 20 / 22.29 / 1000）没有递进关系"
+      }
+    },
+    {
+      "id": "radius-right-angle",
+      "topic": "直角派（StyleKit）",
+      "aliases": [
+        "直角",
+        "0 圆角",
+        "brutalist"
+      ],
+      "value": "陈列区一律 0（卡片/输入框/chips/统计格/色板条），圆角只留给控件与圆形图标钮（6px / 50%）",
+      "verdict": "直角成立的前提是内容自己够整齐（固定 4:3 预览 + 固定文本区高度），否则直角会把参差放大成排版事故。",
+      "status": "site-detail",
+      "source": {
+        "file": "references/design-evidence.md",
+        "line": 361,
+        "section": "§二 跨站统计",
+        "anchor": "直角派（StyleKit）是第五种做法"
+      }
+    },
+    {
+      "id": "container-width",
+      "topic": "容器宽与正文栏宽",
+      "aliases": [
+        "容器宽",
+        "版心",
+        "栏宽",
+        "1440",
+        "max-width"
+      ],
+      "value": "1440 视口下主内容 1250–1450px；正文段落栏宽收在 600–800px",
+      "verdict": "Wegic 用标准 max-w-7xl=1280+32 内边距最省事；即时设计 1277 卡片贴满——「卡片即页面」的产品站做法。",
+      "status": "frozen-18",
+      "source": {
+        "file": "references/design-evidence.md",
+        "line": 365,
+        "section": "§二 跨站统计",
+        "anchor": "1440 视口下主内容 1250–1450px，正文段落栏宽收在 600–800px"
+      }
+    },
+    {
+      "id": "image-lazy",
+      "topic": "图片懒加载",
+      "aliases": [
+        "lazy",
+        "懒加载",
+        "loading"
+      ],
+      "value": "loading=\"lazy\" 近乎全量（165 张里 164 张）",
+      "verdict": "不是可选优化，是及格线。",
+      "status": "frozen-18",
+      "source": {
+        "file": "references/design-evidence.md",
+        "line": 368,
+        "section": "§二 跨站统计",
+        "anchor": "loading=\"lazy\""
+      }
+    },
+    {
+      "id": "animation-count",
+      "topic": "动画数量",
+      "aliases": [
+        "动画",
+        "动效数量",
+        "keyframes",
+        "中位数 1"
+      ],
+      "value": "0–34，中位数 1；Wegic 桌面 8 个、移动 0 个",
+      "verdict": "动效克制的站并不显得低级；移动端做减法才是及格线。动画承载信息（如即时设计三屏视频轮播）才值得多，纯装饰不值。",
+      "status": "frozen-18",
+      "source": {
+        "file": "references/design-evidence.md",
+        "line": 369,
+        "section": "§二 跨站统计",
+        "anchor": "动画数量 0–34"
+      }
+    },
+    {
+      "id": "shadow-schools",
+      "topic": "阴影五派",
+      "aliases": [
+        "阴影",
+        "shadow",
+        "边框",
+        "发丝环",
+        "层级"
+      ],
+      "value": "①边框派（20 边框/2 阴影）②发丝圈+内阴影（0 0 1px 1px ×24，Wegic）③负扩散阴影+发丝环（0 16px 16px -16px ×28，即时设计；大阴影 0 50px 100px -20px 只给浮起设备截图）④图墙零阴影（UI 世界全站 1 处；站酷最高频阴影只给浮层）⑤chrome 零阴影、展品才硬阴影（StyleKit 6px 6px 0 0 #000 长在卡片内部；UI Notes 全站 0 阴影 0 边框）",
+      "verdict": "每派都好，混着用（每张卡又有边框又有阴影）才是廉价感来源。陈列区的层次由版式给，不由阴影给；图墙靠比例而不是盒子分栏。",
+      "status": "frozen-18",
+      "source": {
+        "file": "references/design-evidence.md",
+        "line": 373,
+        "section": "§二 跨站统计",
+        "anchor": "阴影用法分两派"
+      }
+    },
+    {
+      "id": "grid-density",
+      "topic": "图墙网格密度四派",
+      "aliases": [
+        "网格",
+        "密度",
+        "图墙",
+        "grid",
+        "列距"
+      ],
+      "value": "密派：UI 世界 5 列×300、gap 0（间距来自卡片 padding 12）、25 张/页；疏派：站酷 4 列×283、列距 24 行距 36、8 张/屏；活预览墙：StyleKit 3 列×373、gap 32、容器 1184；无壳裁切：UI Notes 3 列×440、列距 28、每列塞 1248 宽截图带只露 1.8 张",
+      "verdict": "同一设计系统可以有两种密度，但同一屏不能混；图墙列距 ≥12px 否则缩略图糊成一片；卡里东西越多列距越大（24→32）；裁切处必须给出口（「+3」或 hover 提示）。同期后台列表是 24px gutter + 每行 8–10 条。",
+      "status": "frozen-18",
+      "source": {
+        "file": "references/design-evidence.md",
+        "line": 387,
+        "section": "§二 跨站统计",
+        "anchor": "网格密度第一次进入统计"
+      }
+    },
+    {
+      "id": "chinese-text-floor",
+      "topic": "中文内容站字号与灰度下限",
+      "aliases": [
+        "中文下限",
+        "12px",
+        "灰度",
+        "6b6b6b",
+        "字号下限"
+      ],
+      "value": "正文级文字不要低于 14px、次级不要浅于 #6b6b6b（4.9:1）。反面实测：UI 世界副行 12/24 且 #7f7f7f 只有 3.9:1；站酷 #888=3.54:1、#999=2.85:1",
+      "verdict": "内容站要压密度，靠压缩字重与层级而不是字号；12px 中文副行是可读性临界。",
+      "status": "rule",
+      "source": {
+        "file": "references/design-evidence.md",
+        "line": 400,
+        "section": "§二 跨站统计",
+        "anchor": "正文级文字不要低于 14px、次级不要浅于"
+      }
+    },
+    {
+      "id": "h1-absent-catalog",
+      "topic": "目录站无 H1 模式",
+      "aliases": [
+        "无 h1",
+        "没有 h1",
+        "语义标题",
+        "目录站"
+      ],
+      "value": "UI 世界没有 h1（h2 被拿去装导航）；UI Notes 连语义标题都删了，最大的字是一个 div；猫叫兽目录页无 h1（子页 76/1.0/950）",
+      "verdict": "目录站不需要海报级主标，页面主角是那些卡。但「删语义」是反面：视觉可以没有大标题，h1 语义应该在（审计门会抓）。",
+      "status": "site-detail",
+      "source": {
+        "file": "references/design-evidence.md",
+        "line": 335,
+        "section": "§二 跨站统计",
+        "anchor": "UI Notes 连语义标题都删了"
+      }
+    },
+    {
+      "id": "admin-b-table",
+      "topic": "后台三站对照（B 组）",
+      "aliases": [
+        "后台",
+        "shadcn",
+        "linear",
+        "cal.com",
+        "表格行高",
+        "53"
+      ],
+      "value": "shadcn dashboard：正文 18/1.56、th 14/1.43/500、td 14/1.43/400、表格行高 53px、控件高 32px、圆角 8·4·10·14、阴影 7/边框 6 并存；linear：dark #08090a、正文 15/1.6、控件 28–32、侧栏 232px、阴影 2/边框 20（边框优先）；cal.com：light #f4f4f4、正文 14/1.4、控件 34",
+      "verdict": "后台同行区间：正文 13–14、控件 32、表格行高 53。营销站的 96px 大标题搬到管理端就是错的。",
+      "status": "site-detail",
+      "source": {
+        "file": "references/design-evidence.md",
+        "line": 193,
+        "section": "§一 B 组表",
+        "anchor": "ui.shadcn.com/examples/dashboard"
+      }
+    },
+    {
+      "id": "control-height",
+      "topic": "控件高度固定值",
+      "aliases": [
+        "控件高",
+        "控件高度",
+        "按钮高度",
+        "44",
+        "触控"
+      ],
+      "value": "桌面后台 28–32px（linear 28/32、shadcn 32），移动触控 ≥44px",
+      "verdict": "三档密度里选档：compact 32 / regular 36–40 / comfortable 44–48（见 density-tiers）。移动端 40 略欠触控下限，靠点击区加 padding 补。",
+      "status": "rule",
+      "source": {
+        "file": "references/design-evidence.md",
+        "line": 411,
+        "section": "§三 可以直接抄的招式",
+        "anchor": "桌面后台 28–32px（linear 28/32、shadcn 32），移动触控 ≥44px"
+      }
+    },
+    {
+      "id": "density-tiers",
+      "topic": "三档密度（组件规格）",
+      "aliases": [
+        "密度",
+        "compact",
+        "regular",
+        "comfortable",
+        "档位"
+      ],
+      "value": "compact：控件 32 / 内边距 0 12 / 正文 13 / 表格行高 44（管理端、数据密集页）；regular：36–40 / 0 16 / 14 / 48–53（通用产品页）；comfortable：44–48 / 0 20 / 15–16 / 60+（消费端、营销页）",
+      "verdict": "同一页面只用一档。32 的输入框配 48 的按钮是最常见的「没对齐」来源。组件内边距 ≈ 控件高的一半（32 高用 0 12，40 用 0 16）。",
+      "status": "spec",
+      "source": {
+        "file": "references/component-spec.md",
+        "line": 10,
+        "section": "三档密度表",
+        "anchor": "compact | 32 | 0 12 | 13 | 44"
+      }
+    },
+    {
+      "id": "auth-form-width",
+      "topic": "认证页表单列宽（Vercel signup）",
+      "aliases": [
+        "表单列宽",
+        "登录页",
+        "注册页",
+        "auth",
+        "390",
+        "326"
+      ],
+      "value": "表单列宽：桌面 390px / 移动 326px（视口 − 32）",
+      "verdict": "登录类页面是一根窄列，不是居中卡片。控件高全站单一 40 档（没有 sm/md/lg）。",
+      "status": "site-detail",
+      "source": {
+        "file": "references/vercel-auth.md",
+        "line": 19,
+        "section": "关键尺寸表",
+        "anchor": "表单列宽 | 390 | 326（视口 − 32）"
+      }
+    },
+    {
+      "id": "login-linear",
+      "topic": "登录页对照：Linear",
+      "aliases": [
+        "linear 登录",
+        "login",
+        "胶囊按钮"
+      ],
+      "value": "linear.app/login：19 个元素、字阶只有 13/18 两档、按钮 13px、控件高 44、圆角 9999（胶囊）、390 与 1440 数值完全一致",
+      "verdict": "登录页本身就是固定窄列，不存在重排——移动端适配成本趋近于 0 的形态。",
+      "status": "site-detail",
+      "source": {
+        "file": "references/vercel-auth.md",
+        "line": 30,
+        "section": "对照组",
+        "anchor": "对照组 Linear"
+      }
+    },
+    {
+      "id": "form-width-general",
+      "topic": "通用表单列宽",
+      "aliases": [
+        "表单宽",
+        "480",
+        "640",
+        "两列表单"
+      ],
+      "value": "单列表单宽 480–640；两列只在字段语义成对时用（如「起止时间」）",
+      "verdict": "别为省纵向空间把语义无关的字段并成两列。",
+      "status": "spec",
+      "source": {
+        "file": "references/page-patterns.md",
+        "line": 97,
+        "section": "表单骨架",
+        "anchor": "单列表单宽 480–640"
+      }
+    },
+    {
+      "id": "mobile-390-single",
+      "topic": "移动端 390 视口（单列形态）",
+      "aliases": [
+        "390",
+        "移动端",
+        "单列",
+        "h5",
+        "少数派移动"
+      ],
+      "value": "少数派：390 单列 358 内容宽、gap 16；feed 卡 358×161",
+      "verdict": "390 下内容宽 = 视口 − 32（左右各 16 边距）是主流写法；桌面三栏（164+56+520+56+164）到移动收成一列。",
+      "status": "site-detail",
+      "source": {
+        "file": "references/sspai-design.md",
+        "line": 23,
+        "section": "布局表",
+        "anchor": "390 单列 358，gap 16"
+      }
+    },
+    {
+      "id": "mobile-390-grid",
+      "topic": "移动端 390 视口（两列图墙形态）",
+      "aliases": [
+        "390 两列",
+        "移动图墙",
+        "muzli 移动",
+        "173"
+      ],
+      "value": "Muzli：390 视口 2 列（173px）、gap 20×12、header 仍 65px、scrollWidth === innerWidth === 390；左栏目录折叠，无底部 tab bar",
+      "verdict": "图墙移动端降为 2 列而不是 1 列（缩略图太小没有浏览价值）；验收硬指标是 scrollWidth === innerWidth（无横向溢出）。",
+      "status": "site-detail",
+      "source": {
+        "file": "references/muzli-gallery.md",
+        "line": 236,
+        "section": "移动端实测",
+        "anchor": "移动端整体降级为 2 列"
+      }
+    },
+    {
+      "id": "admin-body-size",
+      "topic": "后台正文同行区间",
+      "aliases": [
+        "后台字号",
+        "13-14",
+        "后台正文"
+      ],
+      "value": "后台正文 13–14px、控件 32px、表格行高 53px",
+      "verdict": "这是同行区间不是发明：营销站的 96px 大标题搬到管理端就是错的。",
+      "status": "rule",
+      "source": {
+        "file": "references/workflow.md",
+        "line": 83,
+        "section": "模式 A 工作流",
+        "anchor": "后台正文 13–14px、控件 32px、表格行高 53px"
+      }
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "unrelated",
+  "label": "等长无关技能（家庭园艺堆肥指南）",
+  "skillFile": "unrelated-length-matched.md",
+  "estTokens": 5149,
+  "frozenAt": "2026-11-01",
+  "source": "bench/conditions/unrelated-length-matched.md（原创，主题与前端无关）",
+  "lengthMatch": {
+    "target": "../../SKILL.md",
+    "targetEstTokens": 5305,
+    "tolerance": 0.1,
+    "diffPercent": -2.94,
+    "verifyCmd": "node bench/conditions/verify-length.mjs"
+  },
+  "note": "必备对照条件。WebDev-Skills-Bench（arXiv 2608.23067）报告：注入技能不保证提升，四模型平均 ΔPass@2 为负，而且等长无关技能复现了其中的大部分损失。没有这一条，就无法区分「技能内容起了作用」和「上下文里多了一段文字」这件事本身起了作用。score.mjs 会在 current 的增益不大于 unrelated 时直接打印警告。",
+  "whyThisTopic": "家庭园艺堆肥：与前端界面还原/生成零重叠，但保留了技能文档的同款体裁（frontmatter + 路由表 + 质量门 + 诊断表 + 参考指针），使「体裁」与「体积」两个变量都被控制住，只剩「内容相关性」在变。"
+}

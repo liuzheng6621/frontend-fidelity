@@ -1,0 +1,56 @@
+{
+  "id": "marketing-landing",
+  "title": "营销落地页（SaaS 产品首页）",
+  "category": "模式 B：从 0 生成 · 落地页 / 营销站",
+  "viewport": "desktop 1440 优先，tablet 768 与 mobile 390 都要成立",
+  "prompt": "# 任务：SaaS 产品营销落地页\n\n你是一名前端工程师，为一款「团队协作与文档」SaaS 产品实现营销落地页，\n目标是让访客在 30 秒内看懂它是什么、凭什么、下一步点哪里。\n\n## 交付物（机器验收直接读这个文件）\n只产出一个文件：{out_dir}/index.html\nHTML + 内联 CSS（写在 <style> 标签里），允许少量原生 JavaScript。\n\n## 硬性约束\n1. 单文件自包含：不得外链任何 CSS / JS / 字体 / 图片，不得使用 @import，\n   不得出现指向 http(s) 的资源地址。产品截图、头像、Logo 全部用内联 SVG 或 CSS 渐变画。\n2. 文档壳完整：<!DOCTYPE html>、<html lang=\"zh-CN\">、<meta charset=\"utf-8\">、\n   非空 <title>、viewport meta。\n3. 标题层级：全页只有一个 <h1>（在首屏），至少两个 <h2>（分区标题），\n   不得跳级（有 <h3> 就必须先有它所属的 <h2>）。\n4. 结构分区：至少 4 个 <section>，建议为 首屏 hero / 客户 logo 或数据背书 /\n   核心能力（3–4 张特性卡）/ 使用流程或对比表 / 用户评价 / 定价 / 常见问题 / 底部 CTA，\n   外加 <header> 导航（含锚点跳转）与 <footer>（含版权与链接）。\n5. CTA：至少两处主行动按钮（首屏一处、页尾一处），文案是动词短语而不是「点击这里」；\n   次级动作（看演示 / 查文档）用次级按钮样式与主按钮区分。\n6. 设计令牌化：颜色、字阶（标题层级要有明显跨度）、间距、圆角、阴影写进 :root；\n   正文对比度满足 WCAG AA 4.5:1，大标题满足 3:1。\n7. 响应式：1440 下内容有最大宽度约束（不铺满全屏）、栅格成立；\n   768 与 390 下不得横向溢出、不得文字裁切、导航在 390 下可折叠或横向滚动。\n8. 排版工艺：中文正文行高 1.6–1.8、段落有明确节奏；标题与正文的字重与字号形成层级；\n   不要出现「三张等大卡片 + 三个 emoji」这类模板腔。\n\n## 内容要求\n产品名自拟但必须一致贯穿全页；hero 主标题一句话说清价值，副标题说清给谁用；\n特性卡的描述写具体能力而不是形容词堆叠；定价给三档（含一档推荐态）；\n评价区写 3 条带姓名与职务的中文评价；FAQ 至少 4 条。不要用 lorem ipsum。\n\n完成后不必解释，把文件写到 {out_dir}/index.html。",
+  "acceptance": [
+    {
+      "id": "self-contained",
+      "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const bad=/<link[^>]+stylesheet/i.test(s)||/<script[^>]+src *=/i.test(s)||/(?:src|href) *= *.?https?:/i.test(s)||/@import/i.test(s)||!/<!DOCTYPE html>/i.test(s)||!/<html[^>]+lang=/i.test(s)||!/<title> *[^< ][^<]*<\\/title>/i.test(s)||!/<meta[^>]+charset/i.test(s);process.exit(bad?1:0)\" \"{artifact}\"",
+      "expect": "exit 0",
+      "what": "单文件自包含 + 文档壳完整"
+    },
+    {
+      "id": "design-tokens",
+      "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const vars=(s.match(/^ *--[\\w-]+ *:/gm)||[]).length;const sizes=(s.match(/font-size *:/gi)||[]).length;const imp=(s.match(/!important/gi)||[]).length;const bad=!/:root *\\{/.test(s)||vars<10||sizes<4||imp>6;process.exit(bad?1:0)\" \"{artifact}\"",
+      "expect": "exit 0",
+      "what": ":root 至少 10 个自定义属性、至少 4 处 font-size、!important 不超过 6 处"
+    },
+    {
+      "id": "contrast",
+      "cmd": "python scripts/contrast_check.py \"{artifact}\"",
+      "expect": "exit 0",
+      "requires": "python",
+      "what": "scripts/contrast_check.py：所有配色对达到 4.5:1"
+    },
+    {
+      "id": "structure-a11y",
+      "cmd": "node scripts/audit.mjs --url \"{file_url}\" --out \"{out_dir}/audit-report.json\" --viewports desktop,mobile",
+      "expect": "exit 0",
+      "requires": "playwright",
+      "what": "scripts/audit.mjs 桌面 + 移动双视口：0 error（横向溢出与 axe serious/critical 都算 error）"
+    },
+    {
+      "id": "heading-hierarchy",
+      "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const h1=(s.match(/<h1[\\s>]/gi)||[]).length;const h2=(s.match(/<h2[\\s>]/gi)||[]).length;const h3=(s.match(/<h3[\\s>]/gi)||[]).length;const bad=h1!==1||h2<2||(h3>0&&h2<1);process.exit(bad?1:0)\" \"{artifact}\"",
+      "expect": "exit 0",
+      "what": "恰好 1 个 <h1>、≥2 个 <h2>、无跳级"
+    },
+    {
+      "id": "sections-cta",
+      "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const sec=(s.match(/<section[\\s>]/gi)||[]).length;const cta=(s.match(/<button[\\s>]|<a[^>]+class=[^>]*(?:btn|cta|button)/gi)||[]).length;const bad=sec<4||cta<3||!/<header[\\s>]/i.test(s)||!/<footer[\\s>]/i.test(s)||!/href=.?#/i.test(s);process.exit(bad?1:0)\" \"{artifact}\"",
+      "expect": "exit 0",
+      "what": "≥4 个 <section>、≥3 个按钮或 btn/cta 类链接、有 <header> 与 <footer>、存在锚点跳转"
+    },
+    {
+      "id": "visual-review",
+      "manual": true,
+      "criteria": "人工评分（1–5，≥4 视为通过）：① 视觉层级是否一眼可读（标题/正文/辅助文字三档清晰）；② 间距是否成体系（4 的倍数，没有凭感觉的 13px/22px）；③ 是否像真实产品而非模板套壳（文案具体、数据可信、无 lorem ipsum）；④ 三视口逐张看无横向溢出、无文字裁切、无控件重叠；⑤ 焦点态与错误态真的存在且可见。评分与理由写进 bench/results/ 旁的评审记录。",
+      "what": "人工视觉与工艺评分"
+    }
+  ],
+  "artifacts": [
+    "index.html"
+  ]
+}

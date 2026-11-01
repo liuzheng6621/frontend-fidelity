@@ -1,0 +1,9 @@
+{
+  "id": "none",
+  "label": "无技能（对照组 / baseline）",
+  "skillFile": null,
+  "estTokens": 0,
+  "frozenAt": "2026-11-01",
+  "source": null,
+  "note": "只把任务 prompt 交给模型，不注入任何技能文本。所有 ΔPass@2 与 Δtokens 都以它为基线。"
+}

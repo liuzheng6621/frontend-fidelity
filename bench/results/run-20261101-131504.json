@@ -1,0 +1,2419 @@
+{
+  "meta": {
+    "schemaVersion": 1,
+    "createdAt": "2026-11-01T05:16:42.541Z",
+    "cmdTemplate": null,
+    "conditions": [
+      {
+        "id": "none",
+        "label": "无技能（对照组 / baseline）",
+        "skillFile": null,
+        "estTokens": 0
+      },
+      {
+        "id": "legacy",
+        "label": "旧版技能快照（v1.23.1，HEAD 0281bda）",
+        "skillFile": "legacy.md",
+        "estTokens": 5720
+      },
+      {
+        "id": "current",
+        "label": "工作区当前 SKILL.md",
+        "skillFile": "../../SKILL.md",
+        "estTokens": 5586
+      },
+      {
+        "id": "unrelated",
+        "label": "等长无关技能（家庭园艺堆肥指南）",
+        "skillFile": "unrelated-length-matched.md",
+        "estTokens": 5149
+      }
+    ],
+    "tasks": [
+      {
+        "id": "admin-form-page",
+        "title": "企业后台表单页（新建工单）",
+        "file": "admin-form-page.json"
+      },
+      {
+        "id": "marketing-landing",
+        "title": "营销落地页（SaaS 产品首页）",
+        "file": "marketing-landing.json"
+      },
+      {
+        "id": "mobile-h5-card-feed",
+        "title": "移动 H5 卡片流（本地生活发现页）",
+        "file": "mobile-h5-card-feed.json"
+      }
+    ],
+    "runs": 2,
+    "dryRun": true,
+    "workRoot": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench",
+    "repoRoot": "E:/SKIl.1/frontend-fidelity",
+    "environment": {
+      "node": "v22.22.2",
+      "platform": "win32 x64",
+      "python": "Python 3.13.14",
+      "playwright": true
+    },
+    "estTokensByCondition": {
+      "none": 0,
+      "legacy": 5720,
+      "current": 5586,
+      "unrelated": 5149
+    },
+    "modelNote": "DRY-RUN —— 未调用任何模型；产物是 run.mjs 内置的 stub，用来验证 harness 链路与 acceptance 判据的可满足性。不是效果数据，不要拿去写结论。",
+    "acceptanceNote": "acceptance 的 pass/fail 是测量结果，不影响退出码；退出码只看「有没有格子跑崩或产物缺失」。manual 项与 skipped 项都不计入 Pass@2。"
+  },
+  "totals": {
+    "planned": 24,
+    "completed": 24,
+    "hardFail": 0,
+    "artifactsOk": 24,
+    "acceptancePass": 136,
+    "acceptanceFail": 0,
+    "acceptanceSkipped": 0,
+    "acceptanceManual": 24,
+    "tokenUsageParsed": 0,
+    "promptEstTokensSum": 125446,
+    "cmdTokensSum": 0
+  },
+  "runs": [
+    {
+      "condition": "none",
+      "task": "admin-form-page",
+      "run": 1,
+      "promptFile": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/admin-form-page/run1/prompt.md",
+      "outDir": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/admin-form-page/run1/out",
+      "promptEstTokens": 1127,
+      "promptChars": 1308,
+      "skillEstTokens": 0,
+      "tokenUsage": null,
+      "cmdExitCode": 0,
+      "durationMs": 1,
+      "error": null,
+      "dryRun": true,
+      "modelOutputTail": "（--dry-run：未调用模型，产物为 stub）",
+      "artifacts": [
+        {
+          "name": "index.html",
+          "path": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/admin-form-page/run1/out/index.html",
+          "ok": true,
+          "bytes": 7770
+        }
+      ],
+      "artifactsOk": true,
+      "acceptance": [
+        {
+          "id": "self-contained",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 109,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const bad=/<link[^>]+stylesheet/i.test(s)||/<script[^>]+src *=/i.test(s)||/(?:src|href) *= *.?https?:/i.test(s)||/@import/i.test(s)||!/<!DOCTYPE html>/i.test(s)||!/<html[^>]+lang=/i.test(s)||!/<title> *[^< ][^<]*<\\/title>/i.test(s)||!/<meta[^>]+charset/i.test(s);process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/admin-form-page/run1/out/index.html\""
+        },
+        {
+          "id": "design-tokens",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 100,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const vars=(s.match(/^ *--[\\w-]+ *:/gm)||[]).length;const sizes=(s.match(/font-size *:/gi)||[]).length;const imp=(s.match(/!important/gi)||[]).length;const bad=!/:root *\\{/.test(s)||vars<10||sizes<4||imp>6;process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/admin-form-page/run1/out/index.html\""
+        },
+        {
+          "id": "contrast",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 471,
+          "outputTail": "…S  6.70:1 (需 4.5)  #ffffff on #1d4ed8  [element] color / .btn var(--brand)\n  PASS  6.70:1 (需 4.5)  #1d4ed8 on #ffffff  [element] color / .btn-ghost var(--bg)\n  PASS  6.70:1 (需 4.5)  #1d4ed8 on #ffffff  [token] --link / --bg\n  PASS  6.70:1 (需 4.5)  #ffffff on #1d4ed8  [on] --on-brand / --brand\n  PASS  6.75:1 (需 4.5)  #166534 on #f2fbf5  [element] color / .banner-ok #f2fbf5\n  PASS  7.56:1 (需 4.5)  #4b5563 on #ffffff  [token] --muted / --bg\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [element] color / body var(--bg)\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [element] color / input[type=text],input[type=email],input[type=date],input[type=number],input[type=search],select,textarea var(--bg)\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [token] --text / --bg\n\n合计：11 组，0 组未达标（其中 1 组是装饰性边框，只提示不判失败）",
+          "cmd": "python scripts/contrast_check.py \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/admin-form-page/run1/out/index.html\""
+        },
+        {
+          "id": "structure-a11y",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 6256,
+          "outputTail": "OK   [desktop/light] file:///C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/admin-form-page/run1/out/index.html — 错误 0, 警告 0, axe 0 项, console 0, HTTP 0, CLS 0.000\n\n合计：0 错误 / 0 警告 / 0 类 axe 违规 / 0 console / 0 HTTP\n报告：C:\\Users\\six\\AppData\\Local\\Temp\\frontend-fidelity-bench\\none\\admin-form-page\\run1\\out\\audit-report.json\naxe-core 4.14.0（WCAG 2.1 A/AA 规则集）",
+          "cmd": "node scripts/audit.mjs --url \"file:///C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/admin-form-page/run1/out/index.html\" --out \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/admin-form-page/run1/out/audit-report.json\" --viewports desktop"
+        },
+        {
+          "id": "form-semantics",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 140,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const labels=(s.match(/<label[^>]+for *=/gi)||[]).length;const bad=!/<form/i.test(s)||labels<6||!/<(button|input)[^>]+type=.?submit/i.test(s)||!/<fieldset/i.test(s)||!/aria-(describedby|invalid|live)/i.test(s);process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/admin-form-page/run1/out/index.html\""
+        },
+        {
+          "id": "visual-review",
+          "pass": null,
+          "manual": true,
+          "skipped": false,
+          "outputTail": null,
+          "criteria": "人工评分（1–5，≥4 视为通过）：① 视觉层级是否一眼可读（标题/正文/辅助文字三档清晰）；② 间距是否成体系（4 的倍数，没有凭感觉的 13px/22px）；③ 是否像真实产品而非模板套壳（文案具体、数据可信、无 lorem ipsum）；④ 三视口逐张看无横向溢出、无文字裁切、无控件重叠；⑤ 焦点态与错误态真的存在且可见。评分与理由写进 bench/results/ 旁的评审记录。"
+        }
+      ]
+    },
+    {
+      "condition": "none",
+      "task": "admin-form-page",
+      "run": 2,
+      "promptFile": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/admin-form-page/run2/prompt.md",
+      "outDir": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/admin-form-page/run2/out",
+      "promptEstTokens": 1127,
+      "promptChars": 1308,
+      "skillEstTokens": 0,
+      "tokenUsage": null,
+      "cmdExitCode": 0,
+      "durationMs": 1,
+      "error": null,
+      "dryRun": true,
+      "modelOutputTail": "（--dry-run：未调用模型，产物为 stub）",
+      "artifacts": [
+        {
+          "name": "index.html",
+          "path": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/admin-form-page/run2/out/index.html",
+          "ok": true,
+          "bytes": 7770
+        }
+      ],
+      "artifactsOk": true,
+      "acceptance": [
+        {
+          "id": "self-contained",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 133,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const bad=/<link[^>]+stylesheet/i.test(s)||/<script[^>]+src *=/i.test(s)||/(?:src|href) *= *.?https?:/i.test(s)||/@import/i.test(s)||!/<!DOCTYPE html>/i.test(s)||!/<html[^>]+lang=/i.test(s)||!/<title> *[^< ][^<]*<\\/title>/i.test(s)||!/<meta[^>]+charset/i.test(s);process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/admin-form-page/run2/out/index.html\""
+        },
+        {
+          "id": "design-tokens",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 118,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const vars=(s.match(/^ *--[\\w-]+ *:/gm)||[]).length;const sizes=(s.match(/font-size *:/gi)||[]).length;const imp=(s.match(/!important/gi)||[]).length;const bad=!/:root *\\{/.test(s)||vars<10||sizes<4||imp>6;process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/admin-form-page/run2/out/index.html\""
+        },
+        {
+          "id": "contrast",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 507,
+          "outputTail": "…S  6.70:1 (需 4.5)  #ffffff on #1d4ed8  [element] color / .btn var(--brand)\n  PASS  6.70:1 (需 4.5)  #1d4ed8 on #ffffff  [element] color / .btn-ghost var(--bg)\n  PASS  6.70:1 (需 4.5)  #1d4ed8 on #ffffff  [token] --link / --bg\n  PASS  6.70:1 (需 4.5)  #ffffff on #1d4ed8  [on] --on-brand / --brand\n  PASS  6.75:1 (需 4.5)  #166534 on #f2fbf5  [element] color / .banner-ok #f2fbf5\n  PASS  7.56:1 (需 4.5)  #4b5563 on #ffffff  [token] --muted / --bg\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [element] color / body var(--bg)\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [element] color / input[type=text],input[type=email],input[type=date],input[type=number],input[type=search],select,textarea var(--bg)\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [token] --text / --bg\n\n合计：11 组，0 组未达标（其中 1 组是装饰性边框，只提示不判失败）",
+          "cmd": "python scripts/contrast_check.py \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/admin-form-page/run2/out/index.html\""
+        },
+        {
+          "id": "structure-a11y",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 2327,
+          "outputTail": "OK   [desktop/light] file:///C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/admin-form-page/run2/out/index.html — 错误 0, 警告 0, axe 0 项, console 0, HTTP 0, CLS 0.000\n\n合计：0 错误 / 0 警告 / 0 类 axe 违规 / 0 console / 0 HTTP\n报告：C:\\Users\\six\\AppData\\Local\\Temp\\frontend-fidelity-bench\\none\\admin-form-page\\run2\\out\\audit-report.json\naxe-core 4.14.0（WCAG 2.1 A/AA 规则集）",
+          "cmd": "node scripts/audit.mjs --url \"file:///C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/admin-form-page/run2/out/index.html\" --out \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/admin-form-page/run2/out/audit-report.json\" --viewports desktop"
+        },
+        {
+          "id": "form-semantics",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 140,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const labels=(s.match(/<label[^>]+for *=/gi)||[]).length;const bad=!/<form/i.test(s)||labels<6||!/<(button|input)[^>]+type=.?submit/i.test(s)||!/<fieldset/i.test(s)||!/aria-(describedby|invalid|live)/i.test(s);process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/admin-form-page/run2/out/index.html\""
+        },
+        {
+          "id": "visual-review",
+          "pass": null,
+          "manual": true,
+          "skipped": false,
+          "outputTail": null,
+          "criteria": "人工评分（1–5，≥4 视为通过）：① 视觉层级是否一眼可读（标题/正文/辅助文字三档清晰）；② 间距是否成体系（4 的倍数，没有凭感觉的 13px/22px）；③ 是否像真实产品而非模板套壳（文案具体、数据可信、无 lorem ipsum）；④ 三视口逐张看无横向溢出、无文字裁切、无控件重叠；⑤ 焦点态与错误态真的存在且可见。评分与理由写进 bench/results/ 旁的评审记录。"
+        }
+      ]
+    },
+    {
+      "condition": "none",
+      "task": "marketing-landing",
+      "run": 1,
+      "promptFile": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/marketing-landing/run1/prompt.md",
+      "outDir": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/marketing-landing/run1/out",
+      "promptEstTokens": 1088,
+      "promptChars": 1289,
+      "skillEstTokens": 0,
+      "tokenUsage": null,
+      "cmdExitCode": 0,
+      "durationMs": 2,
+      "error": null,
+      "dryRun": true,
+      "modelOutputTail": "（--dry-run：未调用模型，产物为 stub）",
+      "artifacts": [
+        {
+          "name": "index.html",
+          "path": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/marketing-landing/run1/out/index.html",
+          "ok": true,
+          "bytes": 9611
+        }
+      ],
+      "artifactsOk": true,
+      "acceptance": [
+        {
+          "id": "self-contained",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 118,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const bad=/<link[^>]+stylesheet/i.test(s)||/<script[^>]+src *=/i.test(s)||/(?:src|href) *= *.?https?:/i.test(s)||/@import/i.test(s)||!/<!DOCTYPE html>/i.test(s)||!/<html[^>]+lang=/i.test(s)||!/<title> *[^< ][^<]*<\\/title>/i.test(s)||!/<meta[^>]+charset/i.test(s);process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/marketing-landing/run1/out/index.html\""
+        },
+        {
+          "id": "design-tokens",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 130,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const vars=(s.match(/^ *--[\\w-]+ *:/gm)||[]).length;const sizes=(s.match(/font-size *:/gi)||[]).length;const imp=(s.match(/!important/gi)||[]).length;const bad=!/:root *\\{/.test(s)||vars<10||sizes<4||imp>6;process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/marketing-landing/run1/out/index.html\""
+        },
+        {
+          "id": "contrast",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 532,
+          "outputTail": "…0:1 (需 4.5)  #1d4ed8 on #ffffff  [element] color / .btn-ghost var(--bg)\n  PASS  6.70:1 (需 4.5)  #1d4ed8 on #ffffff  [token] --link / --bg\n  PASS  6.70:1 (需 4.5)  #ffffff on #1d4ed8  [on] --on-brand / --brand\n  PASS  7.56:1 (需 4.5)  #4b5563 on #ffffff  [element] color / .site-footer var(--surface)\n  PASS  7.56:1 (需 4.5)  #4b5563 on #ffffff  [token] --muted / --bg\n  PASS 15.86:1 (需 4.5)  #111827 on #eef2ff  [element] color / .final #eef2ff\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [element] color / body var(--bg)\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [element] color / input[type=text],input[type=email],input[type=date],input[type=number],input[type=search],select,textarea var(--bg)\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [token] --text / --bg\n\n合计：11 组，0 组未达标（其中 1 组是装饰性边框，只提示不判失败）",
+          "cmd": "python scripts/contrast_check.py \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/marketing-landing/run1/out/index.html\""
+        },
+        {
+          "id": "structure-a11y",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 3973,
+          "outputTail": "OK   [desktop/light] file:///C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/marketing-landing/run1/out/index.html — 错误 0, 警告 0, axe 0 项, console 0, HTTP 0, CLS 0.000\nWARN [mobile/light] file:///C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/marketing-landing/run1/out/index.html — 错误 0, 警告 5, axe 0 项, console 0, HTTP 0, CLS 0.000\n\n合计：0 错误 / 5 警告 / 0 类 axe 违规 / 0 console / 0 HTTP\n报告：C:\\Users\\six\\AppData\\Local\\Temp\\frontend-fidelity-bench\\none\\marketing-landing\\run1\\out\\audit-report.json\naxe-core 4.14.0（WCAG 2.1 A/AA 规则集）",
+          "cmd": "node scripts/audit.mjs --url \"file:///C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/marketing-landing/run1/out/index.html\" --out \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/marketing-landing/run1/out/audit-report.json\" --viewports desktop,mobile"
+        },
+        {
+          "id": "heading-hierarchy",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 130,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const h1=(s.match(/<h1[\\s>]/gi)||[]).length;const h2=(s.match(/<h2[\\s>]/gi)||[]).length;const h3=(s.match(/<h3[\\s>]/gi)||[]).length;const bad=h1!==1||h2<2||(h3>0&&h2<1);process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/marketing-landing/run1/out/index.html\""
+        },
+        {
+          "id": "sections-cta",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 115,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const sec=(s.match(/<section[\\s>]/gi)||[]).length;const cta=(s.match(/<button[\\s>]|<a[^>]+class=[^>]*(?:btn|cta|button)/gi)||[]).length;const bad=sec<4||cta<3||!/<header[\\s>]/i.test(s)||!/<footer[\\s>]/i.test(s)||!/href=.?#/i.test(s);process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/marketing-landing/run1/out/index.html\""
+        },
+        {
+          "id": "visual-review",
+          "pass": null,
+          "manual": true,
+          "skipped": false,
+          "outputTail": null,
+          "criteria": "人工评分（1–5，≥4 视为通过）：① 视觉层级是否一眼可读（标题/正文/辅助文字三档清晰）；② 间距是否成体系（4 的倍数，没有凭感觉的 13px/22px）；③ 是否像真实产品而非模板套壳（文案具体、数据可信、无 lorem ipsum）；④ 三视口逐张看无横向溢出、无文字裁切、无控件重叠；⑤ 焦点态与错误态真的存在且可见。评分与理由写进 bench/results/ 旁的评审记录。"
+        }
+      ]
+    },
+    {
+      "condition": "none",
+      "task": "marketing-landing",
+      "run": 2,
+      "promptFile": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/marketing-landing/run2/prompt.md",
+      "outDir": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/marketing-landing/run2/out",
+      "promptEstTokens": 1088,
+      "promptChars": 1289,
+      "skillEstTokens": 0,
+      "tokenUsage": null,
+      "cmdExitCode": 0,
+      "durationMs": 2,
+      "error": null,
+      "dryRun": true,
+      "modelOutputTail": "（--dry-run：未调用模型，产物为 stub）",
+      "artifacts": [
+        {
+          "name": "index.html",
+          "path": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/marketing-landing/run2/out/index.html",
+          "ok": true,
+          "bytes": 9611
+        }
+      ],
+      "artifactsOk": true,
+      "acceptance": [
+        {
+          "id": "self-contained",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 119,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const bad=/<link[^>]+stylesheet/i.test(s)||/<script[^>]+src *=/i.test(s)||/(?:src|href) *= *.?https?:/i.test(s)||/@import/i.test(s)||!/<!DOCTYPE html>/i.test(s)||!/<html[^>]+lang=/i.test(s)||!/<title> *[^< ][^<]*<\\/title>/i.test(s)||!/<meta[^>]+charset/i.test(s);process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/marketing-landing/run2/out/index.html\""
+        },
+        {
+          "id": "design-tokens",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 116,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const vars=(s.match(/^ *--[\\w-]+ *:/gm)||[]).length;const sizes=(s.match(/font-size *:/gi)||[]).length;const imp=(s.match(/!important/gi)||[]).length;const bad=!/:root *\\{/.test(s)||vars<10||sizes<4||imp>6;process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/marketing-landing/run2/out/index.html\""
+        },
+        {
+          "id": "contrast",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 510,
+          "outputTail": "…0:1 (需 4.5)  #1d4ed8 on #ffffff  [element] color / .btn-ghost var(--bg)\n  PASS  6.70:1 (需 4.5)  #1d4ed8 on #ffffff  [token] --link / --bg\n  PASS  6.70:1 (需 4.5)  #ffffff on #1d4ed8  [on] --on-brand / --brand\n  PASS  7.56:1 (需 4.5)  #4b5563 on #ffffff  [element] color / .site-footer var(--surface)\n  PASS  7.56:1 (需 4.5)  #4b5563 on #ffffff  [token] --muted / --bg\n  PASS 15.86:1 (需 4.5)  #111827 on #eef2ff  [element] color / .final #eef2ff\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [element] color / body var(--bg)\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [element] color / input[type=text],input[type=email],input[type=date],input[type=number],input[type=search],select,textarea var(--bg)\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [token] --text / --bg\n\n合计：11 组，0 组未达标（其中 1 组是装饰性边框，只提示不判失败）",
+          "cmd": "python scripts/contrast_check.py \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/marketing-landing/run2/out/index.html\""
+        },
+        {
+          "id": "structure-a11y",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 4028,
+          "outputTail": "OK   [desktop/light] file:///C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/marketing-landing/run2/out/index.html — 错误 0, 警告 0, axe 0 项, console 0, HTTP 0, CLS 0.000\nWARN [mobile/light] file:///C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/marketing-landing/run2/out/index.html — 错误 0, 警告 5, axe 0 项, console 0, HTTP 0, CLS 0.000\n\n合计：0 错误 / 5 警告 / 0 类 axe 违规 / 0 console / 0 HTTP\n报告：C:\\Users\\six\\AppData\\Local\\Temp\\frontend-fidelity-bench\\none\\marketing-landing\\run2\\out\\audit-report.json\naxe-core 4.14.0（WCAG 2.1 A/AA 规则集）",
+          "cmd": "node scripts/audit.mjs --url \"file:///C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/marketing-landing/run2/out/index.html\" --out \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/marketing-landing/run2/out/audit-report.json\" --viewports desktop,mobile"
+        },
+        {
+          "id": "heading-hierarchy",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 120,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const h1=(s.match(/<h1[\\s>]/gi)||[]).length;const h2=(s.match(/<h2[\\s>]/gi)||[]).length;const h3=(s.match(/<h3[\\s>]/gi)||[]).length;const bad=h1!==1||h2<2||(h3>0&&h2<1);process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/marketing-landing/run2/out/index.html\""
+        },
+        {
+          "id": "sections-cta",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 118,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const sec=(s.match(/<section[\\s>]/gi)||[]).length;const cta=(s.match(/<button[\\s>]|<a[^>]+class=[^>]*(?:btn|cta|button)/gi)||[]).length;const bad=sec<4||cta<3||!/<header[\\s>]/i.test(s)||!/<footer[\\s>]/i.test(s)||!/href=.?#/i.test(s);process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/marketing-landing/run2/out/index.html\""
+        },
+        {
+          "id": "visual-review",
+          "pass": null,
+          "manual": true,
+          "skipped": false,
+          "outputTail": null,
+          "criteria": "人工评分（1–5，≥4 视为通过）：① 视觉层级是否一眼可读（标题/正文/辅助文字三档清晰）；② 间距是否成体系（4 的倍数，没有凭感觉的 13px/22px）；③ 是否像真实产品而非模板套壳（文案具体、数据可信、无 lorem ipsum）；④ 三视口逐张看无横向溢出、无文字裁切、无控件重叠；⑤ 焦点态与错误态真的存在且可见。评分与理由写进 bench/results/ 旁的评审记录。"
+        }
+      ]
+    },
+    {
+      "condition": "none",
+      "task": "mobile-h5-card-feed",
+      "run": 1,
+      "promptFile": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/mobile-h5-card-feed/run1/prompt.md",
+      "outDir": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/mobile-h5-card-feed/run1/out",
+      "promptEstTokens": 1050,
+      "promptChars": 1322,
+      "skillEstTokens": 0,
+      "tokenUsage": null,
+      "cmdExitCode": 0,
+      "durationMs": 3,
+      "error": null,
+      "dryRun": true,
+      "modelOutputTail": "（--dry-run：未调用模型，产物为 stub）",
+      "artifacts": [
+        {
+          "name": "index.html",
+          "path": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/mobile-h5-card-feed/run1/out/index.html",
+          "ok": true,
+          "bytes": 11248
+        }
+      ],
+      "artifactsOk": true,
+      "acceptance": [
+        {
+          "id": "self-contained",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 131,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const bad=/<link[^>]+stylesheet/i.test(s)||/<script[^>]+src *=/i.test(s)||/(?:src|href) *= *.?https?:/i.test(s)||/@import/i.test(s)||!/<!DOCTYPE html>/i.test(s)||!/<html[^>]+lang=/i.test(s)||!/<title> *[^< ][^<]*<\\/title>/i.test(s)||!/<meta[^>]+charset/i.test(s);process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/mobile-h5-card-feed/run1/out/index.html\""
+        },
+        {
+          "id": "design-tokens",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 140,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const vars=(s.match(/^ *--[\\w-]+ *:/gm)||[]).length;const sizes=(s.match(/font-size *:/gi)||[]).length;const imp=(s.match(/!important/gi)||[]).length;const bad=!/:root *\\{/.test(s)||vars<10||sizes<4||imp>6;process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/mobile-h5-card-feed/run1/out/index.html\""
+        },
+        {
+          "id": "contrast",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 570,
+          "outputTail": "…PASS  6.70:1 (需 4.5)  #ffffff on #1d4ed8  [element] color / .btn var(--brand)\n  PASS  6.70:1 (需 4.5)  #1d4ed8 on #ffffff  [element] color / .btn-ghost var(--bg)\n  PASS  6.70:1 (需 4.5)  #1d4ed8 on #ffffff  [token] --link / --bg\n  PASS  6.70:1 (需 4.5)  #ffffff on #1d4ed8  [on] --on-brand / --brand\n  PASS  7.56:1 (需 4.5)  #4b5563 on #ffffff  [token] --muted / --bg\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [element] color / body var(--bg)\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [element] color / input[type=text],input[type=email],input[type=date],input[type=number],input[type=search],select,textarea var(--bg)\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [element] color / .chip var(--bg)\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [token] --text / --bg\n\n合计：10 组，0 组未达标（其中 1 组是装饰性边框，只提示不判失败）",
+          "cmd": "python scripts/contrast_check.py \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/mobile-h5-card-feed/run1/out/index.html\""
+        },
+        {
+          "id": "structure-a11y",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 2231,
+          "outputTail": "WARN [mobile/light] file:///C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/mobile-h5-card-feed/run1/out/index.html — 错误 0, 警告 16, axe 0 项, console 0, HTTP 0, CLS 0.000\n\n合计：0 错误 / 16 警告 / 0 类 axe 违规 / 0 console / 0 HTTP\n报告：C:\\Users\\six\\AppData\\Local\\Temp\\frontend-fidelity-bench\\none\\mobile-h5-card-feed\\run1\\out\\audit-report.json\naxe-core 4.14.0（WCAG 2.1 A/AA 规则集）",
+          "cmd": "node scripts/audit.mjs --url \"file:///C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/mobile-h5-card-feed/run1/out/index.html\" --out \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/mobile-h5-card-feed/run1/out/audit-report.json\" --viewports mobile"
+        },
+        {
+          "id": "mobile-shell",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 127,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const bad=!/<meta[^>]+name=.?viewport.?[^>]*width=device-width/i.test(s)||!/@media|rem|vw|clamp\\(/i.test(s)||!/safe-area-inset/i.test(s)||(s.match(/<nav[\\s>]/gi)||[]).length<1;process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/mobile-h5-card-feed/run1/out/index.html\""
+        },
+        {
+          "id": "card-feed",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 125,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const cards=(s.match(/<article[\\s>]|class=[^>]*(?:card|item|cell)/gi)||[]).length;const imgs=(s.match(/<img[\\s>]/gi)||[]).length;const alts=(s.match(/<img[^>]+alt *=/gi)||[]).length;const bad=cards<8||!/<svg|<img/i.test(s)||(imgs>0&&alts<imgs)||!/scroll-snap|overflow-x/i.test(s);process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/mobile-h5-card-feed/run1/out/index.html\""
+        },
+        {
+          "id": "visual-review",
+          "pass": null,
+          "manual": true,
+          "skipped": false,
+          "outputTail": null,
+          "criteria": "人工评分（1–5，≥4 视为通过）：① 视觉层级是否一眼可读（标题/正文/辅助文字三档清晰）；② 间距是否成体系（4 的倍数，没有凭感觉的 13px/22px）；③ 是否像真实产品而非模板套壳（文案具体、数据可信、无 lorem ipsum）；④ 三视口逐张看无横向溢出、无文字裁切、无控件重叠；⑤ 焦点态与错误态真的存在且可见。评分与理由写进 bench/results/ 旁的评审记录。"
+        }
+      ]
+    },
+    {
+      "condition": "none",
+      "task": "mobile-h5-card-feed",
+      "run": 2,
+      "promptFile": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/mobile-h5-card-feed/run2/prompt.md",
+      "outDir": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/mobile-h5-card-feed/run2/out",
+      "promptEstTokens": 1050,
+      "promptChars": 1322,
+      "skillEstTokens": 0,
+      "tokenUsage": null,
+      "cmdExitCode": 0,
+      "durationMs": 3,
+      "error": null,
+      "dryRun": true,
+      "modelOutputTail": "（--dry-run：未调用模型，产物为 stub）",
+      "artifacts": [
+        {
+          "name": "index.html",
+          "path": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/mobile-h5-card-feed/run2/out/index.html",
+          "ok": true,
+          "bytes": 11248
+        }
+      ],
+      "artifactsOk": true,
+      "acceptance": [
+        {
+          "id": "self-contained",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 120,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const bad=/<link[^>]+stylesheet/i.test(s)||/<script[^>]+src *=/i.test(s)||/(?:src|href) *= *.?https?:/i.test(s)||/@import/i.test(s)||!/<!DOCTYPE html>/i.test(s)||!/<html[^>]+lang=/i.test(s)||!/<title> *[^< ][^<]*<\\/title>/i.test(s)||!/<meta[^>]+charset/i.test(s);process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/mobile-h5-card-feed/run2/out/index.html\""
+        },
+        {
+          "id": "design-tokens",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 110,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const vars=(s.match(/^ *--[\\w-]+ *:/gm)||[]).length;const sizes=(s.match(/font-size *:/gi)||[]).length;const imp=(s.match(/!important/gi)||[]).length;const bad=!/:root *\\{/.test(s)||vars<10||sizes<4||imp>6;process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/mobile-h5-card-feed/run2/out/index.html\""
+        },
+        {
+          "id": "contrast",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 553,
+          "outputTail": "…PASS  6.70:1 (需 4.5)  #ffffff on #1d4ed8  [element] color / .btn var(--brand)\n  PASS  6.70:1 (需 4.5)  #1d4ed8 on #ffffff  [element] color / .btn-ghost var(--bg)\n  PASS  6.70:1 (需 4.5)  #1d4ed8 on #ffffff  [token] --link / --bg\n  PASS  6.70:1 (需 4.5)  #ffffff on #1d4ed8  [on] --on-brand / --brand\n  PASS  7.56:1 (需 4.5)  #4b5563 on #ffffff  [token] --muted / --bg\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [element] color / body var(--bg)\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [element] color / input[type=text],input[type=email],input[type=date],input[type=number],input[type=search],select,textarea var(--bg)\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [element] color / .chip var(--bg)\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [token] --text / --bg\n\n合计：10 组，0 组未达标（其中 1 组是装饰性边框，只提示不判失败）",
+          "cmd": "python scripts/contrast_check.py \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/mobile-h5-card-feed/run2/out/index.html\""
+        },
+        {
+          "id": "structure-a11y",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 2367,
+          "outputTail": "WARN [mobile/light] file:///C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/mobile-h5-card-feed/run2/out/index.html — 错误 0, 警告 16, axe 0 项, console 0, HTTP 0, CLS 0.000\n\n合计：0 错误 / 16 警告 / 0 类 axe 违规 / 0 console / 0 HTTP\n报告：C:\\Users\\six\\AppData\\Local\\Temp\\frontend-fidelity-bench\\none\\mobile-h5-card-feed\\run2\\out\\audit-report.json\naxe-core 4.14.0（WCAG 2.1 A/AA 规则集）",
+          "cmd": "node scripts/audit.mjs --url \"file:///C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/mobile-h5-card-feed/run2/out/index.html\" --out \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/mobile-h5-card-feed/run2/out/audit-report.json\" --viewports mobile"
+        },
+        {
+          "id": "mobile-shell",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 133,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const bad=!/<meta[^>]+name=.?viewport.?[^>]*width=device-width/i.test(s)||!/@media|rem|vw|clamp\\(/i.test(s)||!/safe-area-inset/i.test(s)||(s.match(/<nav[\\s>]/gi)||[]).length<1;process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/mobile-h5-card-feed/run2/out/index.html\""
+        },
+        {
+          "id": "card-feed",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 123,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const cards=(s.match(/<article[\\s>]|class=[^>]*(?:card|item|cell)/gi)||[]).length;const imgs=(s.match(/<img[\\s>]/gi)||[]).length;const alts=(s.match(/<img[^>]+alt *=/gi)||[]).length;const bad=cards<8||!/<svg|<img/i.test(s)||(imgs>0&&alts<imgs)||!/scroll-snap|overflow-x/i.test(s);process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/none/mobile-h5-card-feed/run2/out/index.html\""
+        },
+        {
+          "id": "visual-review",
+          "pass": null,
+          "manual": true,
+          "skipped": false,
+          "outputTail": null,
+          "criteria": "人工评分（1–5，≥4 视为通过）：① 视觉层级是否一眼可读（标题/正文/辅助文字三档清晰）；② 间距是否成体系（4 的倍数，没有凭感觉的 13px/22px）；③ 是否像真实产品而非模板套壳（文案具体、数据可信、无 lorem ipsum）；④ 三视口逐张看无横向溢出、无文字裁切、无控件重叠；⑤ 焦点态与错误态真的存在且可见。评分与理由写进 bench/results/ 旁的评审记录。"
+        }
+      ]
+    },
+    {
+      "condition": "legacy",
+      "task": "admin-form-page",
+      "run": 1,
+      "promptFile": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/admin-form-page/run1/prompt.md",
+      "outDir": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/admin-form-page/run1/out",
+      "promptEstTokens": 6879,
+      "promptChars": 9727,
+      "skillEstTokens": 5720,
+      "tokenUsage": null,
+      "cmdExitCode": 0,
+      "durationMs": 2,
+      "error": null,
+      "dryRun": true,
+      "modelOutputTail": "（--dry-run：未调用模型，产物为 stub）",
+      "artifacts": [
+        {
+          "name": "index.html",
+          "path": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/admin-form-page/run1/out/index.html",
+          "ok": true,
+          "bytes": 7770
+        }
+      ],
+      "artifactsOk": true,
+      "acceptance": [
+        {
+          "id": "self-contained",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 139,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const bad=/<link[^>]+stylesheet/i.test(s)||/<script[^>]+src *=/i.test(s)||/(?:src|href) *= *.?https?:/i.test(s)||/@import/i.test(s)||!/<!DOCTYPE html>/i.test(s)||!/<html[^>]+lang=/i.test(s)||!/<title> *[^< ][^<]*<\\/title>/i.test(s)||!/<meta[^>]+charset/i.test(s);process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/admin-form-page/run1/out/index.html\""
+        },
+        {
+          "id": "design-tokens",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 127,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const vars=(s.match(/^ *--[\\w-]+ *:/gm)||[]).length;const sizes=(s.match(/font-size *:/gi)||[]).length;const imp=(s.match(/!important/gi)||[]).length;const bad=!/:root *\\{/.test(s)||vars<10||sizes<4||imp>6;process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/admin-form-page/run1/out/index.html\""
+        },
+        {
+          "id": "contrast",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 505,
+          "outputTail": "…S  6.70:1 (需 4.5)  #ffffff on #1d4ed8  [element] color / .btn var(--brand)\n  PASS  6.70:1 (需 4.5)  #1d4ed8 on #ffffff  [element] color / .btn-ghost var(--bg)\n  PASS  6.70:1 (需 4.5)  #1d4ed8 on #ffffff  [token] --link / --bg\n  PASS  6.70:1 (需 4.5)  #ffffff on #1d4ed8  [on] --on-brand / --brand\n  PASS  6.75:1 (需 4.5)  #166534 on #f2fbf5  [element] color / .banner-ok #f2fbf5\n  PASS  7.56:1 (需 4.5)  #4b5563 on #ffffff  [token] --muted / --bg\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [element] color / body var(--bg)\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [element] color / input[type=text],input[type=email],input[type=date],input[type=number],input[type=search],select,textarea var(--bg)\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [token] --text / --bg\n\n合计：11 组，0 组未达标（其中 1 组是装饰性边框，只提示不判失败）",
+          "cmd": "python scripts/contrast_check.py \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/admin-form-page/run1/out/index.html\""
+        },
+        {
+          "id": "structure-a11y",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 2265,
+          "outputTail": "OK   [desktop/light] file:///C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/admin-form-page/run1/out/index.html — 错误 0, 警告 0, axe 0 项, console 0, HTTP 0, CLS 0.000\n\n合计：0 错误 / 0 警告 / 0 类 axe 违规 / 0 console / 0 HTTP\n报告：C:\\Users\\six\\AppData\\Local\\Temp\\frontend-fidelity-bench\\legacy\\admin-form-page\\run1\\out\\audit-report.json\naxe-core 4.14.0（WCAG 2.1 A/AA 规则集）",
+          "cmd": "node scripts/audit.mjs --url \"file:///C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/admin-form-page/run1/out/index.html\" --out \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/admin-form-page/run1/out/audit-report.json\" --viewports desktop"
+        },
+        {
+          "id": "form-semantics",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 146,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const labels=(s.match(/<label[^>]+for *=/gi)||[]).length;const bad=!/<form/i.test(s)||labels<6||!/<(button|input)[^>]+type=.?submit/i.test(s)||!/<fieldset/i.test(s)||!/aria-(describedby|invalid|live)/i.test(s);process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/admin-form-page/run1/out/index.html\""
+        },
+        {
+          "id": "visual-review",
+          "pass": null,
+          "manual": true,
+          "skipped": false,
+          "outputTail": null,
+          "criteria": "人工评分（1–5，≥4 视为通过）：① 视觉层级是否一眼可读（标题/正文/辅助文字三档清晰）；② 间距是否成体系（4 的倍数，没有凭感觉的 13px/22px）；③ 是否像真实产品而非模板套壳（文案具体、数据可信、无 lorem ipsum）；④ 三视口逐张看无横向溢出、无文字裁切、无控件重叠；⑤ 焦点态与错误态真的存在且可见。评分与理由写进 bench/results/ 旁的评审记录。"
+        }
+      ]
+    },
+    {
+      "condition": "legacy",
+      "task": "admin-form-page",
+      "run": 2,
+      "promptFile": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/admin-form-page/run2/prompt.md",
+      "outDir": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/admin-form-page/run2/out",
+      "promptEstTokens": 6879,
+      "promptChars": 9727,
+      "skillEstTokens": 5720,
+      "tokenUsage": null,
+      "cmdExitCode": 0,
+      "durationMs": 2,
+      "error": null,
+      "dryRun": true,
+      "modelOutputTail": "（--dry-run：未调用模型，产物为 stub）",
+      "artifacts": [
+        {
+          "name": "index.html",
+          "path": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/admin-form-page/run2/out/index.html",
+          "ok": true,
+          "bytes": 7770
+        }
+      ],
+      "artifactsOk": true,
+      "acceptance": [
+        {
+          "id": "self-contained",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 137,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const bad=/<link[^>]+stylesheet/i.test(s)||/<script[^>]+src *=/i.test(s)||/(?:src|href) *= *.?https?:/i.test(s)||/@import/i.test(s)||!/<!DOCTYPE html>/i.test(s)||!/<html[^>]+lang=/i.test(s)||!/<title> *[^< ][^<]*<\\/title>/i.test(s)||!/<meta[^>]+charset/i.test(s);process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/admin-form-page/run2/out/index.html\""
+        },
+        {
+          "id": "design-tokens",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 125,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const vars=(s.match(/^ *--[\\w-]+ *:/gm)||[]).length;const sizes=(s.match(/font-size *:/gi)||[]).length;const imp=(s.match(/!important/gi)||[]).length;const bad=!/:root *\\{/.test(s)||vars<10||sizes<4||imp>6;process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/admin-form-page/run2/out/index.html\""
+        },
+        {
+          "id": "contrast",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 496,
+          "outputTail": "…S  6.70:1 (需 4.5)  #ffffff on #1d4ed8  [element] color / .btn var(--brand)\n  PASS  6.70:1 (需 4.5)  #1d4ed8 on #ffffff  [element] color / .btn-ghost var(--bg)\n  PASS  6.70:1 (需 4.5)  #1d4ed8 on #ffffff  [token] --link / --bg\n  PASS  6.70:1 (需 4.5)  #ffffff on #1d4ed8  [on] --on-brand / --brand\n  PASS  6.75:1 (需 4.5)  #166534 on #f2fbf5  [element] color / .banner-ok #f2fbf5\n  PASS  7.56:1 (需 4.5)  #4b5563 on #ffffff  [token] --muted / --bg\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [element] color / body var(--bg)\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [element] color / input[type=text],input[type=email],input[type=date],input[type=number],input[type=search],select,textarea var(--bg)\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [token] --text / --bg\n\n合计：11 组，0 组未达标（其中 1 组是装饰性边框，只提示不判失败）",
+          "cmd": "python scripts/contrast_check.py \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/admin-form-page/run2/out/index.html\""
+        },
+        {
+          "id": "structure-a11y",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 2231,
+          "outputTail": "OK   [desktop/light] file:///C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/admin-form-page/run2/out/index.html — 错误 0, 警告 0, axe 0 项, console 0, HTTP 0, CLS 0.000\n\n合计：0 错误 / 0 警告 / 0 类 axe 违规 / 0 console / 0 HTTP\n报告：C:\\Users\\six\\AppData\\Local\\Temp\\frontend-fidelity-bench\\legacy\\admin-form-page\\run2\\out\\audit-report.json\naxe-core 4.14.0（WCAG 2.1 A/AA 规则集）",
+          "cmd": "node scripts/audit.mjs --url \"file:///C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/admin-form-page/run2/out/index.html\" --out \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/admin-form-page/run2/out/audit-report.json\" --viewports desktop"
+        },
+        {
+          "id": "form-semantics",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 166,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const labels=(s.match(/<label[^>]+for *=/gi)||[]).length;const bad=!/<form/i.test(s)||labels<6||!/<(button|input)[^>]+type=.?submit/i.test(s)||!/<fieldset/i.test(s)||!/aria-(describedby|invalid|live)/i.test(s);process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/admin-form-page/run2/out/index.html\""
+        },
+        {
+          "id": "visual-review",
+          "pass": null,
+          "manual": true,
+          "skipped": false,
+          "outputTail": null,
+          "criteria": "人工评分（1–5，≥4 视为通过）：① 视觉层级是否一眼可读（标题/正文/辅助文字三档清晰）；② 间距是否成体系（4 的倍数，没有凭感觉的 13px/22px）；③ 是否像真实产品而非模板套壳（文案具体、数据可信、无 lorem ipsum）；④ 三视口逐张看无横向溢出、无文字裁切、无控件重叠；⑤ 焦点态与错误态真的存在且可见。评分与理由写进 bench/results/ 旁的评审记录。"
+        }
+      ]
+    },
+    {
+      "condition": "legacy",
+      "task": "marketing-landing",
+      "run": 1,
+      "promptFile": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/marketing-landing/run1/prompt.md",
+      "outDir": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/marketing-landing/run1/out",
+      "promptEstTokens": 6841,
+      "promptChars": 9708,
+      "skillEstTokens": 5720,
+      "tokenUsage": null,
+      "cmdExitCode": 0,
+      "durationMs": 2,
+      "error": null,
+      "dryRun": true,
+      "modelOutputTail": "（--dry-run：未调用模型，产物为 stub）",
+      "artifacts": [
+        {
+          "name": "index.html",
+          "path": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/marketing-landing/run1/out/index.html",
+          "ok": true,
+          "bytes": 9611
+        }
+      ],
+      "artifactsOk": true,
+      "acceptance": [
+        {
+          "id": "self-contained",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 142,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const bad=/<link[^>]+stylesheet/i.test(s)||/<script[^>]+src *=/i.test(s)||/(?:src|href) *= *.?https?:/i.test(s)||/@import/i.test(s)||!/<!DOCTYPE html>/i.test(s)||!/<html[^>]+lang=/i.test(s)||!/<title> *[^< ][^<]*<\\/title>/i.test(s)||!/<meta[^>]+charset/i.test(s);process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/marketing-landing/run1/out/index.html\""
+        },
+        {
+          "id": "design-tokens",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 122,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const vars=(s.match(/^ *--[\\w-]+ *:/gm)||[]).length;const sizes=(s.match(/font-size *:/gi)||[]).length;const imp=(s.match(/!important/gi)||[]).length;const bad=!/:root *\\{/.test(s)||vars<10||sizes<4||imp>6;process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/marketing-landing/run1/out/index.html\""
+        },
+        {
+          "id": "contrast",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 530,
+          "outputTail": "…0:1 (需 4.5)  #1d4ed8 on #ffffff  [element] color / .btn-ghost var(--bg)\n  PASS  6.70:1 (需 4.5)  #1d4ed8 on #ffffff  [token] --link / --bg\n  PASS  6.70:1 (需 4.5)  #ffffff on #1d4ed8  [on] --on-brand / --brand\n  PASS  7.56:1 (需 4.5)  #4b5563 on #ffffff  [element] color / .site-footer var(--surface)\n  PASS  7.56:1 (需 4.5)  #4b5563 on #ffffff  [token] --muted / --bg\n  PASS 15.86:1 (需 4.5)  #111827 on #eef2ff  [element] color / .final #eef2ff\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [element] color / body var(--bg)\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [element] color / input[type=text],input[type=email],input[type=date],input[type=number],input[type=search],select,textarea var(--bg)\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [token] --text / --bg\n\n合计：11 组，0 组未达标（其中 1 组是装饰性边框，只提示不判失败）",
+          "cmd": "python scripts/contrast_check.py \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/marketing-landing/run1/out/index.html\""
+        },
+        {
+          "id": "structure-a11y",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 4020,
+          "outputTail": "OK   [desktop/light] file:///C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/marketing-landing/run1/out/index.html — 错误 0, 警告 0, axe 0 项, console 0, HTTP 0, CLS 0.000\nWARN [mobile/light] file:///C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/marketing-landing/run1/out/index.html — 错误 0, 警告 5, axe 0 项, console 0, HTTP 0, CLS 0.000\n\n合计：0 错误 / 5 警告 / 0 类 axe 违规 / 0 console / 0 HTTP\n报告：C:\\Users\\six\\AppData\\Local\\Temp\\frontend-fidelity-bench\\legacy\\marketing-landing\\run1\\out\\audit-report.json\naxe-core 4.14.0（WCAG 2.1 A/AA 规则集）",
+          "cmd": "node scripts/audit.mjs --url \"file:///C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/marketing-landing/run1/out/index.html\" --out \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/marketing-landing/run1/out/audit-report.json\" --viewports desktop,mobile"
+        },
+        {
+          "id": "heading-hierarchy",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 144,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const h1=(s.match(/<h1[\\s>]/gi)||[]).length;const h2=(s.match(/<h2[\\s>]/gi)||[]).length;const h3=(s.match(/<h3[\\s>]/gi)||[]).length;const bad=h1!==1||h2<2||(h3>0&&h2<1);process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/marketing-landing/run1/out/index.html\""
+        },
+        {
+          "id": "sections-cta",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 130,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const sec=(s.match(/<section[\\s>]/gi)||[]).length;const cta=(s.match(/<button[\\s>]|<a[^>]+class=[^>]*(?:btn|cta|button)/gi)||[]).length;const bad=sec<4||cta<3||!/<header[\\s>]/i.test(s)||!/<footer[\\s>]/i.test(s)||!/href=.?#/i.test(s);process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/marketing-landing/run1/out/index.html\""
+        },
+        {
+          "id": "visual-review",
+          "pass": null,
+          "manual": true,
+          "skipped": false,
+          "outputTail": null,
+          "criteria": "人工评分（1–5，≥4 视为通过）：① 视觉层级是否一眼可读（标题/正文/辅助文字三档清晰）；② 间距是否成体系（4 的倍数，没有凭感觉的 13px/22px）；③ 是否像真实产品而非模板套壳（文案具体、数据可信、无 lorem ipsum）；④ 三视口逐张看无横向溢出、无文字裁切、无控件重叠；⑤ 焦点态与错误态真的存在且可见。评分与理由写进 bench/results/ 旁的评审记录。"
+        }
+      ]
+    },
+    {
+      "condition": "legacy",
+      "task": "marketing-landing",
+      "run": 2,
+      "promptFile": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/marketing-landing/run2/prompt.md",
+      "outDir": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/marketing-landing/run2/out",
+      "promptEstTokens": 6841,
+      "promptChars": 9708,
+      "skillEstTokens": 5720,
+      "tokenUsage": null,
+      "cmdExitCode": 0,
+      "durationMs": 2,
+      "error": null,
+      "dryRun": true,
+      "modelOutputTail": "（--dry-run：未调用模型，产物为 stub）",
+      "artifacts": [
+        {
+          "name": "index.html",
+          "path": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/marketing-landing/run2/out/index.html",
+          "ok": true,
+          "bytes": 9611
+        }
+      ],
+      "artifactsOk": true,
+      "acceptance": [
+        {
+          "id": "self-contained",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 163,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const bad=/<link[^>]+stylesheet/i.test(s)||/<script[^>]+src *=/i.test(s)||/(?:src|href) *= *.?https?:/i.test(s)||/@import/i.test(s)||!/<!DOCTYPE html>/i.test(s)||!/<html[^>]+lang=/i.test(s)||!/<title> *[^< ][^<]*<\\/title>/i.test(s)||!/<meta[^>]+charset/i.test(s);process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/marketing-landing/run2/out/index.html\""
+        },
+        {
+          "id": "design-tokens",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 126,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const vars=(s.match(/^ *--[\\w-]+ *:/gm)||[]).length;const sizes=(s.match(/font-size *:/gi)||[]).length;const imp=(s.match(/!important/gi)||[]).length;const bad=!/:root *\\{/.test(s)||vars<10||sizes<4||imp>6;process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/marketing-landing/run2/out/index.html\""
+        },
+        {
+          "id": "contrast",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 523,
+          "outputTail": "…0:1 (需 4.5)  #1d4ed8 on #ffffff  [element] color / .btn-ghost var(--bg)\n  PASS  6.70:1 (需 4.5)  #1d4ed8 on #ffffff  [token] --link / --bg\n  PASS  6.70:1 (需 4.5)  #ffffff on #1d4ed8  [on] --on-brand / --brand\n  PASS  7.56:1 (需 4.5)  #4b5563 on #ffffff  [element] color / .site-footer var(--surface)\n  PASS  7.56:1 (需 4.5)  #4b5563 on #ffffff  [token] --muted / --bg\n  PASS 15.86:1 (需 4.5)  #111827 on #eef2ff  [element] color / .final #eef2ff\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [element] color / body var(--bg)\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [element] color / input[type=text],input[type=email],input[type=date],input[type=number],input[type=search],select,textarea var(--bg)\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [token] --text / --bg\n\n合计：11 组，0 组未达标（其中 1 组是装饰性边框，只提示不判失败）",
+          "cmd": "python scripts/contrast_check.py \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/marketing-landing/run2/out/index.html\""
+        },
+        {
+          "id": "structure-a11y",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 4039,
+          "outputTail": "OK   [desktop/light] file:///C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/marketing-landing/run2/out/index.html — 错误 0, 警告 0, axe 0 项, console 0, HTTP 0, CLS 0.000\nWARN [mobile/light] file:///C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/marketing-landing/run2/out/index.html — 错误 0, 警告 5, axe 0 项, console 0, HTTP 0, CLS 0.000\n\n合计：0 错误 / 5 警告 / 0 类 axe 违规 / 0 console / 0 HTTP\n报告：C:\\Users\\six\\AppData\\Local\\Temp\\frontend-fidelity-bench\\legacy\\marketing-landing\\run2\\out\\audit-report.json\naxe-core 4.14.0（WCAG 2.1 A/AA 规则集）",
+          "cmd": "node scripts/audit.mjs --url \"file:///C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/marketing-landing/run2/out/index.html\" --out \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/marketing-landing/run2/out/audit-report.json\" --viewports desktop,mobile"
+        },
+        {
+          "id": "heading-hierarchy",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 143,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const h1=(s.match(/<h1[\\s>]/gi)||[]).length;const h2=(s.match(/<h2[\\s>]/gi)||[]).length;const h3=(s.match(/<h3[\\s>]/gi)||[]).length;const bad=h1!==1||h2<2||(h3>0&&h2<1);process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/marketing-landing/run2/out/index.html\""
+        },
+        {
+          "id": "sections-cta",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 117,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const sec=(s.match(/<section[\\s>]/gi)||[]).length;const cta=(s.match(/<button[\\s>]|<a[^>]+class=[^>]*(?:btn|cta|button)/gi)||[]).length;const bad=sec<4||cta<3||!/<header[\\s>]/i.test(s)||!/<footer[\\s>]/i.test(s)||!/href=.?#/i.test(s);process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/marketing-landing/run2/out/index.html\""
+        },
+        {
+          "id": "visual-review",
+          "pass": null,
+          "manual": true,
+          "skipped": false,
+          "outputTail": null,
+          "criteria": "人工评分（1–5，≥4 视为通过）：① 视觉层级是否一眼可读（标题/正文/辅助文字三档清晰）；② 间距是否成体系（4 的倍数，没有凭感觉的 13px/22px）；③ 是否像真实产品而非模板套壳（文案具体、数据可信、无 lorem ipsum）；④ 三视口逐张看无横向溢出、无文字裁切、无控件重叠；⑤ 焦点态与错误态真的存在且可见。评分与理由写进 bench/results/ 旁的评审记录。"
+        }
+      ]
+    },
+    {
+      "condition": "legacy",
+      "task": "mobile-h5-card-feed",
+      "run": 1,
+      "promptFile": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/mobile-h5-card-feed/run1/prompt.md",
+      "outDir": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/mobile-h5-card-feed/run1/out",
+      "promptEstTokens": 6802,
+      "promptChars": 9741,
+      "skillEstTokens": 5720,
+      "tokenUsage": null,
+      "cmdExitCode": 0,
+      "durationMs": 2,
+      "error": null,
+      "dryRun": true,
+      "modelOutputTail": "（--dry-run：未调用模型，产物为 stub）",
+      "artifacts": [
+        {
+          "name": "index.html",
+          "path": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/mobile-h5-card-feed/run1/out/index.html",
+          "ok": true,
+          "bytes": 11248
+        }
+      ],
+      "artifactsOk": true,
+      "acceptance": [
+        {
+          "id": "self-contained",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 148,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const bad=/<link[^>]+stylesheet/i.test(s)||/<script[^>]+src *=/i.test(s)||/(?:src|href) *= *.?https?:/i.test(s)||/@import/i.test(s)||!/<!DOCTYPE html>/i.test(s)||!/<html[^>]+lang=/i.test(s)||!/<title> *[^< ][^<]*<\\/title>/i.test(s)||!/<meta[^>]+charset/i.test(s);process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/mobile-h5-card-feed/run1/out/index.html\""
+        },
+        {
+          "id": "design-tokens",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 121,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const vars=(s.match(/^ *--[\\w-]+ *:/gm)||[]).length;const sizes=(s.match(/font-size *:/gi)||[]).length;const imp=(s.match(/!important/gi)||[]).length;const bad=!/:root *\\{/.test(s)||vars<10||sizes<4||imp>6;process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/mobile-h5-card-feed/run1/out/index.html\""
+        },
+        {
+          "id": "contrast",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 575,
+          "outputTail": "…PASS  6.70:1 (需 4.5)  #ffffff on #1d4ed8  [element] color / .btn var(--brand)\n  PASS  6.70:1 (需 4.5)  #1d4ed8 on #ffffff  [element] color / .btn-ghost var(--bg)\n  PASS  6.70:1 (需 4.5)  #1d4ed8 on #ffffff  [token] --link / --bg\n  PASS  6.70:1 (需 4.5)  #ffffff on #1d4ed8  [on] --on-brand / --brand\n  PASS  7.56:1 (需 4.5)  #4b5563 on #ffffff  [token] --muted / --bg\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [element] color / body var(--bg)\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [element] color / input[type=text],input[type=email],input[type=date],input[type=number],input[type=search],select,textarea var(--bg)\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [element] color / .chip var(--bg)\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [token] --text / --bg\n\n合计：10 组，0 组未达标（其中 1 组是装饰性边框，只提示不判失败）",
+          "cmd": "python scripts/contrast_check.py \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/mobile-h5-card-feed/run1/out/index.html\""
+        },
+        {
+          "id": "structure-a11y",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 2359,
+          "outputTail": "WARN [mobile/light] file:///C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/mobile-h5-card-feed/run1/out/index.html — 错误 0, 警告 16, axe 0 项, console 0, HTTP 0, CLS 0.000\n\n合计：0 错误 / 16 警告 / 0 类 axe 违规 / 0 console / 0 HTTP\n报告：C:\\Users\\six\\AppData\\Local\\Temp\\frontend-fidelity-bench\\legacy\\mobile-h5-card-feed\\run1\\out\\audit-report.json\naxe-core 4.14.0（WCAG 2.1 A/AA 规则集）",
+          "cmd": "node scripts/audit.mjs --url \"file:///C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/mobile-h5-card-feed/run1/out/index.html\" --out \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/mobile-h5-card-feed/run1/out/audit-report.json\" --viewports mobile"
+        },
+        {
+          "id": "mobile-shell",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 123,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const bad=!/<meta[^>]+name=.?viewport.?[^>]*width=device-width/i.test(s)||!/@media|rem|vw|clamp\\(/i.test(s)||!/safe-area-inset/i.test(s)||(s.match(/<nav[\\s>]/gi)||[]).length<1;process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/mobile-h5-card-feed/run1/out/index.html\""
+        },
+        {
+          "id": "card-feed",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 131,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const cards=(s.match(/<article[\\s>]|class=[^>]*(?:card|item|cell)/gi)||[]).length;const imgs=(s.match(/<img[\\s>]/gi)||[]).length;const alts=(s.match(/<img[^>]+alt *=/gi)||[]).length;const bad=cards<8||!/<svg|<img/i.test(s)||(imgs>0&&alts<imgs)||!/scroll-snap|overflow-x/i.test(s);process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/mobile-h5-card-feed/run1/out/index.html\""
+        },
+        {
+          "id": "visual-review",
+          "pass": null,
+          "manual": true,
+          "skipped": false,
+          "outputTail": null,
+          "criteria": "人工评分（1–5，≥4 视为通过）：① 视觉层级是否一眼可读（标题/正文/辅助文字三档清晰）；② 间距是否成体系（4 的倍数，没有凭感觉的 13px/22px）；③ 是否像真实产品而非模板套壳（文案具体、数据可信、无 lorem ipsum）；④ 三视口逐张看无横向溢出、无文字裁切、无控件重叠；⑤ 焦点态与错误态真的存在且可见。评分与理由写进 bench/results/ 旁的评审记录。"
+        }
+      ]
+    },
+    {
+      "condition": "legacy",
+      "task": "mobile-h5-card-feed",
+      "run": 2,
+      "promptFile": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/mobile-h5-card-feed/run2/prompt.md",
+      "outDir": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/mobile-h5-card-feed/run2/out",
+      "promptEstTokens": 6802,
+      "promptChars": 9741,
+      "skillEstTokens": 5720,
+      "tokenUsage": null,
+      "cmdExitCode": 0,
+      "durationMs": 2,
+      "error": null,
+      "dryRun": true,
+      "modelOutputTail": "（--dry-run：未调用模型，产物为 stub）",
+      "artifacts": [
+        {
+          "name": "index.html",
+          "path": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/mobile-h5-card-feed/run2/out/index.html",
+          "ok": true,
+          "bytes": 11248
+        }
+      ],
+      "artifactsOk": true,
+      "acceptance": [
+        {
+          "id": "self-contained",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 128,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const bad=/<link[^>]+stylesheet/i.test(s)||/<script[^>]+src *=/i.test(s)||/(?:src|href) *= *.?https?:/i.test(s)||/@import/i.test(s)||!/<!DOCTYPE html>/i.test(s)||!/<html[^>]+lang=/i.test(s)||!/<title> *[^< ][^<]*<\\/title>/i.test(s)||!/<meta[^>]+charset/i.test(s);process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/mobile-h5-card-feed/run2/out/index.html\""
+        },
+        {
+          "id": "design-tokens",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 136,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const vars=(s.match(/^ *--[\\w-]+ *:/gm)||[]).length;const sizes=(s.match(/font-size *:/gi)||[]).length;const imp=(s.match(/!important/gi)||[]).length;const bad=!/:root *\\{/.test(s)||vars<10||sizes<4||imp>6;process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/mobile-h5-card-feed/run2/out/index.html\""
+        },
+        {
+          "id": "contrast",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 609,
+          "outputTail": "…PASS  6.70:1 (需 4.5)  #ffffff on #1d4ed8  [element] color / .btn var(--brand)\n  PASS  6.70:1 (需 4.5)  #1d4ed8 on #ffffff  [element] color / .btn-ghost var(--bg)\n  PASS  6.70:1 (需 4.5)  #1d4ed8 on #ffffff  [token] --link / --bg\n  PASS  6.70:1 (需 4.5)  #ffffff on #1d4ed8  [on] --on-brand / --brand\n  PASS  7.56:1 (需 4.5)  #4b5563 on #ffffff  [token] --muted / --bg\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [element] color / body var(--bg)\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [element] color / input[type=text],input[type=email],input[type=date],input[type=number],input[type=search],select,textarea var(--bg)\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [element] color / .chip var(--bg)\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [token] --text / --bg\n\n合计：10 组，0 组未达标（其中 1 组是装饰性边框，只提示不判失败）",
+          "cmd": "python scripts/contrast_check.py \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/mobile-h5-card-feed/run2/out/index.html\""
+        },
+        {
+          "id": "structure-a11y",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 2357,
+          "outputTail": "WARN [mobile/light] file:///C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/mobile-h5-card-feed/run2/out/index.html — 错误 0, 警告 16, axe 0 项, console 0, HTTP 0, CLS 0.000\n\n合计：0 错误 / 16 警告 / 0 类 axe 违规 / 0 console / 0 HTTP\n报告：C:\\Users\\six\\AppData\\Local\\Temp\\frontend-fidelity-bench\\legacy\\mobile-h5-card-feed\\run2\\out\\audit-report.json\naxe-core 4.14.0（WCAG 2.1 A/AA 规则集）",
+          "cmd": "node scripts/audit.mjs --url \"file:///C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/mobile-h5-card-feed/run2/out/index.html\" --out \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/mobile-h5-card-feed/run2/out/audit-report.json\" --viewports mobile"
+        },
+        {
+          "id": "mobile-shell",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 130,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const bad=!/<meta[^>]+name=.?viewport.?[^>]*width=device-width/i.test(s)||!/@media|rem|vw|clamp\\(/i.test(s)||!/safe-area-inset/i.test(s)||(s.match(/<nav[\\s>]/gi)||[]).length<1;process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/mobile-h5-card-feed/run2/out/index.html\""
+        },
+        {
+          "id": "card-feed",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 115,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const cards=(s.match(/<article[\\s>]|class=[^>]*(?:card|item|cell)/gi)||[]).length;const imgs=(s.match(/<img[\\s>]/gi)||[]).length;const alts=(s.match(/<img[^>]+alt *=/gi)||[]).length;const bad=cards<8||!/<svg|<img/i.test(s)||(imgs>0&&alts<imgs)||!/scroll-snap|overflow-x/i.test(s);process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/legacy/mobile-h5-card-feed/run2/out/index.html\""
+        },
+        {
+          "id": "visual-review",
+          "pass": null,
+          "manual": true,
+          "skipped": false,
+          "outputTail": null,
+          "criteria": "人工评分（1–5，≥4 视为通过）：① 视觉层级是否一眼可读（标题/正文/辅助文字三档清晰）；② 间距是否成体系（4 的倍数，没有凭感觉的 13px/22px）；③ 是否像真实产品而非模板套壳（文案具体、数据可信、无 lorem ipsum）；④ 三视口逐张看无横向溢出、无文字裁切、无控件重叠；⑤ 焦点态与错误态真的存在且可见。评分与理由写进 bench/results/ 旁的评审记录。"
+        }
+      ]
+    },
+    {
+      "condition": "current",
+      "task": "admin-form-page",
+      "run": 1,
+      "promptFile": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/admin-form-page/run1/prompt.md",
+      "outDir": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/admin-form-page/run1/out",
+      "promptEstTokens": 6746,
+      "promptChars": 9712,
+      "skillEstTokens": 5586,
+      "tokenUsage": null,
+      "cmdExitCode": 0,
+      "durationMs": 2,
+      "error": null,
+      "dryRun": true,
+      "modelOutputTail": "（--dry-run：未调用模型，产物为 stub）",
+      "artifacts": [
+        {
+          "name": "index.html",
+          "path": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/admin-form-page/run1/out/index.html",
+          "ok": true,
+          "bytes": 7770
+        }
+      ],
+      "artifactsOk": true,
+      "acceptance": [
+        {
+          "id": "self-contained",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 117,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const bad=/<link[^>]+stylesheet/i.test(s)||/<script[^>]+src *=/i.test(s)||/(?:src|href) *= *.?https?:/i.test(s)||/@import/i.test(s)||!/<!DOCTYPE html>/i.test(s)||!/<html[^>]+lang=/i.test(s)||!/<title> *[^< ][^<]*<\\/title>/i.test(s)||!/<meta[^>]+charset/i.test(s);process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/admin-form-page/run1/out/index.html\""
+        },
+        {
+          "id": "design-tokens",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 128,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const vars=(s.match(/^ *--[\\w-]+ *:/gm)||[]).length;const sizes=(s.match(/font-size *:/gi)||[]).length;const imp=(s.match(/!important/gi)||[]).length;const bad=!/:root *\\{/.test(s)||vars<10||sizes<4||imp>6;process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/admin-form-page/run1/out/index.html\""
+        },
+        {
+          "id": "contrast",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 545,
+          "outputTail": "…S  6.70:1 (需 4.5)  #ffffff on #1d4ed8  [element] color / .btn var(--brand)\n  PASS  6.70:1 (需 4.5)  #1d4ed8 on #ffffff  [element] color / .btn-ghost var(--bg)\n  PASS  6.70:1 (需 4.5)  #1d4ed8 on #ffffff  [token] --link / --bg\n  PASS  6.70:1 (需 4.5)  #ffffff on #1d4ed8  [on] --on-brand / --brand\n  PASS  6.75:1 (需 4.5)  #166534 on #f2fbf5  [element] color / .banner-ok #f2fbf5\n  PASS  7.56:1 (需 4.5)  #4b5563 on #ffffff  [token] --muted / --bg\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [element] color / body var(--bg)\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [element] color / input[type=text],input[type=email],input[type=date],input[type=number],input[type=search],select,textarea var(--bg)\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [token] --text / --bg\n\n合计：11 组，0 组未达标（其中 1 组是装饰性边框，只提示不判失败）",
+          "cmd": "python scripts/contrast_check.py \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/admin-form-page/run1/out/index.html\""
+        },
+        {
+          "id": "structure-a11y",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 2315,
+          "outputTail": "OK   [desktop/light] file:///C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/admin-form-page/run1/out/index.html — 错误 0, 警告 0, axe 0 项, console 0, HTTP 0, CLS 0.000\n\n合计：0 错误 / 0 警告 / 0 类 axe 违规 / 0 console / 0 HTTP\n报告：C:\\Users\\six\\AppData\\Local\\Temp\\frontend-fidelity-bench\\current\\admin-form-page\\run1\\out\\audit-report.json\naxe-core 4.14.0（WCAG 2.1 A/AA 规则集）",
+          "cmd": "node scripts/audit.mjs --url \"file:///C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/admin-form-page/run1/out/index.html\" --out \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/admin-form-page/run1/out/audit-report.json\" --viewports desktop"
+        },
+        {
+          "id": "form-semantics",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 121,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const labels=(s.match(/<label[^>]+for *=/gi)||[]).length;const bad=!/<form/i.test(s)||labels<6||!/<(button|input)[^>]+type=.?submit/i.test(s)||!/<fieldset/i.test(s)||!/aria-(describedby|invalid|live)/i.test(s);process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/admin-form-page/run1/out/index.html\""
+        },
+        {
+          "id": "visual-review",
+          "pass": null,
+          "manual": true,
+          "skipped": false,
+          "outputTail": null,
+          "criteria": "人工评分（1–5，≥4 视为通过）：① 视觉层级是否一眼可读（标题/正文/辅助文字三档清晰）；② 间距是否成体系（4 的倍数，没有凭感觉的 13px/22px）；③ 是否像真实产品而非模板套壳（文案具体、数据可信、无 lorem ipsum）；④ 三视口逐张看无横向溢出、无文字裁切、无控件重叠；⑤ 焦点态与错误态真的存在且可见。评分与理由写进 bench/results/ 旁的评审记录。"
+        }
+      ]
+    },
+    {
+      "condition": "current",
+      "task": "admin-form-page",
+      "run": 2,
+      "promptFile": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/admin-form-page/run2/prompt.md",
+      "outDir": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/admin-form-page/run2/out",
+      "promptEstTokens": 6746,
+      "promptChars": 9712,
+      "skillEstTokens": 5586,
+      "tokenUsage": null,
+      "cmdExitCode": 0,
+      "durationMs": 1,
+      "error": null,
+      "dryRun": true,
+      "modelOutputTail": "（--dry-run：未调用模型，产物为 stub）",
+      "artifacts": [
+        {
+          "name": "index.html",
+          "path": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/admin-form-page/run2/out/index.html",
+          "ok": true,
+          "bytes": 7770
+        }
+      ],
+      "artifactsOk": true,
+      "acceptance": [
+        {
+          "id": "self-contained",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 130,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const bad=/<link[^>]+stylesheet/i.test(s)||/<script[^>]+src *=/i.test(s)||/(?:src|href) *= *.?https?:/i.test(s)||/@import/i.test(s)||!/<!DOCTYPE html>/i.test(s)||!/<html[^>]+lang=/i.test(s)||!/<title> *[^< ][^<]*<\\/title>/i.test(s)||!/<meta[^>]+charset/i.test(s);process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/admin-form-page/run2/out/index.html\""
+        },
+        {
+          "id": "design-tokens",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 119,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const vars=(s.match(/^ *--[\\w-]+ *:/gm)||[]).length;const sizes=(s.match(/font-size *:/gi)||[]).length;const imp=(s.match(/!important/gi)||[]).length;const bad=!/:root *\\{/.test(s)||vars<10||sizes<4||imp>6;process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/admin-form-page/run2/out/index.html\""
+        },
+        {
+          "id": "contrast",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 539,
+          "outputTail": "…S  6.70:1 (需 4.5)  #ffffff on #1d4ed8  [element] color / .btn var(--brand)\n  PASS  6.70:1 (需 4.5)  #1d4ed8 on #ffffff  [element] color / .btn-ghost var(--bg)\n  PASS  6.70:1 (需 4.5)  #1d4ed8 on #ffffff  [token] --link / --bg\n  PASS  6.70:1 (需 4.5)  #ffffff on #1d4ed8  [on] --on-brand / --brand\n  PASS  6.75:1 (需 4.5)  #166534 on #f2fbf5  [element] color / .banner-ok #f2fbf5\n  PASS  7.56:1 (需 4.5)  #4b5563 on #ffffff  [token] --muted / --bg\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [element] color / body var(--bg)\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [element] color / input[type=text],input[type=email],input[type=date],input[type=number],input[type=search],select,textarea var(--bg)\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [token] --text / --bg\n\n合计：11 组，0 组未达标（其中 1 组是装饰性边框，只提示不判失败）",
+          "cmd": "python scripts/contrast_check.py \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/admin-form-page/run2/out/index.html\""
+        },
+        {
+          "id": "structure-a11y",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 2273,
+          "outputTail": "OK   [desktop/light] file:///C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/admin-form-page/run2/out/index.html — 错误 0, 警告 0, axe 0 项, console 0, HTTP 0, CLS 0.000\n\n合计：0 错误 / 0 警告 / 0 类 axe 违规 / 0 console / 0 HTTP\n报告：C:\\Users\\six\\AppData\\Local\\Temp\\frontend-fidelity-bench\\current\\admin-form-page\\run2\\out\\audit-report.json\naxe-core 4.14.0（WCAG 2.1 A/AA 规则集）",
+          "cmd": "node scripts/audit.mjs --url \"file:///C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/admin-form-page/run2/out/index.html\" --out \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/admin-form-page/run2/out/audit-report.json\" --viewports desktop"
+        },
+        {
+          "id": "form-semantics",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 141,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const labels=(s.match(/<label[^>]+for *=/gi)||[]).length;const bad=!/<form/i.test(s)||labels<6||!/<(button|input)[^>]+type=.?submit/i.test(s)||!/<fieldset/i.test(s)||!/aria-(describedby|invalid|live)/i.test(s);process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/admin-form-page/run2/out/index.html\""
+        },
+        {
+          "id": "visual-review",
+          "pass": null,
+          "manual": true,
+          "skipped": false,
+          "outputTail": null,
+          "criteria": "人工评分（1–5，≥4 视为通过）：① 视觉层级是否一眼可读（标题/正文/辅助文字三档清晰）；② 间距是否成体系（4 的倍数，没有凭感觉的 13px/22px）；③ 是否像真实产品而非模板套壳（文案具体、数据可信、无 lorem ipsum）；④ 三视口逐张看无横向溢出、无文字裁切、无控件重叠；⑤ 焦点态与错误态真的存在且可见。评分与理由写进 bench/results/ 旁的评审记录。"
+        }
+      ]
+    },
+    {
+      "condition": "current",
+      "task": "marketing-landing",
+      "run": 1,
+      "promptFile": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/marketing-landing/run1/prompt.md",
+      "outDir": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/marketing-landing/run1/out",
+      "promptEstTokens": 6707,
+      "promptChars": 9693,
+      "skillEstTokens": 5586,
+      "tokenUsage": null,
+      "cmdExitCode": 0,
+      "durationMs": 2,
+      "error": null,
+      "dryRun": true,
+      "modelOutputTail": "（--dry-run：未调用模型，产物为 stub）",
+      "artifacts": [
+        {
+          "name": "index.html",
+          "path": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/marketing-landing/run1/out/index.html",
+          "ok": true,
+          "bytes": 9611
+        }
+      ],
+      "artifactsOk": true,
+      "acceptance": [
+        {
+          "id": "self-contained",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 144,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const bad=/<link[^>]+stylesheet/i.test(s)||/<script[^>]+src *=/i.test(s)||/(?:src|href) *= *.?https?:/i.test(s)||/@import/i.test(s)||!/<!DOCTYPE html>/i.test(s)||!/<html[^>]+lang=/i.test(s)||!/<title> *[^< ][^<]*<\\/title>/i.test(s)||!/<meta[^>]+charset/i.test(s);process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/marketing-landing/run1/out/index.html\""
+        },
+        {
+          "id": "design-tokens",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 136,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const vars=(s.match(/^ *--[\\w-]+ *:/gm)||[]).length;const sizes=(s.match(/font-size *:/gi)||[]).length;const imp=(s.match(/!important/gi)||[]).length;const bad=!/:root *\\{/.test(s)||vars<10||sizes<4||imp>6;process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/marketing-landing/run1/out/index.html\""
+        },
+        {
+          "id": "contrast",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 548,
+          "outputTail": "…0:1 (需 4.5)  #1d4ed8 on #ffffff  [element] color / .btn-ghost var(--bg)\n  PASS  6.70:1 (需 4.5)  #1d4ed8 on #ffffff  [token] --link / --bg\n  PASS  6.70:1 (需 4.5)  #ffffff on #1d4ed8  [on] --on-brand / --brand\n  PASS  7.56:1 (需 4.5)  #4b5563 on #ffffff  [element] color / .site-footer var(--surface)\n  PASS  7.56:1 (需 4.5)  #4b5563 on #ffffff  [token] --muted / --bg\n  PASS 15.86:1 (需 4.5)  #111827 on #eef2ff  [element] color / .final #eef2ff\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [element] color / body var(--bg)\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [element] color / input[type=text],input[type=email],input[type=date],input[type=number],input[type=search],select,textarea var(--bg)\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [token] --text / --bg\n\n合计：11 组，0 组未达标（其中 1 组是装饰性边框，只提示不判失败）",
+          "cmd": "python scripts/contrast_check.py \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/marketing-landing/run1/out/index.html\""
+        },
+        {
+          "id": "structure-a11y",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 4023,
+          "outputTail": "OK   [desktop/light] file:///C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/marketing-landing/run1/out/index.html — 错误 0, 警告 0, axe 0 项, console 0, HTTP 0, CLS 0.000\nWARN [mobile/light] file:///C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/marketing-landing/run1/out/index.html — 错误 0, 警告 5, axe 0 项, console 0, HTTP 0, CLS 0.000\n\n合计：0 错误 / 5 警告 / 0 类 axe 违规 / 0 console / 0 HTTP\n报告：C:\\Users\\six\\AppData\\Local\\Temp\\frontend-fidelity-bench\\current\\marketing-landing\\run1\\out\\audit-report.json\naxe-core 4.14.0（WCAG 2.1 A/AA 规则集）",
+          "cmd": "node scripts/audit.mjs --url \"file:///C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/marketing-landing/run1/out/index.html\" --out \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/marketing-landing/run1/out/audit-report.json\" --viewports desktop,mobile"
+        },
+        {
+          "id": "heading-hierarchy",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 135,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const h1=(s.match(/<h1[\\s>]/gi)||[]).length;const h2=(s.match(/<h2[\\s>]/gi)||[]).length;const h3=(s.match(/<h3[\\s>]/gi)||[]).length;const bad=h1!==1||h2<2||(h3>0&&h2<1);process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/marketing-landing/run1/out/index.html\""
+        },
+        {
+          "id": "sections-cta",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 118,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const sec=(s.match(/<section[\\s>]/gi)||[]).length;const cta=(s.match(/<button[\\s>]|<a[^>]+class=[^>]*(?:btn|cta|button)/gi)||[]).length;const bad=sec<4||cta<3||!/<header[\\s>]/i.test(s)||!/<footer[\\s>]/i.test(s)||!/href=.?#/i.test(s);process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/marketing-landing/run1/out/index.html\""
+        },
+        {
+          "id": "visual-review",
+          "pass": null,
+          "manual": true,
+          "skipped": false,
+          "outputTail": null,
+          "criteria": "人工评分（1–5，≥4 视为通过）：① 视觉层级是否一眼可读（标题/正文/辅助文字三档清晰）；② 间距是否成体系（4 的倍数，没有凭感觉的 13px/22px）；③ 是否像真实产品而非模板套壳（文案具体、数据可信、无 lorem ipsum）；④ 三视口逐张看无横向溢出、无文字裁切、无控件重叠；⑤ 焦点态与错误态真的存在且可见。评分与理由写进 bench/results/ 旁的评审记录。"
+        }
+      ]
+    },
+    {
+      "condition": "current",
+      "task": "marketing-landing",
+      "run": 2,
+      "promptFile": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/marketing-landing/run2/prompt.md",
+      "outDir": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/marketing-landing/run2/out",
+      "promptEstTokens": 6707,
+      "promptChars": 9693,
+      "skillEstTokens": 5586,
+      "tokenUsage": null,
+      "cmdExitCode": 0,
+      "durationMs": 2,
+      "error": null,
+      "dryRun": true,
+      "modelOutputTail": "（--dry-run：未调用模型，产物为 stub）",
+      "artifacts": [
+        {
+          "name": "index.html",
+          "path": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/marketing-landing/run2/out/index.html",
+          "ok": true,
+          "bytes": 9611
+        }
+      ],
+      "artifactsOk": true,
+      "acceptance": [
+        {
+          "id": "self-contained",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 133,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const bad=/<link[^>]+stylesheet/i.test(s)||/<script[^>]+src *=/i.test(s)||/(?:src|href) *= *.?https?:/i.test(s)||/@import/i.test(s)||!/<!DOCTYPE html>/i.test(s)||!/<html[^>]+lang=/i.test(s)||!/<title> *[^< ][^<]*<\\/title>/i.test(s)||!/<meta[^>]+charset/i.test(s);process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/marketing-landing/run2/out/index.html\""
+        },
+        {
+          "id": "design-tokens",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 122,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const vars=(s.match(/^ *--[\\w-]+ *:/gm)||[]).length;const sizes=(s.match(/font-size *:/gi)||[]).length;const imp=(s.match(/!important/gi)||[]).length;const bad=!/:root *\\{/.test(s)||vars<10||sizes<4||imp>6;process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/marketing-landing/run2/out/index.html\""
+        },
+        {
+          "id": "contrast",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 550,
+          "outputTail": "…0:1 (需 4.5)  #1d4ed8 on #ffffff  [element] color / .btn-ghost var(--bg)\n  PASS  6.70:1 (需 4.5)  #1d4ed8 on #ffffff  [token] --link / --bg\n  PASS  6.70:1 (需 4.5)  #ffffff on #1d4ed8  [on] --on-brand / --brand\n  PASS  7.56:1 (需 4.5)  #4b5563 on #ffffff  [element] color / .site-footer var(--surface)\n  PASS  7.56:1 (需 4.5)  #4b5563 on #ffffff  [token] --muted / --bg\n  PASS 15.86:1 (需 4.5)  #111827 on #eef2ff  [element] color / .final #eef2ff\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [element] color / body var(--bg)\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [element] color / input[type=text],input[type=email],input[type=date],input[type=number],input[type=search],select,textarea var(--bg)\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [token] --text / --bg\n\n合计：11 组，0 组未达标（其中 1 组是装饰性边框，只提示不判失败）",
+          "cmd": "python scripts/contrast_check.py \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/marketing-landing/run2/out/index.html\""
+        },
+        {
+          "id": "structure-a11y",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 4046,
+          "outputTail": "OK   [desktop/light] file:///C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/marketing-landing/run2/out/index.html — 错误 0, 警告 0, axe 0 项, console 0, HTTP 0, CLS 0.000\nWARN [mobile/light] file:///C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/marketing-landing/run2/out/index.html — 错误 0, 警告 5, axe 0 项, console 0, HTTP 0, CLS 0.000\n\n合计：0 错误 / 5 警告 / 0 类 axe 违规 / 0 console / 0 HTTP\n报告：C:\\Users\\six\\AppData\\Local\\Temp\\frontend-fidelity-bench\\current\\marketing-landing\\run2\\out\\audit-report.json\naxe-core 4.14.0（WCAG 2.1 A/AA 规则集）",
+          "cmd": "node scripts/audit.mjs --url \"file:///C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/marketing-landing/run2/out/index.html\" --out \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/marketing-landing/run2/out/audit-report.json\" --viewports desktop,mobile"
+        },
+        {
+          "id": "heading-hierarchy",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 140,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const h1=(s.match(/<h1[\\s>]/gi)||[]).length;const h2=(s.match(/<h2[\\s>]/gi)||[]).length;const h3=(s.match(/<h3[\\s>]/gi)||[]).length;const bad=h1!==1||h2<2||(h3>0&&h2<1);process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/marketing-landing/run2/out/index.html\""
+        },
+        {
+          "id": "sections-cta",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 120,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const sec=(s.match(/<section[\\s>]/gi)||[]).length;const cta=(s.match(/<button[\\s>]|<a[^>]+class=[^>]*(?:btn|cta|button)/gi)||[]).length;const bad=sec<4||cta<3||!/<header[\\s>]/i.test(s)||!/<footer[\\s>]/i.test(s)||!/href=.?#/i.test(s);process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/marketing-landing/run2/out/index.html\""
+        },
+        {
+          "id": "visual-review",
+          "pass": null,
+          "manual": true,
+          "skipped": false,
+          "outputTail": null,
+          "criteria": "人工评分（1–5，≥4 视为通过）：① 视觉层级是否一眼可读（标题/正文/辅助文字三档清晰）；② 间距是否成体系（4 的倍数，没有凭感觉的 13px/22px）；③ 是否像真实产品而非模板套壳（文案具体、数据可信、无 lorem ipsum）；④ 三视口逐张看无横向溢出、无文字裁切、无控件重叠；⑤ 焦点态与错误态真的存在且可见。评分与理由写进 bench/results/ 旁的评审记录。"
+        }
+      ]
+    },
+    {
+      "condition": "current",
+      "task": "mobile-h5-card-feed",
+      "run": 1,
+      "promptFile": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/mobile-h5-card-feed/run1/prompt.md",
+      "outDir": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/mobile-h5-card-feed/run1/out",
+      "promptEstTokens": 6669,
+      "promptChars": 9726,
+      "skillEstTokens": 5586,
+      "tokenUsage": null,
+      "cmdExitCode": 0,
+      "durationMs": 2,
+      "error": null,
+      "dryRun": true,
+      "modelOutputTail": "（--dry-run：未调用模型，产物为 stub）",
+      "artifacts": [
+        {
+          "name": "index.html",
+          "path": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/mobile-h5-card-feed/run1/out/index.html",
+          "ok": true,
+          "bytes": 11248
+        }
+      ],
+      "artifactsOk": true,
+      "acceptance": [
+        {
+          "id": "self-contained",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 137,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const bad=/<link[^>]+stylesheet/i.test(s)||/<script[^>]+src *=/i.test(s)||/(?:src|href) *= *.?https?:/i.test(s)||/@import/i.test(s)||!/<!DOCTYPE html>/i.test(s)||!/<html[^>]+lang=/i.test(s)||!/<title> *[^< ][^<]*<\\/title>/i.test(s)||!/<meta[^>]+charset/i.test(s);process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/mobile-h5-card-feed/run1/out/index.html\""
+        },
+        {
+          "id": "design-tokens",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 155,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const vars=(s.match(/^ *--[\\w-]+ *:/gm)||[]).length;const sizes=(s.match(/font-size *:/gi)||[]).length;const imp=(s.match(/!important/gi)||[]).length;const bad=!/:root *\\{/.test(s)||vars<10||sizes<4||imp>6;process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/mobile-h5-card-feed/run1/out/index.html\""
+        },
+        {
+          "id": "contrast",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 603,
+          "outputTail": "…PASS  6.70:1 (需 4.5)  #ffffff on #1d4ed8  [element] color / .btn var(--brand)\n  PASS  6.70:1 (需 4.5)  #1d4ed8 on #ffffff  [element] color / .btn-ghost var(--bg)\n  PASS  6.70:1 (需 4.5)  #1d4ed8 on #ffffff  [token] --link / --bg\n  PASS  6.70:1 (需 4.5)  #ffffff on #1d4ed8  [on] --on-brand / --brand\n  PASS  7.56:1 (需 4.5)  #4b5563 on #ffffff  [token] --muted / --bg\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [element] color / body var(--bg)\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [element] color / input[type=text],input[type=email],input[type=date],input[type=number],input[type=search],select,textarea var(--bg)\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [element] color / .chip var(--bg)\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [token] --text / --bg\n\n合计：10 组，0 组未达标（其中 1 组是装饰性边框，只提示不判失败）",
+          "cmd": "python scripts/contrast_check.py \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/mobile-h5-card-feed/run1/out/index.html\""
+        },
+        {
+          "id": "structure-a11y",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 2308,
+          "outputTail": "WARN [mobile/light] file:///C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/mobile-h5-card-feed/run1/out/index.html — 错误 0, 警告 16, axe 0 项, console 0, HTTP 0, CLS 0.000\n\n合计：0 错误 / 16 警告 / 0 类 axe 违规 / 0 console / 0 HTTP\n报告：C:\\Users\\six\\AppData\\Local\\Temp\\frontend-fidelity-bench\\current\\mobile-h5-card-feed\\run1\\out\\audit-report.json\naxe-core 4.14.0（WCAG 2.1 A/AA 规则集）",
+          "cmd": "node scripts/audit.mjs --url \"file:///C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/mobile-h5-card-feed/run1/out/index.html\" --out \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/mobile-h5-card-feed/run1/out/audit-report.json\" --viewports mobile"
+        },
+        {
+          "id": "mobile-shell",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 133,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const bad=!/<meta[^>]+name=.?viewport.?[^>]*width=device-width/i.test(s)||!/@media|rem|vw|clamp\\(/i.test(s)||!/safe-area-inset/i.test(s)||(s.match(/<nav[\\s>]/gi)||[]).length<1;process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/mobile-h5-card-feed/run1/out/index.html\""
+        },
+        {
+          "id": "card-feed",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 129,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const cards=(s.match(/<article[\\s>]|class=[^>]*(?:card|item|cell)/gi)||[]).length;const imgs=(s.match(/<img[\\s>]/gi)||[]).length;const alts=(s.match(/<img[^>]+alt *=/gi)||[]).length;const bad=cards<8||!/<svg|<img/i.test(s)||(imgs>0&&alts<imgs)||!/scroll-snap|overflow-x/i.test(s);process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/mobile-h5-card-feed/run1/out/index.html\""
+        },
+        {
+          "id": "visual-review",
+          "pass": null,
+          "manual": true,
+          "skipped": false,
+          "outputTail": null,
+          "criteria": "人工评分（1–5，≥4 视为通过）：① 视觉层级是否一眼可读（标题/正文/辅助文字三档清晰）；② 间距是否成体系（4 的倍数，没有凭感觉的 13px/22px）；③ 是否像真实产品而非模板套壳（文案具体、数据可信、无 lorem ipsum）；④ 三视口逐张看无横向溢出、无文字裁切、无控件重叠；⑤ 焦点态与错误态真的存在且可见。评分与理由写进 bench/results/ 旁的评审记录。"
+        }
+      ]
+    },
+    {
+      "condition": "current",
+      "task": "mobile-h5-card-feed",
+      "run": 2,
+      "promptFile": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/mobile-h5-card-feed/run2/prompt.md",
+      "outDir": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/mobile-h5-card-feed/run2/out",
+      "promptEstTokens": 6669,
+      "promptChars": 9726,
+      "skillEstTokens": 5586,
+      "tokenUsage": null,
+      "cmdExitCode": 0,
+      "durationMs": 2,
+      "error": null,
+      "dryRun": true,
+      "modelOutputTail": "（--dry-run：未调用模型，产物为 stub）",
+      "artifacts": [
+        {
+          "name": "index.html",
+          "path": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/mobile-h5-card-feed/run2/out/index.html",
+          "ok": true,
+          "bytes": 11248
+        }
+      ],
+      "artifactsOk": true,
+      "acceptance": [
+        {
+          "id": "self-contained",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 129,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const bad=/<link[^>]+stylesheet/i.test(s)||/<script[^>]+src *=/i.test(s)||/(?:src|href) *= *.?https?:/i.test(s)||/@import/i.test(s)||!/<!DOCTYPE html>/i.test(s)||!/<html[^>]+lang=/i.test(s)||!/<title> *[^< ][^<]*<\\/title>/i.test(s)||!/<meta[^>]+charset/i.test(s);process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/mobile-h5-card-feed/run2/out/index.html\""
+        },
+        {
+          "id": "design-tokens",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 135,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const vars=(s.match(/^ *--[\\w-]+ *:/gm)||[]).length;const sizes=(s.match(/font-size *:/gi)||[]).length;const imp=(s.match(/!important/gi)||[]).length;const bad=!/:root *\\{/.test(s)||vars<10||sizes<4||imp>6;process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/mobile-h5-card-feed/run2/out/index.html\""
+        },
+        {
+          "id": "contrast",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 610,
+          "outputTail": "…PASS  6.70:1 (需 4.5)  #ffffff on #1d4ed8  [element] color / .btn var(--brand)\n  PASS  6.70:1 (需 4.5)  #1d4ed8 on #ffffff  [element] color / .btn-ghost var(--bg)\n  PASS  6.70:1 (需 4.5)  #1d4ed8 on #ffffff  [token] --link / --bg\n  PASS  6.70:1 (需 4.5)  #ffffff on #1d4ed8  [on] --on-brand / --brand\n  PASS  7.56:1 (需 4.5)  #4b5563 on #ffffff  [token] --muted / --bg\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [element] color / body var(--bg)\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [element] color / input[type=text],input[type=email],input[type=date],input[type=number],input[type=search],select,textarea var(--bg)\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [element] color / .chip var(--bg)\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [token] --text / --bg\n\n合计：10 组，0 组未达标（其中 1 组是装饰性边框，只提示不判失败）",
+          "cmd": "python scripts/contrast_check.py \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/mobile-h5-card-feed/run2/out/index.html\""
+        },
+        {
+          "id": "structure-a11y",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 2281,
+          "outputTail": "WARN [mobile/light] file:///C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/mobile-h5-card-feed/run2/out/index.html — 错误 0, 警告 16, axe 0 项, console 0, HTTP 0, CLS 0.000\n\n合计：0 错误 / 16 警告 / 0 类 axe 违规 / 0 console / 0 HTTP\n报告：C:\\Users\\six\\AppData\\Local\\Temp\\frontend-fidelity-bench\\current\\mobile-h5-card-feed\\run2\\out\\audit-report.json\naxe-core 4.14.0（WCAG 2.1 A/AA 规则集）",
+          "cmd": "node scripts/audit.mjs --url \"file:///C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/mobile-h5-card-feed/run2/out/index.html\" --out \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/mobile-h5-card-feed/run2/out/audit-report.json\" --viewports mobile"
+        },
+        {
+          "id": "mobile-shell",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 133,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const bad=!/<meta[^>]+name=.?viewport.?[^>]*width=device-width/i.test(s)||!/@media|rem|vw|clamp\\(/i.test(s)||!/safe-area-inset/i.test(s)||(s.match(/<nav[\\s>]/gi)||[]).length<1;process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/mobile-h5-card-feed/run2/out/index.html\""
+        },
+        {
+          "id": "card-feed",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 122,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const cards=(s.match(/<article[\\s>]|class=[^>]*(?:card|item|cell)/gi)||[]).length;const imgs=(s.match(/<img[\\s>]/gi)||[]).length;const alts=(s.match(/<img[^>]+alt *=/gi)||[]).length;const bad=cards<8||!/<svg|<img/i.test(s)||(imgs>0&&alts<imgs)||!/scroll-snap|overflow-x/i.test(s);process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/current/mobile-h5-card-feed/run2/out/index.html\""
+        },
+        {
+          "id": "visual-review",
+          "pass": null,
+          "manual": true,
+          "skipped": false,
+          "outputTail": null,
+          "criteria": "人工评分（1–5，≥4 视为通过）：① 视觉层级是否一眼可读（标题/正文/辅助文字三档清晰）；② 间距是否成体系（4 的倍数，没有凭感觉的 13px/22px）；③ 是否像真实产品而非模板套壳（文案具体、数据可信、无 lorem ipsum）；④ 三视口逐张看无横向溢出、无文字裁切、无控件重叠；⑤ 焦点态与错误态真的存在且可见。评分与理由写进 bench/results/ 旁的评审记录。"
+        }
+      ]
+    },
+    {
+      "condition": "unrelated",
+      "task": "admin-form-page",
+      "run": 1,
+      "promptFile": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/admin-form-page/run1/prompt.md",
+      "outDir": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/admin-form-page/run1/out",
+      "promptEstTokens": 6310,
+      "promptChars": 6546,
+      "skillEstTokens": 5149,
+      "tokenUsage": null,
+      "cmdExitCode": 0,
+      "durationMs": 2,
+      "error": null,
+      "dryRun": true,
+      "modelOutputTail": "（--dry-run：未调用模型，产物为 stub）",
+      "artifacts": [
+        {
+          "name": "index.html",
+          "path": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/admin-form-page/run1/out/index.html",
+          "ok": true,
+          "bytes": 7770
+        }
+      ],
+      "artifactsOk": true,
+      "acceptance": [
+        {
+          "id": "self-contained",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 117,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const bad=/<link[^>]+stylesheet/i.test(s)||/<script[^>]+src *=/i.test(s)||/(?:src|href) *= *.?https?:/i.test(s)||/@import/i.test(s)||!/<!DOCTYPE html>/i.test(s)||!/<html[^>]+lang=/i.test(s)||!/<title> *[^< ][^<]*<\\/title>/i.test(s)||!/<meta[^>]+charset/i.test(s);process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/admin-form-page/run1/out/index.html\""
+        },
+        {
+          "id": "design-tokens",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 127,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const vars=(s.match(/^ *--[\\w-]+ *:/gm)||[]).length;const sizes=(s.match(/font-size *:/gi)||[]).length;const imp=(s.match(/!important/gi)||[]).length;const bad=!/:root *\\{/.test(s)||vars<10||sizes<4||imp>6;process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/admin-form-page/run1/out/index.html\""
+        },
+        {
+          "id": "contrast",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 524,
+          "outputTail": "…S  6.70:1 (需 4.5)  #ffffff on #1d4ed8  [element] color / .btn var(--brand)\n  PASS  6.70:1 (需 4.5)  #1d4ed8 on #ffffff  [element] color / .btn-ghost var(--bg)\n  PASS  6.70:1 (需 4.5)  #1d4ed8 on #ffffff  [token] --link / --bg\n  PASS  6.70:1 (需 4.5)  #ffffff on #1d4ed8  [on] --on-brand / --brand\n  PASS  6.75:1 (需 4.5)  #166534 on #f2fbf5  [element] color / .banner-ok #f2fbf5\n  PASS  7.56:1 (需 4.5)  #4b5563 on #ffffff  [token] --muted / --bg\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [element] color / body var(--bg)\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [element] color / input[type=text],input[type=email],input[type=date],input[type=number],input[type=search],select,textarea var(--bg)\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [token] --text / --bg\n\n合计：11 组，0 组未达标（其中 1 组是装饰性边框，只提示不判失败）",
+          "cmd": "python scripts/contrast_check.py \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/admin-form-page/run1/out/index.html\""
+        },
+        {
+          "id": "structure-a11y",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 2244,
+          "outputTail": "OK   [desktop/light] file:///C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/admin-form-page/run1/out/index.html — 错误 0, 警告 0, axe 0 项, console 0, HTTP 0, CLS 0.000\n\n合计：0 错误 / 0 警告 / 0 类 axe 违规 / 0 console / 0 HTTP\n报告：C:\\Users\\six\\AppData\\Local\\Temp\\frontend-fidelity-bench\\unrelated\\admin-form-page\\run1\\out\\audit-report.json\naxe-core 4.14.0（WCAG 2.1 A/AA 规则集）",
+          "cmd": "node scripts/audit.mjs --url \"file:///C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/admin-form-page/run1/out/index.html\" --out \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/admin-form-page/run1/out/audit-report.json\" --viewports desktop"
+        },
+        {
+          "id": "form-semantics",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 129,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const labels=(s.match(/<label[^>]+for *=/gi)||[]).length;const bad=!/<form/i.test(s)||labels<6||!/<(button|input)[^>]+type=.?submit/i.test(s)||!/<fieldset/i.test(s)||!/aria-(describedby|invalid|live)/i.test(s);process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/admin-form-page/run1/out/index.html\""
+        },
+        {
+          "id": "visual-review",
+          "pass": null,
+          "manual": true,
+          "skipped": false,
+          "outputTail": null,
+          "criteria": "人工评分（1–5，≥4 视为通过）：① 视觉层级是否一眼可读（标题/正文/辅助文字三档清晰）；② 间距是否成体系（4 的倍数，没有凭感觉的 13px/22px）；③ 是否像真实产品而非模板套壳（文案具体、数据可信、无 lorem ipsum）；④ 三视口逐张看无横向溢出、无文字裁切、无控件重叠；⑤ 焦点态与错误态真的存在且可见。评分与理由写进 bench/results/ 旁的评审记录。"
+        }
+      ]
+    },
+    {
+      "condition": "unrelated",
+      "task": "admin-form-page",
+      "run": 2,
+      "promptFile": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/admin-form-page/run2/prompt.md",
+      "outDir": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/admin-form-page/run2/out",
+      "promptEstTokens": 6310,
+      "promptChars": 6546,
+      "skillEstTokens": 5149,
+      "tokenUsage": null,
+      "cmdExitCode": 0,
+      "durationMs": 2,
+      "error": null,
+      "dryRun": true,
+      "modelOutputTail": "（--dry-run：未调用模型，产物为 stub）",
+      "artifacts": [
+        {
+          "name": "index.html",
+          "path": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/admin-form-page/run2/out/index.html",
+          "ok": true,
+          "bytes": 7770
+        }
+      ],
+      "artifactsOk": true,
+      "acceptance": [
+        {
+          "id": "self-contained",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 121,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const bad=/<link[^>]+stylesheet/i.test(s)||/<script[^>]+src *=/i.test(s)||/(?:src|href) *= *.?https?:/i.test(s)||/@import/i.test(s)||!/<!DOCTYPE html>/i.test(s)||!/<html[^>]+lang=/i.test(s)||!/<title> *[^< ][^<]*<\\/title>/i.test(s)||!/<meta[^>]+charset/i.test(s);process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/admin-form-page/run2/out/index.html\""
+        },
+        {
+          "id": "design-tokens",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 128,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const vars=(s.match(/^ *--[\\w-]+ *:/gm)||[]).length;const sizes=(s.match(/font-size *:/gi)||[]).length;const imp=(s.match(/!important/gi)||[]).length;const bad=!/:root *\\{/.test(s)||vars<10||sizes<4||imp>6;process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/admin-form-page/run2/out/index.html\""
+        },
+        {
+          "id": "contrast",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 528,
+          "outputTail": "…S  6.70:1 (需 4.5)  #ffffff on #1d4ed8  [element] color / .btn var(--brand)\n  PASS  6.70:1 (需 4.5)  #1d4ed8 on #ffffff  [element] color / .btn-ghost var(--bg)\n  PASS  6.70:1 (需 4.5)  #1d4ed8 on #ffffff  [token] --link / --bg\n  PASS  6.70:1 (需 4.5)  #ffffff on #1d4ed8  [on] --on-brand / --brand\n  PASS  6.75:1 (需 4.5)  #166534 on #f2fbf5  [element] color / .banner-ok #f2fbf5\n  PASS  7.56:1 (需 4.5)  #4b5563 on #ffffff  [token] --muted / --bg\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [element] color / body var(--bg)\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [element] color / input[type=text],input[type=email],input[type=date],input[type=number],input[type=search],select,textarea var(--bg)\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [token] --text / --bg\n\n合计：11 组，0 组未达标（其中 1 组是装饰性边框，只提示不判失败）",
+          "cmd": "python scripts/contrast_check.py \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/admin-form-page/run2/out/index.html\""
+        },
+        {
+          "id": "structure-a11y",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 2272,
+          "outputTail": "OK   [desktop/light] file:///C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/admin-form-page/run2/out/index.html — 错误 0, 警告 0, axe 0 项, console 0, HTTP 0, CLS 0.000\n\n合计：0 错误 / 0 警告 / 0 类 axe 违规 / 0 console / 0 HTTP\n报告：C:\\Users\\six\\AppData\\Local\\Temp\\frontend-fidelity-bench\\unrelated\\admin-form-page\\run2\\out\\audit-report.json\naxe-core 4.14.0（WCAG 2.1 A/AA 规则集）",
+          "cmd": "node scripts/audit.mjs --url \"file:///C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/admin-form-page/run2/out/index.html\" --out \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/admin-form-page/run2/out/audit-report.json\" --viewports desktop"
+        },
+        {
+          "id": "form-semantics",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 136,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const labels=(s.match(/<label[^>]+for *=/gi)||[]).length;const bad=!/<form/i.test(s)||labels<6||!/<(button|input)[^>]+type=.?submit/i.test(s)||!/<fieldset/i.test(s)||!/aria-(describedby|invalid|live)/i.test(s);process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/admin-form-page/run2/out/index.html\""
+        },
+        {
+          "id": "visual-review",
+          "pass": null,
+          "manual": true,
+          "skipped": false,
+          "outputTail": null,
+          "criteria": "人工评分（1–5，≥4 视为通过）：① 视觉层级是否一眼可读（标题/正文/辅助文字三档清晰）；② 间距是否成体系（4 的倍数，没有凭感觉的 13px/22px）；③ 是否像真实产品而非模板套壳（文案具体、数据可信、无 lorem ipsum）；④ 三视口逐张看无横向溢出、无文字裁切、无控件重叠；⑤ 焦点态与错误态真的存在且可见。评分与理由写进 bench/results/ 旁的评审记录。"
+        }
+      ]
+    },
+    {
+      "condition": "unrelated",
+      "task": "marketing-landing",
+      "run": 1,
+      "promptFile": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/marketing-landing/run1/prompt.md",
+      "outDir": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/marketing-landing/run1/out",
+      "promptEstTokens": 6271,
+      "promptChars": 6527,
+      "skillEstTokens": 5149,
+      "tokenUsage": null,
+      "cmdExitCode": 0,
+      "durationMs": 2,
+      "error": null,
+      "dryRun": true,
+      "modelOutputTail": "（--dry-run：未调用模型，产物为 stub）",
+      "artifacts": [
+        {
+          "name": "index.html",
+          "path": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/marketing-landing/run1/out/index.html",
+          "ok": true,
+          "bytes": 9611
+        }
+      ],
+      "artifactsOk": true,
+      "acceptance": [
+        {
+          "id": "self-contained",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 139,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const bad=/<link[^>]+stylesheet/i.test(s)||/<script[^>]+src *=/i.test(s)||/(?:src|href) *= *.?https?:/i.test(s)||/@import/i.test(s)||!/<!DOCTYPE html>/i.test(s)||!/<html[^>]+lang=/i.test(s)||!/<title> *[^< ][^<]*<\\/title>/i.test(s)||!/<meta[^>]+charset/i.test(s);process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/marketing-landing/run1/out/index.html\""
+        },
+        {
+          "id": "design-tokens",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 134,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const vars=(s.match(/^ *--[\\w-]+ *:/gm)||[]).length;const sizes=(s.match(/font-size *:/gi)||[]).length;const imp=(s.match(/!important/gi)||[]).length;const bad=!/:root *\\{/.test(s)||vars<10||sizes<4||imp>6;process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/marketing-landing/run1/out/index.html\""
+        },
+        {
+          "id": "contrast",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 548,
+          "outputTail": "…0:1 (需 4.5)  #1d4ed8 on #ffffff  [element] color / .btn-ghost var(--bg)\n  PASS  6.70:1 (需 4.5)  #1d4ed8 on #ffffff  [token] --link / --bg\n  PASS  6.70:1 (需 4.5)  #ffffff on #1d4ed8  [on] --on-brand / --brand\n  PASS  7.56:1 (需 4.5)  #4b5563 on #ffffff  [element] color / .site-footer var(--surface)\n  PASS  7.56:1 (需 4.5)  #4b5563 on #ffffff  [token] --muted / --bg\n  PASS 15.86:1 (需 4.5)  #111827 on #eef2ff  [element] color / .final #eef2ff\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [element] color / body var(--bg)\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [element] color / input[type=text],input[type=email],input[type=date],input[type=number],input[type=search],select,textarea var(--bg)\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [token] --text / --bg\n\n合计：11 组，0 组未达标（其中 1 组是装饰性边框，只提示不判失败）",
+          "cmd": "python scripts/contrast_check.py \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/marketing-landing/run1/out/index.html\""
+        },
+        {
+          "id": "structure-a11y",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 4070,
+          "outputTail": "OK   [desktop/light] file:///C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/marketing-landing/run1/out/index.html — 错误 0, 警告 0, axe 0 项, console 0, HTTP 0, CLS 0.000\nWARN [mobile/light] file:///C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/marketing-landing/run1/out/index.html — 错误 0, 警告 5, axe 0 项, console 0, HTTP 0, CLS 0.000\n\n合计：0 错误 / 5 警告 / 0 类 axe 违规 / 0 console / 0 HTTP\n报告：C:\\Users\\six\\AppData\\Local\\Temp\\frontend-fidelity-bench\\unrelated\\marketing-landing\\run1\\out\\audit-report.json\naxe-core 4.14.0（WCAG 2.1 A/AA 规则集）",
+          "cmd": "node scripts/audit.mjs --url \"file:///C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/marketing-landing/run1/out/index.html\" --out \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/marketing-landing/run1/out/audit-report.json\" --viewports desktop,mobile"
+        },
+        {
+          "id": "heading-hierarchy",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 139,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const h1=(s.match(/<h1[\\s>]/gi)||[]).length;const h2=(s.match(/<h2[\\s>]/gi)||[]).length;const h3=(s.match(/<h3[\\s>]/gi)||[]).length;const bad=h1!==1||h2<2||(h3>0&&h2<1);process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/marketing-landing/run1/out/index.html\""
+        },
+        {
+          "id": "sections-cta",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 124,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const sec=(s.match(/<section[\\s>]/gi)||[]).length;const cta=(s.match(/<button[\\s>]|<a[^>]+class=[^>]*(?:btn|cta|button)/gi)||[]).length;const bad=sec<4||cta<3||!/<header[\\s>]/i.test(s)||!/<footer[\\s>]/i.test(s)||!/href=.?#/i.test(s);process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/marketing-landing/run1/out/index.html\""
+        },
+        {
+          "id": "visual-review",
+          "pass": null,
+          "manual": true,
+          "skipped": false,
+          "outputTail": null,
+          "criteria": "人工评分（1–5，≥4 视为通过）：① 视觉层级是否一眼可读（标题/正文/辅助文字三档清晰）；② 间距是否成体系（4 的倍数，没有凭感觉的 13px/22px）；③ 是否像真实产品而非模板套壳（文案具体、数据可信、无 lorem ipsum）；④ 三视口逐张看无横向溢出、无文字裁切、无控件重叠；⑤ 焦点态与错误态真的存在且可见。评分与理由写进 bench/results/ 旁的评审记录。"
+        }
+      ]
+    },
+    {
+      "condition": "unrelated",
+      "task": "marketing-landing",
+      "run": 2,
+      "promptFile": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/marketing-landing/run2/prompt.md",
+      "outDir": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/marketing-landing/run2/out",
+      "promptEstTokens": 6271,
+      "promptChars": 6527,
+      "skillEstTokens": 5149,
+      "tokenUsage": null,
+      "cmdExitCode": 0,
+      "durationMs": 2,
+      "error": null,
+      "dryRun": true,
+      "modelOutputTail": "（--dry-run：未调用模型，产物为 stub）",
+      "artifacts": [
+        {
+          "name": "index.html",
+          "path": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/marketing-landing/run2/out/index.html",
+          "ok": true,
+          "bytes": 9611
+        }
+      ],
+      "artifactsOk": true,
+      "acceptance": [
+        {
+          "id": "self-contained",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 136,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const bad=/<link[^>]+stylesheet/i.test(s)||/<script[^>]+src *=/i.test(s)||/(?:src|href) *= *.?https?:/i.test(s)||/@import/i.test(s)||!/<!DOCTYPE html>/i.test(s)||!/<html[^>]+lang=/i.test(s)||!/<title> *[^< ][^<]*<\\/title>/i.test(s)||!/<meta[^>]+charset/i.test(s);process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/marketing-landing/run2/out/index.html\""
+        },
+        {
+          "id": "design-tokens",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 124,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const vars=(s.match(/^ *--[\\w-]+ *:/gm)||[]).length;const sizes=(s.match(/font-size *:/gi)||[]).length;const imp=(s.match(/!important/gi)||[]).length;const bad=!/:root *\\{/.test(s)||vars<10||sizes<4||imp>6;process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/marketing-landing/run2/out/index.html\""
+        },
+        {
+          "id": "contrast",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 536,
+          "outputTail": "…0:1 (需 4.5)  #1d4ed8 on #ffffff  [element] color / .btn-ghost var(--bg)\n  PASS  6.70:1 (需 4.5)  #1d4ed8 on #ffffff  [token] --link / --bg\n  PASS  6.70:1 (需 4.5)  #ffffff on #1d4ed8  [on] --on-brand / --brand\n  PASS  7.56:1 (需 4.5)  #4b5563 on #ffffff  [element] color / .site-footer var(--surface)\n  PASS  7.56:1 (需 4.5)  #4b5563 on #ffffff  [token] --muted / --bg\n  PASS 15.86:1 (需 4.5)  #111827 on #eef2ff  [element] color / .final #eef2ff\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [element] color / body var(--bg)\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [element] color / input[type=text],input[type=email],input[type=date],input[type=number],input[type=search],select,textarea var(--bg)\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [token] --text / --bg\n\n合计：11 组，0 组未达标（其中 1 组是装饰性边框，只提示不判失败）",
+          "cmd": "python scripts/contrast_check.py \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/marketing-landing/run2/out/index.html\""
+        },
+        {
+          "id": "structure-a11y",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 4054,
+          "outputTail": "OK   [desktop/light] file:///C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/marketing-landing/run2/out/index.html — 错误 0, 警告 0, axe 0 项, console 0, HTTP 0, CLS 0.000\nWARN [mobile/light] file:///C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/marketing-landing/run2/out/index.html — 错误 0, 警告 5, axe 0 项, console 0, HTTP 0, CLS 0.000\n\n合计：0 错误 / 5 警告 / 0 类 axe 违规 / 0 console / 0 HTTP\n报告：C:\\Users\\six\\AppData\\Local\\Temp\\frontend-fidelity-bench\\unrelated\\marketing-landing\\run2\\out\\audit-report.json\naxe-core 4.14.0（WCAG 2.1 A/AA 规则集）",
+          "cmd": "node scripts/audit.mjs --url \"file:///C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/marketing-landing/run2/out/index.html\" --out \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/marketing-landing/run2/out/audit-report.json\" --viewports desktop,mobile"
+        },
+        {
+          "id": "heading-hierarchy",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 119,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const h1=(s.match(/<h1[\\s>]/gi)||[]).length;const h2=(s.match(/<h2[\\s>]/gi)||[]).length;const h3=(s.match(/<h3[\\s>]/gi)||[]).length;const bad=h1!==1||h2<2||(h3>0&&h2<1);process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/marketing-landing/run2/out/index.html\""
+        },
+        {
+          "id": "sections-cta",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 133,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const sec=(s.match(/<section[\\s>]/gi)||[]).length;const cta=(s.match(/<button[\\s>]|<a[^>]+class=[^>]*(?:btn|cta|button)/gi)||[]).length;const bad=sec<4||cta<3||!/<header[\\s>]/i.test(s)||!/<footer[\\s>]/i.test(s)||!/href=.?#/i.test(s);process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/marketing-landing/run2/out/index.html\""
+        },
+        {
+          "id": "visual-review",
+          "pass": null,
+          "manual": true,
+          "skipped": false,
+          "outputTail": null,
+          "criteria": "人工评分（1–5，≥4 视为通过）：① 视觉层级是否一眼可读（标题/正文/辅助文字三档清晰）；② 间距是否成体系（4 的倍数，没有凭感觉的 13px/22px）；③ 是否像真实产品而非模板套壳（文案具体、数据可信、无 lorem ipsum）；④ 三视口逐张看无横向溢出、无文字裁切、无控件重叠；⑤ 焦点态与错误态真的存在且可见。评分与理由写进 bench/results/ 旁的评审记录。"
+        }
+      ]
+    },
+    {
+      "condition": "unrelated",
+      "task": "mobile-h5-card-feed",
+      "run": 1,
+      "promptFile": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/mobile-h5-card-feed/run1/prompt.md",
+      "outDir": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/mobile-h5-card-feed/run1/out",
+      "promptEstTokens": 6233,
+      "promptChars": 6560,
+      "skillEstTokens": 5149,
+      "tokenUsage": null,
+      "cmdExitCode": 0,
+      "durationMs": 3,
+      "error": null,
+      "dryRun": true,
+      "modelOutputTail": "（--dry-run：未调用模型，产物为 stub）",
+      "artifacts": [
+        {
+          "name": "index.html",
+          "path": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/mobile-h5-card-feed/run1/out/index.html",
+          "ok": true,
+          "bytes": 11248
+        }
+      ],
+      "artifactsOk": true,
+      "acceptance": [
+        {
+          "id": "self-contained",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 125,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const bad=/<link[^>]+stylesheet/i.test(s)||/<script[^>]+src *=/i.test(s)||/(?:src|href) *= *.?https?:/i.test(s)||/@import/i.test(s)||!/<!DOCTYPE html>/i.test(s)||!/<html[^>]+lang=/i.test(s)||!/<title> *[^< ][^<]*<\\/title>/i.test(s)||!/<meta[^>]+charset/i.test(s);process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/mobile-h5-card-feed/run1/out/index.html\""
+        },
+        {
+          "id": "design-tokens",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 124,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const vars=(s.match(/^ *--[\\w-]+ *:/gm)||[]).length;const sizes=(s.match(/font-size *:/gi)||[]).length;const imp=(s.match(/!important/gi)||[]).length;const bad=!/:root *\\{/.test(s)||vars<10||sizes<4||imp>6;process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/mobile-h5-card-feed/run1/out/index.html\""
+        },
+        {
+          "id": "contrast",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 598,
+          "outputTail": "…PASS  6.70:1 (需 4.5)  #ffffff on #1d4ed8  [element] color / .btn var(--brand)\n  PASS  6.70:1 (需 4.5)  #1d4ed8 on #ffffff  [element] color / .btn-ghost var(--bg)\n  PASS  6.70:1 (需 4.5)  #1d4ed8 on #ffffff  [token] --link / --bg\n  PASS  6.70:1 (需 4.5)  #ffffff on #1d4ed8  [on] --on-brand / --brand\n  PASS  7.56:1 (需 4.5)  #4b5563 on #ffffff  [token] --muted / --bg\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [element] color / body var(--bg)\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [element] color / input[type=text],input[type=email],input[type=date],input[type=number],input[type=search],select,textarea var(--bg)\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [element] color / .chip var(--bg)\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [token] --text / --bg\n\n合计：10 组，0 组未达标（其中 1 组是装饰性边框，只提示不判失败）",
+          "cmd": "python scripts/contrast_check.py \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/mobile-h5-card-feed/run1/out/index.html\""
+        },
+        {
+          "id": "structure-a11y",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 2258,
+          "outputTail": "WARN [mobile/light] file:///C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/mobile-h5-card-feed/run1/out/index.html — 错误 0, 警告 16, axe 0 项, console 0, HTTP 0, CLS 0.000\n\n合计：0 错误 / 16 警告 / 0 类 axe 违规 / 0 console / 0 HTTP\n报告：C:\\Users\\six\\AppData\\Local\\Temp\\frontend-fidelity-bench\\unrelated\\mobile-h5-card-feed\\run1\\out\\audit-report.json\naxe-core 4.14.0（WCAG 2.1 A/AA 规则集）",
+          "cmd": "node scripts/audit.mjs --url \"file:///C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/mobile-h5-card-feed/run1/out/index.html\" --out \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/mobile-h5-card-feed/run1/out/audit-report.json\" --viewports mobile"
+        },
+        {
+          "id": "mobile-shell",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 127,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const bad=!/<meta[^>]+name=.?viewport.?[^>]*width=device-width/i.test(s)||!/@media|rem|vw|clamp\\(/i.test(s)||!/safe-area-inset/i.test(s)||(s.match(/<nav[\\s>]/gi)||[]).length<1;process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/mobile-h5-card-feed/run1/out/index.html\""
+        },
+        {
+          "id": "card-feed",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 155,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const cards=(s.match(/<article[\\s>]|class=[^>]*(?:card|item|cell)/gi)||[]).length;const imgs=(s.match(/<img[\\s>]/gi)||[]).length;const alts=(s.match(/<img[^>]+alt *=/gi)||[]).length;const bad=cards<8||!/<svg|<img/i.test(s)||(imgs>0&&alts<imgs)||!/scroll-snap|overflow-x/i.test(s);process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/mobile-h5-card-feed/run1/out/index.html\""
+        },
+        {
+          "id": "visual-review",
+          "pass": null,
+          "manual": true,
+          "skipped": false,
+          "outputTail": null,
+          "criteria": "人工评分（1–5，≥4 视为通过）：① 视觉层级是否一眼可读（标题/正文/辅助文字三档清晰）；② 间距是否成体系（4 的倍数，没有凭感觉的 13px/22px）；③ 是否像真实产品而非模板套壳（文案具体、数据可信、无 lorem ipsum）；④ 三视口逐张看无横向溢出、无文字裁切、无控件重叠；⑤ 焦点态与错误态真的存在且可见。评分与理由写进 bench/results/ 旁的评审记录。"
+        }
+      ]
+    },
+    {
+      "condition": "unrelated",
+      "task": "mobile-h5-card-feed",
+      "run": 2,
+      "promptFile": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/mobile-h5-card-feed/run2/prompt.md",
+      "outDir": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/mobile-h5-card-feed/run2/out",
+      "promptEstTokens": 6233,
+      "promptChars": 6560,
+      "skillEstTokens": 5149,
+      "tokenUsage": null,
+      "cmdExitCode": 0,
+      "durationMs": 3,
+      "error": null,
+      "dryRun": true,
+      "modelOutputTail": "（--dry-run：未调用模型，产物为 stub）",
+      "artifacts": [
+        {
+          "name": "index.html",
+          "path": "C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/mobile-h5-card-feed/run2/out/index.html",
+          "ok": true,
+          "bytes": 11248
+        }
+      ],
+      "artifactsOk": true,
+      "acceptance": [
+        {
+          "id": "self-contained",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 133,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const bad=/<link[^>]+stylesheet/i.test(s)||/<script[^>]+src *=/i.test(s)||/(?:src|href) *= *.?https?:/i.test(s)||/@import/i.test(s)||!/<!DOCTYPE html>/i.test(s)||!/<html[^>]+lang=/i.test(s)||!/<title> *[^< ][^<]*<\\/title>/i.test(s)||!/<meta[^>]+charset/i.test(s);process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/mobile-h5-card-feed/run2/out/index.html\""
+        },
+        {
+          "id": "design-tokens",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 128,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const vars=(s.match(/^ *--[\\w-]+ *:/gm)||[]).length;const sizes=(s.match(/font-size *:/gi)||[]).length;const imp=(s.match(/!important/gi)||[]).length;const bad=!/:root *\\{/.test(s)||vars<10||sizes<4||imp>6;process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/mobile-h5-card-feed/run2/out/index.html\""
+        },
+        {
+          "id": "contrast",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 595,
+          "outputTail": "…PASS  6.70:1 (需 4.5)  #ffffff on #1d4ed8  [element] color / .btn var(--brand)\n  PASS  6.70:1 (需 4.5)  #1d4ed8 on #ffffff  [element] color / .btn-ghost var(--bg)\n  PASS  6.70:1 (需 4.5)  #1d4ed8 on #ffffff  [token] --link / --bg\n  PASS  6.70:1 (需 4.5)  #ffffff on #1d4ed8  [on] --on-brand / --brand\n  PASS  7.56:1 (需 4.5)  #4b5563 on #ffffff  [token] --muted / --bg\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [element] color / body var(--bg)\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [element] color / input[type=text],input[type=email],input[type=date],input[type=number],input[type=search],select,textarea var(--bg)\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [element] color / .chip var(--bg)\n  PASS 17.74:1 (需 4.5)  #111827 on #ffffff  [token] --text / --bg\n\n合计：10 组，0 组未达标（其中 1 组是装饰性边框，只提示不判失败）",
+          "cmd": "python scripts/contrast_check.py \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/mobile-h5-card-feed/run2/out/index.html\""
+        },
+        {
+          "id": "structure-a11y",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 2259,
+          "outputTail": "WARN [mobile/light] file:///C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/mobile-h5-card-feed/run2/out/index.html — 错误 0, 警告 16, axe 0 项, console 0, HTTP 0, CLS 0.000\n\n合计：0 错误 / 16 警告 / 0 类 axe 违规 / 0 console / 0 HTTP\n报告：C:\\Users\\six\\AppData\\Local\\Temp\\frontend-fidelity-bench\\unrelated\\mobile-h5-card-feed\\run2\\out\\audit-report.json\naxe-core 4.14.0（WCAG 2.1 A/AA 规则集）",
+          "cmd": "node scripts/audit.mjs --url \"file:///C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/mobile-h5-card-feed/run2/out/index.html\" --out \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/mobile-h5-card-feed/run2/out/audit-report.json\" --viewports mobile"
+        },
+        {
+          "id": "mobile-shell",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 121,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const bad=!/<meta[^>]+name=.?viewport.?[^>]*width=device-width/i.test(s)||!/@media|rem|vw|clamp\\(/i.test(s)||!/safe-area-inset/i.test(s)||(s.match(/<nav[\\s>]/gi)||[]).length<1;process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/mobile-h5-card-feed/run2/out/index.html\""
+        },
+        {
+          "id": "card-feed",
+          "pass": true,
+          "manual": false,
+          "skipped": false,
+          "exitCode": 0,
+          "expected": 0,
+          "durationMs": 130,
+          "outputTail": "",
+          "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const cards=(s.match(/<article[\\s>]|class=[^>]*(?:card|item|cell)/gi)||[]).length;const imgs=(s.match(/<img[\\s>]/gi)||[]).length;const alts=(s.match(/<img[^>]+alt *=/gi)||[]).length;const bad=cards<8||!/<svg|<img/i.test(s)||(imgs>0&&alts<imgs)||!/scroll-snap|overflow-x/i.test(s);process.exit(bad?1:0)\" \"C:/Users/six/AppData/Local/Temp/frontend-fidelity-bench/unrelated/mobile-h5-card-feed/run2/out/index.html\""
+        },
+        {
+          "id": "visual-review",
+          "pass": null,
+          "manual": true,
+          "skipped": false,
+          "outputTail": null,
+          "criteria": "人工评分（1–5，≥4 视为通过）：① 视觉层级是否一眼可读（标题/正文/辅助文字三档清晰）；② 间距是否成体系（4 的倍数，没有凭感觉的 13px/22px）；③ 是否像真实产品而非模板套壳（文案具体、数据可信、无 lorem ipsum）；④ 三视口逐张看无横向溢出、无文字裁切、无控件重叠；⑤ 焦点态与错误态真的存在且可见。评分与理由写进 bench/results/ 旁的评审记录。"
+        }
+      ]
+    }
+  ]
+}

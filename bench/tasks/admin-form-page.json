@@ -1,0 +1,51 @@
+{
+  "id": "admin-form-page",
+  "title": "企业后台表单页（新建工单）",
+  "category": "模式 B：从 0 生成 · B 端管理端",
+  "viewport": "desktop 优先（1440），兼容 768 / 390",
+  "prompt": "# 任务：企业后台「新建工单」表单页\n\n你是一名前端工程师，为一个 SaaS 运维后台实现「新建工单」表单页。\n\n## 交付物（机器验收直接读这个文件）\n只产出一个文件：{out_dir}/index.html\nHTML + 内联 CSS（写在 <style> 标签里），允许少量原生 JavaScript。\n\n## 硬性约束\n1. 单文件自包含：不得外链任何 CSS / JS / 字体 / 图片，不得使用 @import，\n   不得出现指向 http(s) 的资源地址。需要图形一律用内联 SVG 或 CSS 渐变。\n2. 文档壳完整：<!DOCTYPE html>、<html lang=\"zh-CN\">、<meta charset=\"utf-8\">、\n   非空 <title>、viewport meta。\n3. 设计令牌化：颜色（背景三层 + 文字四层 + 品牌色 + 语义色）、字阶（5–7 档）、\n   间距（4 的倍数）、圆角、阴影都写成 :root 里的 CSS 自定义属性并在样式里引用。\n4. 对比度：正文与背景满足 WCAG AA 4.5:1，大字与 UI 边界满足 3:1。\n5. 表单语义化：每个控件都有配对的 <label for>；字段按业务分组（fieldset 或分区标题）；\n   必填项有标记；错误提示有独立样式与 aria 关联；提交按钮明确 type=\"submit\"，\n   另有一个次级「取消」按钮。\n6. 状态齐备：默认 / hover / focus（可见焦点环）/ 禁用 / 错误 / 成功，\n   输入控件与按钮都要覆盖；另需一处加载态与一处空状态示意。\n7. 响应式：1440 宽下双列或「主表单 + 右侧说明栏」布局；768 与 390 下不得横向溢出、\n   不得文字裁切、控件可点区不小于 40px 高。\n\n## 业务背景与字段\n运维团队用它登记线上故障，至少覆盖这些字段：\n工单标题（单行文本，必填）、所属产品线（下拉选择）、环境（生产 / 预发 / 测试 单选组）、\n优先级（P0–P3 分段控件）、影响范围（多选：登录 / 支付 / 数据 / 通知 / 其它）、\n发生时间（日期时间）、复现步骤（多行文本）、附件上传（文件）、\n指派处理人（可搜索下拉，用原生 select 即可）、是否通知客户（开关）。\n提交后页面出现成功提示条并展示自动生成的工单号。\n\n## 不要做\n不要引入框架、构建步骤或 npm 依赖；不要拆成多个文件；不要用 lorem ipsum，\n所有文案写成真实中文业务文案；不要为了「好看」使用未在 :root 声明过的魔法数值。\n\n完成后不必解释，把文件写到 {out_dir}/index.html。",
+  "acceptance": [
+    {
+      "id": "self-contained",
+      "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const bad=/<link[^>]+stylesheet/i.test(s)||/<script[^>]+src *=/i.test(s)||/(?:src|href) *= *.?https?:/i.test(s)||/@import/i.test(s)||!/<!DOCTYPE html>/i.test(s)||!/<html[^>]+lang=/i.test(s)||!/<title> *[^< ][^<]*<\\/title>/i.test(s)||!/<meta[^>]+charset/i.test(s);process.exit(bad?1:0)\" \"{artifact}\"",
+      "expect": "exit 0",
+      "what": "单文件自包含 + 文档壳完整（无外链样式/脚本/@import/http 资源，DOCTYPE、lang、title、charset 齐备）"
+    },
+    {
+      "id": "design-tokens",
+      "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const vars=(s.match(/^ *--[\\w-]+ *:/gm)||[]).length;const sizes=(s.match(/font-size *:/gi)||[]).length;const imp=(s.match(/!important/gi)||[]).length;const bad=!/:root *\\{/.test(s)||vars<10||sizes<4||imp>6;process.exit(bad?1:0)\" \"{artifact}\"",
+      "expect": "exit 0",
+      "what": ":root 里至少 10 个自定义属性、至少 4 处 font-size 声明、!important 不超过 6 处"
+    },
+    {
+      "id": "contrast",
+      "cmd": "python scripts/contrast_check.py \"{artifact}\"",
+      "expect": "exit 0",
+      "requires": "python",
+      "what": "scripts/contrast_check.py 解析内联 <style>，所有配色对达到 4.5:1"
+    },
+    {
+      "id": "structure-a11y",
+      "cmd": "node scripts/audit.mjs --url \"{file_url}\" --out \"{out_dir}/audit-report.json\" --viewports desktop",
+      "expect": "exit 0",
+      "requires": "playwright",
+      "what": "scripts/audit.mjs 桌面视口：0 error（含 axe WCAG 2.1 A/AA 的 serious/critical）"
+    },
+    {
+      "id": "form-semantics",
+      "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const labels=(s.match(/<label[^>]+for *=/gi)||[]).length;const bad=!/<form/i.test(s)||labels<6||!/<(button|input)[^>]+type=.?submit/i.test(s)||!/<fieldset/i.test(s)||!/aria-(describedby|invalid|live)/i.test(s);process.exit(bad?1:0)\" \"{artifact}\"",
+      "expect": "exit 0",
+      "what": "有 <form>、≥6 个带 for 的 <label>、type=submit 的提交控件、≥1 个 <fieldset> 分组、出现 aria 关联属性"
+    },
+    {
+      "id": "visual-review",
+      "manual": true,
+      "criteria": "人工评分（1–5，≥4 视为通过）：① 视觉层级是否一眼可读（标题/正文/辅助文字三档清晰）；② 间距是否成体系（4 的倍数，没有凭感觉的 13px/22px）；③ 是否像真实产品而非模板套壳（文案具体、数据可信、无 lorem ipsum）；④ 三视口逐张看无横向溢出、无文字裁切、无控件重叠；⑤ 焦点态与错误态真的存在且可见。评分与理由写进 bench/results/ 旁的评审记录。",
+      "what": "人工视觉与工艺评分"
+    }
+  ],
+  "artifacts": [
+    "index.html"
+  ],
+  "artifactsNote": "audit.mjs 会另外写出 audit-report.json 到同一目录，属于验收副产物，不计入 artifacts。"
+}

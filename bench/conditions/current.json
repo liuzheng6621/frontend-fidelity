@@ -1,0 +1,9 @@
+{
+  "id": "current",
+  "label": "工作区当前 SKILL.md",
+  "skillFile": "../../SKILL.md",
+  "estTokens": 5305,
+  "frozenAt": null,
+  "source": "工作区 SKILL.md（路径引用，不复制）",
+  "note": "实时读工作区文件，所以它永远等于「你现在这一版」。改了 SKILL.md 就等于换了实验条件：重跑前请先记下 git rev-parse HEAD 与 git status，否则两次结果不可比。estTokens 是 2026-11-01 的实测值，仅作记录，run.mjs 每次都会重算。"
+}

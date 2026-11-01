@@ -1,0 +1,56 @@
+{
+  "id": "mobile-h5-card-feed",
+  "title": "移动 H5 卡片流（本地生活发现页）",
+  "category": "模式 B：从 0 生成 · 移动 H5 / 小程序 WebView",
+  "viewport": "mobile 390 单列（必须），desktop 只做居中容器",
+  "prompt": "# 任务：移动 H5 卡片流发现页\n\n你是一名前端工程师，为一个本地生活类 H5 实现「附近好店」发现页，\n运行在 390pt 宽的手机浏览器与小程序 WebView 里。\n\n## 交付物（机器验收直接读这个文件）\n只产出一个文件：{out_dir}/index.html\nHTML + 内联 CSS（写在 <style> 标签里），允许少量原生 JavaScript。\n\n## 硬性约束\n1. 单文件自包含：不得外链任何 CSS / JS / 字体 / 图片，不得使用 @import，\n   不得出现指向 http(s) 的资源地址。店招图与头像用内联 SVG 或 CSS 渐变占位，\n   每张图必须有 alt（装饰性图片写 alt=\"\" 并加 aria-hidden=\"true\"）。\n2. 文档壳完整：<!DOCTYPE html>、<html lang=\"zh-CN\">、<meta charset=\"utf-8\">、\n   非空 <title>、<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">。\n3. 移动端布局：390 单列，卡片间距 12px，页面左右安全边距 16px；\n   使用 env(safe-area-inset-bottom) 处理底部安全区；顶部标题栏固定，\n   底部 tab 栏固定且恰好 4 项（首页 / 附近 / 订单 / 我的），当前项高亮。\n4. 可点区：卡片整体可点，tab 项、按钮、图标按钮的实际可点高度不小于 44px；\n   图标按钮必须有可读名字（aria-label 或可见文字）。\n5. 设计令牌化：颜色、字阶（正文 14–16px）、间距、圆角、阴影写进 :root 自定义属性；\n   正文对比度满足 WCAG AA 4.5:1。\n6. 内容：至少 8 张卡片，每张含店招图、店名、品类标签、评分（4.0–5.0）、\n   人均价格、距离、营业状态（营业中 / 即将打烊 / 已休息），\n   其中至少一张带「促销」角标、一张带多图横滑（scroll-snap）。\n   顶部有搜索框与横向滚动的品类筛选 chips（至少 6 个，当前选中项有明确态）。\n   列表末尾给出加载更多的加载态与「没有更多了」的空态示意各一处。\n7. 桌面视口下把内容居中到不超过 480px 的容器里，不要拉伸成宽屏布局。\n\n## 不要做\n不要引入框架或构建步骤；不要拆成多个文件；不要用 lorem ipsum；\n不要把所有卡片写成同一段文案的复制粘贴——店名、品类、价格、距离要各不相同且可信。\n\n完成后不必解释，把文件写到 {out_dir}/index.html。",
+  "acceptance": [
+    {
+      "id": "self-contained",
+      "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const bad=/<link[^>]+stylesheet/i.test(s)||/<script[^>]+src *=/i.test(s)||/(?:src|href) *= *.?https?:/i.test(s)||/@import/i.test(s)||!/<!DOCTYPE html>/i.test(s)||!/<html[^>]+lang=/i.test(s)||!/<title> *[^< ][^<]*<\\/title>/i.test(s)||!/<meta[^>]+charset/i.test(s);process.exit(bad?1:0)\" \"{artifact}\"",
+      "expect": "exit 0",
+      "what": "单文件自包含 + 文档壳完整"
+    },
+    {
+      "id": "design-tokens",
+      "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const vars=(s.match(/^ *--[\\w-]+ *:/gm)||[]).length;const sizes=(s.match(/font-size *:/gi)||[]).length;const imp=(s.match(/!important/gi)||[]).length;const bad=!/:root *\\{/.test(s)||vars<10||sizes<4||imp>6;process.exit(bad?1:0)\" \"{artifact}\"",
+      "expect": "exit 0",
+      "what": ":root 至少 10 个自定义属性、至少 4 处 font-size、!important 不超过 6 处"
+    },
+    {
+      "id": "contrast",
+      "cmd": "python scripts/contrast_check.py \"{artifact}\"",
+      "expect": "exit 0",
+      "requires": "python",
+      "what": "scripts/contrast_check.py：所有配色对达到 4.5:1"
+    },
+    {
+      "id": "structure-a11y",
+      "cmd": "node scripts/audit.mjs --url \"{file_url}\" --out \"{out_dir}/audit-report.json\" --viewports mobile",
+      "expect": "exit 0",
+      "requires": "playwright",
+      "what": "scripts/audit.mjs 移动视口 390：0 error（横向溢出、点击区过小、图标按钮无名、axe serious/critical 都算 error）"
+    },
+    {
+      "id": "mobile-shell",
+      "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const bad=!/<meta[^>]+name=.?viewport.?[^>]*width=device-width/i.test(s)||!/@media|rem|vw|clamp\\(/i.test(s)||!/safe-area-inset/i.test(s)||(s.match(/<nav[\\s>]/gi)||[]).length<1;process.exit(bad?1:0)\" \"{artifact}\"",
+      "expect": "exit 0",
+      "what": "viewport meta 带 width=device-width、用了 @media/rem/vw/clamp 之一、处理了 safe-area-inset、有 <nav> 作底部 tab"
+    },
+    {
+      "id": "card-feed",
+      "cmd": "node --input-type=module -e \"import fs from 'node:fs';const s=fs.readFileSync(process.argv[1],'utf8');const cards=(s.match(/<article[\\s>]|class=[^>]*(?:card|item|cell)/gi)||[]).length;const imgs=(s.match(/<img[\\s>]/gi)||[]).length;const alts=(s.match(/<img[^>]+alt *=/gi)||[]).length;const bad=cards<8||!/<svg|<img/i.test(s)||(imgs>0&&alts<imgs)||!/scroll-snap|overflow-x/i.test(s);process.exit(bad?1:0)\" \"{artifact}\"",
+      "expect": "exit 0",
+      "what": "≥8 个卡片元素、有图形占位（svg 或 img）、每个 <img> 都带 alt、存在横向滚动（scroll-snap 或 overflow-x）"
+    },
+    {
+      "id": "visual-review",
+      "manual": true,
+      "criteria": "人工评分（1–5，≥4 视为通过）：① 视觉层级是否一眼可读（标题/正文/辅助文字三档清晰）；② 间距是否成体系（4 的倍数，没有凭感觉的 13px/22px）；③ 是否像真实产品而非模板套壳（文案具体、数据可信、无 lorem ipsum）；④ 三视口逐张看无横向溢出、无文字裁切、无控件重叠；⑤ 焦点态与错误态真的存在且可见。评分与理由写进 bench/results/ 旁的评审记录。",
+      "what": "人工视觉与工艺评分"
+    }
+  ],
+  "artifacts": [
+    "index.html"
+  ]
+}

@@ -8,6 +8,71 @@
 各版本条目首次引入的对应提交日期校正；这些日期是**提交日期，不据此宣称发行日期**。
 v1.0.0 保留初始化提交 `6da84f5`（2026-10-22）支持的日期；其余已一致的标题日期不改。
 
+## v1.24.0 - 2026-11-01
+
+回应一条外部「token 治理」评审：方向对了一半（参考库缺检索入口、验收脚本不给修复建议、没有对照证据），
+前提错了一半（SKILL.md 实际 146 行，远没到评审假设的「500 行上下」；逐文件路由描述与大文件索引
+v1.23.1 已就位）。本次只落地经实测复核成立的建议，并把每条依据写成门或脚本。
+
+关键认知：**每次会话都付费的只有 frontmatter description**——技能触发与否它都在上下文里。
+references 是按需层、body 是触发后层，所以 token 治理的主战场是瘦 description 与「以查代读」，
+不是继续切分参考文件。
+
+### 新增
+
+- **`references/baseline.json` + `scripts/lookup.mjs`**：32 条冻结数值（值 + 判据 + 出处 file:line + 锚点）
+  结构化基线，`node scripts/lookup.mjs <关键词>` 一行返回精确数值与出处（如 `lookup.mjs 圆角`、
+  `lookup.mjs 表单列宽`、`--list` 全目录），agent 不再为单个数字整读 69KB 的 `design-evidence.md`。
+  `--verify` 逐条锚点回定位：行号漂移 exit 3 提示 `--fix`；锚点文字变了 exit 1，必须人工核对数值。
+  `--fix` 只回写行号，不改数值。
+- **`audit.mjs --red-flags`**：把 `anti-slop.md` §八 pre-flight 里能从 DOM/CSS 机械判定的 13 项
+  沉成 `red-flag-*` 检查项（hero 标题行数 / 顶部内边距 / 版本号装饰、CTA 词数、导航高度、三张等大卡、
+  长列表 divide-y、重复意图导航、placeholder 当标签、缺 prefers-reduced-motion、布局属性动画、
+  scroll 监听、无限循环铺屏）。默认 warn 只指方向；口径核定后加 `--strict-red-flags` 计入退出码。
+  「反模式优先」的正确形态不是把文档前置多读一遍，而是让违规直接变成可执行的失败项。
+- **selfcheck 三门**（15 → 18 门）：
+  - **常驻层体积**：description est tokens ≤ 400、必须含「不用于」否定触发边界、正文非空行 ≤ 200——
+    防止把 references 层的内容又抄回常驻层（est 口径 = CJK×1.4 + 其余×0.3，与本次全部测量一致）。
+  - **基线漂移**：baseline.json 结构合法、冻结均值（14.7/69.8px）与 design-evidence.md 一致、
+    `lookup.mjs --verify` 32 条锚点全部回定位。
+  - **反模式指针**：visual-system.md「避免」摘要 → anti-slop.md 指针在位、§六 8 组 AI tell、
+    §八 pre-flight 条数与指针声称一致（摘要+指针是刻意设计，防的是指针断头）。
+- **`bench/` 对照实验框架**：3 个代表任务（后台表单页 / 移动 H5 卡片流 / 营销落地页）×
+  4 个条件（无 skill / 冻结旧版快照 / 当前版 / **等长无关 skill 对照**）的 Pass@2 + token 记账与复现脚本。
+  等长对照来自 WebDev-Skills-Bench（arXiv 2608.23067）的方法论：技能的增益不得与「它比空提示更长」混淆。
+  自带 `results/example-run.json` 是**标注 EXAMPLE 的示例数据**，不是实测结论；真实跑需自备模型 API。
+
+### 变更
+
+- **SKILL.md description 929 → 399 est tokens（-57%）**：删掉十七类蒸馏枚举、28=25+3 口径说明、
+  十五类页面枚举、九脚本职责罗列（body 与 references 里都有）；保留能力两分、11 条触发短语，
+  新增「不用于」否定边界（纯逻辑修复 / 非视觉后端任务 / 插画海报归 canvas-design）。
+  依据 SkillReducer（arXiv 2603.29919）：>40 tokens 的 description 直接压缩平均 -56.5%，
+  而这是唯一「每次会话都省钱」的层。
+- **`contrast_check.py` 每条 FAIL 附「↳ 建议」**：二分算出刚好达标的颜色（前景、背景各一个，
+  只调明度不改色相），**按 8bit 量化后的实际比值复验**——不会建议一个显示达标、实测不达标的颜色
+  （#777 on #fff 实测 4.48:1 → 建议前景 #767676，量化后 4.54:1）。`--fg/--bg` 单点检查同样输出；
+  `--json` 每条失败带 `fix` 字段（fgHex/fgRatio/fgDirection/bgHex/bgRatio/bgDirection/required）。
+- SKILL.md 数值句改为「**数值拿不准先查再量，不要猜**」：先 `lookup.mjs` 查冻结基线，
+  基线没有的再用 `probe-ref.mjs` 量参考站。
+
+### 修复
+
+- **pre-flight 条数口径 34 → 38**：`anti-slop.md` §八 自 v1.7.0 入库起实际就是 38 条，
+  但 visual-system.md、README（×3）、SKILL.md、workflow.md、reference-sites.md、docs/scripts.md
+  共 8 处散文声称 34 条，数月未被发现——新上线的「反模式指针」门第一次运行即抓到。
+  历史 CHANGELOG 条目与 bench 冻结快照按原样保留。
+
+### 量化（这次的依据）
+
+| 项 | 之前 | 之后 |
+| --- | --- | --- |
+| description（常驻，每次会话付费） | 929 est tokens | 399 est tokens（-57%） |
+| 查一个冻结数值 | 整读 design-evidence.md 69KB（或凭记忆猜） | `lookup.mjs` 一行（命中基线 = 零参考读取） |
+| 反模式检查 | §八 38 条全靠人工过 | 13 项 `--red-flags` 一条命令，其余人工 |
+| selfcheck 门数（--skip-audit） | 15 | 18 |
+| 对比度 FAIL 的修复指引 | 只有比值和退出码 | 每条附量化复验过的达标色 |
+
 ## v1.23.1 - 2026-10-31
 
 回应一条外部评测：「参考资料检索效率 8.8/10，扣分项是参考库总量偏大，全量加载会吃 token」。

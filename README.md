@@ -8,7 +8,7 @@
 > 搜这些词应该能到这：设计稿转代码、照着截图还原、UI 还原、前端验收、截图对比、后台美化、移动端适配、设计令牌、Claude Code 技能（skill）。
 > 目标不是"改好看"，而是**让界面和它声称的样子一致，并且真的能用——改完能拿出证据**。
 
-`v1.23.1` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `16 个可执行脚本（13 个 Node + 3 个 Python）`
+`v1.24.0` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `17 个可执行脚本（14 个 Node + 3 个 Python）`
 
 ---
 
@@ -40,7 +40,7 @@ curl -fsSL https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/ra
 bash install.sh --target claude          # 只装 Claude Code
 bash install.sh --target dsh             # 只装 DSH
 bash install.sh --dir ~/my-skills        # 装到自定义目录
-bash install.sh --ref v1.23.1            # 锁定某个版本
+bash install.sh --ref v1.24.0            # 锁定某个版本
 bash install.sh --dry-run                # 只看会装到哪，不动文件
 ```
 
@@ -77,7 +77,7 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 | 维度 | 等级 | 现状（可核对） | 怎么核对 |
 | --- | --- | --- | --- |
 | 可执行验收 | A+ | **16 个脚本**（13 Node + 3 Python），全部用退出码表达结论；`0 通过 / 1 检查失败 / 2 参数或环境错误 / 3 只验了一部分` | `ls scripts/*.mjs scripts/*.py`、`wc -l scripts/*` |
-| 参考数据 | A+ | 28 个真实站的浏览器实测 + 17 份单站蒸馏 + **17 站结构层证据**（地标 / 标题层级 / DOM 深度 / `alt` 覆盖）+ **带日期的冻结快照**；`references/` 共 30 份参考 + 2 份机器可读数据 | `wc -l references/*.md`、`jq . references/reference-snapshot.json` |
+| 参考数据 | A+ | 28 个真实站的浏览器实测 + 17 份单站蒸馏 + **17 站结构层证据**（地标 / 标题层级 / DOM 深度 / `alt` 覆盖）+ **带日期的冻结快照**；`references/` 共 30 份参考 + 3 份机器可读数据 | `wc -l references/*.md`、`jq . references/reference-snapshot.json` |
 | 自检闭环 | A+ | 参数语义 / 递归语法 / 生成 15 页 / 对比度 645 组 / **审计 306 组（4 路并发，2m47s）** / 设计体系正反例 / **流程 4 条**（12 + 6 + 42 + 45 步）/ 框架栈 / 11 个 Agent 入口 / 文档计数与链接 / 参考库快照 / 历史日期与版本一致性 | `npm run selfcheck` |
 | 文档可操作性 | A | 精简入口 + 按需参考库 + 分类手册，每个脚本都有参数 / 退出码 / 产物 | `SKILL.md`、`docs/scripts.md` |
 | 边界诚实度 | A+ | 明写不做什么（测试框架 / Figma 导入 / 小程序原生 / 默认视觉回归门禁）；红旗清单 **13 条** | 本文「适用与不适用」、[`review-rubric.md`](references/review-rubric.md) §十 |
@@ -99,7 +99,7 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 
 没有权威榜单可依据，所以这里**不写「国内第 N」**——任何具体名次都无法核实，写进 README 就是假数据。
 
-能给的是可核对的量级：公开可见的 Agent skill 绝大多数是「一份 `SKILL.md` + 若干 markdown」，自带 3 个以上可执行脚本的都少见。本项目是 16 个脚本 + 30 份参考 + 17 站结构证据 + 可执行自检，按这个量级，在国内公开的前端 / UI 类 skill 里属于第一梯队。
+能给的是可核对的量级：公开可见的 Agent skill 绝大多数是「一份 `SKILL.md` + 若干 markdown」，自带 3 个以上可执行脚本的都少见。本项目是 17 个脚本 + 30 份参考 + 17 站结构证据 + 可执行自检，按这个量级，在国内公开的前端 / UI 类 skill 里属于第一梯队。
 
 真正少见的是三件事同时成立：
 
@@ -128,7 +128,7 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 
 动效是另一条横切：动手加任何动画前读 [`references/motion-spec.md`](references/motion-spec.md)（四条底线、时长五档、四条缓动、编排、三档降级、自测四步），可粘贴片段在 [css-recipes §18](references/css-recipes.md)。想让一批卡片"被指针点亮"，直接抄 [`references/holynova-motion.md`](references/holynova-motion.md) + [css-recipes §19](references/css-recipes.md)（聚光描边 + hover 四件套，实测单站）。
 
-另有两份**不分页面类型、每次都要过**的：流程走到一半看 [`references/anti-slop.md`](references/anti-slop.md)（三档旋钮、hero 四条、三把锁、8 组 AI tell、34 条 pre-flight），最后一道手感看 [`references/craft-floor.md`](references/craft-floor.md)（九条 verify、深度三选一、浏览器原生表面、与本站语料的四条冲突裁决）。
+另有两份**不分页面类型、每次都要过**的：流程走到一半看 [`references/anti-slop.md`](references/anti-slop.md)（三档旋钮、hero 四条、三把锁、8 组 AI tell、38 条 pre-flight），最后一道手感看 [`references/craft-floor.md`](references/craft-floor.md)（九条 verify、深度三选一、浏览器原生表面、与本站语料的四条冲突裁决）。
 
 十七份单站蒸馏共用一套结构（10–12 节）：气质 → 令牌 → 字阶 → 版式节奏 → 组件配方 → 它自己没做好的 → 能搬/不能搬 → 复现清单 → 与其他文件的关系 → 重采方法；StyleKit 多一节「详情页第二套版式」，四份中文站把「实测事实 / 设计手法 / 反面样本」拆得更细。要抄就抄「令牌 + 版式 + 组件」三节，反面那节用来避免抄到毛病。
 
@@ -166,7 +166,7 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 
 ## 这是什么
 
-一个**把前端做对**的技能包，两条路都走：**先把已有界面整改/还原到位**，**也能从 0 生成一套能验收的骨架**。内含一份给 agent 读的操作手册（`SKILL.md`）+ 三十份参考数据（17 份单站蒸馏 + 9 份通用规格 + 1 份跨站实测 + 2 份外部规则集 + 1 份工作流，`references/`）+ 十六个能直接跑的脚本（`scripts/`）。
+一个**把前端做对**的技能包，两条路都走：**先把已有界面整改/还原到位**，**也能从 0 生成一套能验收的骨架**。内含一份给 agent 读的操作手册（`SKILL.md`）+ 三十份参考数据（17 份单站蒸馏 + 9 份通用规格 + 1 份跨站实测 + 2 份外部规则集 + 1 份工作流，`references/`）+ 十七个能直接跑的脚本（`scripts/`）。
 
 它解决的是这类问题：
 
@@ -230,7 +230,7 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 | `references/muzli-gallery.md` | 双方 | 单站全量：左栏 sticky 目录 + 3 列图版（348×309）+ 衬线刊头（Instrument Serif 48/1.0）+ 电光蓝 #2e54ff + 无壳卡片 + 35px tag 药丸 + 页脚主色 10% 面板；含「零 hover」这处反面 |
 | `references/mastergo-b2b.md` | 双方 | 单站全量（B 端工具界面样板）：三栏工作区 300/画布/300 + 顶栏 56、属性面板分组标题 12/600 + 键值行 12 等宽 + 只有数值上色、代码面板语法色、盒子模型图；另含 24 张社区资源卡统计（B 端整页 98.2k 使用 > 大厂组件库 46.7k） |
 | `references/craft-floor.md` | 双方 | 工艺底线：九条 verify、深度三选一、四件浏览器原生表面、表面禁令、与本站语料的四条冲突裁决（来源：impeccable `craft-floor`，Apache-2.0） |
-| `references/anti-slop.md` | agent | 反模板：Design Read、三档旋钮与三套人格对照、hero 四条硬规则、三把锁、8 组 AI tell、中文站条款、34 条 pre-flight（来源：design-taste-frontend，规则重写） |
+| `references/anti-slop.md` | agent | 反模板：Design Read、三档旋钮与三套人格对照、hero 四条硬规则、三把锁、8 组 AI tell、中文站条款、38 条 pre-flight（来源：design-taste-frontend，规则重写） |
 | `references/page-patterns.md` | agent | 选型表 + 十五类页面骨架 + 空/错/无权限三变体 + 内容最低量 |
 | `references/component-spec.md` | agent | 11 类组件规格与禁忌（三档密度、尺寸、对齐、状态） |
 | `references/design-tokens.md` | agent | 五套人格预设（含印刷 / 杂志）、深度语言三派、色阶生成数学、字阶、圆角阴影配对、暗色推导 |
@@ -302,7 +302,7 @@ git clone https://gitee.com/liu-everything_impossble/skill-frontend-fidelity.git
 
 从 [Releases](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) 下载 `frontend-fidelity.zip`，解压到同名目录即可，内容与 git 版本一致。
 包由 `git archive` 从 tag 生成，不含 `__pycache__`、截图目录与本地缓存。
-当前是 [v1.23.1](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest)。
+当前是 [v1.24.0](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest)。
 
 ### 方式三：只取脚本
 
@@ -388,7 +388,7 @@ frontend-fidelity/
 │   ├── vercel-auth.md          # 认证注册：390px 表单列 + 40 高按钮 + 五档圆角；对照 Linear 的两档字阶
 │   ├── applestore-commerce.md  # 电商商品配置：三层价格 + 36px 色块 SKU + 44 高 CTA；小米不响应式反例
 │   ├── craft-floor.md            # 工艺底线：九条 verify + 深度三选一 + 原生表面 + 四条冲突裁决
-│   ├── anti-slop.md              # 反模板：三档旋钮 + hero 四条 + 三把锁 + 8 组 AI tell + 34 条 pre-flight
+│   ├── anti-slop.md              # 反模板：三档旋钮 + hero 四条 + 三把锁 + 8 组 AI tell + 38 条 pre-flight
 │   ├── visual-system.md         # 视觉与结构细则完整版（从 SKILL.md 下沉的 15 节）
 │   └── review-rubric.md          # 交付前十节验收清单（含红旗清单）
 ├── package.json                  # 只声明 devDependency playwright 与 npm run selfcheck
@@ -407,6 +407,7 @@ frontend-fidelity/
     ├── run_checks.mjs            # 跑项目自带的 lint/typecheck/test/build
     ├── probe-ref.mjs             # 量任意参考站的真实字体/配色/圆角/间距
     ├── recheck-refs.mjs          # 批量复测单站参考 + 基线漂移对比（docs/reference-recheck.md）
+    ├── lookup.mjs                # 冻结基线一行查询（值+判据+出处）；--verify/--fix 锚点回定位
     ├── selfcheck.mjs             # 生成与验收冒烟、递归语法、文档计数/均值/链接/日期与版本检查
     ├── flow.example.json         # flow.mjs 的示例流程（对 scaffold 骨架冒烟，selfcheck 用它守着）
     ├── lib/common.mjs            # 共享工具
@@ -595,7 +596,7 @@ node scripts/flow.mjs --flow order.json --base http://localhost:5173 --continue
 | --- | --- |
 | `scaffold.mjs` | 从 0 生成骨架：五套人格 × 十五类页面（含移动端壳、电商三页）× 深色令牌，可出 React/Vue 框架版 |
 | `screenshot.mjs` | 多视口 × 多主题全页截图，记录 CLS 与控制台错误 |
-| `audit.mjs` | 结构 + axe WCAG 2.1 A/AA + CLS + 动效审计；`--design-system` 另查字号 / 间距 / 圆角 / 阴影是否越出已声明体系 |
+| `audit.mjs` | 结构 + axe WCAG 2.1 A/AA + CLS + 动效审计；`--design-system` 另查字号 / 间距 / 圆角 / 阴影是否越出已声明体系；`--red-flags` 另扫反模式红旗（anti-slop §八 的可机械判定项，`--strict-red-flags` 计入退出码） |
 | `flow.mjs` | 交互流程验收：声明式 JSON 跑「登录 → 填表 → 成功提示」，失败给第几步 + 现场截图 |
 | `fidelity.mjs` | 像素级还原验收（设计稿 vs 实现） |
 | `auth.mjs` | 有头浏览器登录，导出 auth.json |
@@ -606,6 +607,7 @@ node scripts/flow.mjs --flow order.json --base http://localhost:5173 --continue
 | `run_checks.mjs` | 跑项目自带的 lint/typecheck/test/build |
 | `probe-ref.mjs` | 量参考站的真实字体/配色/圆角/间距 |
 | `recheck-refs.mjs` | 批量复测 17 个单站参考，对比基线报数值漂移，报告写 `docs/reference-recheck.md` |
+| `lookup.mjs` | 冻结基线一行查询：`lookup.mjs 圆角` 返回「值 + 判据 + 出处」，不必读 618 行的 design-evidence.md；`--verify`/`--fix` 做锚点回定位与行号修复 |
 | `selfcheck.mjs` | 改技能本身之后的自检（参数语义 + 语法 + 生成 + 对比度 + 审计 + 流程 + 文档数字 + 版本号） |
 
 视觉细则的常用速查在 [`docs/visual-summary.md`](docs/visual-summary.md)，完整版在 [`references/visual-system.md`](references/visual-system.md)。

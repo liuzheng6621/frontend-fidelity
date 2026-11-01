@@ -244,7 +244,7 @@
 
 ## 避免（这些是「像 AI 生成的」信号）
 
-下面是最高频的条目；完整清单、三档旋钮（VARIANCE / MOTION / DENSITY）、34 条 pre-flight 与中文站改写条款在 `references/anti-slop.md`，工艺底线（九条 verify + 深度三选一 + 原生表面）在 `references/craft-floor.md`。
+下面是最高频的条目；完整清单、三档旋钮（VARIANCE / MOTION / DENSITY）、38 条 pre-flight 与中文站改写条款在 `references/anti-slop.md`，工艺底线（九条 verify + 深度三选一 + 原生表面）在 `references/craft-floor.md`。
 
 - 大标题配「✨ 副标题 ✨」式emoji 堆砌；正文里塞 emoji 当图标。
 - 全页面都是渐变（尤其紫蓝渐变）+ 全员 16px 圆角 + 全员大阴影。

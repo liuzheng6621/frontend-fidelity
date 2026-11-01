@@ -12,6 +12,12 @@
  *   4.3 设计体系：合规 / 越档 / strict / 允许列表 / 忽略 / 未启用与无效配置反例
  *   4.5 框架栈：`--stack all` 生成 React/Vue，逐文件过 TSX/TS 语法 + 类名对齐（CSS 里没有的类名=错）
  *   5. 文档门：计数与冻结均值、相对文件链接、CHANGELOG 日期与版本顺序（含纯函数回归）
+ *   5.2 常驻层体积：SKILL.md 的 description（唯一每次会话都在上下文里的部分）est tokens ≤ 400、
+ *       必须含「不用于」触发边界、正文行数 ≤ 200——防止把 references 层的内容又抄回常驻层
+ *   5.3 基线漂移：references/baseline.json 结构合法、冻结均值与 design-evidence.md 一致、
+ *       lookup.mjs --verify 逐条锚点回定位（漂移 exit 3 → 提示跑 --fix；missing exit 1 → 失败）
+ *   5.4 反模式指针：visual-system.md「避免」清单 → anti-slop.md 指针在位，§六 8 组 AI tell、
+ *       §八 pre-flight 条数与指针声称一致（摘要+指针关系防断头）
  *   6. 版本号：package.json / README / install.sh / CHANGELOG 首条必须同版，必要文件缺失即失败
  *
  * 用法：
@@ -195,6 +201,118 @@ function changelogIssues(text, today) {
     previous = { version, parts, date: validDate ? date : null };
   }
   return bad;
+}
+
+/** est tokens 口径：CJK 区字符 ×1.4、其余 ×0.3（与仓库文档的测量口径一致，粗估足够当门）。 */
+const CJK_CHAR_RE = /[\u3000-\u303f\u4e00-\u9fff\uff00-\uffef\u2018\u2019\u201c\u201d\u2014\u2026\u00b7]/;
+function estimateTokens(text) {
+  let t = 0;
+  for (const ch of text) t += CJK_CHAR_RE.test(ch) ? 1.4 : 0.3;
+  return Math.round(t);
+}
+
+/**
+ * 解析 SKILL.md frontmatter 的 description：支持 `description: >-` 折叠块
+ * （后续缩进行 trim 后直接拼接——中文行折叠不留空格）与单行写法。没有则返回 null。
+ */
+function skillDescription(text) {
+  const fm = text.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+  if (!fm) return null;
+  const lines = fm[1].split(/\r?\n/);
+  for (let i = 0; i < lines.length; i++) {
+    const m = lines[i].match(/^description:\s*(.*)$/);
+    if (!m) continue;
+    const inline = m[1].trim();
+    if (inline && !/^[>|][-+]?$/.test(inline)) return inline.replace(/^["']|["']$/g, '');
+    const parts = [];
+    for (let j = i + 1; j < lines.length; j++) {
+      if (!/^\s/.test(lines[j])) break;
+      parts.push(lines[j].trim());
+    }
+    return parts.join('').trim() || null;
+  }
+  return null;
+}
+
+/**
+ * 常驻层体积门。description 是这个技能唯一「每次会话都在上下文里」的部分——
+ * 触发与否都要付钱，所以只许放路由与触发词；数值、枚举、口径全部下沉 references。
+ * 「不用于」否定边界防误触发（WebDev-Skills-Bench：无关技能注入本身就掉分）。
+ */
+function residentLayerIssues(text, { maxDescTokens = 400, maxBodyLines = 200 } = {}) {
+  const issues = [];
+  const fm = text.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+  if (!fm) return { issues: ['SKILL.md 缺少 frontmatter（--- 块）'], estTokens: null, bodyLines: null, hasBoundary: false };
+  const bodyLines = text.slice(fm[0].length).split(/\r?\n/).filter((l) => l.trim()).length;
+  const desc = skillDescription(text);
+  if (!desc) return { issues: ['frontmatter 缺少 description'], estTokens: null, bodyLines, hasBoundary: false };
+  const estTokens = estimateTokens(desc);
+  if (estTokens > maxDescTokens) {
+    issues.push(`description 约 ${estTokens} est tokens 超过上限 ${maxDescTokens}——常驻层只放路由与触发词，数值/枚举下沉 references`);
+  }
+  const hasBoundary = desc.includes('不用于');
+  if (!hasBoundary) issues.push('description 缺少「不用于」否定触发边界');
+  if (bodyLines > maxBodyLines) issues.push(`正文非空行数 ${bodyLines} 超过上限 ${maxBodyLines}`);
+  return { issues, estTokens, bodyLines, hasBoundary };
+}
+
+/** baseline.json 结构门：每条必须可查询、可回源（lookup.mjs --verify 负责锚点级校验）。 */
+function baselineIssues(data) {
+  if (!data || typeof data !== 'object') return ['baseline.json 不是对象'];
+  const issues = [];
+  const fm = data.baseline?.frozenMeans;
+  if (!fm || typeof fm.bodyFontPx !== 'number' || typeof fm.h1FontPx !== 'number') {
+    issues.push('baseline.frozenMeans 缺 bodyFontPx/h1FontPx');
+  }
+  if (!Array.isArray(data.entries) || data.entries.length === 0) {
+    issues.push('entries 必须是非空数组');
+    return issues;
+  }
+  const seen = new Set();
+  data.entries.forEach((e, i) => {
+    const tag = e?.id || `entries[${i}]`;
+    for (const f of ['id', 'topic', 'value', 'verdict']) {
+      if (!e || typeof e[f] !== 'string' || !e[f].trim()) issues.push(`${tag} 缺少 ${f}`);
+    }
+    const s = e?.source;
+    if (!s || typeof s.file !== 'string' || !/^references\/.+\.md$/.test(s.file)) {
+      issues.push(`${tag} 的 source.file 必须是仓库相对的 references/*.md 路径`);
+    }
+    if (!s || typeof s.anchor !== 'string' || !s.anchor.trim()) issues.push(`${tag} 缺少 source.anchor`);
+    if (!s || typeof s.line !== 'number') issues.push(`${tag} 缺少 source.line`);
+    if (e?.id) {
+      if (seen.has(e.id)) issues.push(`id 重复: ${e.id}`);
+      seen.add(e.id);
+    }
+  });
+  return issues;
+}
+
+/**
+ * 反模式指针门。visual-system.md 的「避免」清单是 anti-slop.md 的高频摘要，
+ * :247 的指针声明「完整清单……在 references/anti-slop.md」。这是刻意的
+ * 摘要+指针关系（不是失控双写），但指针指向的章节一旦改名/删减，摘要就变成
+ * 断头路——所以机械核对：指针存在、§六 八组 AI tell、§八 pre-flight 都在，
+ * 且指针里声称的 pre-flight 条数与实际一致。
+ */
+function antiSlopPointerIssues(visualText, antiText) {
+  const issues = [];
+  if (!/anti-slop\.md/.test(visualText)) {
+    issues.push('visual-system.md 缺少指向 anti-slop.md 的指针（「避免」清单必须声明完整清单位置）');
+  }
+  if (!/^## 六、/m.test(antiText)) issues.push('anti-slop.md 缺少「## 六、」（AI tell 清单）');
+  if (!/^## 八、/m.test(antiText)) issues.push('anti-slop.md 缺少「## 八、」（pre-flight）');
+  if (!/^## 九、/m.test(antiText)) issues.push('anti-slop.md 缺少「## 九、」（§八 的截止边界）');
+  const tellGroups = (antiText.match(/^### 6\.\d/mg) || []).length;
+  if (tellGroups !== 8) issues.push(`anti-slop.md §六 应有 8 组 AI tell（6.1–6.8），当前 ${tellGroups} 组`);
+  const sec = antiText.match(/^## 八、[\s\S]*?(?=^## 九、)/m);
+  const preflight = sec ? (sec[0].match(/^- \[ \]/gm) || []).length : 0;
+  if (preflight < 30) issues.push(`anti-slop.md §八 pre-flight 只剩 ${preflight} 条（<30），摘要口径失真`);
+  const claim = visualText.match(/(\d+)\s*条\s*pre-flight/);
+  if (claim && preflight !== Number(claim[1])) {
+    issues.push(`visual-system.md 指针声称 ${claim[1]} 条 pre-flight，anti-slop.md §八 实际 ${preflight} 条——两边同步`);
+  }
+  return { issues, tellGroups, preflight };
 }
 
 function requiredDocument(root, rel) {
@@ -634,7 +752,32 @@ else {
     for (const bad of ['## v1.0.0 - 2026-11-09', '## v1.0.0 - 2026-02-30', '## v1.0.0 - 2025-02-29', '## v1.0.0', '## v1.0.0 日期不规范', '## v1.0.0 - 2026-13-01', '## v1.01.0 - 2026-10-27', '## v1.x.0 - 2026-10-27', '## v1.0.0 - 2026-10-25\n## v0.9.0 - 2026-10-26', '## v1.9.0 - 2026-10-27\n## v1.10.0 - 2026-10-27', '## v1.0.0 - 2026-10-27\n## v1.0.0 - 2026-10-27']) {
       assert.ok(changelogIssues(bad, '2026-10-31').length, `应拒绝：${bad}`);
     }
-    pass('文档规则回归', '中英计数 / 冻结均值 / 代码块与相对链接 / 日期与版本顺序正反例');
+    assert.equal(estimateTokens('中文abc'), 4); // 2×1.4 + 3×0.3 = 3.7 → 4
+    assert.equal(skillDescription('---\nname: x\ndescription: >-\n  第一行\n  第二行\nlicense: MIT\n---\n正文'), '第一行第二行');
+    assert.equal(skillDescription('---\ndescription: 单行描述\n---\n'), '单行描述');
+    assert.equal(skillDescription('没有 frontmatter'), null);
+    const goodSkill = '---\nname: x\ndescription: >-\n  触发词若干。不用于：无关任务。\n---\n# 标题\n正文一行\n';
+    assert.deepEqual(residentLayerIssues(goodSkill).issues, []);
+    assert.equal(residentLayerIssues(goodSkill).hasBoundary, true);
+    assert.ok(residentLayerIssues(`---\ndescription: ${'很长的中文'.repeat(120)}\n---\n正文\n`).issues.some((s) => s.includes('超过上限')));
+    assert.ok(residentLayerIssues('---\ndescription: 只有触发词\n---\n正文').issues.some((s) => s.includes('不用于')));
+    assert.ok(residentLayerIssues('无 frontmatter').issues.length);
+    assert.ok(residentLayerIssues(`---\ndescription: 不用于：x\n---\n${'行\n'.repeat(250)}`).issues.some((s) => s.includes('行数')));
+    const goodBaseline = { baseline: { frozenMeans: { bodyFontPx: 14.7, h1FontPx: 69.8 } }, entries: [{ id: 'a', topic: 't', value: 'v', verdict: 'j', source: { file: 'references/x.md', line: 1, anchor: '锚' } }] };
+    assert.deepEqual(baselineIssues(goodBaseline), []);
+    assert.ok(baselineIssues({ baseline: {}, entries: [{ id: 'a' }] }).length >= 4);
+    const dup = structuredClone(goodBaseline);
+    dup.entries.push({ id: 'a', topic: 't2', value: 'v2', verdict: 'j2', source: { file: 'references/x.md', line: 2, anchor: '锚2' } });
+    assert.ok(baselineIssues(dup).some((s) => s.includes('重复')));
+    const goodVisual = '完整清单、34 条 pre-flight 在 references/anti-slop.md。';
+    const goodAnti = '## 六、AI tell\n' + Array.from({ length: 8 }, (_, i) => `### 6.${i + 1} 组\n`).join('') + '## 七、x\n## 八、pre-flight\n' + '- [ ] 项\n'.repeat(34) + '## 九、y\n';
+    assert.deepEqual(antiSlopPointerIssues(goodVisual, goodAnti).issues, []);
+    assert.equal(antiSlopPointerIssues(goodVisual, goodAnti).preflight, 34);
+    assert.ok(antiSlopPointerIssues('没有指针的摘要', goodAnti).issues.some((s) => s.includes('指针')));
+    assert.ok(antiSlopPointerIssues(goodVisual, '## 六、x\n## 九、y\n').issues.some((s) => s.includes('## 八、')));
+    assert.ok(antiSlopPointerIssues(goodVisual, goodAnti.replace('### 6.8 组\n', '')).issues.some((s) => s.includes('8 组')));
+    assert.ok(antiSlopPointerIssues(goodVisual, goodAnti.replace('- [ ] 项\n'.repeat(34), '- [ ] 项\n'.repeat(30))).issues.some((s) => s.includes('声称 34')));
+    pass('文档规则回归', '中英计数 / 冻结均值 / 代码块与相对链接 / 日期与版本顺序 / 常驻层与基线结构正反例 / 反模式指针正反例');
   } catch (e) { fail('文档规则回归', e.message); }
 }
 {
@@ -713,6 +856,45 @@ else {
     if (issues.length) fail('参考库快照', issues.join(' | '));
     else pass('参考库快照', `capturedAt ${snap.capturedAt} · ${sites.length} 站 · 带 method 与 note`);
   } catch (e) { fail('参考库快照', e.message); }
+
+  // 常驻层体积：description 是技能唯一每次会话都进上下文的部分（触发与否都付费），
+  // 正文是触发后才加载的部分。两者都设上限，防止把 references 层的数值枚举又抄回常驻层。
+  try {
+    const r = residentLayerIssues(requiredDocument(ROOT, 'SKILL.md'));
+    if (r.issues.length) fail('常驻层体积', r.issues.join(' | '));
+    else pass('常驻层体积', `description ${r.estTokens} est tokens（≤400）· 含「不用于」否定边界 · 正文非空行 ${r.bodyLines}（≤200）`);
+  } catch (e) { fail('常驻层体积', e.message); }
+
+  // 基线漂移：baseline.json 是 lookup.mjs 的数据源，结构坏了查询与锚点校验都不可信。
+  // 两层校验：①结构与冻结均值必须和 design-evidence.md 对得上；②lookup.mjs --verify 逐条锚点回定位。
+  try {
+    const baselinePath = join(ROOT, 'references', 'baseline.json');
+    if (!existsSync(baselinePath)) throw new Error('缺少 references/baseline.json（lookup.mjs 的数据源）');
+    const data = JSON.parse(readFileSync(baselinePath, 'utf8'));
+    const issues = baselineIssues(data);
+    const means = frozenMeans(requiredDocument(ROOT, 'references/design-evidence.md'));
+    const bfm = data.baseline?.frozenMeans || {};
+    if (bfm.bodyFontPx !== means.body) issues.push(`baseline.frozenMeans.bodyFontPx=${bfm.bodyFontPx} 与 design-evidence.md 冻结值 ${means.body} 不一致`);
+    if (bfm.h1FontPx !== means.h1) issues.push(`baseline.frozenMeans.h1FontPx=${bfm.h1FontPx} 与 design-evidence.md 冻结值 ${means.h1} 不一致`);
+    if (issues.length) fail('基线漂移', issues.join(' | '));
+    else {
+      const v = await runNodeAsync([join(SCRIPTS, 'lookup.mjs'), '--verify']);
+      if (v.status === 0) pass('基线漂移', `${data.entries.length} 条基线锚点全部回定位 · 冻结均值 ${means.body}/${means.h1}px 一致`);
+      else if (v.status === 3) fail('基线漂移', `锚点行号漂移——跑 node scripts/lookup.mjs --fix 更新行号；锚点文字变了必须人工核对数值\n${(v.out || '').trim()}`);
+      else fail('基线漂移', `lookup.mjs --verify 退出码 ${v.status}\n${(v.out || '').trim().slice(-400)}`);
+    }
+  } catch (e) { fail('基线漂移', e.message); }
+
+  // 反模式指针：visual-system.md 的「避免」清单是 anti-slop.md 的高频摘要 + 指针。
+  // 摘要+指针是刻意设计（不是双写失控），但指针指向的章节结构一旦变动，摘要就断头。
+  try {
+    const r = antiSlopPointerIssues(
+      requiredDocument(ROOT, 'references/visual-system.md'),
+      requiredDocument(ROOT, 'references/anti-slop.md'),
+    );
+    if (r.issues.length) fail('反模式指针', r.issues.join(' | '));
+    else pass('反模式指针', `visual-system.md → anti-slop.md 指针在位 · §六 ${r.tellGroups} 组 AI tell · §八 ${r.preflight} 条 pre-flight`);
+  } catch (e) { fail('反模式指针', e.message); }
 
   try {
     const markdown = readdirSync(ROOT).filter((f) => f.endsWith('.md'));

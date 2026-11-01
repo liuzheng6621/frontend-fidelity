@@ -1,0 +1,9 @@
+{
+  "id": "legacy",
+  "label": "旧版技能快照（v1.23.1，HEAD 0281bda）",
+  "skillFile": "legacy.md",
+  "estTokens": 5720,
+  "frozenAt": "2026-11-01",
+  "source": "git show HEAD:SKILL.md > bench/conditions/legacy.md",
+  "note": "冻结副本，跑的时候不会随工作区变动。用来回答「这一版 SKILL.md 的改动到底有没有效果」——legacy 与 current 的差就是本次改动的净效果。estTokens 含文件头那行 HTML 注释。"
+}

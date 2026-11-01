@@ -230,6 +230,8 @@ node scripts/audit.mjs --url http://localhost:5173/ --no-axe
 | `--out` | `audit-report.json` | 报告路径 |
 | `--design-system` | 关 | 裸参数使用默认基线；跟 JSON 路径则使用项目自己的字号/间距/圆角档位与预算，默认仅警告 |
 | `--strict-design-system` | 关 | 将 `design-system-*` 警告升级为 error；必须同时启用 `--design-system` |
+| `--red-flags` | 关 | 红旗检查：`anti-slop.md` §八 pre-flight 的可机械判定项（`red-flag-*`），默认仅警告 |
+| `--strict-red-flags` | 关 | 将 `red-flag-*` 警告升级为 error；必须同时启用 `--red-flags` |
 | `--help` | – | 打印设计体系审计入口；完整参数见本节 |
 
 **检查项**
@@ -255,10 +257,36 @@ node scripts/audit.mjs --url http://localhost:5173/ --no-axe
 | warn / strict 时 error | `design-system-spacing` | padding / margin / gap 不在已声明档位或默认网格内 |
 | warn / strict 时 error | `design-system-radii` | 非全圆角未声明，或超过档数预算 |
 | warn / strict 时 error | `design-system-shadows` | 完整 `box-shadow` 声明套数超过预算 |
+| warn / strict-red-flags 时 error | `red-flag-hero-h1-lines` | hero 标题超过 2 行 |
+| warn / strict-red-flags 时 error | `red-flag-hero-top-padding` | hero 顶部内边距 > 96px（6rem） |
+| warn / strict-red-flags 时 error | `red-flag-hero-version` | hero 里出现版本号文字（`v2.1.0` 样式） |
+| warn / strict-red-flags 时 error | `red-flag-cta-words` | 主 CTA 文案 > 3 词（中文按 2 字 ≈ 1 词折算） |
+| warn / strict-red-flags 时 error | `red-flag-nav-height` | 横向顶部导航高度 > 80px（纵向侧边导航豁免） |
+| warn / strict-red-flags 时 error | `red-flag-three-equal-cards` | 三张等大功能卡（3 个等宽格子、各带标题+正文） |
+| warn / strict-red-flags 时 error | `red-flag-long-list-divide` | > 5 项的长列表只用 `<ul>` + 分隔线 |
+| warn / strict-red-flags 时 error | `red-flag-duplicate-intent` | 导航里同一标签出现多次 |
+| warn / strict-red-flags 时 error | `red-flag-placeholder-as-label` | 表单控件只有 placeholder 当标签 |
+| warn / strict-red-flags 时 error | `red-flag-no-reduced-motion` | 定义了 @keyframes 但全站无 `prefers-reduced-motion`（跨域样式表不可读时跳过） |
+| warn / strict-red-flags 时 error | `red-flag-animated-layout-props` | 动画直接改 top/left/width/height/margin/padding |
+| warn / strict-red-flags 时 error | `red-flag-scroll-listener` | 内联脚本用 `addEventListener('scroll')` 驱动行为 |
+| warn / strict-red-flags 时 error | `red-flag-infinite-flood` | > 8 处无限循环动画 |
 
 - axe 只跑 **WCAG 2.1 A/AA** 规则集（`wcag2a`、`wcag2aa`、`wcag21a`、`wcag21aa`），跳过 best-practice，避免刷屏。
 - `audit-report.json` 里每条违规都带 `helpUrl` 与命中节点的 HTML 片段，能直接定位。
-- **退出码：有 error 时为 1；参数/配置错误时为 2**。默认设计体系警告不改变退出码，核定配置后用 strict 作 CI 门禁。
+- **退出码：有 error 时为 1；参数/配置错误时为 2**。默认设计体系警告与红旗警告不改变退出码，核定配置后用 strict 作 CI 门禁。
+
+#### 红旗检查：anti-slop §八 的机械化子集
+
+```bash
+# 交付前先扫一遍反模式红旗（warn，指方向、不改退出码）
+node scripts/audit.mjs --url http://localhost:5173/ --red-flags
+# 评审 / 验收场景用 strict 把红旗计入退出码
+node scripts/audit.mjs --url http://localhost:5173/ --red-flags --strict-red-flags
+```
+
+红旗是 `references/anti-slop.md` §八 pre-flight 里**能从 DOM/CSS 机械判定**的子集（13 项，见上表 `red-flag-*`）。「反模式优先」的正确形态不是把文档前置多读一遍，而是让违规直接变成可执行的失败项：Agent 拿到 `red-flag-three-equal-cards` 就知道改哪里，不需要重读 38 条清单。
+
+全部是启发式：warn 是「待人确认的方向」，误报按交付说明记录取舍即可；团队核定口径后再用 `--strict-red-flags` 作门禁。机械判不了的部分（split-header、bento 空格、文案自检这类审美与语义判断）仍然走 anti-slop.md 人工过。
 
 #### 设计体系一致性：先声明，再验收
 
@@ -416,6 +444,7 @@ python scripts/contrast_check.py src/ --all             # 列出全部配对（�
 - 两种配对：同元素 `color` + `background`（背景不透明时才算），以及按变量名角色配对。
 - 阈值：正文 **4.5:1**，UI 边界 / 图标 **3:1**。透明背景的配对跳过（无法判定，需人工）。
 - 装饰性发丝边框单独标 `info`、不计入失败；`--_*` 私有变量与色阶档位不参与配对，避免假失败。
+- **每条 FAIL 下附「↳ 建议」**：二分算出的刚好达标色（前景、背景各一个，只调明度不改色相），可直接抄进令牌；建议值是下限，想留余量就再多混一点。前 20 组失败在 stdout 展示，`--json` 里所有失败项都带 `fix` 字段（`fgHex/fgRatio/fgDirection/bgHex/bgRatio/bgDirection/required`）。`--fg/--bg` 单点检查同样输出建议。
 - **退出码：有未达标项为 1。**
 
 > Tailwind v4 默认把颜色输出成 `oklch()`，只认 hex 的旧工具在解析阶段就全军覆没——这是本脚本支持它的原因。
@@ -522,6 +551,52 @@ node scripts/probe-ref.mjs --url https://example.com --no-shot # 不存截图
 **输出**：字体栈与出现次数、字号分布、`h1/h2/h3/p/a/th/td/label/button/input` 的字号-行高比-字重-字距-大小写、底色与文字色（`oklch()` 也会被正确解析成 sRGB 十六进制）、圆角档位、间距频次、表格行高、控件高度、侧栏/顶栏尺寸、卡片靠阴影还是靠边框、图片 lazy 比例、动画数、CSS 变量名，以及 **`:root` 上实际生效的自定义属性及其最终值**（`rootVars`，最多 120 项）——后者是遍历计算样式拿的，所以跨域样式表读不到、或被 JS 后注入的令牌也能量到（wegic.ai 的 `--wg-*` 就是这样测出来的）。
 
 > **只抄比例和关系，不抄像素。** 落地数值对照 `references/design-evidence.md` 的跨站统计：营销站的 96–140px 大标题搬到管理端就是错的，后台正文 13–14px、控件 32px、表格行高 53px 才是同行区间。
+
+---
+
+### lookup.mjs — 冻结基线一行查询（值 + 判据 + 出处）
+
+**用途**：从 `references/baseline.json`（32 条冻结数值）里按关键词取「值 + 判据 + 出处」，
+不必把 618 行的 `design-evidence.md` 读进上下文。数据处理的活给脚本，Agent 只解读结果。
+
+```bash
+# 关键词查询（多词 AND；未命中退回 OR 模糊并标注；按命中分取前 5）
+node scripts/lookup.mjs 圆角
+node scripts/lookup.mjs 后台 字号
+node scripts/lookup.mjs --id radius-dual-track   # 按 id 精确取
+node scripts/lookup.mjs --list                    # 列全部 32 条
+
+# 锚点回定位（selfcheck 的「基线漂移」门跑的就是它）
+node scripts/lookup.mjs --verify [--tol 5]        # 每条的 source.anchor 回源 md 找行号
+node scripts/lookup.mjs --fix                     # 把漂移条目的行号写回 baseline.json
+node scripts/lookup.mjs 圆角 --json               # 机读输出
+```
+
+| 参数 | 默认 | 说明 |
+| --- | --- | --- |
+| `<关键词…>` | – | AND 匹配 id / topic / aliases / value / verdict（小写化）；无 AND 命中退回 OR 并标注「模糊匹配」 |
+| `--id` | – | 按条目 id 精确取；未命中退出 1 |
+| `--list` | – | 列出全部条目 id + 主题 + status |
+| `--verify` | – | 读源 md（剥 `*` 后）逐条定位 anchor：声明行 ±tol 内 = ok；别处找到 = drift；找不到 = missing |
+| `--tol` | `5` | verify 的行号容差 |
+| `--fix` | – | 重写 drift 条目的 `source.line`；missing 修不了，仍退出 1 并列出 |
+| `--json` | – | 机读输出（查询与 --verify 均支持） |
+
+**退出码**：`0` 成功 / `1` 未命中或有 missing 锚点 / `2` 参数错、baseline.json 缺失或损坏 /
+`3` `--verify` 锚点全部找得到但有行号漂移（跑 `--fix`）。
+
+**输出示例**：
+
+```
+● radius-dual-track · 圆角双轨制
+  值: 频次：50%(6，头像/圆形) → 2px(4) → 24px(4) …双轨制：小控件 2–8px 方一点，胶囊 999/9999px
+  判据: 圆角必须一眼看出内外层级；同一语义用两个值才是乱，档多不等于乱。
+  出处: references/design-evidence.md:355 §二 跨站统计［frozen-18］
+```
+
+> **纪律**：行号漂移跑 `--fix` 就行；**锚点文字本身变了，必须人工核对数值后同步改
+> `baseline.json`**，不许只改锚点让门闭嘴。`--verify` 同时是数据漂移门——
+> selfcheck 还会交叉校验 `baseline.frozenMeans` 与 `design-evidence.md` §二 的冻结均值一致。
 
 ---
 
@@ -662,6 +737,7 @@ python scripts/pixel_diff.py --design a.png --impl b.png --threshold 0.08 --grid
 | `hygiene.mjs` | 无 | `--src`、`--root`、`--out`、`--out-txt` | 发现重复路由 |
 | `run_checks.mjs` | 无 | `--cwd`、`--only`、`--continue` | 任一步骤失败 |
 | `probe-ref.mjs` | `--url` | `--out`、`--name`、`--theme`、`--brief` | 采样失败 |
+| `lookup.mjs` | 关键词 或 `--id`/`--list`/`--verify` | `--fix`、`--tol`、`--json` | 未命中 / `--verify` 有 missing 锚点（行号漂移是 3，跑 `--fix`） |
 
 通用约定：
 
