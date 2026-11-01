@@ -127,6 +127,19 @@ function documentCountIssues(text, expected) {
     [new RegExp(`A 组\\s*${num}`, 'g'), 'groupA'],
     [new RegExp(`${num}\\s*份单站蒸馏`, 'g'), 'distillations'],
     [new RegExp(`${num}\\s*个(?:可执行|能直接跑的)脚本`, 'g'), 'scripts'],
+    // 下面三条是 v1.24.1 补的漏网：v1.24.0 之前 README.md 写「16 个脚本（13 Node…）」，
+    // 因为只认「可执行 / 能直接跑的」两个词，这行从门里漏了过去。带全角括号是刻意的：
+    // 「四个脚本都用退出码」这类别的语境不带括号，不该被当成脚本总数。
+    [new RegExp(`${num}\\s*个脚本（`, 'g'), 'scripts'],
+    [new RegExp(`${num}\\s*份参考`, 'g'), 'references'],
+    [new RegExp(`${num}\\s*份机器可读数据`, 'g'), 'datasets'],
+    // 英文版（README.en.md）此前完全不在门的覆盖范围，v1.23.1 的版本号与脚本数一路漂到 v1.24.0 才被发现。
+    [new RegExp(`${num}\\s+executables?\\b`, 'g'), 'scripts'],
+    [new RegExp(`${num}\\s+scripts?\\b`, 'g'), 'scripts'],
+    [new RegExp(`${num}\\s+measured references?\\b`, 'g'), 'references'],
+    [new RegExp(`${num}\\s+reference files?\\b`, 'g'), 'references'],
+    [new RegExp(`${num}\\s+Markdown files?\\b`, 'g'), 'references'],
+    [new RegExp(`${num}\\s+machine-readable datasets?\\b`, 'g'), 'datasets'],
   ];
   const bad = [];
   for (const [re, key] of rules) {
@@ -782,7 +795,7 @@ else {
 }
 {
   const ROOT = resolve(SCRIPTS, '..');
-  const files = ['README.md', 'SKILL.md', 'references/design-evidence.md', 'references/craft-floor.md', 'references/visual-system.md', 'references/workflow.md', 'docs/reference-sites.md', 'docs/scripts.md'];
+  const files = ['README.md', 'README.en.md', 'SKILL.md', 'references/design-evidence.md', 'references/craft-floor.md', 'references/visual-system.md', 'references/workflow.md', 'docs/reference-sites.md', 'docs/scripts.md'];
   try {
     const texts = new Map(files.map((rel) => [rel, requiredDocument(ROOT, rel)]));
     const evidence = texts.get('references/design-evidence.md');
@@ -796,13 +809,15 @@ else {
     const expected = {
       sites: Number(mAll[1]), groupA: Number(mA[1]), distillations: singleSite.length,
       scripts: readdirSync(SCRIPTS, { withFileTypes: true }).filter((e) => e.isFile() && /\.(mjs|py)$/.test(e.name)).length,
+      references: readdirSync(refs).filter((f) => f.endsWith('.md')).length,
+      datasets: readdirSync(refs).filter((f) => f.endsWith('.json')).length,
     };
     const bad = [];
     for (const [rel, text] of texts) bad.push(...documentCountIssues(text, expected).map((issue) => `${rel}: ${issue}`));
     const means = frozenMeans(evidence);
     bad.push(...readmeMeanIssues(texts.get('README.md'), means));
     if (bad.length) fail('文档数字', [...new Set(bad)].join(' | '));
-    else pass('文档数字', `${expected.sites} 站 / A 组 ${expected.groupA} / 磁盘蒸馏 ${expected.distillations} 份 / 顶层脚本 ${expected.scripts} 个；冻结均值 ${means.body}/${means.h1}px`);
+    else pass('文档数字', `${expected.sites} 站 / A 组 ${expected.groupA} / 磁盘蒸馏 ${expected.distillations} 份 / 参考 ${expected.references} 份 + 数据 ${expected.datasets} 份 / 顶层脚本 ${expected.scripts} 个；冻结均值 ${means.body}/${means.h1}px`);
   } catch (e) { fail('文档数字', e.message); }
 
   // 参考库索引：超过 40KB 的单份参考必须自带分节索引。

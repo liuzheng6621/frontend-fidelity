@@ -7,7 +7,7 @@
 > **Counting rule**: 28 measured sites = **Group A 25** (16 marketing/product/commerce + 9 content galleries) + **Group B 3 backend tools**. Cross-site averages stay frozen at the original 18-site baseline; newer samples only add sites and single-site entries. Totals are always 28 / Group A 25 — `selfcheck.mjs` guards this.
 > The goal is not "make it prettier" but **make the interface match what it claims to be, and actually work — with evidence**.
 
-`v1.23.1` · [latest release](https://github.com/liuzheng6621/frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9 (cropping/contrast only)` · `offline WCAG checks` · `16 executables (13 Node + 3 Python)`
+`v1.24.1` · [latest release](https://github.com/liuzheng6621/frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9 (cropping/contrast only)` · `offline WCAG checks` · `17 executables (14 Node + 3 Python)`
 
 ---
 
@@ -52,8 +52,8 @@ Start a new session after installing, then say "rebuild this page from the scree
 | Area | Contents |
 | --- | --- |
 | Entry | `SKILL.md` — routing table, 30-second start, quality gates, design baseline |
-| Reference library | 30 Markdown files: 17 single-site distillations + 9 general specs + 1 cross-site evidence file + 2 external rule sets + 1 workflow — plus 2 machine-readable datasets (recheck baseline / REA structure evidence) |
-| Executables | 15 scripts: screenshots, WCAG/CLS audit, contrast, design-system audit, flow checks, pixel diff, auth export, reference probe, batch recheck, repo hygiene, quality gates, scaffold generator, self-check |
+| Reference library | 30 Markdown files: 17 single-site distillations + 9 general specs + 1 cross-site evidence file + 2 external rule sets + 1 workflow — plus 3 machine-readable datasets (frozen baseline / reference snapshot / REA structure evidence) |
+| Executables | 17 scripts: screenshots, WCAG/CLS audit, contrast (with target-color suggestions), design-system audit, flow checks, pixel diff, auth export, reference probe, batch recheck, frozen-baseline lookup, snapshot freeze, repo hygiene, quality gates, scaffold generator, self-check |
 | Generator | `scaffold.mjs`: five personas × fifteen page types × dark tokens, optional React/Vue output |
 
 ## Two modes
@@ -130,9 +130,9 @@ This is a self-grade, not third-party certification. Every claim below maps to a
 
 | Dimension | Grade | Current state | Verify with |
 | --- | --- | --- | --- |
-| Executable checks | A+ | **16 scripts** (13 Node + 3 Python), every one reports via exit code: `0 pass / 1 check failed / 2 bad arguments or environment / 3 partial, not a pass` | `ls scripts/*.mjs scripts/*.py` |
-| Reference data | A+ | 28 real sites measured in-browser + 17 single-site distillations + **structural evidence for all 17** (landmarks / heading levels / DOM depth / `alt` coverage) + **a dated frozen snapshot**; 30 reference files + 2 machine-readable datasets | `wc -l references/*.md`, `jq . references/reference-snapshot.json` |
-| Self-check loop | A+ | Argument semantics / recursive syntax / 15 generated pages / 645 contrast pairs / **306 audit runs (4-way parallel, 2m47s)** / design-system positive and negative cases / **4 flow suites** (12 + 6 + 42 + 45 steps) / framework stack / 11 agent entry points / doc counts and links / reference snapshot / changelog dates | `npm run selfcheck` |
+| Executable checks | A+ | **17 scripts** (14 Node + 3 Python), every one reports via exit code: `0 pass / 1 check failed / 2 bad arguments or environment / 3 partial, not a pass` | `ls scripts/*.mjs scripts/*.py` |
+| Reference data | A+ | 28 real sites measured in-browser + 17 single-site distillations + **structural evidence for all 17** (landmarks / heading levels / DOM depth / `alt` coverage) + **a dated frozen snapshot**; 30 reference files + 3 machine-readable datasets | `wc -l references/*.md`, `jq . references/reference-snapshot.json` |
+| Self-check loop | A+ | **18 gates**: argument semantics / recursive syntax / 15 generated pages / 645 contrast pairs / **306 audit runs (4-way parallel, 2m47s)** / design-system positive and negative cases / **4 flow suites** (12 + 6 + 42 + 45 steps) / framework stack / 11 agent entry points / doc counts and links / reference snapshot / **resident-layer size** / **baseline drift** / **anti-pattern pointer** / changelog dates | `npm run selfcheck` |
 | Documentation | A | Thin entry point + on-demand reference library + per-script manuals with arguments, exit codes and artifacts | `SKILL.md`, `docs/scripts.md` |
 | Honest boundaries | A+ | Explicit non-goals (test framework, Figma import, native mini-program, visual regression as a default gate); **13 red flags** | "When not to use", [`review-rubric.md`](references/review-rubric.md) §10 |
 
@@ -149,6 +149,24 @@ or the snapshot gate fails, the grade goes back down — that constraint is part
 
 Two **declared non-goals** remain (not gaps): Figma design import, and visual regression as a default gate
 (`fidelity.mjs` needs a design file first).
+
+### v1.24.0 — token discipline
+
+The only text that costs tokens on **every** session is the frontmatter `description`: it sits in context
+whether or not the skill triggers. `references/` is an on-demand layer and the body is a post-trigger layer,
+so the lever is a thinner description, not further splitting reference files.
+
+| Change | Effect |
+| --- | --- |
+| Description trimmed | **929 → 399 est tokens (−57%)**; enumerations and count formulas removed, `不用于` (not-for) boundary added |
+| `scripts/lookup.mjs` + `references/baseline.json` | 32 frozen values queried in one line ("value + rationale + `file:line`"); no more reading the 69KB `design-evidence.md` for one number. `--verify` re-locates every anchor (exit 3 on line drift, `--fix` rewrites line numbers only) |
+| `audit.mjs --red-flags` | 13 anti-pattern checks lifted out of `anti-slop.md` §8 into exit codes (`--strict-red-flags` makes them fail the run) — the opposite of "move the doc to the front", which would *add* resident tokens |
+| `bench/` | 3 tasks × 4 conditions (no skill / frozen legacy / current / **length-matched unrelated skill**), Pass@2 + token accounting; `verify-length.mjs` enforces the ±10% length match |
+
+Three new gates enforce this: **resident-layer size** (description ≤400 est tokens, must contain the `不用于`
+boundary, body ≤200 non-empty lines), **baseline drift** (structure + frozen means 14.7/69.8px + 32 anchors
+re-locate), and **anti-pattern pointer** (the `visual-system.md` → `anti-slop.md` pointer and its claimed
+section counts still resolve).
 
 ## Which reference to copy
 
@@ -188,8 +206,8 @@ See [`docs/agents.md`](docs/agents.md) for the loading differences and the parts
 ```
 SKILL.md                  entry for the agent
 README.md / README.en.md  Chinese / English overview (this file)
-references/               29 measured references and specs
-scripts/                  14 executables + vendored axe-core (MPL-2.0)
+references/                measured references and specs
+scripts/                   executables + vendored axe-core (MPL-2.0)
 docs/                     script manual, site index, recheck report
 install.sh / install.ps1  installers for Claude Code and DSH
 ```

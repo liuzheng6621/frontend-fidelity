@@ -759,3 +759,41 @@ python scripts/pixel_diff.py --design a.png --impl b.png --threshold 0.08 --grid
 | `.tmp/ref/*.json`、`*.jpg` | `probe-ref.mjs` | 参考站实测数据 | 不入库 |
 
 仓库 `.gitignore` 已包含 `.design/`、`auth.json`、`*.zip`、`node_modules/`、`__pycache__/`。
+
+## bench/ — 技能效果对照实验（不是脚本，是实验台）
+
+**为什么有它**：本仓库的评级是自评。WebDev-Skills-Bench（arXiv 2608.23067）的结论是
+**注入技能不保证提升**——31 个公开 WebDev skill 在四个模型上的平均 ΔPass@2 全为负，
+而且**等长的无关技能复现了大部分损失**。所以「装了它更好用」这句话，必须靠对照实验证，不能靠自评。
+
+### 四个条件（缺一个结论就不成立）
+
+| 条件 | 注入什么 | 作用 |
+| --- | --- | --- |
+| `none` | 什么都不注入 | 基线。所有 ΔPass@2 与 Δtokens 都以它为参照 |
+| `legacy` | 冻结的旧版 `SKILL.md` 快照（`bench/conditions/legacy.md`） | 回答「这一版改动到底有没有效果」 |
+| `current` | 工作区当前 `SKILL.md`（路径引用，不复制） | 现在这一版 |
+| `unrelated` | **等长**的无关技能（家庭园艺堆肥指南，原创） | 关键对照。没有它，就无法区分「技能内容有效」和「上下文多了一段字」 |
+
+`bench/conditions/verify-length.mjs` 校验 `unrelated` 与 `current` 的 est tokens 差在 **±10%** 内
+（当前 -2.94%）。不满足就说明对照失效，结论作废。
+
+### 三个任务
+
+`admin-form-page`（后台表单页）/ `mobile-h5-card-feed`（移动 H5 卡片流）/ `marketing-landing`（营销落地页）。
+每个任务带 `artifacts`（必须产出的文件）与 `acceptance`（可机器判的验收命令）。
+
+### 怎么跑
+
+```bash
+node bench/run.mjs --dry-run                      # 不调模型，用 stub 产物走通全链路（CI 用）
+node bench/run.mjs --cmd "mycli --prompt-file {prompt_file} --out-dir {out_dir}"
+node bench/score.mjs bench/results/run-xxx.json   # 汇总 Pass@2 与 Δ
+```
+
+| 脚本 | 参数 | 退出码 |
+| --- | --- | --- |
+| `bench/run.mjs` | `--cmd` 模板（占位符 `{prompt_file}` `{out_dir}` `{work_dir}` `{task}` `{condition}` `{run}` `{repo_root}`）、`--tasks`、`--conditions`、`--runs`（默认 2 = Pass@2）、`--dry-run`、`--verify-conditions` | 0 全部完成 / 1 有硬失败 / 2 参数或环境错 / 3 部分完成 |
+| `bench/score.mjs` | 结果 JSON 路径 | 同上 |
+
+`bench/results/example-run.json` 是**标注 EXAMPLE 的示例数据，不是实测结论**。真实数字要自备模型 API 跑。

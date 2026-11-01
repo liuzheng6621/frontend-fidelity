@@ -8,7 +8,7 @@
 > 搜这些词应该能到这：设计稿转代码、照着截图还原、UI 还原、前端验收、截图对比、后台美化、移动端适配、设计令牌、Claude Code 技能（skill）。
 > 目标不是"改好看"，而是**让界面和它声称的样子一致，并且真的能用——改完能拿出证据**。
 
-`v1.24.0` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `17 个可执行脚本（14 个 Node + 3 个 Python）`
+`v1.24.1` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `17 个可执行脚本（14 个 Node + 3 个 Python）`
 
 ---
 
@@ -40,7 +40,7 @@ curl -fsSL https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/ra
 bash install.sh --target claude          # 只装 Claude Code
 bash install.sh --target dsh             # 只装 DSH
 bash install.sh --dir ~/my-skills        # 装到自定义目录
-bash install.sh --ref v1.24.0            # 锁定某个版本
+bash install.sh --ref v1.24.1            # 锁定某个版本
 bash install.sh --dry-run                # 只看会装到哪，不动文件
 ```
 
@@ -76,11 +76,11 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 
 | 维度 | 等级 | 现状（可核对） | 怎么核对 |
 | --- | --- | --- | --- |
-| 可执行验收 | A+ | **16 个脚本**（13 Node + 3 Python），全部用退出码表达结论；`0 通过 / 1 检查失败 / 2 参数或环境错误 / 3 只验了一部分` | `ls scripts/*.mjs scripts/*.py`、`wc -l scripts/*` |
+| 可执行验收 | A+ | **17 个脚本**（14 Node + 3 Python），全部用退出码表达结论；`0 通过 / 1 检查失败 / 2 参数或环境错误 / 3 只验了一部分` | `ls scripts/*.mjs scripts/*.py`、`wc -l scripts/*` |
 | 参考数据 | A+ | 28 个真实站的浏览器实测 + 17 份单站蒸馏 + **17 站结构层证据**（地标 / 标题层级 / DOM 深度 / `alt` 覆盖）+ **带日期的冻结快照**；`references/` 共 30 份参考 + 3 份机器可读数据 | `wc -l references/*.md`、`jq . references/reference-snapshot.json` |
-| 自检闭环 | A+ | 参数语义 / 递归语法 / 生成 15 页 / 对比度 645 组 / **审计 306 组（4 路并发，2m47s）** / 设计体系正反例 / **流程 4 条**（12 + 6 + 42 + 45 步）/ 框架栈 / 11 个 Agent 入口 / 文档计数与链接 / 参考库快照 / 历史日期与版本一致性 | `npm run selfcheck` |
+| 自检闭环 | A+ | **18 门**：参数语义 / 递归语法 / 生成 15 页 / 对比度 645 组 / **审计 306 组（4 路并发，2m47s）** / 设计体系正反例 / **流程 4 条**（12 + 6 + 42 + 45 步）/ 框架栈 / 11 个 Agent 入口 / 文档计数与链接 / 参考库快照 / **常驻层体积** / **基线漂移** / **反模式指针** / 历史日期与版本一致性 | `npm run selfcheck` |
 | 文档可操作性 | A | 精简入口 + 按需参考库 + 分类手册，每个脚本都有参数 / 退出码 / 产物 | `SKILL.md`、`docs/scripts.md` |
-| 边界诚实度 | A+ | 明写不做什么（测试框架 / Figma 导入 / 小程序原生 / 默认视觉回归门禁）；红旗清单 **13 条** | 本文「适用与不适用」、[`review-rubric.md`](references/review-rubric.md) §十 |
+| 边界诚实度 | A+ | 明写不做什么（测试框架 / Figma 导入 / 小程序原生 / 默认视觉回归门禁）；红旗清单 **13 条**，其中可机械判定的已沉成 `audit.mjs --red-flags` 的 13 个退出码检查 | 本文「适用与不适用」、[`review-rubric.md`](references/review-rubric.md) §十 |
 
 **从 A 升到 A+ 的理由**——三条门槛在 `v1.23.1` 全部关闭，逐条可复核：
 
@@ -89,6 +89,11 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 | 1 | 支付回调 / 订单状态机 / 退款不在骨架里 | 新增 `orders.html` + `order.html`：7 状态（待支付 / 已支付 / 已发货 / 已完成 / 退款中 / 已退款 / 已取消）× 时间线 × 可执行操作**三处同步**；退款走原生 `dialog` | `node scripts/scaffold.mjs --pages orders,order --verify`；`flow.order.example.json` 45 步 |
 | 2 | 移动端只有一种形态 | 从 1 种补到 **4 种**：列表壳 + 多步向导 + 横向滑动分栏 + 原生壳桥接（含 `postMessage` 约定与无桥降级） | `--pages mobile,mobile-wizard,mobile-pager,mobile-native`，三张新页各过 6 组审计 |
 | 3 | 参考库没有快照机制 | `references/reference-snapshot.json` 带 `capturedAt` / `frozenAt` / `method`；`recheck-refs.mjs` 只报漂移，`--freeze` 才写；新增 `snapshot-refs.mjs` 支持离线冻结 | `selfcheck` 的「参考库快照」门校验日期合法、不在未来、每站有可比对数值 |
+
+**v1.24.0 补的自证工具**：等级仍是自评，但「装了它到底有没有用」现在有实验台可跑——
+`bench/` 用 3 个任务 × 4 个条件（无 skill / 旧版快照 / 当前版 / **等长无关技能对照**）记 Pass@2 与 token，
+等长对照来自 WebDev-Skills-Bench 的方法论（技能增益不得与「它比空提示更长」混淆）。
+仓库自带的 `bench/results/example-run.json` 标注为 EXAMPLE，不是实测结论；真实数字需自备模型 API。
 
 **这个字不白给，也不保底**：`selfcheck` 的每一项都可以被打回——哪天审计出警告、流程挂掉、快照门失败，等级就得降回来。
 写在这里就是承认这个约束。
@@ -302,7 +307,7 @@ git clone https://gitee.com/liu-everything_impossble/skill-frontend-fidelity.git
 
 从 [Releases](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) 下载 `frontend-fidelity.zip`，解压到同名目录即可，内容与 git 版本一致。
 包由 `git archive` 从 tag 生成，不含 `__pycache__`、截图目录与本地缓存。
-当前是 [v1.24.0](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest)。
+当前是 [v1.24.1](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest)。
 
 ### 方式三：只取脚本
 
