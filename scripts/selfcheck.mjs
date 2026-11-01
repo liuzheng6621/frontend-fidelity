@@ -422,6 +422,10 @@ const generated = [];
 // 或者某次改动把 frontmatter 结构打坏。全部是纯文本校验，不需要浏览器。
 {
   const REQUIRED_KEYS = ['colors', 'typography', 'rounded', 'spacing', 'components'];
+  // Google Stitch DESIGN.md 的十节约定（84 份真实样本一致）+ 本站三节扩展
+  const STITCH_SECTIONS = ['Overview', 'Colors', 'Typography', 'Layout', 'Elevation & Depth', 'Shapes',
+    'Components', "Do's and Don'ts", 'Responsive Behavior', 'Iteration Guide'];
+  const LOCAL_SECTIONS = ['Motion', 'Accessibility floors', '怎么验证'];
   const bad = [];
   if (!generated.length) skip('设计文档', '没有生成物');
   else {
@@ -463,9 +467,17 @@ const generated = [];
       if (!text.includes('tokens.css')) bad.push(`${g.persona}: 正文没有指向 tokens.css`);
       // 必须写明不可协商的无障碍下限，否则它只是「风格描述」
       if (!text.includes('Accessibility floors')) bad.push(`${g.persona}: 缺 Accessibility floors 一节`);
+
+      // 章节集合必须与 Google Stitch 的 DESIGN.md 约定对齐（VoltAgent/awesome-design-md 的 84 份真实样本
+      // 全部是这十节），再加本站的三节扩展。少一节，别的 agent 拿这份文件就少一块信息。
+      const heads = [...text.matchAll(/^## (.+)$/gm)].map((m) => m[1].trim());
+      const missing = STITCH_SECTIONS.filter((s) => !heads.includes(s));
+      if (missing.length) bad.push(`${g.persona}: 缺章节 ${missing.join(' / ')}`);
+      const extra = heads.filter((h) => !STITCH_SECTIONS.includes(h) && !LOCAL_SECTIONS.some((s) => h.startsWith(s)));
+      if (extra.length) bad.push(`${g.persona}: 出现未登记章节 ${extra.join(' / ')}`);
     }
     if (bad.length) fail('设计文档', [...new Set(bad)].join(' | '));
-    else pass('设计文档', `${generated.length} 套 DESIGN.md：frontmatter 完整、令牌引用全部可解析、无对象字符串化`);
+    else pass('设计文档', `${generated.length} 套 DESIGN.md：frontmatter 完整、13 节齐全（Stitch 十节 + 本站三节）、令牌引用全部可解析、无对象字符串化`);
   }
 }
 

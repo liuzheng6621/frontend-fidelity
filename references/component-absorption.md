@@ -171,8 +171,13 @@ components:    # 用 {colors.x} 引用令牌，不写死值
   button-primary: { backgroundColor: "{colors.primary}", rounded: "{rounded.md}", … }
 ---
 
-## Overview / Colors / Typography / Layout / Elevation & Depth / Shapes / Components …
+## Overview / Colors / Typography / Layout / Elevation & Depth / Shapes / Components
+## Do's and Don'ts / Responsive Behavior / Iteration Guide
 ```
+
+**这十节是 84 份样本的共同骨架**（Google Stitch 的约定），少一节，别的 agent 拿这份文件就少一块信息。
+本 skill 在此之上再加三节：`Motion`（动效令牌与降级）、`Accessibility floors`（不可协商的下限）、
+`怎么验证这份文档没漂`（跑哪些脚本）。合计 13 节。
 
 **为什么值得吸收**：它把「设计系统」从一堆 CSS 变量变成**一份 agent 能直接读的契约**。
 和本 skill 的 `SKILL.md + references/` 不冲突——后者是「怎么做界面」的知识，
@@ -184,7 +189,9 @@ DESIGN.md 是「这个项目长什么样」的事实。两者配合，别的 age
 - frontmatter 五个段必须在且非空；
 - 所有 `{colors.x}` / `{typography.y}` / `{rounded.z}` 引用必须能解析到实际键；
 - 不许出现 `[object Object]`（派生失败时最常见的症状）；
-- 正文必须写明「以 tokens.css 为准」和「Accessibility floors」，否则它只是风格描述不是契约。
+- 正文必须写明「以 tokens.css 为准」和「Accessibility floors」，否则它只是风格描述不是契约；
+- **章节集合必须正好是 Stitch 十节 + 本站三节**：缺一节报错，多出未登记章节也报错
+  （防止有人随手加一节把契约撑散）。
 
 **没取的部分**：84 份里各站的具体色板与字体。抄别人品牌色出来的是仿站，不是设计系统。
 
