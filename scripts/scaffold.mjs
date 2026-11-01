@@ -21,7 +21,7 @@
  *   app.html         管理端列表页（--pages app）
  *   form.html        表单页（--pages form）
  *   auth.html        认证页（--pages auth）
- *   states.html      空/错/载三态（--pages states）
+ *   states.html      五态：加载/空/错/有数据/边界（--pages states）
  *   mobile.html      移动端列表壳（--pages mobile）
  *   mobile-wizard.html  移动端多步向导（--pages mobile-wizard）
  *   mobile-pager.html   移动端横向滑动分栏（--pages mobile-pager）
@@ -2478,7 +2478,7 @@ const authHtml = head('登录') + shellNote(['auth-card', 'fields', 'secondary-a
 
 ` + tail();
 
-const statesHtml = head('状态示例') + shellNote(['empty', 'error', 'loading', 'inline-validation']) + `<div class="app">
+const statesHtml = head('状态示例') + shellNote(['sidebar', 'topbar', 'page-head', 'loading', 'empty-first', 'empty-noresult', 'error-three-questions', 'error-severity', 'retry-backoff', 'edge-cases', 'field-states']) + `<div class="app">
   <aside class="app__sidebar">
     <a class="brand" href="./index.html">
       <span class="brand__mark" aria-hidden="true">${NAME.slice(0, 1)}</span>
@@ -2502,13 +2502,29 @@ const statesHtml = head('状态示例') + shellNote(['empty', 'error', 'loading'
       <div class="page__head">
         <div>
           <h1 class="page__title">状态示例</h1>
-          <p class="page__desc">空、错、载三种状态各写一次，别到上线才想文案。</p>
+          <p class="page__desc">五态各写一次：加载 / 空 / 错误 / 有数据 / 边界。每个数据区缺一张截图就是没做完。</p>
         </div>
+      </div>
+
+      <div class="card">
+        <h2 class="card__title">加载 · 按时长选指示器</h2>
+        <p class="help" style="margin-top:var(--s-2)">0–300ms 不给；300ms–2s 轻量；2–10s 布局骨架；10–30s 确定进度 + 取消；30–60s 进度 + 取消；60s+ 停动画转错误。任何请求都要起超时。</p>
+        <div id="slow-skeleton" style="display:grid; gap:var(--s-3); margin-top:var(--s-3)">
+          <div class="skeleton" style="width:40%"></div>
+          <div class="skeleton" style="width:100%; height:40px"></div>
+          <div class="skeleton" style="width:76%"></div>
+        </div>
+        <div id="slow-note" class="alert alert--warn" role="status" style="margin-top:var(--s-3)" hidden>
+          <span aria-hidden="true">!</span>
+          <span>比预期久，仍在加载。可以继续等，或 <a href="./app.html">先看别的</a>。</span>
+        </div>
+        <button id="slow-btn" class="btn btn--ghost btn--sm" type="button" style="margin-top:var(--s-3)">模拟慢请求</button>
+        <p class="help" style="margin-top:var(--s-2)">真实阈值 15 秒，这里压缩到 3 秒演示；线上不要改这个数字。</p>
       </div>
 
       <div class="grid-2">
         <div class="card">
-          <h2 class="card__title">空</h2>
+          <h2 class="card__title">空 · 首次使用</h2>
           <div class="empty" style="padding-block:var(--s-6)">
             <svg class="empty__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/></svg>
             <p class="empty__title">还没有任何工单</p>
@@ -2518,56 +2534,148 @@ const statesHtml = head('状态示例') + shellNote(['empty', 'error', 'loading'
         </div>
 
         <div class="card">
-          <h2 class="card__title">错误</h2>
-          <div class="alert alert--error" role="alert" style="margin-top:var(--s-3)">
-            <span aria-hidden="true">!</span>
-            <span>保存失败：标题重复。改一个字再提交，或先打开已有工单查看。</span>
-          </div>
-          <div class="alert alert--warn" role="status" style="margin-top:var(--s-2)">
-            <span aria-hidden="true">!</span>
-            <span>当前是只读模式，改动不会保存。</span>
-          </div>
-          <div class="alert alert--ok" role="status" style="margin-top:var(--s-2)">
-            <span aria-hidden="true">✓</span>
-            <span>已保存，2 秒后自动跳转。</span>
+          <h2 class="card__title">空 · 无结果</h2>
+          <div class="empty" style="padding-block:var(--s-6)">
+            <svg class="empty__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            <p class="empty__title">没有匹配「{{TODO: 查询词}}」的工单</p>
+            <p class="empty__text">换个关键词，或清掉筛选条件。当前账号下共 1,284 条工单。</p>
+            <a class="btn btn--ghost btn--sm" href="./app.html">清空筛选</a>
           </div>
         </div>
       </div>
 
       <div class="card">
-        <h2 class="card__title">加载</h2>
-        <div style="display:grid; gap:var(--s-3); margin-top:var(--s-3)">
-          <div class="skeleton" style="width:40%"></div>
-          <div class="skeleton" style="width:100%; height:40px"></div>
-          <div class="skeleton" style="width:100%; height:40px"></div>
-          <div class="skeleton" style="width:76%"></div>
+        <h2 class="card__title">错误 · 必须回答三件事</h2>
+        <div class="alert alert--error" role="alert" style="margin-top:var(--s-3)">
+          <span aria-hidden="true">!</span>
+          <span><b>付款被拒。</b>发卡行返回「余额不足」。换一张卡，或联系发卡行后重试。</span>
+        </div>
+        <ul class="help" style="margin-top:var(--s-3); padding-left:1.2em; display:grid; gap:var(--s-1)">
+          <li>发生了什么——不是「出错了」</li>
+          <li>为什么（能知道就说）——「余额不足」</li>
+          <li>用户能做什么——换卡 / 联系发卡行 / 重试</li>
+        </ul>
+        <p class="label" style="margin-top:var(--s-5)">五级严重度，按范围配</p>
+        <ul class="help" style="margin-top:var(--s-2); padding-left:1.2em; display:grid; gap:var(--s-1)">
+          <li><b>字段级</b> 红框 + 行内文案，焦点移到该字段</li>
+          <li><b>表单级</b> 顶部错误摘要 + 各字段标记</li>
+          <li><b>区块级</b> 区块内嵌面板 + 重试，周围照常可用</li>
+          <li><b>页面级</b> 整页错误态 + 恢复 CTA</li>
+          <li><b>应用级</b> 常驻横幅或模态，只在功能性丧失时用</li>
+        </ul>
+        <p class="help" style="margin-top:var(--s-3)">一个字段校验失败，不配用页面级错误。用户已填的内容必须跨错误保留。</p>
+      </div>
+
+      <div class="card">
+        <h2 class="card__title">重试 · 退避 2 / 4 / 8 秒</h2>
+        <p class="help" style="margin-top:var(--s-2)">第一次立刻重试；第二三次退避 2s → 4s → 8s 封顶；三次失败后把「重试」换成「联系客服」+ 可复制的错误 ID。</p>
+        <div style="display:flex; gap:var(--s-3); align-items:center; margin-top:var(--s-3); flex-wrap:wrap">
+          <button id="retry-btn" class="btn btn--primary btn--sm" type="button">重试</button>
+          <span id="retry-note" class="help" role="status">尚未尝试</span>
+        </div>
+        <p id="retry-id" class="help" style="margin-top:var(--s-2)" hidden>错误 ID：{{TODO: err_xxxxxx}} · 复制给客服</p>
+      </div>
+
+      <div class="card">
+        <h2 class="card__title">边界 · 造得出来才算覆盖</h2>
+        <div style="display:grid; gap:var(--s-4); margin-top:var(--s-3)">
+          <div style="display:flex; gap:var(--s-3); align-items:center">
+            <span aria-hidden="true" style="width:32px; height:32px; border-radius:50%; background:var(--n-200); flex:none"></span>
+            <span class="help">头像缺失：留占位圈，不要留空 div，也不要拉伸成椭圆</span>
+          </div>
+          <div>
+            <p class="label">200 字标题</p>
+            <p style="max-width:34ch; overflow-wrap:anywhere; margin-top:var(--s-1)">这是一条被塞到两百字的工单标题，用来验证标题区会不会被撑破、按钮会不会被挤下去、面包屑会不会换行到第三行。超长串里还夹了 EnglishWordWithoutAnyBreakOpportunityToStressTheLayout 这样的词。</p>
+          </div>
+          <div>
+            <p class="label">缺次要 CTA</p>
+            <div style="display:flex; gap:var(--s-2); align-items:center; margin-top:var(--s-1)">
+              <button class="btn btn--primary btn--sm" type="button">主要动作</button>
+              <span class="help">次要动作缺失时不留空位，也不要用幽灵按钮占坑</span>
+            </div>
+          </div>
+          <div>
+            <p class="label">全数字列 + 排序筛选</p>
+            <div class="tiny" style="margin-top:var(--s-1)">金额一律 <code>tabular-nums</code> 右对齐；排序箭头占固定宽度，切换时列不跳。</div>
+          </div>
         </div>
       </div>
 
       <div class="card">
-        <h2 class="card__title">字段级校验</h2>
+        <h2 class="card__title">表单状态 · 未触碰不出错</h2>
         <div class="form-grid" style="margin-top:var(--s-3)">
           <div class="field">
-            <label class="label" for="s-bad">邮箱</label>
+            <label class="label" for="s-pristine">未触碰（pristine）</label>
+            <input class="input" id="s-pristine" placeholder="还没失焦，不出任何错误样式">
+            <p class="help">失焦后才跑字段约束，不要第一次按键就开火。</p>
+          </div>
+          <div class="field">
+            <label class="label" for="s-bad">已失焦且不合法</label>
             <input class="input" id="s-bad" value="not-an-email" aria-invalid="true" aria-describedby="s-bad-err">
             <p class="error-text" id="s-bad-err">邮箱格式不对，检查一下 @ 后面。</p>
           </div>
           <div class="field">
-            <label class="label" for="s-off">被禁用的字段</label>
+            <label class="label" for="s-off">禁用态</label>
             <input class="input" id="s-off" value="只读" disabled>
-            <p class="help">禁用态只降到 55% 不透明，不要换颜色。</p>
+            <p class="help">禁用只降到 55% 不透明，不要换颜色。</p>
           </div>
         </div>
-        <div class="tabs" role="tablist" style="margin-top:var(--s-5)">
-          <button class="tab" role="tab" aria-selected="true" type="button">全部</button>
-          <button class="tab" role="tab" aria-selected="false" type="button">我的</button>
-          <button class="tab" role="tab" aria-selected="false" type="button">已归档</button>
-        </div>
+        <p class="help" style="margin-top:var(--s-3)">样式挂 <code>:user-invalid</code>，不要挂 <code>:invalid</code>——否则页面一加载满屏红框。</p>
       </div>
     </main>
   </div>
 </div>
 
+<script>
+(() => {
+  // 慢请求：真实阈值 15 秒，演示压缩到 3 秒
+  const slowBtn = document.getElementById('slow-btn');
+  const slowNote = document.getElementById('slow-note');
+  const slowSkeleton = document.getElementById('slow-skeleton');
+  let slowTimer = 0;
+  if (slowBtn && slowNote && slowSkeleton) {
+    slowBtn.addEventListener('click', () => {
+      window.clearTimeout(slowTimer);
+      slowNote.hidden = true;
+      slowSkeleton.hidden = false;
+      slowBtn.disabled = true;
+      slowTimer = window.setTimeout(() => {
+        slowNote.hidden = false;
+        slowSkeleton.hidden = true;
+        slowBtn.disabled = false;
+      }, 3000);
+    });
+  }
+
+  // 重试退避 2 / 4 / 8 秒，三次后转客服
+  const retryBtn = document.getElementById('retry-btn');
+  const retryNote = document.getElementById('retry-note');
+  const retryId = document.getElementById('retry-id');
+  const backoff = [0, 2000, 4000, 8000];
+  let attempt = 0;
+  if (retryBtn && retryNote && retryId) {
+    retryBtn.addEventListener('click', () => {
+      attempt += 1;
+      if (attempt > 3) {
+        retryBtn.textContent = '联系客服';
+        retryBtn.disabled = true;
+        retryNote.textContent = '三次都失败了，该上人了';
+        retryId.hidden = false;
+        return;
+      }
+      const delay = backoff[attempt];
+      retryNote.textContent = delay
+        ? '第 ' + attempt + ' 次失败，' + delay / 1000 + ' 秒后重试…'
+        : '第 1 次失败，立刻重试…';
+      retryBtn.disabled = true;
+      window.setTimeout(() => {
+        retryBtn.disabled = false;
+        retryNote.textContent = '第 ' + attempt + ' 次尝试完成，仍失败';
+      }, delay);
+    });
+  }
+})();
+</script>
 ` + tail();
 /* ------------------------------------------------------------------ ui.js */
 

@@ -8,6 +8,151 @@
 各版本条目首次引入的对应提交日期校正；这些日期是**提交日期，不据此宣称发行日期**。
 v1.0.0 保留初始化提交 `6da84f5`（2026-10-22）支持的日期；其余已一致的标题日期不改。
 
+## v1.28.0 - 2026-11-01
+
+上一版把 RTL 判成「不搬」——理由是 28 站语料里没有一个 RTL 站点，没实测就抄结论违反第一条铁律。
+这一版改了做法：**先给探针加能力、真采两个站，再按证据等级蒸馏**。
+
+### 新增
+
+- **`probe-ref.mjs` 加 `rtl` 字段**：`dir` 属性与计算方向、`body` 的 `text-align`、
+  **逻辑属性 vs 物理属性条数与占比**、镜像图标（`matrix(-1,…)`）、文字元素字距分布。
+  `--brief` 多打两行：`方向 rtl（html dir=rtl，body text-align=start）· 逻辑 2 / 物理 384（占比 0.01）`。
+  判 RTL 不能只看 `dir` 属性——很多站靠 CSS `direction` 或语言继承。
+
+- **`references/rtl-and-bidi.md`**：证据分三级的 RTL 参考——
+  【实测】4 条（Mozilla 阿拉伯语站 + 希伯来语站，2026-11-01 采集）、
+  【外部】OpenDesign `craft/rtl-and-bidi.md` 蒸馏（`dir`+`lang` 成对、镜像清单、`<bdi dir="ltr">`、
+  逻辑属性 vs `[dir=rtl]` 覆盖二选一）、【待验证】四项补采清单。
+
+- **selfcheck 第 22 门「RTL 探针」**：用一份本地 `dir="rtl"` fixture 验证三项读数
+  （方向 / 逻辑 2 条对物理 3 条 / 镜像图标 1 个）——这三项是文档里唯一标「实测」的东西，读错就等于文档说谎。
+
+### 实测到的四条（写进文档前先看这个）
+
+| # | 结论 | 数字 |
+| --- | --- | --- |
+| 1 | RTL 布局靠 `dir="rtl"` + 浏览器镜像，不靠逻辑属性 | 阿语站逻辑 2 / 物理 384（1%）；希语站 1 / 342（0%） |
+| 2 | `body` 的 `text-align` 是 `start` | 两站都是，写死 `right` 会错位 |
+| 3 | RTL 正文 `letter-spacing: normal` | 阿语 227 处全 normal；希语标题有 −0.16~−0.48px |
+| 4 | 图标镜像不是普遍做法 | 两站镜像数均为 0，**但别把「没量到」当「不该做」** |
+
+### 为什么是「分级」而不是「写完」
+
+两个样本同属一套设计系统，采到的镜像图标是 0。这种情况下写「必须镜像箭头」等于把别人的结论冒充自己的实测。
+所以文档按等级标注，§八 明确列出还要采什么（不同体系的镜像做法、RTL 表单、数字混排、组件库 demo），
+补齐之前不许把【外部】当【实测】写进交付说明。
+
+### 文档
+
+- `docs/scripts.md`：`probe-ref.mjs` 输出清单加 `rtl` 字段说明。
+- `docs/opendesign-mining.md`：P2 状态与「不搬」判定同步更新（从「不搬」改为「分级蒸馏」）。
+- 参考数 32 → 33（通用规格 11 → 12），自检 21 → 22 门。
+
+## v1.27.0 - 2026-11-01
+
+把上一版蒸馏出的两份规则**变成会跑的东西**：五态进了脚手架，pre-flight 进了退出码。
+
+### 新增
+
+- **`states` 页重写成五态全量版**（`scaffold.mjs --pages states`）：
+  加载（含 15 秒「比预期久」兜底，演示压缩到 3 秒并明写「线上不要改这个数字」）、
+  空（首次使用 / 无结果两种构成分开写）、错误（三问 + 五级严重度清单）、
+  重试（2 / 4 / 8 秒退避，三次后按钮变「联系客服」并露出错误 ID）、
+  边界（200 字标题、缺头像、缺次要 CTA、全数字列）、表单三态（pristine 不出错 / 已失焦不合法 / 禁用）。
+  两段内联脚本演示兜底与退避，不引任何依赖。
+
+- **红旗分级（`audit.mjs --red-flags`）**：13 条可机械判定的 pre-flight 项各带 `P0/P1/P2` 级别，
+  级别决定退出码——`P0` **默认就是 error**（占位符当标签 / 动画改布局属性 / scroll 驱动布局 /
+  不尊重 `prefers-reduced-motion`），`P1` 默认 warn、`--strict-red-flags` 升级，
+  `P2`（hero 里写版本号）永远只警告。报告新增 `totals.redFlags.{P0,P1,P2}`，CI 可直接读。
+
+- **selfcheck 第 21 门「红旗分级」**：三个 fixture 各验一次退出码——
+  P0 页面默认退出 1、P1 页面默认 0 / strict 1、P2 页面 strict 下仍 0。
+  级别是判据的一部分，改级别必须同时改代码和文档，这门就是那道锁。
+
+### 文档
+
+- `references/anti-slop.md` §八：38 条 pre-flight 逐条标 `P0/P1/P2`（9 / 24 / 5），
+  13 条标了「机械：`red-flag-*`」，附级别表与退出码语义。
+- `docs/scripts.md`：红旗表按级别重排，`--red-flags` / `--strict-red-flags` 语义改写，
+  退出码一节写明 P0 不需要额外开 strict。
+
+### 为什么 P0 只放四条
+
+分级的价值在于**误判成本**：`placeholder-as-label`、`animated-layout-props`、`scroll-listener`、
+`no-reduced-motion` 这四条判据硬、误判率低、后果明确（读屏拿不到名字 / 每帧重排 / 卡顿 / 动效关不掉），
+所以默认拦。hero 行数、CTA 词数这类启发式判断留 `P1`，宁可让人过一眼再决定。
+
+## v1.26.0 - 2026-11-01
+
+从 OpenDesign 的 `craft/` 规则集里补了两块我们最缺的东西：**可执行的数字**。
+原来写「空态要有标题和 CTA」，现在写「2–10 秒给匹配布局的骨架，15 秒出『比预期久』，60 秒停动画转错误」——
+这种粒度才能被脚本或人肉验收直接判。
+
+### 新增
+
+- **`references/state-coverage.md`**：五态铁律（加载 / 空 / 错误 / 有数据 / 边界）、
+  按页面类型的边界矩阵、加载指示器时长阈值（0–300ms 不给 / 300ms–2s 轻量 / 2–10s 骨架 /
+  10–30s 确定进度 / 30–60s 可取消 / 60s+ 停动画）、错误态三问与五级严重度、
+  重试退避（2/4/8s，三次后转客服 + 错误 ID）、状态变化的 ARIA 与焦点表、10 条常见错误。
+- **`references/form-rules.md`**：输入状态机 8 态、校验时机四条（失焦才校验 / 报错后改挂 `input` /
+  提交跑 schema 并移焦点 / 异步预检与提交校验分两条路）、`:user-invalid` 与 Constraint Validation API 底线、
+  `novalidate` 的两种取舍、错误接线三件事（一个字段 4–7 条自适应文案 / 顶部摘要带 `tabindex="-1"`
+  但**不加** `role="alert"` / 跨错误保留输入）、Standard Schema 契约、WCAG 3.3.3 / 3.3.4 / 3.3.8、11 条常见错误。
+- **`docs/opendesign-mining.md`**：与 OpenDesign 全部 `craft/` 文件的逐项对照、缺口分级、
+  不搬清单（品牌令牌 / HTML 模板 / RTL 规则）与许可证说明。
+
+### 为什么只搬这两块
+
+`craft/` 13 份逐份对过：可访问性、反模板、中文排版、色彩四项**我们更强**（有 28 站实测 + 可执行脚本）；
+排版层级、动效纪律平手；UX 法则属通用常识层没有增量；
+RTL 是缺口但**不搬**——28 站实测里没有一个 RTL 站点，没有实测就抄结论违反「先看再改」第一条。
+
+### 文档
+
+- `references/workflow.md` 参考索引补两条，`SKILL.md` 规格行指向新文件。
+- 参考数 30 → 32（通用规格 9 → 11），README 中英两版同步。
+
+## v1.25.0 - 2026-11-01
+
+本仓库现在**同时是一个 OpenDesign 插件包**：`SKILL.md` 保持可移植，市场元数据全部收在
+`open-design.json` 里，删掉这一个文件就能退回纯 skill。
+
+### 新增
+
+- **`open-design.json`**：符合 OpenDesign Plugin Spec v1。`name` / `version` 与 `package.json`
+  同源，`compat.agentSkills` 指向 `./SKILL.md`，`od.taskKind: tune-collab`（主车道是整改与还原），
+  `capabilities: prompt:inject + fs:read + fs:write + subprocess`（脚本要起子进程，不给就只是段提示词）。
+- **pipeline 五段**：`discovery` → `baseline` → `implement` → `verify` → `handoff`，
+  对应「问清目标 → 拍基线/抽设计稿 → 改或生成 → 截图+审计+构建+像素比对 → 交付」，
+  全部用 v1 一等 atom，循环段带 `until`。
+- **`scripts/plugin-validate.mjs`**：零依赖清单校验器。除了 schema 必填与枚举，还查
+  「目录名 = manifest.name = SKILL.md 的 name」、版本/许可证与 `package.json` 一致、
+  `useCase.query` 的 `{{占位符}}` 都有 `od.inputs` 定义、`repeat` 必须带 `until`、
+  context 里引用的路径真实存在。退出码 1 可直接挂 CI。
+- **`scripts/plugin-pack.mjs`**：自写 ZIP 写入器，零依赖，固定时间戳可复现。
+  排除 `node_modules` / `.git` / `.tmp` / `.design` / `.workbuddy*` / `dist` / `__pycache__`。
+  产物 `dist/frontend-fidelity-<version>.zip`，93 个文件，原始 2.46 MB → 0.89 MB，顶层目录即可直接导入。
+- **`scripts/plugin-icon.mjs`**：手写 PNG 编码器生成 512×512 卡片图标（`docs/assets/icon.png`），
+  不引任何图像库。视觉是「虚线设计稿 + 实心实现 + 中间差异带」。
+- **`evals/evals.json`**：5 条验收用例——整改、照图还原、从零生成、缺参、越界（后端 bug 不该触发）。
+- **selfcheck 第 20 门「插件清单」**：跑校验器 + 断言名称/版本与 `package.json` 同源，
+  再拿一份**故意漂移**的副本验证校验器真的会拦——只跑正例的门等于没门。
+
+### 文档
+
+- `docs/opendesign.md`：文件职责边界、清单字段含义、pipeline 与脚本的对应关系、
+  校验与打包命令、本机导入与社区 registry 两条落地路径，附 `source: github:<owner>/<repo>@<ref>`
+  形式的 registry 条目模板（不必先复制进 monorepo）。
+- `README.md` / `README.en.md`：脚本数 17 → 20，自检 19 门 → 20 门。
+
+### 为什么 `subprocess` 是必需项
+
+截图、审计、像素比对全部是外部进程（playwright + Python）。受限安装默认只给 `prompt:inject`，
+用户不显式信任 `fs:read` / `fs:write` / `subprocess` 的话，这个插件退化成一份操作手册——
+仍然能读，但给不出证据。这条边界写进了清单，不靠文档口头约定。
+
 ## v1.24.3 - 2026-11-01
 
 外部评审给了一条「修正表述」，问是否正确。**实测三条全对**，采纳，并把这条边界做成门。

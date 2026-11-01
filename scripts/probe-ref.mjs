@@ -149,6 +149,56 @@ function probe() {
     .map((e) => Math.round(e.getBoundingClientRect().height))
     .filter((h) => h > 8 && h < 140);
 
+  // RTL / 双向文本事实：方向、逻辑属性 vs 物理属性的比例、镜像图标、字距。
+  // 判 RTL 不能只看 dir 属性——很多站靠 CSS direction 或语言自动继承。
+  const rtlFacts = (() => {
+    const htmlEl = document.documentElement;
+    const dirAttr = htmlEl.getAttribute('dir') || document.body.getAttribute('dir') || null;
+    const direction = getComputedStyle(htmlEl).direction;
+    const bodyTextAlign = getComputedStyle(document.body).textAlign;
+    let logicalProps = 0;
+    let physicalProps = 0;
+    const mirrored = [];
+    for (const sheet of [...document.styleSheets]) {
+      let rules = null;
+      try {
+        rules = sheet.cssRules;
+      } catch {
+        continue;
+      }
+      for (const rule of rules || []) {
+        const st = rule.style;
+        if (!st) continue;
+        for (const prop of st) {
+          if (/^(margin|padding|border)-(inline|block)-(start|end)$/.test(prop) || /^inset-(inline|block)-(start|end)$/.test(prop)) logicalProps++;
+          else if (/^(margin|padding)-(left|right)$/.test(prop) || /^(left|right)$/.test(prop)) physicalProps++;
+        }
+      }
+    }
+    for (const el of [...document.querySelectorAll('body *')].slice(0, 4000)) {
+      const tf = getComputedStyle(el).transform;
+      if (tf && tf !== 'none' && /^matrix\(-1[,)]/.test(tf)) {
+        const cls = el.className && typeof el.className === 'string' ? '.' + el.className.trim().split(/\s+/)[0] : '';
+        mirrored.push(`${el.tagName.toLowerCase()}${cls}`);
+        if (mirrored.length >= 6) break;
+      }
+    }
+    const tracking = {};
+    for (const el of [...document.querySelectorAll('h1, h2, p, li, a')].slice(0, 240)) {
+      inc(tracking, getComputedStyle(el).letterSpacing);
+    }
+    return {
+      dirAttr,
+      direction,
+      bodyTextAlign,
+      logicalProps,
+      physicalProps,
+      logicalRatio: logicalProps + physicalProps ? +(logicalProps / (logicalProps + physicalProps)).toFixed(2) : null,
+      mirroredIcons: [...new Set(mirrored)],
+      tracking: top(tracking, 4),
+    };
+  })();
+
   return {
     url: location.href,
     title: document.title,
@@ -157,6 +207,7 @@ function probe() {
     theme: lum(bodyBg) < 0.2 ? 'dark' : lum(bodyBg) > 0.75 ? 'light' : 'tinted',
     bodyBg,
     bodyText: rgb(body.color),
+    rtl: rtlFacts,
     fonts: top(fonts, 6),
     sizes: top(sizes, 12),
     textColors: top(textColors, 8),
@@ -237,6 +288,12 @@ console.log(`  间距      ${data.gaps.slice(0, 6).map((x) => x[0]).join('  ')}`
 if (data.tableRowHeights.length) console.log(`  表格行高  ${data.tableRowHeights.join(', ')}`);
 if (data.controlHeights.length) console.log(`  控件高度  ${data.controlHeights.join(', ')}`);
 if (data.layout.sidebar) console.log(`  侧栏/顶栏 ${JSON.stringify(data.layout.sidebar)} ${JSON.stringify(data.layout.header)}`);
+if (data.rtl) {
+  const r = data.rtl;
+  const logical = r.logicalRatio === null ? '未读到样式表' : `逻辑 ${r.logicalProps} / 物理 ${r.physicalProps}（逻辑占比 ${r.logicalRatio}）`;
+  console.log(`  方向      ${r.direction}（html dir=${r.dirAttr || '无'}，body text-align=${r.bodyTextAlign}）· ${logical}`);
+  if (r.mirroredIcons.length) console.log(`  镜像图标  ${r.mirroredIcons.join('  ')}`);
+}
 console.log(`  卡片      共 ${data.cards.total}：阴影 ${data.cards.shadow} / 边框 ${data.cards.border}`);
 console.log(`  图片      ${data.images.total} 张，lazy ${data.images.lazy} 张；动画 ${data.animations} 个`);
 if (!brief) {

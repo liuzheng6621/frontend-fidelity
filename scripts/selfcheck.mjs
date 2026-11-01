@@ -12,6 +12,8 @@
  *   4. 审计：装了 playwright 就起本地服务跑 audit.mjs（明暗双主题），没有就跳过并说明
  *   4.2 流程：用示例 flow 跑一遍 skeleton，确认 flow.mjs 的步骤/断言/报告链路没坏
  *   4.3 设计体系：合规 / 越档 / strict / 允许列表 / 忽略 / 未启用与无效配置反例
+ *   4.4 红旗分级：P0 默认拦截 / P1 只在 strict 下拦截 / P2 永不升级（三个 fixture 各验一次退出码）
+ *   4.5 RTL 探针：dir / 逻辑属性 vs 物理属性 / 镜像图标三项从真实页面读得出（rtl-and-bidi.md 的实测依据）
  *   4.5 框架栈：`--stack all` 生成 React/Vue，逐文件过 TSX/TS 语法 + 类名对齐（CSS 里没有的类名=错）
  *   5. 文档门：计数与冻结均值、相对文件链接、CHANGELOG 日期与版本顺序（含纯函数回归）
  *   5.2 常驻层体积：SKILL.md 的 description（唯一每次会话都在上下文里的部分）est tokens ≤ 400、
@@ -21,6 +23,8 @@
  *   5.4 反模式指针：visual-system.md「避免」清单 → anti-slop.md 指针在位，§六 8 组 AI tell、
  *       §八 pre-flight 条数与指针声称一致（摘要+指针关系防断头）
  *   6. 版本号：package.json / README / install.sh / CHANGELOG 首条必须同版，必要文件缺失即失败
+ *   7. 插件清单：open-design.json 过 OpenDesign Plugin Spec v1 校验，名称/版本与 package.json 同源，
+ *       并用一份故意漂移的副本验证校验器真的会拦
  *
  * 用法：
  *   node scripts/selfcheck.mjs                 # 全跑（无 playwright 时自动跳过审计）
@@ -575,6 +579,16 @@ else {
     bad: badDesign,
     ignored: `<section data-fidelity-ignore="design-system">${badDesign}</section>`,
   })) cache.set(`/design-${name}.html`, { body: Buffer.from(designFixture(content)), type: MIME['.html'] });
+  const rfFixture = (content) => `<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>红旗自检</title></head><body>${content}</body></html>`;
+  for (const [name, content] of Object.entries({
+    p0: '<style>@keyframes rfSlide{from{left:0}to{left:200px}}.box{position:relative;width:40px;height:40px;background:#4f8cff;animation:rfSlide 2s infinite}</style><main><section class="hero"><h1>红旗 P0</h1><input type="email" placeholder="邮箱"><div class="box"></div></section></main><script>window.addEventListener("scroll",function(){});</script>',
+    p1: '<main><section class="hero"><h1>红旗 P1</h1><a class="btn" href="#">这是一个超过三个词的主按钮文案</a></section></main>',
+    p2: '<main><section class="hero"><h1>红旗 P2</h1><p>v2.1.0 正式上线</p><a class="btn" href="#">立即使用</a></section></main>',
+  })) cache.set(`/rf-${name}.html`, { body: Buffer.from(rfFixture(content)), type: MIME['.html'] });
+  cache.set('/rtl-fixture.html', {
+    body: Buffer.from('<!doctype html><html dir="rtl" lang="ar"><head><meta charset="utf-8"><title>RTL 探针自检</title><style>.a{margin-inline-start:8px;padding-inline-end:4px}.b{margin-left:8px;padding-right:4px;left:2px}.m{display:inline-block;transform:scaleX(-1)}body{font:16px/1.5 sans-serif}</style></head><body><main><h1>مرحبا بالعالم</h1><p>نص عربي للاختبار</p><div class="a b">x</div><div class="m">y</div></main></body></html>'),
+    type: MIME['.html'],
+  });
   const server = createServer((req, res) => {
     const p = decodeURIComponent((req.url || '/').split('?')[0]);
     const hit = cache.get(p);
@@ -675,6 +689,51 @@ else {
         assert.equal(invalid.status, 2, 'strict 单独启用应是参数错误');
         pass('设计体系回归', '6 个浏览器正反例 + 无效配置与 strict 参数反例');
       } catch (e) { fail('设计体系回归', e.message); }
+    }
+
+    // 红旗分级：P0 默认即失败、P1 只在 strict 下失败、P2 永不升级。
+    // 级别是判据的一部分——这里锁的是「改级别必须同时改代码和文档」，不是配色偏好。
+    {
+      try {
+        const cases = [
+          { name: 'P0 默认拦截', page: 'p0', args: ['--red-flags'], status: 1, enforcement: 'P0', level: 'error' },
+          { name: 'P1 默认放行', page: 'p1', args: ['--red-flags'], status: 0, enforcement: 'P1', level: 'warn' },
+          { name: 'P1 strict 拦截', page: 'p1', args: ['--red-flags', '--strict-red-flags'], status: 1, enforcement: 'P1', level: 'error' },
+          { name: 'P2 永不升级', page: 'p2', args: ['--red-flags', '--strict-red-flags'], status: 0, enforcement: 'P2', level: 'warn' },
+        ];
+        for (const [i, c] of cases.entries()) {
+          const reportPath = join(outDir, `rf-case-${i}.json`);
+          const r = await runNodeAsync([audit, '--url', `http://127.0.0.1:${port}/rf-${c.page}.html`, '--viewports', 'desktop', '--themes', 'light', '--no-axe', '--out', reportPath, ...c.args]);
+          assert.equal(r.status, c.status, `${c.name} 退出码：${r.out.slice(-400)}`);
+          const report = JSON.parse(readFileSync(reportPath, 'utf8'));
+          const flags = report.targets[0].issues.filter((issue) => issue.check.startsWith('red-flag-'));
+          assert.ok(flags.length > 0, `${c.name} 必须命中红旗`);
+          assert.ok(flags.every((f) => f.enforcement === c.enforcement), `${c.name} 级别应为 ${c.enforcement}`);
+          assert.ok(flags.every((f) => f.level === c.level), `${c.name} issue level 应为 ${c.level}`);
+          assert.equal(report.totals.redFlags[c.enforcement], flags.length, `${c.name} 分级计数`);
+        }
+        pass('红旗分级', 'P0 默认拦截 / P1 strict 拦截 / P2 永不升级');
+      } catch (e) { fail('红旗分级', e.message); }
+    }
+
+    // RTL 探针：方向 / 逻辑属性 vs 物理属性 / 镜像图标三项都要能从真实页面读出来。
+    // 这三项是 rtl-and-bidi.md 里唯一标「实测」的东西，读错就等于文档说谎。
+    {
+      try {
+        const probeOut = join(outDir, 'rtl-probe');
+        const r = await runNodeAsync([join(SCRIPTS, 'probe-ref.mjs'), '--url', `http://127.0.0.1:${port}/rtl-fixture.html`, '--out', probeOut, '--name', 'rtl', '--brief']);
+        assert.equal(r.status, 0, `探针失败：${r.out.slice(-300)}`);
+        const data = JSON.parse(readFileSync(join(probeOut, 'rtl.json'), 'utf8'));
+        const rtl = data.rtl;
+        assert.ok(rtl, 'probe-ref 必须输出 rtl 字段');
+        assert.equal(rtl.dirAttr, 'rtl', 'html dir 属性');
+        assert.equal(rtl.direction, 'rtl', 'computed direction');
+        assert.equal(rtl.bodyTextAlign, 'start', 'body text-align');
+        assert.equal(rtl.logicalProps, 2, '逻辑属性计数');
+        assert.equal(rtl.physicalProps, 3, '物理属性计数');
+        assert.ok(rtl.mirroredIcons.length >= 1, '镜像图标必须被识别');
+        pass('RTL 探针', `dir=${rtl.dirAttr} · 逻辑 ${rtl.logicalProps} / 物理 ${rtl.physicalProps} · 镜像 ${rtl.mirroredIcons.length}`);
+      } catch (e) { fail('RTL 探针', e.message); }
     }
 
     // 流程验收：拿示例 flow 跑一遍骨架，确保 flow.mjs 自身没坏（复用同一台静态服务）
@@ -1039,6 +1098,37 @@ else {
     if (bad.length) fail('版本号', [...new Set(bad)].join(' | '));
     else pass('版本号', `package.json / README / install.sh / CHANGELOG 首条均为 v${want}`);
   } catch (e) { fail('版本号', e.message); }
+}
+
+// ---------- 7. 插件清单（OpenDesign v1） ----------
+{
+  const ROOT = resolve(SCRIPTS, '..');
+  try {
+    const validator = join(SCRIPTS, 'plugin-validate.mjs');
+    const run = await runNodeAsync([validator, '--root', ROOT]);
+    const manifest = JSON.parse(requiredDocument(ROOT, 'open-design.json'));
+    const pkg = JSON.parse(requiredDocument(ROOT, 'package.json'));
+    if (run.status !== 0) {
+      const tail = run.out.trim().split('\n').filter((l) => l.includes('✗')).join(' | ') || run.out.trim().slice(-200);
+      throw new Error(`open-design.json 校验未通过：${tail}`);
+    }
+    if (manifest.name !== pkg.name) throw new Error(`插件名 ${manifest.name} 与包名 ${pkg.name} 不一致`);
+    if (manifest.version !== pkg.version) throw new Error(`插件版本 ${manifest.version} 与包版本 ${pkg.version} 不一致`);
+    if (manifest.compat?.agentSkills?.[0]?.path !== './SKILL.md') throw new Error('compat.agentSkills 必须指向 ./SKILL.md');
+    // 反例：版本漂移必须被校验器拦下，否则这一门形同虚设
+    const bad = mkdtempSync(join(tmpdir(), 'ff-plugin-'));
+    try {
+      writeFileSync(join(bad, 'open-design.json'), JSON.stringify({ ...manifest, version: '0.0.0' }, null, 2));
+      writeFileSync(join(bad, 'SKILL.md'), readFileSync(join(ROOT, 'SKILL.md')));
+      writeFileSync(join(bad, 'package.json'), JSON.stringify({ name: pkg.name, version: pkg.version }));
+      const drift = await runNodeAsync([validator, '--root', bad]);
+      if (drift.status === 0) throw new Error('版本漂移未被校验器拦截');
+    } finally {
+      rmSync(bad, { recursive: true, force: true });
+    }
+    const atoms = (manifest.od?.pipeline?.stages || []).reduce((n, s) => n + (s.atoms?.length || 0), 0);
+    pass('插件清单', `${manifest.name}@${manifest.version} · ${manifest.od?.pipeline?.stages?.length || 0} stage / ${atoms} atom · 版本漂移可拦`);
+  } catch (e) { fail('插件清单', e.message); }
 }
 
 // ---------- 汇总 ----------

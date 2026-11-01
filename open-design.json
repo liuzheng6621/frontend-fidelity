@@ -1,0 +1,126 @@
+{
+  "$schema": "https://open-design.ai/schemas/plugin.v1.json",
+  "specVersion": "1.0.0",
+  "name": "frontend-fidelity",
+  "title": "Frontend Fidelity",
+  "title_i18n": {
+    "zh-CN": "前端保真度"
+  },
+  "version": "1.28.0",
+  "description": "Make the interface match what it claims to be: screenshot-driven restoration, WCAG audits, pixel-diff verification, and verifiable scaffolds.",
+  "description_i18n": {
+    "zh-CN": "把界面做对、做实：按设计稿/截图还原与整改，WCAG 审计、像素级比对、可验收的骨架生成。"
+  },
+  "author": {
+    "name": "frontend-fidelity maintainers",
+    "url": "https://gitee.com/liu-everything_impossble/skill-frontend-fidelity"
+  },
+  "license": "MIT",
+  "homepage": "https://gitee.com/liu-everything_impossble/skill-frontend-fidelity",
+  "icon": "./docs/assets/icon.png",
+  "tags": [
+    "refine",
+    "create",
+    "frontend",
+    "design-review",
+    "accessibility",
+    "screenshot-diff",
+    "design-tokens",
+    "prototype"
+  ],
+  "compat": {
+    "agentSkills": [{ "path": "./SKILL.md" }]
+  },
+  "od": {
+    "kind": "skill",
+    "taskKind": "tune-collab",
+    "mode": "prototype",
+    "scenario": "product",
+    "engineRequirements": {
+      "od": ">=0.25.0"
+    },
+    "useCase": {
+      "query": {
+        "en": "In {{mode}} mode, make {{target}} match its design: capture a baseline, fix it, then prove it with screenshots, an audit, and a passing build.",
+        "zh-CN": "以 {{mode}} 模式处理 {{target}}：先拍基线，再整改，最后用截图、审计与通过的构建自证。"
+      }
+    },
+    "context": {
+      "skills": [{ "path": "./SKILL.md" }],
+      "assets": ["./references/", "./scripts/"],
+      "atoms": [
+        "discovery-question-form",
+        "design-extract",
+        "todo-write",
+        "patch-edit",
+        "file-write",
+        "build-test",
+        "critique-theater",
+        "diff-review",
+        "handoff"
+      ]
+    },
+    "pipeline": {
+      "stages": [
+        {
+          "id": "discovery",
+          "atoms": ["discovery-question-form"],
+          "onFailure": "abort"
+        },
+        {
+          "id": "baseline",
+          "atoms": ["design-extract", "todo-write"],
+          "onFailure": "abort"
+        },
+        {
+          "id": "implement",
+          "atoms": ["patch-edit", "file-write"],
+          "repeat": true,
+          "until": "critique.score>=4 || iterations>=3",
+          "onFailure": "retry"
+        },
+        {
+          "id": "verify",
+          "atoms": ["build-test", "critique-theater", "diff-review"],
+          "repeat": true,
+          "until": "critique.score>=4 || iterations>=3",
+          "onFailure": "retry"
+        },
+        {
+          "id": "handoff",
+          "atoms": ["handoff"],
+          "onFailure": "skip"
+        }
+      ]
+    },
+    "inputs": [
+      {
+        "name": "mode",
+        "label": "Mode",
+        "label_i18n": { "zh-CN": "模式" },
+        "type": "select",
+        "required": true,
+        "options": ["audit", "generate"],
+        "default": "audit",
+        "placeholder": "audit = 整改已有界面 / generate = 从 0 生成骨架"
+      },
+      {
+        "name": "target",
+        "label": "Target",
+        "label_i18n": { "zh-CN": "目标" },
+        "type": "string",
+        "required": true,
+        "placeholder": "http://localhost:5173/ 或 ./ui"
+      },
+      {
+        "name": "design",
+        "label": "Design reference",
+        "label_i18n": { "zh-CN": "设计稿/截图" },
+        "type": "file",
+        "required": false,
+        "placeholder": "设计稿或参考截图，给了就做像素级比对"
+      }
+    ],
+    "capabilities": ["prompt:inject", "fs:read", "fs:write", "subprocess"]
+  }
+}

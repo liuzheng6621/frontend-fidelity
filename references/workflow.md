@@ -280,6 +280,22 @@ node scripts/scaffold.mjs --persona rational --export tailwind,antd,element  # �
 - `references/visual-system.md` — **视觉与结构细则的完整版**：中文排版、色彩与色阶、间距节奏、
   层级与阴影五派、动效、页面结构（图墙/列表/三态/表单/登录墙）、Logo 与图片、控件 8 状态、响应式、
   深色模式、可访问性，以及「像 AI 生成」的完整清单。**入口只留速查数字，做细节时来这里。**
+- `references/rtl-and-bidi.md` — **RTL 与双向文本，证据分级**（来源：OpenDesign craft/rtl-and-bidi，Apache-2.0，
+  只蒸馏判据；本站实测 4 条标【实测】，其余标【外部】）：
+  `dir` + `lang` 必须成对（三种模式）、什么镜像什么不镜像（媒体控件 / 图表 / 钟面 / Logo 绝不镜像，
+  搜索图标是唯一平台冲突）、数字混排必须显式 `<bdi dir="ltr">`、逻辑属性 vs `[dir=rtl]` 覆盖二选一别混、
+  RTL 正文 `letter-spacing: normal`。**§八 列了还没验证的四项，别把【外部】当【实测】写进交付说明。**
+- `references/state-coverage.md` — **状态覆盖**（来源：OpenDesign craft/state-coverage，Apache-2.0，只蒸馏判据与数字）：
+  五态铁律（加载 / 空 / 错误 / 有数据 / 边界）、按页面类型的边界矩阵、加载指示器时长阈值
+  （0–300ms 不给 / 300ms–2s 轻量 / 2–10s 骨架 / 10–30s 确定进度 / 30–60s 可取消 / 60s+ 停动画转错误，15s 出「比预期久」）、
+  错误态三问与五级严重度、重试退避（2/4/8s，三次后转客服）、状态变化的 ARIA 与焦点表、10 条常见错误。
+  **任何取数据 / 收数据的界面，先过这一份再写代码。**
+- `references/form-rules.md` — **表单规则**（来源：OpenDesign craft/form-validation，Apache-2.0，同上）：
+  输入状态机 8 态（pristine → touched → invalid-after-touched → recovering → submitting → server-error）、
+  校验时机四条（失焦才校验 / 报错后改挂 input 复验 / 提交跑 schema 并移焦点 / 异步预检与提交校验分两条路）、
+  `:user-invalid` 与 Constraint Validation API 底线、`novalidate` 的两种取舍、错误接线三件事
+  （一个字段 4–7 条自适应文案 / 顶部摘要带 tabindex=-1 但不加 role=alert / 跨错误保留输入）、
+  Standard Schema 契约、WCAG 3.3.3 / 3.3.4 / 3.3.8、11 条常见错误。**写表单前对一遍。**
 - `references/copy-and-content.md` — 文案规格：标题公式、按钮动词对照、空/错/载文案公式、
   长度预算、中文标点与空格、三种人格语气、`{{TODO}}` 占位写法。**交付前用它清一遍假文案。**
 - `references/css-recipes.md` — 设计令牌、表格、骨架屏、空状态、深色模式的可复制片段；

@@ -9,16 +9,16 @@
  *   node <skill>/scripts/audit.mjs --url http://localhost:5173/ --expect-text "订单列表"
  *   node <skill>/scripts/audit.mjs --pages pages.txt --themes light,dark --out audit.json
  *   node <skill>/scripts/audit.mjs --url http://localhost:5173/admin --storage-state auth.json
- *   node <skill>/scripts/audit.mjs --url http://localhost:4173/ --red-flags          # 反模式红旗（warn）
+ *   node <skill>/scripts/audit.mjs --url http://localhost:4173/ --red-flags          # 反模式红旗（按 P0/P1/P2 分级）
  *   node <skill>/scripts/audit.mjs --url http://localhost:4173/ --red-flags --strict-red-flags
  *
  * 检查分两级：
  *   error —— 页面坏了（内容为空、横向溢出、坏图、Logo 拉伸、交互元素重叠、
- *            导航失败、axe 的 serious/critical 违规）
+ *            导航失败、axe 的 serious/critical 违规、红旗里的 P0 强制项）
  *   warn  —— 需要人工看图确认（文本裁切、点击区过小、字号过小、图标按钮无名字、
  *            axe 的 moderate/minor 违规、CLS 偏高、无障碍降级模式下仍在循环的动效、
- *            red-flag-*：anti-slop §八 pre-flight 的可机械判定项，需 --red-flags，
- *            --strict-red-flags 时升级为 error）
+ *            red-flag-*：anti-slop §八 pre-flight 的可机械判定项，需 --red-flags；
+ *            P0 默认 error，P1 默认 warn（--strict-red-flags 升级），P2 永远只警告）
  *
  * 所有检查都是启发式的：报告的是「待确认」，删除任何资源/组件前必须人工核实。
  *
@@ -366,14 +366,44 @@ async function collectStructure(page, ctx) {
 /**
  * 红旗检查（--red-flags）：把 references/anti-slop.md §八 pre-flight 里
  * 可以机械判定的子集沉成退出码——「反模式优先」的正确形态不是把文档前置，
- * 而是让违规直接变成可执行的失败项。全部是启发式，默认 warn 级只指方向；
- * --strict-red-flags 升级为 error（与 --design-system / --strict-design-system 同一套语义）。
+ * 而是让违规直接变成可执行的失败项。
+ *
+ * 每条检查带 enforcement 级别（与 anti-slop.md §八 的标注一一对应）：
+ *   P0 强制 —— 可访问性 / 性能 / 结构硬伤，且误判率低，默认就是 error（退出码 1）
+ *   P1 建议 —— 应当修，默认 warn；--strict-red-flags 升级为 error
+ *   P2 可关 —— 风格取向，永远只警告，不升级
+ * 级别是判据的一部分，不是配置项：改级别等于改规范，要同步改文档。
  */
+const RED_FLAG_ENFORCEMENT = {
+  'placeholder-as-label': 'P0',
+  'animated-layout-props': 'P0',
+  'scroll-listener': 'P0',
+  'no-reduced-motion': 'P0',
+  'hero-h1-lines': 'P1',
+  'hero-top-padding': 'P1',
+  'cta-words': 'P1',
+  'nav-height': 'P1',
+  'three-equal-cards': 'P1',
+  'long-list-divide': 'P1',
+  'duplicate-intent': 'P1',
+  'infinite-flood': 'P1',
+  'hero-version': 'P2',
+};
+
 async function collectRedFlags(page, ctx) {
-  return page.evaluate(({ viewport }) => {
+  return page.evaluate(({ viewport, strict, enforcement }) => {
     const issues = [];
-    const push = (check, message, selector) =>
-      issues.push({ level: 'warn', check: `red-flag-${check}`, message, viewport, selector: selector || null });
+    const push = (check, message, selector) => {
+      const level = enforcement[check] || 'P1';
+      issues.push({
+        level: level === 'P0' || (level === 'P1' && strict) ? 'error' : 'warn',
+        check: `red-flag-${check}`,
+        enforcement: level,
+        message,
+        viewport,
+        selector: selector || null,
+      });
+    };
     const sel = (el) => {
       const cls = el.className && typeof el.className === 'string'
         ? '.' + el.className.trim().split(/\s+/).slice(0, 2).join('.')
@@ -566,7 +596,7 @@ async function collectRedFlags(page, ctx) {
     }
 
     return issues;
-  }, ctx);
+  }, { ...ctx, enforcement: RED_FLAG_ENFORCEMENT });
 }
 
 /** 在「减少动效」偏好下仍然无限循环的动效：这类动效没有承载状态变化。 */
@@ -634,8 +664,9 @@ async function main() {
       '  --design-system         检查字号/间距/圆角/阴影，默认仅警告\n' +
       '  --design-system <json>  使用已有项目的设计体系配置\n' +
       '  --strict-design-system 把设计体系警告升级为错误（需启用 --design-system）\n' +
-      '  --red-flags             红旗检查：anti-slop §八 pre-flight 的可机械判定项（hero/结构/表单/动效），默认仅警告\n' +
-      '  --strict-red-flags      把红旗警告升级为错误（需启用 --red-flags）\n' +
+      '  --red-flags             红旗检查：anti-slop §八 pre-flight 的可机械判定项（hero/结构/表单/动效）\n' +
+      '                          P0 强制项默认即 error（占位符当标签 / 动画改布局 / scroll 驱动 / 不尊重 reduced-motion）\n' +
+      '  --strict-red-flags      把 P1 建议项也升级为错误（需启用 --red-flags）；P2 可关项始终只警告\n' +
       '完整参数与配置结构见 docs/scripts.md。');
     return;
   }
@@ -726,7 +757,7 @@ async function main() {
     },
     axeVersion: null,
     targets: [],
-    totals: { error: 0, warn: 0, console: 0, http: 0, axe: 0 },
+    totals: { error: 0, warn: 0, console: 0, http: 0, axe: 0, redFlags: { P0: 0, P1: 0, P2: 0 } },
   };
 
   const browser = await chromium.launch();
@@ -764,8 +795,8 @@ async function main() {
             if (waitMs) await page.waitForTimeout(waitMs);
             t.issues = await collectStructure(page, { viewport: v, expectText });
             if (wantRedFlags) {
-              const rf = await collectRedFlags(page, { viewport: v });
-              t.issues.push(...(strictRedFlags ? rf.map((i) => ({ ...i, level: 'error' })) : rf));
+              // 级别在 collectRedFlags 内部按 RED_FLAG_ENFORCEMENT 决定，这里不再整体升级
+              t.issues.push(...(await collectRedFlags(page, { viewport: v, strict: strictRedFlags })));
             }
             if (designSystem) {
               const ds = await collectDesignSystem(page, designSystem, strictDesignSystem);
@@ -822,16 +853,23 @@ async function main() {
 
   for (const t of report.targets) {
     const axe = axeByLevel(t);
+    const flags = t.issues.filter((i) => i.check.startsWith('red-flag-'));
     t.counts = {
       error: t.issues.filter((i) => i.level === 'error').length + axe.error,
       warn: t.issues.filter((i) => i.level === 'warn').length + axe.warn,
       axe: (t.axe || []).length,
+    };
+    t.redFlags = {
+      P0: flags.filter((i) => i.enforcement === 'P0').length,
+      P1: flags.filter((i) => i.enforcement === 'P1').length,
+      P2: flags.filter((i) => i.enforcement === 'P2').length,
     };
     report.totals.error += t.counts.error;
     report.totals.warn += t.counts.warn;
     report.totals.axe += t.counts.axe;
     report.totals.console += t.consoleErrors.length;
     report.totals.http += t.httpErrors.length;
+    for (const k of ['P0', 'P1', 'P2']) report.totals.redFlags[k] += t.redFlags[k];
   }
 
   const reportPath = await writeJson(out, report);
@@ -857,6 +895,10 @@ async function main() {
 
   console.log(`\n合计：${report.totals.error} 错误 / ${report.totals.warn} 警告 / ` +
     `${report.totals.axe} 类 axe 违规 / ${report.totals.console} console / ${report.totals.http} HTTP`);
+  if (wantRedFlags) {
+    const rf = report.totals.redFlags;
+    console.log(`红旗：P0 强制 ${rf.P0}（计错误）/ P1 建议 ${rf.P1}${strictRedFlags ? '（已升级为错误）' : ''} / P2 可关 ${rf.P2}`);
+  }
   console.log(`报告：${reportPath}`);
   if (report.axeVersion) console.log(`axe-core ${report.axeVersion}（WCAG 2.1 A/AA 规则集）`);
   process.exit(report.totals.error > 0 ? 1 : 0);

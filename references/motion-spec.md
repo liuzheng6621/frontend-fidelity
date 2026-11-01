@@ -108,6 +108,58 @@ function replay(el, cls = 'is-playing') {
 同时输出四条缓动（`--ease-out / in / in-out / spring`）与一个开关 **`--motion`**（`1` / `0`）。
 写动效时用 `calc(var(--dur-3) * var(--motion))`——`prefers-reduced-motion` 下生成器把 `--motion` 置 0，
 一次切换全站归零，不必在每个动画上重写降级块。
+## 二·补四、跨体系收敛值与曲线/弹簧分界
+
+上面五档是**本站口径**（按人格生成、按语料校准）。下面这一节是**外部收敛值**——
+当你需要跟别家设计系统对齐、或要回答「这个动效到底该多快」时，用这里的锚点。
+
+### 时长锚点：150ms 是行业交汇点
+
+Material 3 的 `short3`、IBM Carbon 的 `moderate-01`、Shopify Polaris 的 `150`、
+Tailwind 的默认 `150ms`、Salesforce SLDS 的 `duration-fast` —— 五个互不相干的体系都落在 **150ms**。
+它该是「状态确认」类反馈的默认值（按下已生效、开关已翻、勾选已记）。
+
+| 时长 | 用途 | 对应本站令牌 |
+| --- | --- | --- |
+| 50–100ms | 即时反馈（按钮按下、开关落位、hover 起手） | `--dur-1`（print 人格 100） |
+| **150ms** | **状态确认默认值** | `--dur-1` ~ `--dur-2` 之间 |
+| 200–300ms | 进入 UI（modal、sheet、下拉、抽屉） | `--dur-3` |
+| 300–500ms | 跨屏转场、容器形变 | `--dur-4` |
+| > 500ms | 只留给跨屏叙事、分阶段编排、平台原生转场 | `--dur-5` / 上限 800 |
+
+两条额外约束，比上表更容易被忽略：
+
+- **高频动画 ≤ 200ms**。一次会话里要看 50 次的 hover，超过 200ms 就从「反馈」变成「等待」。
+- **移动端比桌面短 20–30%**。行程更短，同样的 240ms 在手机上像慢放。
+  移动端要么单独给一套时长，要么用 `calc(var(--dur-3) * .75)` 统一压。
+
+非导航类微交互（hover、press、toggle、校验、chip 选中、行展开）**一律 ≤ 500ms**。
+过了这条线，用户开始「看动画」而不是「用界面」。
+
+### 曲线 vs 弹簧：按属性分，不按喜好分
+
+| 动什么 | 用什么 | 理由 |
+| --- | --- | --- |
+| opacity、color、任何在两个已知值之间过渡的属性 | **贝塞尔曲线** | 有明确起止，曲线就够了 |
+| position、scale、rotation、手势驱动 | **弹簧** | 要「有重量」，被打断时能带着速度改向 |
+
+**三个必须知道的坑：**
+
+1. **M3 standard 是 `cubic-bezier(0.2, 0, 0, 1)`**（前置发力，尾零让它瞬到目标再收住）。
+   旧的 M2 对称曲线 `cubic-bezier(0.4, 0, 0.2, 1)` 在 M3 里改名叫 `legacy`——
+   还在用 M2 曲线却标「M3 standard」的，用的是 legacy token。
+2. **M3 `emphasized` 是两段贝塞尔路径，不是一个 cubic-bezier**。用单条 cubic-bezier 近似会
+   悄悄丢掉前置特性；单属性上只有 CSS `linear()`（Chrome 113+）能复现。
+3. **Apple SwiftUI 默认 spring 是 `(response: 0.5, dampingFraction: 0.825)`**。
+   网上流传的 `.snappy = 0.25s / .smooth = 0.35s` 是错的——三个预设的基时长都是 **0.5s**，
+   只差 bounce（0 / 0.15 / 0.3）。
+
+**弹簧库的「default」同名不同手感**：motion.dev 的物理模式默认 ζ ≈ 0.5（明显回弹），
+React Spring 的 `default` 是 ζ = 0.997（临界阻尼，几乎不弹）。
+要复现 motion.dev 的手感，在 React Spring 里该用 `wobbly`。**选之前先确认 ζ，别信名字。**
+
+---
+
 ## 三、位移与缩放：小即是好
 
 | 动作 | 允许的量 |
@@ -250,5 +302,8 @@ function replay(el, cls = 'is-playing') {
 ## 十一、来源
 
 - 判据：impeccable `craft-floor.md`（Apache-2.0）、design-taste-frontend 的 MOTION 旋钮与动效 tell（规则重写）。
+- 跨体系收敛值与曲线/弹簧分界：OpenDesign `craft/animation-discipline.md`（Apache-2.0，只取数值与陷阱，中文重写）——
+  150ms 交汇点、高频 ≤200ms、移动端 −20~30%、M3 `standard` vs `legacy`、`emphasized` 两段贝塞尔、
+  SwiftUI spring 参数、motion.dev 与 React Spring 的 ζ 差异均出自该文件所引的原始来源。
 - 实测数值：holynova（单一 `cubic-bezier(.16,1,.3,1)`、时长 0.12–0.4、聚光层只改 opacity 与两个 CSS 变量）、wegic（`cubic-bezier(.33,1,.68,1)`、按钮厚度 4→2→0）、即时设计（桌面 21 个动画、展示区 400–600ms）、StyleKit（hover 160ms、两笔）、UI Notes（全站 1 个动画）。
 - 时长/缓动分级是本站汇总值，**不是某一家站点的原值**；要引用单站数值请回各自单站文档。

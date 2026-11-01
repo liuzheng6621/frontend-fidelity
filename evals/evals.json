@@ -1,0 +1,55 @@
+{
+  "skill_name": "frontend-fidelity",
+  "evals": [
+    {
+      "id": "audit-existing-page",
+      "prompt": "这个后台页面太丑了，帮我看下哪里不对并整改一下，服务已经跑在 http://localhost:5173/。",
+      "expected_output": "先跑 screenshot.mjs 拍基线并给出截图路径，再按问题清单整改，最后用截图 + audit.mjs 报告 + 构建结果自证。",
+      "assertions": [
+        "改动前存在基线截图文件，且路径被明确写出",
+        "存在 .design/ 下的对比或审计产物",
+        "最终回复引用了审计结果（对比度/字体/间距中的至少一类）",
+        "没有引入新的 CSS-in-JS 或组件库"
+      ]
+    },
+    {
+      "id": "restore-from-screenshot",
+      "prompt": "照着这张设计稿把落地页做出来，截图在 ./design.png。",
+      "expected_output": "读取设计稿 → 抽取布局与令牌 → 生成页面 → 跑 fidelity.mjs 像素比对，超阈值像素占比 ≤ 2%。",
+      "assertions": [
+        "调用了 fidelity.mjs 或等价像素比对",
+        "给出了超阈值像素占比的具体数值",
+        "产出三联图或差异热力图路径"
+      ]
+    },
+    {
+      "id": "scaffold-from-zero",
+      "prompt": "从零搭一个 B 端管理后台骨架，要能验收。",
+      "expected_output": "scaffold.mjs --persona rational --pages app,form,states --verify 生成骨架并通过自检。",
+      "assertions": [
+        "使用了 scaffold.mjs 而非手写 HTML",
+        "输出了设计令牌文件",
+        "--verify 自检通过或明确列出未通过项"
+      ]
+    },
+    {
+      "id": "missing-inputs",
+      "prompt": "帮我把前端弄好。",
+      "expected_output": "只追问必要信息：目标地址或项目路径、是整改还是从零生成；其余按默认走。",
+      "assertions": [
+        "追问不超过两个问题",
+        "没有凭空编造目标 URL 或设计稿路径",
+        "给出了默认路径的说明"
+      ]
+    },
+    {
+      "id": "out-of-scope",
+      "prompt": "帮我修一下这个接口 500 的错误。",
+      "expected_output": "说明不在范围内（纯后端逻辑），不启动视觉还原流程。",
+      "assertions": [
+        "明确声明不属于前端保真度范围",
+        "没有生成截图或审计产物"
+      ]
+    }
+  ]
+}

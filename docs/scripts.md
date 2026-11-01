@@ -243,8 +243,8 @@ node scripts/audit.mjs --url http://localhost:5173/ --no-axe
 | `--out` | `audit-report.json` | 报告路径 |
 | `--design-system` | 关 | 裸参数使用默认基线；跟 JSON 路径则使用项目自己的字号/间距/圆角档位与预算，默认仅警告 |
 | `--strict-design-system` | 关 | 将 `design-system-*` 警告升级为 error；必须同时启用 `--design-system` |
-| `--red-flags` | 关 | 红旗检查：`anti-slop.md` §八 pre-flight 的可机械判定项（`red-flag-*`），默认仅警告 |
-| `--strict-red-flags` | 关 | 将 `red-flag-*` 警告升级为 error；必须同时启用 `--red-flags` |
+| `--red-flags` | 关 | 红旗检查：`anti-slop.md` §八 pre-flight 的可机械判定项（`red-flag-*`）。按 `P0/P1/P2` 分级：`P0` 默认即 error，`P1` 默认警告，`P2` 始终只警告 |
+| `--strict-red-flags` | 关 | 把 `P1` 也升级为 error（`P2` 不升级）；必须同时启用 `--red-flags` |
 | `--help` | – | 打印设计体系审计入口；完整参数见本节 |
 
 **检查项**
@@ -270,23 +270,24 @@ node scripts/audit.mjs --url http://localhost:5173/ --no-axe
 | warn / strict 时 error | `design-system-spacing` | padding / margin / gap 不在已声明档位或默认网格内 |
 | warn / strict 时 error | `design-system-radii` | 非全圆角未声明，或超过档数预算 |
 | warn / strict 时 error | `design-system-shadows` | 完整 `box-shadow` 声明套数超过预算 |
-| warn / strict-red-flags 时 error | `red-flag-hero-h1-lines` | hero 标题超过 2 行 |
-| warn / strict-red-flags 时 error | `red-flag-hero-top-padding` | hero 顶部内边距 > 96px（6rem） |
-| warn / strict-red-flags 时 error | `red-flag-hero-version` | hero 里出现版本号文字（`v2.1.0` 样式） |
-| warn / strict-red-flags 时 error | `red-flag-cta-words` | 主 CTA 文案 > 3 词（中文按 2 字 ≈ 1 词折算） |
-| warn / strict-red-flags 时 error | `red-flag-nav-height` | 横向顶部导航高度 > 80px（纵向侧边导航豁免） |
-| warn / strict-red-flags 时 error | `red-flag-three-equal-cards` | 三张等大功能卡（3 个等宽格子、各带标题+正文） |
-| warn / strict-red-flags 时 error | `red-flag-long-list-divide` | > 5 项的长列表只用 `<ul>` + 分隔线 |
-| warn / strict-red-flags 时 error | `red-flag-duplicate-intent` | 导航里同一标签出现多次 |
-| warn / strict-red-flags 时 error | `red-flag-placeholder-as-label` | 表单控件只有 placeholder 当标签 |
-| warn / strict-red-flags 时 error | `red-flag-no-reduced-motion` | 定义了 @keyframes 但全站无 `prefers-reduced-motion`（跨域样式表不可读时跳过） |
-| warn / strict-red-flags 时 error | `red-flag-animated-layout-props` | 动画直接改 top/left/width/height/margin/padding |
-| warn / strict-red-flags 时 error | `red-flag-scroll-listener` | 内联脚本用 `addEventListener('scroll')` 驱动行为 |
-| warn / strict-red-flags 时 error | `red-flag-infinite-flood` | > 8 处无限循环动画 |
+| **P0** error | `red-flag-placeholder-as-label` | 表单控件只有 placeholder 当标签 |
+| **P0** error | `red-flag-animated-layout-props` | 动画直接改 top/left/width/height/margin/padding |
+| **P0** error | `red-flag-scroll-listener` | 内联脚本用 `addEventListener('scroll')` 驱动行为 |
+| **P0** error | `red-flag-no-reduced-motion` | 定义了 @keyframes 但全站无 `prefers-reduced-motion`（跨域样式表不可读时跳过） |
+| P1 warn / strict 时 error | `red-flag-hero-h1-lines` | hero 标题超过 2 行 |
+| P1 warn / strict 时 error | `red-flag-hero-top-padding` | hero 顶部内边距 > 96px（6rem） |
+| P1 warn / strict 时 error | `red-flag-cta-words` | 主 CTA 文案 > 3 词（中文按 2 字 ≈ 1 词折算） |
+| P1 warn / strict 时 error | `red-flag-nav-height` | 横向顶部导航高度 > 80px（纵向侧边导航豁免） |
+| P1 warn / strict 时 error | `red-flag-three-equal-cards` | 三张等大功能卡（3 个等宽格子、各带标题+正文） |
+| P1 warn / strict 时 error | `red-flag-long-list-divide` | > 5 项的长列表只用 `<ul>` + 分隔线 |
+| P1 warn / strict 时 error | `red-flag-duplicate-intent` | 导航里同一标签出现多次 |
+| P1 warn / strict 时 error | `red-flag-infinite-flood` | > 8 处无限循环动画 |
+| P2 仅 warn | `red-flag-hero-version` | hero 里出现版本号文字（`v2.1.0` 样式）；风格取向，不升级 |
 
 - axe 只跑 **WCAG 2.1 A/AA** 规则集（`wcag2a`、`wcag2aa`、`wcag21a`、`wcag21aa`），跳过 best-practice，避免刷屏。
 - `audit-report.json` 里每条违规都带 `helpUrl` 与命中节点的 HTML 片段，能直接定位。
-- **退出码：有 error 时为 1；参数/配置错误时为 2**。默认设计体系警告与红旗警告不改变退出码，核定配置后用 strict 作 CI 门禁。
+- **退出码：有 error 时为 1；参数/配置错误时为 2**。红旗里的 `P0` 项**默认就算 error**——占位符当标签、动画改布局、scroll 驱动、不尊重 reduced-motion 这四类是硬伤，不需要额外开 strict。
+- 报告 `totals.redFlags` 按 `P0/P1/P2` 分列计数，CI 里可以直接读这个字段判断「只差建议项」还是「有硬伤」。
 
 #### 红旗检查：anti-slop §八 的机械化子集
 
@@ -561,7 +562,7 @@ node scripts/probe-ref.mjs --url https://example.com --no-shot # 不存截图
 | `--brief` | 关 | 只打印关键数值，不列 CSS 变量（JSON 仍写） |
 | `--no-shot` | – | 不存截图 |
 
-**输出**：字体栈与出现次数、字号分布、`h1/h2/h3/p/a/th/td/label/button/input` 的字号-行高比-字重-字距-大小写、底色与文字色（`oklch()` 也会被正确解析成 sRGB 十六进制）、圆角档位、间距频次、表格行高、控件高度、侧栏/顶栏尺寸、卡片靠阴影还是靠边框、图片 lazy 比例、动画数、CSS 变量名，以及 **`:root` 上实际生效的自定义属性及其最终值**（`rootVars`，最多 120 项）——后者是遍历计算样式拿的，所以跨域样式表读不到、或被 JS 后注入的令牌也能量到（wegic.ai 的 `--wg-*` 就是这样测出来的）。
+**输出**：字体栈与出现次数、字号分布、`h1/h2/h3/p/a/th/td/label/button/input` 的字号-行高比-字重-字距-大小写、底色与文字色（`oklch()` 也会被正确解析成 sRGB 十六进制）、圆角档位、间距频次、表格行高、控件高度、侧栏/顶栏尺寸、卡片靠阴影还是靠边框、图片 lazy 比例、动画数、CSS 变量名、**`rtl` 字段**（`dir` 属性与计算方向、`body` 的 `text-align`、逻辑属性 vs 物理属性条数与占比、镜像图标、文字元素字距分布），以及 **`:root` 上实际生效的自定义属性及其最终值**（`rootVars`，最多 120 项）——后者是遍历计算样式拿的，所以跨域样式表读不到、或被 JS 后注入的令牌也能量到（wegic.ai 的 `--wg-*` 就是这样测出来的）。
 
 > **只抄比例和关系，不抄像素。** 落地数值对照 `references/design-evidence.md` 的跨站统计：营销站的 96–140px 大标题搬到管理端就是错的，后台正文 13–14px、控件 32px、表格行高 53px 才是同行区间。
 
