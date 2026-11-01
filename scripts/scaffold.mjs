@@ -65,6 +65,7 @@ if (has('help') || has('h')) {
   --name <字符串>                      产品名（默认「示例产品」）
   --ref-url <URL>                     先跑 probe-ref 量这个站，按实测值覆盖人格字段
   --ref-json <path>                   直接用已有的 probe-ref JSON，不再跑一次
+  --design-md <path>                  读一份 Stitch DESIGN.md（Google 格式），按 frontmatter 覆盖人格令牌
   --verify                            生成后自动起服务跑 audit + contrast，失败退出码非 0
   --export tailwind,antd,element      额外导出令牌到别的体系
   --quiet                             少打印
@@ -219,7 +220,7 @@ if (!P || !PERSONAS[personaKey]) {
 let accentHue = Number(arg('accent', P.accentHue));
 const outDir = path.resolve(arg('out', 'ui-scaffold'));
 const pages = (arg('pages', 'landing,app') || '').split(',').map((s) => s.trim()).filter(Boolean);
-const withDark = has('no-dark') ? false : true; // 默认带深色令牌：主题开关不该是死按钮
+let withDark = has('no-dark') ? false : true; // 默认带深色令牌：主题开关不该是死按钮
 const quiet = has('quiet');
 const NAME = arg('name', '示例产品');
 const refUrl = arg('ref-url');
@@ -355,6 +356,195 @@ if (ref) {
     }
   }
   if (!quiet) console.log('· 已按实测覆盖：' + (applied.length ? applied.join('  ') : '（无可覆盖字段）'));
+}
+
+/* -------------------------------------------------- --design-md
+   读一份 Google Stitch 格式的 DESIGN.md（VoltAgent/awesome-design-md 收了 84 份），
+   按 frontmatter 覆盖人格令牌。语法层已经对齐：它的 components 用 {colors.x} / {rounded.y}
+   引用令牌，和我们生成的 DESIGN.md 完全同构，所以这里是机械映射，不是语义翻译。
+
+   只映射有明确对应关系的字段；映射不到的（品牌语义色、组件级覆盖）原样保留人格默认，
+   并在生成物的 Overview 里写明来源与「哪些字段没吃进去」——宁可少覆盖，不要假装全吃。 */
+const designMdPath = arg('design-md');
+
+function parseDesignMd(text) {
+  const m = /^---\r?\n([\s\S]*?)\r?\n---/.exec(text);
+  if (!m) throw new Error('DESIGN.md 缺少 YAML frontmatter（--- 块）');
+  const out = { colors: {}, typography: {}, rounded: {}, spacing: {}, meta: {} };
+  const unquote = (v) => v.trim().replace(/^["']|["']$/g, '');
+  let section = null;
+  let entry = null;
+  for (const raw of m[1].split(/\r?\n/)) {
+    if (!raw.trim() || raw.trim().startsWith('#')) continue;
+    const top = /^([A-Za-z][\w-]*):\s*(.*)$/.exec(raw);
+    if (top) {
+      const [, key, val] = top;
+      entry = null;
+      if (val.trim()) {
+        out.meta[key] = unquote(val);
+        section = null;
+      } else {
+        section = ['colors', 'typography', 'rounded', 'spacing'].includes(key) ? key : null;
+      }
+      continue;
+    }
+    const second = /^ {2}([A-Za-z][\w.-]*):\s*(.*)$/.exec(raw);
+    if (second && section) {
+      const [, key, val] = second;
+      if (val.trim()) {
+        if (section === 'typography') out.typography[key] = { ...(out.typography[key] || {}), __inline: unquote(val) };
+        else out[section][key] = unquote(val);
+        entry = null;
+      } else {
+        entry = key;
+        if (section === 'typography') out.typography[key] = {};
+      }
+      continue;
+    }
+    const third = /^ {4}([A-Za-z][\w-]*):\s*(.*)$/.exec(raw);
+    if (third && section === 'typography' && entry) {
+      out.typography[entry][third[1]] = unquote(third[2]);
+    }
+  }
+  return out;
+}
+
+// relLum 在下面的「颜色」段才定义，导入块要先用到，这里给一个等价实现
+function relLumSafe(hex) {
+  const c = [1, 3, 5]
+    .map((i) => parseInt(hex.slice(i, i + 2), 16) / 255)
+    .map((v) => (v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4)));
+  return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+}
+
+function pxNum(v) {
+  const n = parseFloat(String(v || ''));
+  return Number.isFinite(n) ? n : null;
+}
+
+if (designMdPath) {
+  const abs = path.resolve(designMdPath);
+  if (!existsSync(abs)) {
+    console.error(`--design-md 找不到文件：${abs}`);
+    process.exit(2);
+  }
+  const md = parseDesignMd(await readFile(abs, 'utf8'));
+  const applied = [];
+  const skipped = [];
+
+  // 品牌色：primary 决定色相与饱和，ramp 与对比度全部跟着重算
+  const primary = md.colors.primary || md.colors.brand;
+  if (primary && /^#[0-9a-f]{6}$/i.test(primary)) {
+    const h = hexToHue(primary);
+    if (h !== null) {
+      accentHue = h;
+      const s = hexSat(primary);
+      if (s >= 10) P.accentSat = Math.min(100, Math.max(20, s));
+      applied.push(`brand hue=${accentHue} sat=${P.accentSat}（${primary}）`);
+    } else {
+      skipped.push(`primary ${primary} 接近灰/黑/白，无色相可推`);
+    }
+  } else if (primary) {
+    skipped.push(`primary ${primary} 不是 6 位十六进制，ramp 推不出来`);
+  }
+
+  // 底色 / 文字 / 表面 / 分隔线
+  for (const [names, setter, label] of [
+    [['canvas', 'background', 'bg'], (v) => { P.bg = v; }, 'bg'],
+    [['ink', 'text', 'foreground'], (v) => { P.ink = v; }, 'ink'],
+    [['canvas-soft', 'surface', 'surface-1'], (v) => { P.surface = v; }, 'surface'],
+    [['hairline', 'border'], (v) => { P.border = v; }, 'border'],
+  ]) {
+    const hit = names.map((n) => md.colors[n]).find((v) => v && /^#[0-9a-f]{6}$/i.test(v));
+    if (hit) { setter(hit); applied.push(`${label}=${hit}`); }
+  }
+
+  // 圆角：md 为锚，其余按比例（和 --ref-url 同一套口径）
+  const rMd = pxNum(md.rounded.md) ?? pxNum(md.rounded.base);
+  if (rMd !== null && rMd >= 0 && rMd <= 64) {
+    const scale = (x, min) => Math.max(min, Math.round(rMd * x));
+    P.radius = {
+      xs: scale(0.5, 0),
+      sm: scale(0.75, 2),
+      md: Math.round(rMd),
+      lg: scale(1.5, 4),
+      xl: scale(2, 6),
+      pill: 999,
+    };
+    applied.push(`radius.md=${P.radius.md}px`);
+  }
+
+  // 间距基数：取最小正值（xxs 一般是 4），必须能整除常见档位
+  const spaceNums = Object.values(md.spacing).map(pxNum).filter((n) => n && n > 0 && n <= 16);
+  if (spaceNums.length) {
+    const base = Math.min(...spaceNums);
+    // 组件样式是按 4px 基数写的（--s-3 = 12 就是按钮左右内边距）。
+    // 样本里给 2px 时若照抄，所有间距对半砍，控件宽度掉到 36px、点击区不达标——
+    // 所以 4 是导入的下限，低于它只记录不采纳。
+    if (base >= 4 && base <= 8) {
+      P.spaceStep = Math.round(base);
+      applied.push(`spaceStep=${P.spaceStep}`);
+    } else if (base < 4) {
+      skipped.push(`spacing 最小档 ${base}px 小于 4，组件按 4 基数写，未采纳（仍用 ${P.spaceStep}）`);
+    } else {
+      skipped.push(`spacing 最小档 ${base}px 大于 8，未用作基数`);
+    }
+  }
+
+  // 字阶：把样本的字号排序后按比例映射到我们的八档，不依赖它的命名
+  const sizes = [...new Set(Object.values(md.typography).map((e) => pxNum(e.fontSize)).filter(Boolean))].sort((a, b) => a - b);
+  if (sizes.length >= 2) {
+    const keys = ['xs', 'sm', 'base', 'lg', 'xl', '2xl', '3xl', '4xl'];
+    const pick = (i) => sizes[Math.round((i / (keys.length - 1)) * (sizes.length - 1))];
+    const next = { ...P.type };
+    keys.forEach((k, i) => { next[k] = pick(i); });
+    // base 单独锚定：取最接近 16 的那一档，避免整体被拉偏
+    const near = sizes.reduce((a, b) => (Math.abs(b - 16) < Math.abs(a - 16) ? b : a));
+    next.base = near;
+    // 下限来自 audit 的判定线：正文 < 12px 直接告警，控件高度也会跟着塌。
+    // 样本里的 10px 辅助字号在真机上根本读不清，导入时抬到 12 并在文档里说明。
+    const floors = { xs: 12, sm: 12, base: 13 };
+    for (const [k, min] of Object.entries(floors)) if (next[k] < min) next[k] = min;
+    if (next['4xl'] > 120) next['4xl'] = 120;
+    // 单调：八档只能递增，样本给的名字顺序和我们不一致时靠这一步兜住
+    for (let i = 1; i < keys.length; i++) {
+      if (next[keys[i]] < next[keys[i - 1]]) next[keys[i]] = next[keys[i - 1]];
+    }
+    P.type = next;
+    applied.push(`type.base=${next.base} / 4xl=${next['4xl']}`);
+  } else if (sizes.length === 1) {
+    skipped.push('typography 只给了一档字号，字阶未覆盖');
+  }
+
+  // 行高：正文取最接近 16px 那一档，标题取最大那一档
+  const entries = Object.values(md.typography).filter((e) => pxNum(e.fontSize) && pxNum(e.lineHeight));
+  if (entries.length) {
+    const bodyEntry = entries.reduce((a, b) => (Math.abs(pxNum(b.fontSize) - 16) < Math.abs(pxNum(a.fontSize) - 16) ? b : a));
+    const headEntry = entries.reduce((a, b) => (pxNum(b.fontSize) > pxNum(a.fontSize) ? b : a));
+    const nextLh = { ...P.lh };
+    nextLh.base = pxNum(bodyEntry.lineHeight);
+    nextLh['3xl'] = pxNum(headEntry.lineHeight);
+    nextLh['4xl'] = pxNum(headEntry.lineHeight);
+    P.lh = nextLh;
+    applied.push(`lh.base=${nextLh.base} / 4xl=${nextLh['4xl']}`);
+  }
+
+  // 深色底：scaffold 的 :root 是浅色基准，深色靠 .dark 块覆盖。
+  // 导入一份深色系统的 DESIGN.md 时，浅色基准会变成一个「深底 + 深色覆盖」的错配，
+  // 所以直接认它是 dark-first：跳过 .dark 块，并在文档里写明。
+  const bgLum = P.bg && P.bg.length === 7 ? relLumSafe(P.bg) : 1;
+  if (bgLum < 0.2) {
+    P.darkBase = true;
+    withDark = false;
+    skipped.push(`canvas ${P.bg} 是深底（相对亮度 ${bgLum.toFixed(2)}），按 dark-first 处理：不生成 .dark 块`);
+  }
+
+  // 记录来源，交给 DESIGN.md 与 tokens.css 的注释
+  P.designMdSource = { path: path.relative(process.cwd(), abs) || abs, name: md.meta.name || null, applied, skipped };
+  if (!quiet) {
+    console.log(`· 已按 DESIGN.md 覆盖：${applied.length ? applied.join('  ') : '（无可覆盖字段）'}`);
+    if (skipped.length) console.log(`  未覆盖：${skipped.join('；')}`);
+  }
 }
 
 /* ------------------------------------------------------------------ 颜色 */
@@ -616,6 +806,7 @@ const darkVars = () => {
 
 const tokensCss = `/* generated by scaffold.mjs —— persona: ${personaKey}（${P.label}）
    参照：${P.ref}
+   ${P.designMdSource ? `令牌来源：${P.designMdSource.path}（--design-md 覆盖 ${P.designMdSource.applied.length} 组）` : ''}
    改这些值，不要改组件；组件的所有尺寸都从这里派生。 */
 
 :root {
@@ -5402,6 +5593,17 @@ function designMd() {
     `- **密度**：${tokens.density}`,
     `- **深度语言**：${P.depth}（hairline / soft / hard 三派只选一派，混用会显脏）`,
     `- **品牌色相**：${accentHue}（要换用 \`--accent <0-360>\` 重新生成，不要手调十六进制）`,
+    ...(P.designMdSource
+      ? [
+          '',
+          `- **令牌来源**：\`${P.designMdSource.path}\`${P.designMdSource.name ? `（${P.designMdSource.name}）` : ''}，`,
+          `  按 frontmatter 覆盖了 ${P.designMdSource.applied.length} 组字段：${P.designMdSource.applied.join('；')}`,
+          ...(P.darkBase ? ['- **深色基准**：这份令牌是 dark-first，未生成 `.dark` 块；要浅色版得另跑一次并换 canvas'] : []),
+          ...(P.designMdSource.skipped.length
+            ? [`- **没吃进去的**：${P.designMdSource.skipped.join('；')}——这些仍是人格默认值，别当成原文件的结论`]
+            : []),
+        ]
+      : []),
     '',
     '## Colors',
     '',

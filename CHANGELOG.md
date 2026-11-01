@@ -8,6 +8,50 @@
 各版本条目首次引入的对应提交日期校正；这些日期是**提交日期，不据此宣称发行日期**。
 v1.0.0 保留初始化提交 `6da84f5`（2026-10-22）支持的日期；其余已一致的标题日期不改。
 
+## v1.30.0 - 2026-11-01
+
+补上互补的入口：**别人写的 DESIGN.md 现在能直接变成可验收的骨架**。顺带把发布流程里
+那条走不通的路换成能走通的。
+
+### 新增
+
+- **`scaffold.mjs --design-md <path>`**：读 Google Stitch 格式的 DESIGN.md（`awesome-design-md`
+  收了 84 份真实站点），按 frontmatter 覆盖人格令牌。语法层本来就同构——它的 `components`
+  也用 `{colors.x}` / `{rounded.y}` 引用——所以这是机械映射，不是语义翻译。
+
+  | 字段 | 落点 |
+  | --- | --- |
+  | `colors.primary` | 品牌色相 + 饱和 → **重算** `--brand-50..950`（不是照抄十六进制） |
+  | `colors.canvas` / `ink` / `hairline` / `canvas-soft` | `--bg` / `--ink` / `--border` / `--surface` |
+  | `rounded.md` | `--r-md`，其余按 0.5 / 0.75 / 1 / 1.5 / 2 倍 |
+  | `spacing` 最小档 | 间距基数，**下限 4px** |
+  | `typography.*.fontSize` / `lineHeight` | 八档字阶与行高 |
+
+- **两条自动裁决**（都是试出来的，不是拍脑袋）：
+  - **深底样本按 dark-first 处理**：`canvas` 相对亮度 < 0.2 时不生成 `.dark` 块。
+    否则会得到「深底 + 深色覆盖」的错配，比不做还糟。
+  - **映射不到的不假装吃到**：保留人格默认，并在生成的 DESIGN.md 里列一行「没吃进去的：…」。
+- **selfcheck 第 23 门「DESIGN.md 导入」**：浅色样本验 7 项令牌落地 + 字号下限，
+  深色样本验不生成 `.dark` 块且文档声明 dark-first。
+- **`scripts/sync-github-api.py`**：把发布里那条走不通的 `git push` 换成 Git Data API。
+  一条命令完成 master + tag + Release + 附件 + **tree 校验**。三条硬规则写死在脚本里：
+  blob 取 `git cat-file`（不读工作树，CRLF 会让 sha 变）、mode 取 `git ls-tree`（不按扩展名猜）、
+  验收比 tree sha（commit sha 天然不同）。`sync-github.ps1` 已在文件头标注失效并保留比对口径。
+
+### 两个必须抬下限的地方
+
+导入真实样本时踩到的，都不是理论问题：
+
+| 样本给的 | 照抄的后果 | 处理 |
+| --- | --- | --- |
+| `spacing.xxs: 2px` | 全部间距对半砍，按钮宽度掉到 36px，移动端点击区不达标（audit 报 12 条 `small-tap-target`） | 间距基数下限 4px，低于它只记录不采纳 |
+| 字阶最小档 10px | 正文低于 12px，audit 直接告警（30 条 `font-too-small`） | `--t-xs` / `--t-sm` 抬到 12，`--t-base` 抬到 13，并保证八档单调 |
+
+### 文档
+
+- `docs/scripts.md`：新增「DESIGN.md 导入」与「sync-github-api.py」两节，含字段映射表与三条硬规则。
+- `references/component-absorption.md` §四：补「导入」这条用法——从「格式借鉴」变成「可执行入口」。
+
 ## v1.29.0 - 2026-11-01
 
 `DESIGN.md` 本来就是按 Google Stitch 的格式生成的，但只对了一半：frontmatter 五个段齐了，

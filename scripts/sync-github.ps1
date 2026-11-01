@@ -1,5 +1,10 @@
-﻿<#
+<#
 .SYNOPSIS
+  [已失效 · 用 scripts/sync-github-api.py 代替]
+  本机 Git 走 schannel 推 GitHub 会报 CRYPT_E_NO_REVOCATION_CHECK，
+  换 openssl 后端又缺根证书，所以这个脚本里的 `git push` 路径跑不通。
+  走 Git Data API 的版本见 scripts/sync-github-api.py。
+  保留本文件仅为记录原本的校验逻辑（tag/Release/tree 比对口径仍然有效）。
   把 Gitee 主仓同步到 GitHub 镜像：master + tag + Release + 逐项校验。
 
 .DESCRIPTION

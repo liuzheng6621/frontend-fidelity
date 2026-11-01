@@ -37,6 +37,9 @@ node scripts/scaffold.mjs --persona rational --out ui --pages landing,app,states
 
 # 想「像某个站」：探针实测值直接盖进骨架，不用手抄
 node scripts/scaffold.mjs --ref-url https://linear.app --out ui --pages app,form --verify
+
+# 手上有一份 DESIGN.md（Stitch 格式，比如 awesome-design-md 那 84 份）：直接导入成骨架
+node scripts/scaffold.mjs --design-md path/to/DESIGN.md --out ui --pages app,form --verify
 ```
 
 脚本全部参数见 `README.md`；逐步工作流、交付说明模板与参考库完整索引见 `references/workflow.md`。

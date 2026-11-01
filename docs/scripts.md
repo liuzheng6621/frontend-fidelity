@@ -32,6 +32,7 @@ node scripts/scaffold.mjs --name "南风工单" --out src --pages app,form
 | `--name` | 产品名 | `示例产品` |
 | `--ref-url` | 先跑 `probe-ref.mjs` 量这个站，用实测值覆盖人格字段（品牌色相、底色、字阶、控件高、圆角、密度；逼近 80%，剩下改 `tokens.css`） | 关 |
 | `--ref-json` | 直接用已有的 probe-ref JSON，不再跑一次探针 | 关 |
+| `--design-md` | 读一份 Google Stitch 格式的 `DESIGN.md`，按 frontmatter 覆盖人格令牌（primary / canvas / ink / 圆角 / 间距基数 / 字阶 / 行高），并在生成物里写明来源与没吃进去的字段 | 关 |
 | `--verify` | 生成后自动起内置静态服务，逐页跑 `audit.mjs`（明暗双主题）+ `contrast_check.py`，报告写 `<out>/.verify/report.json`，`status` 三态对应退出码：`pass` 0 / `fail` 1 / `partial` 3（缺 python 或 playwright 时跳过某些项即 `partial`，**不再当通过**） | 关 |
 | `--allow-partial` | 配 `--verify`：接受不完整验收，`partial` 也退出 0（交付说明里必须写明哪几项没验） | 关 |
 | `--export` | 逗号分隔：`tailwind,antd,element`——把同一份令牌额外导出成 `tokens.tailwind.js` / `tokens.antd.json` / `tokens.element.scss`，数值与 `tokens.css` 同源。**边界：只到令牌层**（见下方说明），不做组件级封装 | 关 |
@@ -568,6 +569,34 @@ node scripts/probe-ref.mjs --url https://example.com --no-shot # 不存截图
 
 ---
 
+### DESIGN.md 导入（`scaffold.mjs --design-md`）——把别人的设计语言变成可验收的骨架
+
+**用途**：拿到一份 Stitch 格式的 `DESIGN.md`（`VoltAgent/awesome-design-md` 收了 84 份真实站点），
+一行命令把它变成能跑的骨架 + 能跑的验收，而不是只当参考读物。
+
+```bash
+node scripts/scaffold.mjs --persona rational --out ui --pages app,form \
+  --design-md path/to/DESIGN.md --verify
+```
+
+| frontmatter 字段 | 落到哪 | 说明 |
+| --- | --- | --- |
+| `colors.primary` | 品牌色相 + 饱和 → 重算 `--brand-50..950` | 不是照抄十六进制：ramp 要按对比度重选填充档 |
+| `colors.canvas` / `ink` / `hairline` / `canvas-soft` | `--bg` / `--ink` / `--border` / `--surface` | 直接取十六进制 |
+| `rounded.md` | `--r-md`，其余按比例 | 0.5 / 0.75 / 1 / 1.5 / 2 倍 |
+| `spacing` 最小档 | 间距基数 `--s-1` | **下限 4px**：组件按 4 基数写，照抄 2px 会把按钮宽度砍到 36、点击区不达标 |
+| `typography.*.fontSize` | 八档字阶 | 按排序插值映射，不依赖样本命名；`--t-xs` 下限 12px |
+| `typography.*.lineHeight` | `--lh-base` / `--lh-3xl` / `--lh-4xl` | 正文取最接近 16px 那档，标题取最大那档 |
+
+**两条自动裁决**：
+
+1. **深底样本按 dark-first 处理**。`canvas` 相对亮度 < 0.2 时不生成 `.dark` 块——
+   否则会得到一个「深底 + 深色覆盖」的错配，比不做还糟。
+2. **映射不到的不假装吃到**。品牌语义色、组件级覆盖保留人格默认，并在生成的 `DESIGN.md`
+   的 Overview 里列一行「没吃进去的：…」。宁可少覆盖，不要让人以为整份文件都生效了。
+
+生成物的 `DESIGN.md` 会多一行「令牌来源：`<路径>`（覆盖了 N 组字段）」，`tokens.css` 头注释同样记录来源。
+
 ### lookup.mjs — 冻结基线一行查询（值 + 判据 + 出处）
 
 **用途**：从 `references/baseline.json`（32 条冻结数值）里按关键词取「值 + 判据 + 出处」，
@@ -667,6 +696,38 @@ node scripts/recheck-refs.mjs --strict              # 有站点不可达时退�
 - 快照里没有的站点标 `首次采样`，与「无变化」分开；`--only` 默认把报告写到 `.design/recheck/`，不覆盖 `docs/reference-recheck.md`，加 `--report` 才覆盖。
 - 报告只报差异，不改写单站结论；**探针复测 ≠ REA 逆向**：只验证可达性与关键计算值，不做 DOM/脚本结构分析。
 - 退出码：`0` 正常；`1` 加了 `--strict` 且有站点失败；`2` 参数错。
+
+### sync-github-api.py — 用 Git Data API 同步到 GitHub 镜像
+
+**用途**：本机 `git push` 到 GitHub 不通（schannel 报 `CRYPT_E_NO_REVOCATION_CHECK`，
+换 openssl 缺根证书），所以走 REST API 建对象、挪 ref。一条命令完成
+**master + tag + Release + 附件 + tree 校验**。
+
+```bash
+python scripts/sync-github-api.py                    # 用最新 tag，正文自动取 CHANGELOG
+python scripts/sync-github-api.py --tag v1.30.0 --prev v1.29.0
+python scripts/sync-github-api.py --dry-run          # 只打印要发的请求
+```
+
+| 参数 | 默认 | 说明 |
+| --- | --- | --- |
+| `--repo` | `liuzheng6621/frontend-fidelity` | `owner/name` |
+| `--tag` | 最新 tag | 要发布的版本 |
+| `--prev` | 倒数第二个 tag | 增量起点（只上传差异文件） |
+| `--token` | `$GH_TOKEN` → `.gh-token` | 需要 Contents: Read and write |
+| `--asset` | `dist/frontend-fidelity.zip` | 不存在则跳过附件 |
+| `--skip-release` | 关 | 只推代码和 tag |
+| `--dry-run` | 关 | 只读请求照跑，写请求打印不执行 |
+
+**三条硬规则**（脚本内已强制，改之前先读注释）：
+
+1. blob 内容取 `git cat-file blob <sha>`，**不读工作树**——CRLF/LF 差异会让 sha 变，
+   tree 接口报 `is not a valid blob`。
+2. mode 取 `git ls-tree -r HEAD`，**不按扩展名猜**——猜成 100755 会让 tree sha 对不上。
+3. 验收口径是 **tree sha 相等**，不是 commit sha（API 造的 commit 与本地必然不同）。
+
+`scripts/sync-github.ps1` 里的 `git push` 路径在本机跑不通，已在文件头标注失效；
+它的 tag/Release/tree 比对口径仍然有效，被这个脚本沿用。
 
 ### snapshot-refs.mjs — 离线冻结参考站数值快照
 

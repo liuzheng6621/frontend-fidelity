@@ -6,6 +6,7 @@
  *   1. 语法：node --check 递归覆盖 scripts/ 的 .mjs；python -m py_compile scripts/*.py
  *   0. 参数语义：MSYS 路径还原、按页 expect-text、python 探测（纯断言，不需要浏览器）
  *   2. 生成：五套人格 × 七类页面各生成一遍到临时目录
+ *   2.6 DESIGN.md 导入：--design-md 读 Stitch 格式，浅色/深色两份样本各验一次
  *   2.7 令牌导出：--export 三份产物形状（AntD 只有全局 token、无 components 段；Tailwind 六段；
  *       Element @forward 覆盖），并断言 docs/scripts.md 写着「只到令牌层」这条边界
  *   3. 对比度：对每个生成物跑 contrast_check.py，不达标即失败
@@ -415,6 +416,91 @@ const generated = [];
   }
   if (bad.length) fail('生成', bad.join(' | '));
   else pass('生成', `${generated.length} 套 × ${PAGES.length} 页 → ${outDir}`);
+}
+
+// ---------- 2.6 --design-md 导入（Stitch DESIGN.md → 令牌） ----------
+// 这一门防的是「导入静默失真」：文件里写了 primary/rounded/字号，生成物里却没生效，
+// 或者生效到把组件比例打坏（间距基数被拉到 2px、正文被压到 10px）。
+{
+  const mk = (frontmatter, name) => {
+    const dir = mkdtempSync(join(tmpdir(), `ff-dm-${name}-`));
+    writeFileSync(join(dir, 'DESIGN.md'), `---\n${frontmatter}\n---\n\n## Overview\n\n自检用样本。\n`, 'utf8');
+    return dir;
+  };
+  try {
+    const light = mk(
+      [
+        'version: alpha',
+        'name: fixture-light',
+        'description: 浅色样本',
+        'colors:',
+        '  primary: "#533afd"',
+        '  canvas: "#ffffff"',
+        '  ink: "#0d253d"',
+        '  hairline: "#e3e8ee"',
+        'typography:',
+        '  display-xl:',
+        '    fontSize: 48px',
+        '    lineHeight: 1.15',
+        '  body:',
+        '    fontSize: 16px',
+        '    lineHeight: 1.6',
+        'rounded:',
+        '  md: 12px',
+        'spacing:',
+        '  xxs: 4px',
+        '  xs: 8px',
+        '  sm: 12px',
+      ].join('\n'),
+      'light',
+    );
+    const out = mkdtempSync(join(tmpdir(), 'ff-dm-out-'));
+    const r = await runNodeAsync([join(SCRIPTS, 'scaffold.mjs'), '--persona', 'rational', '--out', out,
+      '--pages', 'app', '--design-md', join(light, 'DESIGN.md'), '--quiet']);
+    assert.equal(r.status, 0, `导入生成失败：${r.out.slice(-400)}`);
+
+    const css = readFileSync(join(out, 'tokens.css'), 'utf8');
+    const grab = (name) => (new RegExp(`--${name}:\\s*([^;]+);`).exec(css) || [])[1];
+    // primary 决定色相，ramp 会按对比度重新选填充档，所以断言色相而不是原值
+    const hueOf = (hex) => {
+      const r = parseInt(hex.slice(1, 3), 16) / 255, g = parseInt(hex.slice(3, 5), 16) / 255, b = parseInt(hex.slice(5, 7), 16) / 255;
+      const max = Math.max(r, g, b), min = Math.min(r, g, b), d = max - min;
+      if (d < 0.04) return null;
+      const h = max === r ? ((g - b) / d + (g < b ? 6 : 0)) * 60 : max === g ? ((b - r) / d + 2) * 60 : ((r - g) / d + 4) * 60;
+      return Math.round(h);
+    };
+    const hueGap = Math.abs(hueOf(grab('brand-500')) - hueOf('#533afd'));
+    assert.ok(Math.min(hueGap, 360 - hueGap) <= 3, `primary 色相必须带进 ramp（实际差 ${hueGap}°）`);
+    assert.equal(grab('bg'), '#ffffff', 'canvas → --bg');
+    assert.equal(grab('ink'), '#0d253d', 'ink → --ink');
+    assert.equal(grab('r-md'), '12px', 'rounded.md → --r-md');
+    assert.equal(grab('t-base'), '16px', 'typography 正文 16px → --t-base');
+    assert.equal(grab('s-1'), '4px', 'spacing 基数 4 → --s-1');
+    assert.ok(!/--t-xs: (?:[0-9]|1[01])px/.test(css), '字号下限 12px 必须守住');
+
+    const dm = readFileSync(join(out, 'DESIGN.md'), 'utf8');
+    assert.ok(dm.includes('令牌来源'), 'DESIGN.md 必须写明令牌来源');
+    assert.ok(dm.includes('fixture-light') || dm.includes('DESIGN.md'), 'DESIGN.md 必须能回溯到输入文件');
+
+    // 深色样本：canvas 是深底时必须按 dark-first 处理，不能再生成一个错配的 .dark 块
+    const dark = mk(
+      ['version: alpha', 'name: fixture-dark', 'colors:', '  primary: "#5e6ad2"', '  canvas: "#010102"', '  ink: "#f7f8f8"'].join('\n'),
+      'dark',
+    );
+    const out2 = mkdtempSync(join(tmpdir(), 'ff-dm-out2-'));
+    const r2 = await runNodeAsync([join(SCRIPTS, 'scaffold.mjs'), '--persona', 'rational', '--out', out2,
+      '--pages', 'app', '--design-md', join(dark, 'DESIGN.md'), '--quiet']);
+    assert.equal(r2.status, 0, `深色样本生成失败：${r2.out.slice(-300)}`);
+    const css2 = readFileSync(join(out2, 'tokens.css'), 'utf8');
+    assert.ok(!css2.includes('.dark,'), '深底样本不应再生成 .dark 块');
+    assert.ok(readFileSync(join(out2, 'DESIGN.md'), 'utf8').includes('深色基准'), '深色样本必须在文档里声明 dark-first');
+
+    rmSync(light, { recursive: true, force: true });
+    rmSync(dark, { recursive: true, force: true });
+    rmSync(out, { recursive: true, force: true });
+    rmSync(out2, { recursive: true, force: true });
+    pass('DESIGN.md 导入', '浅色样本 7 项令牌全部落地 · 字号下限守住 · 深色样本按 dark-first 处理');
+  } catch (e) { fail('DESIGN.md 导入', e.message); }
 }
 
 // ---------- 2.5 DESIGN.md（给别的 agent 读的设计系统文档） ----------
