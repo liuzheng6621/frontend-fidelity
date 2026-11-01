@@ -34,9 +34,22 @@ node scripts/scaffold.mjs --name "南风工单" --out src --pages app,form
 | `--ref-json` | 直接用已有的 probe-ref JSON，不再跑一次探针 | 关 |
 | `--verify` | 生成后自动起内置静态服务，逐页跑 `audit.mjs`（明暗双主题）+ `contrast_check.py`，报告写 `<out>/.verify/report.json`，`status` 三态对应退出码：`pass` 0 / `fail` 1 / `partial` 3（缺 python 或 playwright 时跳过某些项即 `partial`，**不再当通过**） | 关 |
 | `--allow-partial` | 配 `--verify`：接受不完整验收，`partial` 也退出 0（交付说明里必须写明哪几项没验） | 关 |
-| `--export` | 逗号分隔：`tailwind,antd,element`——把同一份令牌额外导出成 `tokens.tailwind.js` / `tokens.antd.json` / `tokens.element.scss`，数值与 `tokens.css` 同源 | 关 |
+| `--export` | 逗号分隔：`tailwind,antd,element`——把同一份令牌额外导出成 `tokens.tailwind.js` / `tokens.antd.json` / `tokens.element.scss`，数值与 `tokens.css` 同源。**边界：只到令牌层**（见下方说明），不做组件级封装 | 关 |
 | `--quiet` | 少打印 | 关 |
 | `--help` / `-h` | 打印用法后退出 | — |
+
+### `--export` 到底导出到什么程度
+
+三套导出都是**设计令牌层**，不是组件封装。用之前先认清边界：
+
+| 目标 | 产物 | 覆盖范围 | 没做的 |
+| --- | --- | --- | --- |
+| Tailwind | `tokens.tailwind.js` | `theme.extend` 六段：colors（brand / neutral 各 11 档 + 语义色）、fontSize、borderRadius、spacing、boxShadow、transitionDuration | 不产出 `tailwind.config` 全文、不装插件、不生成组件类 |
+| Ant Design v5 | `tokens.antd.json` | `ConfigProvider theme.token` 形状的 **16 个全局 token**（colorPrimary / colorBgContainer / borderRadius / controlHeight …） | **没有 `components` 段**——组件级 token 一个都不导；AntD v5 全局 token 有 100+，这里只覆盖常用主题变量 |
+| Element Plus | `tokens.element.scss` | 官方覆盖写法 `@forward 'element-plus/theme-chalk/src/common/var.scss' with (...)`：colors / border-radius / font-size / component-size | 不产出组件级变量（如 `$button-*`）、不做业务逻辑封装 |
+
+**结论**：能让组件库「换皮对齐主题」，不能让组件库「改成你的业务组件」。组件级整改与定制仍需二次开发——
+这句话写在这里，是因为它被外部评审误读过一次（把「令牌导出」读成「框架深度适配」）。
 
 **产出**（平铺在 `--out` 目录：10 个基础文件（DESIGN.md + tokens + 7 份 CSS + ui.js）+ 各页面，全量 25 个文件）：
 

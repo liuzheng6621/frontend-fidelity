@@ -80,7 +80,7 @@ node scripts/scaffold.mjs --ref-url https://linear.app --out ui --pages app,form
 node scripts/scaffold.mjs --persona <人格> --pages <页面> --out ui --verify
 # 常用追加：
 #   --ref-url <URL> / --ref-json <path>   探针实测值覆盖人格字段（逼近 80%，剩下改 tokens.css）
-#   --export tailwind,antd,element        同一份令牌导出到 Tailwind / Ant Design v5 / Element Plus
+#   --export tailwind,antd,element        同一份令牌导出到 Tailwind / Ant Design v5 / Element Plus（只到令牌层，无组件封装）
 #   --stack react|vue|all                 额外生成框架工程（真路由 + useAsync 三态）
 #   --accent <hue 0-360>                  只换品牌色相；--no-dark 关掉深色令牌
 ```

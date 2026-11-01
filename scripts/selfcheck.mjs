@@ -6,6 +6,8 @@
  *   1. 语法：node --check 递归覆盖 scripts/ 的 .mjs；python -m py_compile scripts/*.py
  *   0. 参数语义：MSYS 路径还原、按页 expect-text、python 探测（纯断言，不需要浏览器）
  *   2. 生成：五套人格 × 七类页面各生成一遍到临时目录
+ *   2.7 令牌导出：--export 三份产物形状（AntD 只有全局 token、无 components 段；Tailwind 六段；
+ *       Element @forward 覆盖），并断言 docs/scripts.md 写着「只到令牌层」这条边界
  *   3. 对比度：对每个生成物跑 contrast_check.py，不达标即失败
  *   4. 审计：装了 playwright 就起本地服务跑 audit.mjs（明暗双主题），没有就跳过并说明
  *   4.2 流程：用示例 flow 跑一遍 skeleton，确认 flow.mjs 的步骤/断言/报告链路没坏
@@ -460,6 +462,56 @@ const generated = [];
     }
     if (bad.length) fail('设计文档', [...new Set(bad)].join(' | '));
     else pass('设计文档', `${generated.length} 套 DESIGN.md：frontmatter 完整、令牌引用全部可解析、无对象字符串化`);
+  }
+}
+
+// ---------- 2.7 令牌导出（--export 的能力边界） ----------
+// 这一门盯的是「文档说的边界」和「代码实际产出的形状」是否一致。
+// 起因：外部评审把「令牌导出」读成「框架深度适配」，而文档当时没写清止步于变量层。
+// 断言三件事：三份产物都能生成并解析、AntD 只有全局 token（无 components 段）、
+// 文档里确实写了这条边界——三者任一对不上就红。
+{
+  const dir = join(outDir, 'export');
+  const r = await runNodeAsync([
+    join(SCRIPTS, 'scaffold.mjs'), '--persona', 'rational', '--pages', 'landing',
+    '--export', 'tailwind,antd,element', '--out', dir, '--quiet',
+  ]);
+  if (r.status !== 0) fail('令牌导出', 'scaffold --export 失败：' + (r.out || '').slice(0, 200));
+  else {
+    const issues = [];
+    const antdPath = join(dir, 'tokens.antd.json');
+    const twPath = join(dir, 'tokens.tailwind.js');
+    const elPath = join(dir, 'tokens.element.scss');
+    for (const f of [antdPath, twPath, elPath]) if (!existsSync(f)) issues.push('缺 ' + basename(f));
+
+    let antdTokens = 0;
+    if (existsSync(antdPath)) {
+      const j = JSON.parse(readFileSync(antdPath, 'utf8'));
+      if (!j.token || typeof j.token !== 'object') issues.push('tokens.antd.json 没有 token 段');
+      else antdTokens = Object.keys(j.token).length;
+      // 有 components 段就说明「只到令牌层」这句话不成立了，文档要重写
+      if (j.components) issues.push('tokens.antd.json 出现了 components 段——「只到令牌层」的表述已过期，需改文档');
+      if (antdTokens < 10) issues.push(`AntD 全局 token 只有 ${antdTokens} 个，覆盖过窄`);
+    }
+    if (existsSync(twPath)) {
+      const tw = readFileSync(twPath, 'utf8');
+      const sections = ['colors', 'fontSize', 'borderRadius', 'spacing', 'boxShadow', 'transitionDuration'];
+      const missing = sections.filter((k) => !new RegExp(`\\b${k}:`).test(tw));
+      if (missing.length) issues.push('tokens.tailwind.js 缺 theme.extend 段：' + missing.join(', '));
+      if (!/module\.exports\s*=/.test(tw)) issues.push('tokens.tailwind.js 不是可 require 的模块');
+    }
+    if (existsSync(elPath)) {
+      const el = readFileSync(elPath, 'utf8');
+      if (!/@forward\s+'element-plus\/theme-chalk/.test(el)) issues.push('tokens.element.scss 不是 Element Plus 官方的 @forward ... with 覆盖写法');
+    }
+    // 文档必须写明边界，否则下次还会被读成「深度适配」
+    const doc = readFileSync(join(SCRIPTS, '..', 'docs', 'scripts.md'), 'utf8');
+    for (const phrase of ['只到令牌层', '没有 `components` 段']) {
+      if (!doc.includes(phrase)) issues.push(`docs/scripts.md 没写「${phrase}」`);
+    }
+
+    if (issues.length) fail('令牌导出', issues.join(' | '));
+    else pass('令牌导出', `Tailwind 6 段 / AntD ${antdTokens} 个全局 token（无 components 段）/ Element @forward 覆盖；文档边界与代码一致`);
   }
 }
 

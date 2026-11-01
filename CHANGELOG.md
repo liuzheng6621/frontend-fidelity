@@ -8,6 +8,31 @@
 各版本条目首次引入的对应提交日期校正；这些日期是**提交日期，不据此宣称发行日期**。
 v1.0.0 保留初始化提交 `6da84f5`（2026-10-22）支持的日期；其余已一致的标题日期不改。
 
+## v1.24.3 - 2026-11-01
+
+外部评审给了一条「修正表述」，问是否正确。**实测三条全对**，采纳，并把这条边界做成门。
+
+### 新增
+
+- **selfcheck 第 19 门「令牌导出」**：跑一次 `--export tailwind,antd,element`，断言
+  AntD 产物**只有全局 token、没有 `components` 段**、Tailwind 有六段 `theme.extend`、
+  Element 用的是官方 `@forward … with` 覆盖写法，并且 `docs/scripts.md` 里确实写着「只到令牌层」。
+  三者任一变了就红——文档说「止步于变量层」，代码就必须真的停在变量层。
+
+### 文档
+
+- `docs/scripts.md` 新增「`--export` 到底导出到什么程度」一节，逐目标列出**覆盖范围**与**没做的**。
+  结论写明：**能让组件库换皮对齐主题，不能让组件库改成你的业务组件。**
+- `SKILL.md` 的 `--export` 注释补「只到令牌层，无组件封装」。
+
+### 实测依据（这条表述为什么对）
+
+| 目标 | 产物 | 形状 | 覆盖 | 没做的 |
+| --- | --- | --- | --- | --- |
+| Tailwind | `tokens.tailwind.js` | `module.exports.theme.extend` | 六段：colors（brand / neutral 各 11 档 + 语义色）/ fontSize / borderRadius / spacing / boxShadow / transitionDuration | 不产出 `tailwind.config` 全文、不装插件、不生成组件类 |
+| Ant Design v5 | `tokens.antd.json` | `ConfigProvider theme.token` | **16 个全局 token**（colorPrimary / colorBgContainer / borderRadius / controlHeight …） | **无 `components` 段**；v5 全局 token 有 100+，只覆盖常用主题变量 |
+| Element Plus | `tokens.element.scss` | `@forward 'element-plus/theme-chalk/src/common/var.scss' with (...)` | colors / border-radius / font-size / component-size | 不出 `$button-*` 这类组件级变量，不做业务逻辑封装 |
+
 ## v1.24.2 - 2026-11-01
 
 回应外部评测「六、不足与局限」五条。**两条事实错误、一条半错、一条部分成立且暴露了文档自身的错、一条准确。**
