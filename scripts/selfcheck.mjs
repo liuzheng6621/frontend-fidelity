@@ -548,14 +548,31 @@ else {
     // 串行跑 300 组会超过 10 分钟，长到没人愿意在本地执行。
     const CONCURRENCY = 4;
     let cursor = 0;
+    // 并发跑 4 个浏览器时，偶发「页面没加载起来」会让某一格报一堆错（HTTP 错误 + 空页 + console），
+    // 单独跑同一页却是 0 错。这类抖动不该让整条自检变红，也不该被悄悄吞掉：
+    // 失败后重试一次，重试成功的格子记进 flaky，在 pass 消息里点名。
+    const flaky = [];
     async function auditWorker() {
       while (cursor < tasks.length) {
         const t = tasks[cursor++];
-        const r = await runNodeAsync([audit, '--url', `http://127.0.0.1:${port}/${t.persona}/${t.pg}`, '--themes', 'light,dark', '--viewports', 'desktop,tablet,mobile', '--out', join(outDir, `audit-${t.persona}-${t.pg}.json`)]);
+        const run = () =>
+          runNodeAsync([audit, '--url', `http://127.0.0.1:${port}/${t.persona}/${t.pg}`, '--themes', 'light,dark', '--viewports', 'desktop,tablet,mobile', '--out', join(outDir, `audit-${t.persona}-${t.pg}.json`)]);
+        let r = await run();
+        let line = (r.out || '').split('\n').filter((l) => l.includes('合计')).pop() || '';
+        const failed = r.status !== 0 || !/合计：0 错误 \/ 0 警告/.test(line);
+        if (failed) {
+          const first = line.trim() || 'exit ' + r.status;
+          r = await run();
+          line = (r.out || '').split('\n').filter((l) => l.includes('合计')).pop() || '';
+          const failedAgain = r.status !== 0 || !/合计：0 错误 \/ 0 警告/.test(line);
+          if (failedAgain) {
+            combos += 6;
+            bad.push(`${t.persona}/${t.pg}: ${line.trim() || 'exit ' + r.status}（首次：${first}）`);
+            continue;
+          }
+          flaky.push(`${t.persona}/${t.pg}`);
+        }
         combos += 6;
-        const out = r.out || '';
-        const line = out.split('\n').filter((l) => l.includes('合计')).pop() || '';
-        if (r.status !== 0 || !/合计：0 错误 \/ 0 警告/.test(line)) bad.push(`${t.persona}/${t.pg}: ${line.trim() || 'exit ' + r.status}`);
       }
     }
     await Promise.all(Array.from({ length: Math.min(CONCURRENCY, tasks.length) }, auditWorker));
@@ -566,7 +583,9 @@ else {
       const coreRuns = tasks.length - scopedRuns;
       pass(
         '审计',
-        `${tasks.length} 次页面渲染 × 三视口 × 明暗 = ${combos} 组 0 错误 / 0 警告（核心 ${PAGES_HTML.length - scopedPages.length} 页 × ${generated.length} 套 = ${coreRuns * 6}，限定页 ${scopedPages.length} 页 × 2 套 = ${scopedRuns * 6}；${CONCURRENCY} 路并发）`,
+        `${tasks.length} 次页面渲染 × 三视口 × 明暗 = ${combos} 组 0 错误 / 0 警告（核心 ${PAGES_HTML.length - scopedPages.length} 页 × ${generated.length} 套 = ${coreRuns * 6}，限定页 ${scopedPages.length} 页 × 2 套 = ${scopedRuns * 6}；${CONCURRENCY} 路并发` +
+          (flaky.length ? `；重试后通过 ${flaky.length} 格：${flaky.join(', ')}` : '') +
+          ')',
       );
     }
 
