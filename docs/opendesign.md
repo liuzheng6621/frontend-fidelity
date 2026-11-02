@@ -22,7 +22,7 @@
 ```jsonc
 {
   "name": "frontend-fidelity",        // 必须等于目录名 = SKILL.md 的 name
-  "version": "1.30.0",                // 必须等于 package.json version，校验器会拦
+  "version": "1.31.0",                // 必须等于 package.json version，校验器会拦
   "od": {
     "kind": "skill",
     "taskKind": "tune-collab",        // 主车道：refine（整改/还原/验收）
@@ -69,7 +69,7 @@ node scripts/plugin-validate.mjs --json   # 机器可读
 ## 打包
 
 ```bash
-node scripts/plugin-pack.mjs              # → dist/frontend-fidelity-1.30.0.zip
+node scripts/plugin-pack.mjs              # → dist/frontend-fidelity-1.31.0.zip
 node scripts/plugin-pack.mjs --validate   # 先校验再打包
 node scripts/plugin-pack.mjs --list       # 只列文件
 ```
@@ -97,7 +97,7 @@ Fork `nexu-io/open-design`，把本仓库内容复制到 `plugins/community/fron
 {
   "name": "community/frontend-fidelity",
   "title": "Frontend Fidelity",
-  "version": "1.30.0",
+  "version": "1.31.0",
   "source": "github:<你的 GitHub 账号>/frontend-fidelity@main",
   "publisher": {
     "id": "<你的账号>",
