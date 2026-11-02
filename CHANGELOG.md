@@ -8,6 +8,29 @@
 各版本条目首次引入的对应提交日期校正；这些日期是**提交日期，不据此宣称发行日期**。
 v1.0.0 保留初始化提交 `6da84f5`（2026-10-22）支持的日期；其余已一致的标题日期不改。
 
+## v1.31.1 - 2026-11-02
+
+README 补上 v1.25–v1.31 攒下的能力，中英两版同步。数字本来就对（21 脚本 / 33 参考 / 23 门），
+缺的是**这些能力没被写进去**。
+
+### 新增
+
+- **「和外部 DESIGN.md 互通」一节**（中文版）：讲清三件事——我们生成的 DESIGN.md 是 Stitch 十节 + 本站三节；
+  `--design-md` 的字段映射表与两条自动裁决（深底按 dark-first、映射不到不假装吃到）；
+  以及 84 份样本的复采命中率（canvas 61%/65%、ink 43%/70%、圆角 63%、正文字号中位偏差 2px）。
+  英文版同步一份 `DESIGN.md interop`。
+- **仓库结构树补齐**：`open-design.json`、`evals/`、`docs/opendesign.md`、`docs/opendesign-mining.md`、
+  `docs/design-md-recheck.md`、三份新参考（state-coverage / form-rules / rtl-and-bidi）、
+  四个新脚本（plugin-validate / plugin-pack / plugin-icon / sync-github-api）。
+- **脚本表补四行**（英文版）：插件校验、打包、图标、GitHub API 同步；`selfcheck` 一行改成 23 门的描述。
+- **「这是什么」**：补一句本仓库同时是 OpenDesign 插件包。
+
+### 修
+
+- 「别从头读二十九份」→ 三十三份（陈旧计数）。
+- 「46 站实测成功」被「文档数字」门误判成站点总数，改成「成功采集 46 个站点」——
+  门是对的，措辞该避让它认的句式。
+
 ## v1.31.0 - 2026-11-02
 
 把 `awesome-design-md` 那 84 份 DESIGN.md **逐站量了一遍**。结论：能当参考，不能当契约。

@@ -6,7 +6,7 @@
   "title_i18n": {
     "zh-CN": "前端保真度"
   },
-  "version": "1.31.0",
+  "version": "1.31.1",
   "description": "Make the interface match what it claims to be: screenshot-driven restoration, WCAG audits, pixel-diff verification, and verifiable scaffolds.",
   "description_i18n": {
     "zh-CN": "把界面做对、做实：按设计稿/截图还原与整改，WCAG 审计、像素级比对、可验收的骨架生成。"

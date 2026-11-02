@@ -8,7 +8,7 @@
 > 搜这些词应该能到这：设计稿转代码、照着截图还原、UI 还原、前端验收、截图对比、后台美化、移动端适配、设计令牌、Claude Code 技能（skill）。
 > 目标不是"改好看"，而是**让界面和它声称的样子一致，并且真的能用——改完能拿出证据**。
 
-`v1.31.0` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `21 个可执行脚本（17 个 Node + 4 个 Python）`
+`v1.31.1` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `21 个可执行脚本（17 个 Node + 4 个 Python）`
 
 ---
 
@@ -40,7 +40,7 @@ curl -fsSL https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/ra
 bash install.sh --target claude          # 只装 Claude Code
 bash install.sh --target dsh             # 只装 DSH
 bash install.sh --dir ~/my-skills        # 装到自定义目录
-bash install.sh --ref v1.31.0            # 锁定某个版本
+bash install.sh --ref v1.31.1            # 锁定某个版本
 bash install.sh --dry-run                # 只看会装到哪，不动文件
 ```
 
@@ -116,7 +116,7 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 
 ## 该抄哪份参考
 
-先看这张表：**按你手上的页面类型选一份，别从头读二十九份。**
+先看这张表：**按你手上的页面类型选一份，别从头读三十三份。**
 
 | 你在做什么 | 抄这份 | 从这里拿走什么 |
 | --- | --- | --- |
@@ -148,6 +148,7 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 - [它到底量大到什么程度](#它到底量大到什么程度)
 - [能力评级与国内定位](#能力评级与国内定位)
 - [该抄哪份参考](#该抄哪份参考)
+- [和外部 DESIGN.md 互通](#和外部-designmd-互通)
 - [这是什么](#这是什么)
 - [适用与不适用](#适用与不适用)
 - [与 SKILL.md、frontend-design 的分工](#与-skillmdfrontend-design-的分工)
@@ -169,9 +170,53 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 
 ---
 
+## 和外部 DESIGN.md 互通
+
+[DESIGN.md](https://stitch.withgoogle.com/docs/design-md/overview/) 是 Google Stitch 提的格式：
+一份纯文本设计系统，agent 读了就能生成一致的 UI。本项目的 `scaffold.mjs` 每次生成都会产出一份，
+**章节严格是 Stitch 十节 + 本站三节**（`Motion` / `Accessibility floors` / `怎么验证`），
+`selfcheck` 有门盯着这个集合——缺一节报错，多出未登记章节也报错。
+
+### 导入别人的 DESIGN.md
+
+手上有一份现成的（比如 [`VoltAgent/awesome-design-md`](https://github.com/VoltAgent/awesome-design-md) 收的 84 份真实站点），
+一行命令变成能跑的骨架 + 能跑的验收：
+
+```bash
+node scripts/scaffold.mjs --design-md path/to/DESIGN.md --out ui --pages app,form --verify
+```
+
+| frontmatter 字段 | 落到哪 |
+| --- | --- |
+| `colors.primary` | 品牌色相 + 饱和 → **重算** `--brand-50..950`（不照抄十六进制，ramp 要按对比度选填充档） |
+| `canvas` / `ink` / `hairline` / `canvas-soft` | `--bg` / `--ink` / `--border` / `--surface` |
+| `rounded.md` | `--r-md`，其余按 0.5 / 0.75 / 1 / 1.5 / 2 倍 |
+| `spacing` 最小档 | 间距基数，**下限 4px** |
+| `typography.*.fontSize` / `lineHeight` | 八档字阶与行高，`--t-xs` 下限 12px |
+
+两条自动裁决：**深底样本按 dark-first 处理**（不生成错配的 `.dark` 块）；
+**映射不到的字段不假装吃到**（保留人格默认，并在生成的 `DESIGN.md` 里列「没吃进去的」）。
+
+### 这些文件可信到什么程度
+
+拿 84 份样本逐站量了一遍，报告在 [`docs/design-md-recheck.md`](docs/design-md-recheck.md)：
+
+| 声称项 | 严格（= `body` 计算值） | 宽松（= 全页颜色清单） |
+| --- | --- | --- |
+| `colors.canvas` | 61% | 65% |
+| `colors.ink` | 43% | 70% |
+| `rounded.md` | 63% | — |
+| 正文字号 | 中位偏差 2px，73% 在 ±2px 内 | — |
+
+覆盖率同样重要：84 份里 **74 份有 frontmatter，成功采集 46 个站点**；剩下 10 份是纯散文版，
+机器读不了。**结论：能当参考，不能当契约**——所以 `--design-md` 缺 frontmatter 时直接报错退出，
+不静默降级；导入的每个值也都能被 `audit.mjs --design-system` 回查。
+
+---
+
 ## 这是什么
 
-一个**把前端做对**的技能包，两条路都走：**先把已有界面整改/还原到位**，**也能从 0 生成一套能验收的骨架**。内含一份给 agent 读的操作手册（`SKILL.md`）+ 三十三份参考数据（17 份单站蒸馏 + 12 份通用规格 + 1 份跨站实测 + 2 份外部规则集 + 1 份工作流，`references/`）+ 二十一个能直接跑的脚本（`scripts/`）。
+一个**把前端做对**的技能包，两条路都走：**先把已有界面整改/还原到位**，**也能从 0 生成一套能验收的骨架**。内含一份给 agent 读的操作手册（`SKILL.md`）+ 三十三份参考数据（17 份单站蒸馏 + 12 份通用规格 + 1 份跨站实测 + 2 份外部规则集 + 1 份工作流，`references/`）+ 二十一个能直接跑的脚本（`scripts/`）。同时是一个符合 **OpenDesign Plugin Spec v1** 的插件包（清单见 `open-design.json`，可校验、可打包、可进社区 registry）。
 
 它解决的是这类问题：
 
@@ -307,7 +352,7 @@ git clone https://gitee.com/liu-everything_impossble/skill-frontend-fidelity.git
 
 从 [Releases](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) 下载 `frontend-fidelity.zip`，解压到同名目录即可，内容与 git 版本一致。
 包由 `git archive` 从 tag 生成，不含 `__pycache__`、截图目录与本地缓存。
-当前是 [v1.31.0](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest)。
+当前是 [v1.31.1](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest)。
 
 ### 方式三：只取脚本
 
@@ -363,10 +408,15 @@ frontend-fidelity/
 ├── README.md                     # 本文件：安装、工作流、索引（脚本与参考站速查见 docs/）
 ├── LICENSE                       # MIT
 ├── CHANGELOG.md                  # 版本变更与发版说明
+├── open-design.json              # OpenDesign 插件清单（本仓库同时是符合 Plugin Spec v1 的插件包）
+├── evals/evals.json              # 5 条验收用例：整改 / 照图还原 / 从零生成 / 缺参 / 越界
 ├── docs/
 │   ├── scripts.md                # 脚本手册：参数、示例、退出码、产物
 │   ├── visual-summary.md         # 视觉细则常用速查
-│   └── reference-sites.md        # 参考站蒸馏：招与反面逐站展开
+│   ├── reference-sites.md        # 参考站蒸馏：招与反面逐站展开
+│   ├── opendesign.md             # 作为 OpenDesign 插件使用：清单字段、校验、打包、进社区 registry
+│   ├── opendesign-mining.md      # 与 OpenDesign craft 规则的逐项对照：能搬什么、不搬什么、许可证
+│   └── design-md-recheck.md      # 84 份外部 DESIGN.md 的声称值 vs 站点实测值复采报告
 ├── references/
 │   ├── workflow.md              # 模式 A 五步 / 模式 B 六步完整流程 + 交付模板 + 脚本一览 + 参考库索引（从 SKILL.md 下沉）
 │   ├── design-evidence.md        # 28 个实测站点（25 A 组 + 3 后台）：字体、字阶、行高、间距、圆角、密度
@@ -395,11 +445,14 @@ frontend-fidelity/
 │   ├── craft-floor.md            # 工艺底线：九条 verify + 深度三选一 + 原生表面 + 四条冲突裁决
 │   ├── anti-slop.md              # 反模板：三档旋钮 + hero 四条 + 三把锁 + 8 组 AI tell + 38 条 pre-flight
 │   ├── visual-system.md         # 视觉与结构细则完整版（从 SKILL.md 下沉的 15 节）
-│   └── review-rubric.md          # 交付前十节验收清单（含红旗清单）
+│   ├── review-rubric.md          # 交付前十节验收清单（含红旗清单）
+│   ├── state-coverage.md         # 五态铁律 + 加载时长阈值（300ms/2s/10s/30s/60s + 15s 兜底）+ 错误五级 + 重试退避 + ARIA 焦点表
+│   ├── form-rules.md             # 输入状态机 8 态 + 校验时机四条 + 错误接线三件事 + WCAG 3.3.3/3.3.4/3.3.8
+│   └── rtl-and-bidi.md           # RTL 与双向文本，证据分级（实测 4 条 / 外部判据 / 待验证清单）
 ├── package.json                  # 只声明 devDependency playwright 与 npm run selfcheck
 ├── .github/workflows/           # CI：语法 + 生成 + 对比度（装了浏览器时再跑三视口 × 明暗审计）
 └── scripts/
-    ├── scaffold.mjs              # 从 0 生成骨架：五套人格 + 深度三派 + 十五类页面（含移动端壳、电商三页）+ 生成期对比度自检 + --ref-url / --ref-json 量站或复用实测覆盖人格 + --verify 生成即验收（pass/fail/partial 三态退出码）+ --export 多体系令牌
+    ├── scaffold.mjs              # 从 0 生成骨架：五套人格 + 深度三派 + 十五类页面（含移动端壳、电商三页）+ 生成期对比度自检 + --ref-url / --ref-json 量站或复用实测覆盖人格 + --verify 生成即验收（pass/fail/partial 三态退出码）+ --export 多体系令牌 + --design-md 导入 Stitch 格式的 DESIGN.md 覆盖人格令牌
     ├── screenshot.mjs            # 多视口 × 多主题全页截图
     ├── audit.mjs                 # 结构 + axe WCAG 2.1 A/AA + CLS + 动效
     ├── flow.mjs                  # 交互流程验收：声明式 JSON（goto/click/fill/断言），逐步结果 + 失败现场截图
@@ -413,7 +466,11 @@ frontend-fidelity/
     ├── probe-ref.mjs             # 量任意参考站的真实字体/配色/圆角/间距
     ├── recheck-refs.mjs          # 批量复测单站参考 + 基线漂移对比（docs/reference-recheck.md）
     ├── lookup.mjs                # 冻结基线一行查询（值+判据+出处）；--verify/--fix 锚点回定位
-    ├── selfcheck.mjs             # 生成与验收冒烟、递归语法、文档计数/均值/链接/日期与版本检查
+    ├── selfcheck.mjs             # 23 门自检：生成、审计、文档、基线、插件清单、红旗分级、RTL 探针、DESIGN.md 导入
+    ├── plugin-validate.mjs       # OpenDesign 插件清单校验（零依赖）：目录名/版本同源/占位符/until/引用路径
+    ├── plugin-pack.mjs           # 插件打包：自写 ZIP 写入器，固定时间戳可复现
+    ├── plugin-icon.mjs           # 手写 PNG 编码器生成 512×512 卡片图标
+    ├── sync-github-api.py        # 走 Git Data API 同步 GitHub 镜像：master + tag + Release + 附件 + tree 校验
     ├── flow.example.json         # flow.mjs 的示例流程（对 scaffold 骨架冒烟，selfcheck 用它守着）
     ├── lib/common.mjs            # 共享工具
     └── vendor/axe.min.js         # axe-core 4.14.0（MPL-2.0）

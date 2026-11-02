@@ -7,7 +7,7 @@
 > **Counting rule**: 28 measured sites = **Group A 25** (16 marketing/product/commerce + 9 content galleries) + **Group B 3 backend tools**. Cross-site averages stay frozen at the original 18-site baseline; newer samples only add sites and single-site entries. Totals are always 28 / Group A 25 — `selfcheck.mjs` guards this.
 > The goal is not "make it prettier" but **make the interface match what it claims to be, and actually work — with evidence**.
 
-`v1.31.0` · [latest release](https://github.com/liuzheng6621/frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9 (cropping/contrast only)` · `offline WCAG checks` · `21 executables (17 Node + 4 Python)`
+`v1.31.1` · [latest release](https://github.com/liuzheng6621/frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9 (cropping/contrast only)` · `offline WCAG checks` · `21 executables (17 Node + 4 Python)`
 
 ---
 
@@ -92,7 +92,10 @@ Generated output is a starting point, not a finished product: replace every `{{T
 | `hygiene.mjs` | Find unreferenced assets, duplicate routes and oversized files |
 | `run_checks.mjs` | Run the project's own lint / typecheck / test / build gates |
 | `pixel_diff.py` | Pixel comparison engine used by `fidelity.mjs` |
-| `selfcheck.mjs` | Verify the skill itself: syntax, generation, contrast, audit, flows, docs counts/links/dates, version pointers |
+| `selfcheck.mjs` | 23 gates: syntax, generation, contrast, audit, flows, docs, baselines, plugin manifest, red-flag tiers, RTL probe, DESIGN.md import |
+| `plugin-validate.mjs` | Validate the OpenDesign plugin manifest: folder/name match, version sync, placeholders, `until`, referenced paths |
+| `plugin-pack.mjs` | Package the plugin as a reproducible zip (hand-written ZIP writer, fixed timestamps) |
+| `sync-github-api.py` | Sync the GitHub mirror through the Git Data API: master + tag + release + asset + tree check |
 
 Full parameters and exit codes: [`docs/scripts.md`](docs/scripts.md).
 
@@ -185,6 +188,40 @@ section counts still resolve).
 
 Two files apply to every page type: [`anti-slop.md`](references/anti-slop.md) (AI tells, pre-flight list) and [`craft-floor.md`](references/craft-floor.md) (craft floor, depth languages, browser-native surfaces).
 
+## DESIGN.md interop
+
+[DESIGN.md](https://stitch.withgoogle.com/docs/design-md/overview/) is a Google Stitch format: a plain-text
+design system an agent can read. `scaffold.mjs` emits one on every run, with **Stitch's ten sections plus three
+of ours** (`Motion`, `Accessibility floors`, how to verify) — a gate fails if the section set drifts.
+
+### Import someone else's
+
+```bash
+node scripts/scaffold.mjs --design-md path/to/DESIGN.md --out ui --pages app,form --verify
+```
+
+`colors.primary` drives the hue (the ramp is recomputed for contrast, not copied as a hex), `canvas`/`ink`/
+`hairline` map to `--bg`/`--ink`/`--border`, `rounded.md` to `--r-md`, the smallest `spacing` step to the spacing
+base (floor 4px), and the type scale to the eight size tokens (floor 12px). Dark-canvas files are treated as
+dark-first (no mismatched `.dark` block), and anything unmappable is listed in the generated DESIGN.md instead
+of being silently swallowed.
+
+### How trustworthy are those files
+
+We re-measured all 84 samples of [`VoltAgent/awesome-design-md`](https://github.com/VoltAgent/awesome-design-md)
+site by site — full report in [`docs/design-md-recheck.md`](docs/design-md-recheck.md):
+
+| Claim | Strict (equals `body` computed value) | Loose (appears in the page's color inventory) |
+| --- | --- | --- |
+| `colors.canvas` | 61% | 65% |
+| `colors.ink` | 43% | 70% |
+| `rounded.md` | 63% | — |
+| Body type size | median 2px off, 73% within ±2px | — |
+
+Coverage matters as much: 74 of 84 have frontmatter, 46 sites were measured, and 10 files are prose-only.
+**Reference material, not a contract** — which is why `--design-md` fails loudly on a missing frontmatter
+instead of degrading quietly.
+
 ## Use it from other agents
 
 Nothing here is tied to one client: the entry is `SKILL.md` and the tools are plain Node/Python.
@@ -208,7 +245,9 @@ SKILL.md                  entry for the agent
 README.md / README.en.md  Chinese / English overview (this file)
 references/                measured references and specs
 scripts/                   executables + vendored axe-core (MPL-2.0)
-docs/                     script manual, site index, recheck report
+docs/                     script manual, site index, recheck reports, OpenDesign plugin notes
+evals/                    5 acceptance cases (audit / restore / scaffold / missing input / out of scope)
+open-design.json          OpenDesign plugin manifest (Plugin Spec v1)
 install.sh / install.ps1  installers for Claude Code and DSH
 ```
 
