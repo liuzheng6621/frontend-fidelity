@@ -8,7 +8,7 @@
 > 搜这些词应该能到这：设计稿转代码、照着截图还原、UI 还原、前端验收、截图对比、后台美化、移动端适配、设计令牌、Claude Code 技能（skill）。
 > 目标不是"改好看"，而是**让界面和它声称的样子一致，并且真的能用——改完能拿出证据**。
 
-`v1.33.0` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `21 个可执行脚本（17 个 Node + 4 个 Python）`
+`v1.33.1` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `21 个可执行脚本（17 个 Node + 4 个 Python）`
 
 ---
 
@@ -40,7 +40,7 @@ curl -fsSL https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/ra
 bash install.sh --target claude          # 只装 Claude Code
 bash install.sh --target dsh             # 只装 DSH
 bash install.sh --dir ~/my-skills        # 装到自定义目录
-bash install.sh --ref v1.33.0            # 锁定某个版本
+bash install.sh --ref v1.33.1            # 锁定某个版本
 bash install.sh --dry-run                # 只看会装到哪，不动文件
 ```
 
@@ -287,7 +287,7 @@ node scripts/scaffold.mjs --design-md path/to/DESIGN.md --out ui --pages app,for
 | `references/antd-integration.md` | agent | 已有 Ant Design 项目：版本与 Provider 勘察、Seed/Map/Alias/Component 令牌层级、组件复用矩阵、页面级验收与导出边界 |
 | `references/copy-and-content.md` | 双方 | 标题公式、按钮动词表、空/错/载文案、`{{TODO}}` 占位规范 |
 | `references/css-recipes.md` | 双方 | 可直接复制的设计令牌、表格、骨架屏、空态、深色片段 |
-| `references/review-rubric.md` | 双方 | 交付前逐项勾的验收清单（九节，含红旗） |
+| `references/review-rubric.md` | 双方 | 交付前逐项勾的验收清单（十节，含红旗与 §8.1 五维审计报告协议） |
 | `frontend-design`（另一个技能） | agent | 需要原创视觉方向时：构图、气质、品牌表达（不谈验收） |
 
 `SKILL.md` 与 `README.md` 内容有重叠是故意的：模型读前者能直接动手，人读后者能理解与排错。
@@ -353,7 +353,7 @@ git clone https://gitee.com/liu-everything_impossble/skill-frontend-fidelity.git
 
 从 [Releases](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) 下载 `frontend-fidelity.zip`，解压到同名目录即可，内容与 git 版本一致。
 包由 `git archive` 从 tag 生成，不含 `__pycache__`、截图目录与本地缓存。
-当前是 [v1.33.0](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest)。
+当前是 [v1.33.1](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest)。
 
 ### 方式三：只取脚本
 
@@ -447,7 +447,7 @@ frontend-fidelity/
 │   ├── craft-floor.md            # 工艺底线：九条 verify + 深度三选一 + 原生表面 + 四条冲突裁决
 │   ├── anti-slop.md              # 反模板：三档旋钮 + hero 四条 + 三把锁 + 8 组 AI tell + 38 条 pre-flight
 │   ├── visual-system.md         # 视觉与结构细则完整版（从 SKILL.md 下沉的 15 节）
-│   ├── review-rubric.md          # 交付前十节验收清单（含红旗清单）
+│   ├── review-rubric.md          # 交付前十节验收清单 + §8.1 五维审计报告
 │   ├── state-coverage.md         # 五态铁律 + 加载时长阈值（300ms/2s/10s/30s/60s + 15s 兜底）+ 错误五级 + 重试退避 + ARIA 焦点表
 │   ├── form-rules.md             # 输入状态机 8 态 + 校验时机四条 + 错误接线三件事 + WCAG 3.3.3/3.3.4/3.3.8
 │   └── rtl-and-bidi.md           # RTL 与双向文本，证据分级（实测 4 条 / 外部判据 / 待验证清单）
@@ -706,7 +706,7 @@ node scripts/flow.mjs --flow order.json --base http://localhost:5173 --continue
 
 ## 交付验收清单
 
-完整版见 [`references/review-rubric.md`](references/review-rubric.md)（十节，含红旗清单）。摘要：
+完整版见 [`references/review-rubric.md`](references/review-rubric.md)（十节，含红旗清单与 §8.1 五维审计报告）。摘要：
 
 - [ ] 三视口（1440 / 768 / 390）都无横向滚动
 - [ ] 字号只用字阶值，圆角成套，留白成体系
