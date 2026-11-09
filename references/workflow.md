@@ -63,6 +63,7 @@ Git Bash / MSYS2 下前导斜杠会被改写成 `C:/Program Files/Git/…`，改
 - 记下现状问题清单（用 `audit.mjs` 的输出当起点，但要自己看图像它漏掉的：错位、层级混乱、配色脏、字重跳）。
 - 读设计稿/截图：**注意它是什么设备、什么缩放**。截图里 1px 的线在 2x 图上就是 0.5px，别照抄像素值，抄比例和关系。
 - 摸清技术栈与既有约定：设计令牌在哪个文件、用的什么单位、组件库是什么版本、有没有暗色实现、断点在哪。**新写的代码要和隔壁文件长得像一家人。**
+- 项目已用 Ant Design 时，先按 `references/antd-integration.md` §三填勘察表：版本、Provider、算法、样式模式、locale/direction、App 容器、全局覆盖与 SSR。**不要把“扩展 antd”做成“重写 antd”。**
 
 ### 2. 定视觉基线（改动前先写下来）
 
@@ -136,7 +137,7 @@ node scripts/scaffold.mjs --persona rational --export tailwind,antd,element  # �
 `--stack react|vue|all` 会额外出前端工程：`react-router-dom` / `vue-router` 真路由（`/` 与 `/catalog`）、`src/lib/api.ts`（`fetchJson` + `useAsync` 三态 + 竞态保护）、`tailwind.preset.js` + `tailwind.css`（Tailwind v4 `@theme` 桥）。
 深色令牌**默认生成**（主题开关不是死按钮），要关掉用 `--no-dark`。
 `--ref-url` / `--ref-json` 把探针实测值（品牌色相、底色、字号阶梯、控件高、圆角、密度）盖到人格字段上，逼近 80%，剩下 20% 改 `tokens.css`。
-`--export tailwind,antd,element` 生成 `tokens.tailwind.js` / `tokens.antd.json` / `tokens.element.scss`，数值与 `tokens.css` 同源。
+`--export tailwind,antd,element` 生成 `tokens.tailwind.js` / `tokens.antd.json` / `tokens.element.scss`，数值与 `tokens.css` 同源。**Ant Design 只导出全局 token，不生成 `theme.components`、业务组件或页面封装**；已有 antd 项目的接入与验收见 `references/antd-integration.md`。
 `--verify` 生成后自动起服务跑 `audit.mjs`（明暗双主题）+ `contrast_check.py`，报告在 `<out>/.verify/report.json`。
 退出码 **0** 通过 / **1** 有检查未过 / **3** 只验了一部分（缺 python 或 playwright，**不当通过**；
 确实要接受不完整验收再加 `--allow-partial`）。
@@ -277,6 +278,8 @@ node scripts/scaffold.mjs --persona rational --export tailwind,antd,element  # �
   表单/表格/弹窗/提示/分页/空态各自的尺寸、对齐与禁忌。**写组件前对一遍，别自创尺寸。**
 - `references/design-tokens.md` — 五套人格预设（rational / editorial / warm / print / magazine）的完整令牌，深度语言三派（发丝 / 软影 / 硬影）怎么配，
   色阶生成算法（11 档 L%+S 系数）、间距、字阶（含行高）、圆角与阴影配对、暗色推导、命名约定。
+- `references/antd-integration.md` — **已有 Ant Design 项目的接入与验收手册**：v4/v5/v6 勘察、Seed/Map/Alias/Component 令牌层级、
+  官方组件复用矩阵、表单/表格/浮层/键盘/SSR 验收，以及 `--export antd` 只到全局令牌的边界。**做 antd 后台先读它，再改 `.ant-*` 或重写控件。**
 - `references/visual-system.md` — **视觉与结构细则的完整版**：中文排版、色彩与色阶、间距节奏、
   层级与阴影五派、动效、页面结构（图墙/列表/三态/表单/登录墙）、Logo 与图片、控件 8 状态、响应式、
   深色模式、可访问性，以及「像 AI 生成」的完整清单。**入口只留速查数字，做细节时来这里。**

@@ -8,6 +8,41 @@
 各版本条目首次引入的对应提交日期校正；这些日期是**提交日期，不据此宣称发行日期**。
 v1.0.0 保留初始化提交 `6da84f5`（2026-10-22）支持的日期；其余已一致的标题日期不改。
 
+## v1.32.0 - 2026-11-09
+
+补上 **Ant Design 项目**这条路。此前 skill 说「已有组件库就扩展它」，但没写清 antd 具体怎么勘察、改哪一层令牌、哪些交互不许自己重造、`--export antd` 到底导出了什么。现在有第 34 份参考把这件事讲完，并把边界写进选型表、工作流与令牌导出三处。
+
+### 新增
+
+- **`references/antd-integration.md`**（143 行，十节）：事实快照对齐 `ant-design/ant-design` `master` `86ac5b5`、`antd@6.7.0`。
+  - §一 边界：已有 v4/v5/v6 只扩展不重写；营销站可借令牌不借密度。
+  - §二 为什么值得借：组件分组 84 / 测试 1,040 / 快照 375 / demo 1,185 / 中英文档 74 组 / a11y 测试 74 —— 借的是「行为约定 + 回归证据」这个方向，不是数字。
+  - §三 模式 A 勘察清单 10 项（版本 / Provider / 算法 / 令牌 / 样式模式 / locale+direction / App 容器 / 覆盖层 / 封装层 / SSR），每项配常见事故。
+  - §四 令牌层级与改动顺序：Seed → Algorithm → Component Token → CSS 变量 / 静态提取 → 业务扩展；附 6.7.0 默认值校准表（主色 `#1677FF` / 控件 32 / 间距 4-8-16-24-32 / 字阶 12-14-16-20-24-30-38 / 圆角 0-2-4-6-8-16-full / 动效 100-200-300ms），并点明「默认值不是无障碍豁免」，换色后必须跑 `contrast_check.py`。
+  - §五 组件复用矩阵 10 行（主次操作 / 表单 / 列表 / 编辑确认 / 导航 / 数据状态 / 反馈 / 文件 / 开关分段 / 响应式），每行给「先用 / 关键约束 / 不要自造」。
+  - §六 落地流程六步、§七 验收重点七项（主题四组 / 表单 / 表格 390px / 浮层 / 键盘 / SSR 首屏 / 文案）、§八 `--export antd` 的准确边界、§九 反模式八条、§十 交付前检查七条。
+- **`README.md` 结构树与参考表**补 `antd-integration.md` 一行；英文版选型表同步。
+
+### 改
+
+- **选型表**（`README.md` / `SKILL.md`）：后台 / 管理端一行加「已有 `antd` 时加 `antd-integration.md`」，`SKILL.md` 的预设路由表同步。
+- **`SKILL.md` 铁律 2**：「已有组件库就扩展它」补上「（含 Ant Design）」——原文的 `--export antd` 与这条铁律读起来像两套口径，现在对齐。
+- **`references/design-tokens.md`**：开篇加「已有设计系统优先」段——antd 项目先改 Seed / Algorithm / Component Token，再拿本文件的色阶与密度表做校准；明确「不要把 `tokens.css` 和 `ConfigProvider` 各维护一套真相」。
+- **`references/page-patterns.md` §2.4**：列表页骨架加一句「已用 antd 时先落到 `Form` + `Table` + `Pagination` + `Modal/Drawer` 官方语义上」，窄屏 `scroll.x`、表头 `sticky`、大列表 `virtual`、反馈用 `App.useApp()`，不要用 div 重画控件。
+- **`references/workflow.md`**：模式 A 第 1 步（摸清技术栈）与参考库指针各加一条 antd 入口；`--export` 说明补「只导出全局 token，不生成 `theme.components`」。
+- **`docs/scripts.md`**：Ant Design 行标题改 `v5 / v6`，补「AntD 全局 token 有 100+，这里只覆盖常用主题变量」与参考指针。
+- **`scripts/scaffold.mjs`**：`tokens.antd.json` 的 `comment` 由 `Ant Design v5 token` 改为 `Ant Design v5/v6 global token（ConfigProvider theme.token / theme.useToken）`——只改说明字符串，导出的 16 个 token 与形状不变。
+- **参考库计数**：33 → 34 份（`README.md` 三处、`README.en.md` 两处、`SKILL.md` 两处），`SKILL.md` 的体积估计 640KB → 650KB（实测 658KB）。`selfcheck` 的「文档数字」门同步通过。
+
+### 修
+
+- `references/design-tokens.md` 与 `references/page-patterns.md` 末尾缺换行（`\ No newline at end of file`），补齐。
+- `.gitignore` 增加 `promo/`：本地推广物料（视频帧 / 配音 / 浏览器 profile）约 467MB，不该进仓库。
+
+### 自检
+
+`npm run selfcheck -- --skip-audit` 23 门全绿；令牌导出门仍是「AntD 16 个全局 token（无 components 段）」，与 `antd-integration.md` §八 的边界描述一致。
+
 ## v1.31.1 - 2026-11-02
 
 README 补上 v1.25–v1.31 攒下的能力，中英两版同步。数字本来就对（21 脚本 / 33 参考 / 23 门），

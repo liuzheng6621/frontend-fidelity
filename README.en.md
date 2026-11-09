@@ -7,7 +7,7 @@
 > **Counting rule**: 28 measured sites = **Group A 25** (16 marketing/product/commerce + 9 content galleries) + **Group B 3 backend tools**. Cross-site averages stay frozen at the original 18-site baseline; newer samples only add sites and single-site entries. Totals are always 28 / Group A 25 — `selfcheck.mjs` guards this.
 > The goal is not "make it prettier" but **make the interface match what it claims to be, and actually work — with evidence**.
 
-`v1.31.1` · [latest release](https://github.com/liuzheng6621/frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9 (cropping/contrast only)` · `offline WCAG checks` · `21 executables (17 Node + 4 Python)`
+`v1.32.0` · [latest release](https://github.com/liuzheng6621/frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9 (cropping/contrast only)` · `offline WCAG checks` · `21 executables (17 Node + 4 Python)`
 
 ---
 
@@ -52,7 +52,7 @@ Start a new session after installing, then say "rebuild this page from the scree
 | Area | Contents |
 | --- | --- |
 | Entry | `SKILL.md` — routing table, 30-second start, quality gates, design baseline |
-| Reference library | 33 Markdown files: 17 single-site distillations + 12 general specs + 1 cross-site evidence file + 2 external rule sets + 1 workflow — plus 3 machine-readable datasets (frozen baseline / reference snapshot / REA structure evidence) |
+| Reference library | 34 Markdown files: 17 single-site distillations + 13 general specs + 1 cross-site evidence file + 2 external rule sets + 1 workflow — plus 3 machine-readable datasets (frozen baseline / reference snapshot / REA structure evidence) |
 | Executables | 21 scripts: screenshots, WCAG/CLS audit, contrast (with target-color suggestions), design-system audit, flow checks, pixel diff, auth export, reference probe, batch recheck, frozen-baseline lookup, snapshot freeze, repo hygiene, quality gates, scaffold generator, self-check, plugin manifest validator, plugin packer, plugin icon generator, GitHub API sync |
 | Generator | `scaffold.mjs`: five personas × fifteen page types × dark tokens, optional React/Vue output |
 
@@ -134,7 +134,7 @@ This is a self-grade, not third-party certification. Every claim below maps to a
 | Dimension | Grade | Current state | Verify with |
 | --- | --- | --- | --- |
 | Executable checks | A+ | **21 scripts** (17 Node + 4 Python), every one reports via exit code: `0 pass / 1 check failed / 2 bad arguments or environment / 3 partial, not a pass` | `ls scripts/*.mjs scripts/*.py` |
-| Reference data | A+ | 28 real sites measured in-browser + 17 single-site distillations + **structural evidence for all 17** (landmarks / heading levels / DOM depth / `alt` coverage) + **a dated frozen snapshot**; 33 reference files + 3 machine-readable datasets | `wc -l references/*.md`, `jq . references/reference-snapshot.json` |
+| Reference data | A+ | 28 real sites measured in-browser + 17 single-site distillations + **structural evidence for all 17** (landmarks / heading levels / DOM depth / `alt` coverage) + **a dated frozen snapshot**; 34 reference files + 3 machine-readable datasets | `wc -l references/*.md`, `jq . references/reference-snapshot.json` |
 | Self-check loop | A+ | **19 gates**: argument semantics / recursive syntax / 15 generated pages / 645 contrast pairs / **306 audit runs (4-way parallel, 2m47s)** / design-system positive and negative cases / **4 flow suites** (12 + 6 + 42 + 45 steps) / **token export** / framework stack / 11 agent entry points / doc counts and links / reference snapshot / **resident-layer size** / **baseline drift** / **anti-pattern pointer** / changelog dates | `npm run selfcheck` |
 | Documentation | A | Thin entry point + on-demand reference library + per-script manuals with arguments, exit codes and artifacts | `SKILL.md`, `docs/scripts.md` |
 | Honest boundaries | A+ | Explicit non-goals (test framework, Figma import, native mini-program, visual regression as a default gate); **13 red flags** | "When not to use", [`review-rubric.md`](references/review-rubric.md) §10 |
@@ -180,7 +180,7 @@ section counts still resolve).
 | Sparse gallery with a masthead | [`references/zcool-design.md`](references/zcool-design.md) |
 | Catalog of distinct items | [`references/stylekit-design.md`](references/stylekit-design.md) |
 | Inspiration library where the UI disappears | [`references/uinotes-design.md`](references/uinotes-design.md) |
-| Admin panel / B2B workspace | [`references/mastergo-b2b.md`](references/mastergo-b2b.md), [`component-spec.md`](references/component-spec.md) |
+| Admin panel / B2B workspace | [`references/antd-integration.md`](references/antd-integration.md) when the project uses antd, [`mastergo-b2b.md`](references/mastergo-b2b.md), [`component-spec.md`](references/component-spec.md) |
 | Auth / multi-step form | [`references/vercel-auth.md`](references/vercel-auth.md) |
 | Commerce product configuration | [`references/applestore-commerce.md`](references/applestore-commerce.md) |
 | Award directory / daily feature | [`references/awwwards-design.md`](references/awwwards-design.md) |

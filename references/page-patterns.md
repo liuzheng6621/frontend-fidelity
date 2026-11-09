@@ -77,6 +77,7 @@
 - 表格：表头吸顶、行高 44–53、正文 13–14、数字右对齐 `tabular-nums`、操作列右固定、容器 `overflow-x:auto`。
 - 分页：显示总数（「共 128 条」）+ 页码或「加载更多」，二选一。
 - 选中后出现批量操作条，固定在视口底部或表格上方，**必须能清空选择**。
+- 项目已用 Ant Design 时，骨架先落到 `Form` + `Table` + `Pagination` + `Modal/Drawer` 的官方语义上；窄屏 `scroll.x`、表头 `sticky`、大列表 `virtual`、反馈用 `App.useApp()`。细化规则见 `antd-integration.md`，不要用 div 重画控件。
 - 常见失败：页头塞进卡片；每行 5 个图标按钮；删除和编辑挨着；没有空状态。
 
 ### 2.5 详情页

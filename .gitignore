@@ -29,3 +29,6 @@ Thumbs.db
 # Agent 本地记忆
 .workbuddy-ai/
 .gh-token
+
+# 本地推广物料（视频帧 / 配音 / 浏览器 profile，数百 MB，不进仓库）
+promo/

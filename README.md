@@ -8,7 +8,7 @@
 > 搜这些词应该能到这：设计稿转代码、照着截图还原、UI 还原、前端验收、截图对比、后台美化、移动端适配、设计令牌、Claude Code 技能（skill）。
 > 目标不是"改好看"，而是**让界面和它声称的样子一致，并且真的能用——改完能拿出证据**。
 
-`v1.31.1` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `21 个可执行脚本（17 个 Node + 4 个 Python）`
+`v1.32.0` · [最新发行版](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) · `MIT` · `Node.js ≥ 18` · `Python ≥ 3.9（仅裁图/对比度）` · `WCAG 检查离线可跑` · `21 个可执行脚本（17 个 Node + 4 个 Python）`
 
 ---
 
@@ -40,7 +40,7 @@ curl -fsSL https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/ra
 bash install.sh --target claude          # 只装 Claude Code
 bash install.sh --target dsh             # 只装 DSH
 bash install.sh --dir ~/my-skills        # 装到自定义目录
-bash install.sh --ref v1.31.1            # 锁定某个版本
+bash install.sh --ref v1.32.0            # 锁定某个版本
 bash install.sh --dry-run                # 只看会装到哪，不动文件
 ```
 
@@ -77,7 +77,7 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 | 维度 | 等级 | 现状（可核对） | 怎么核对 |
 | --- | --- | --- | --- |
 | 可执行验收 | A+ | **21 个脚本**（17 Node + 4 Python），全部用退出码表达结论；`0 通过 / 1 检查失败 / 2 参数或环境错误 / 3 只验了一部分` | `ls scripts/*.mjs scripts/*.py`、`wc -l scripts/*` |
-| 参考数据 | A+ | 28 个真实站的浏览器实测 + 17 份单站蒸馏 + **17 站结构层证据**（地标 / 标题层级 / DOM 深度 / `alt` 覆盖）+ **带日期的冻结快照**；`references/` 共 33 份参考 + 3 份机器可读数据 | `wc -l references/*.md`、`jq . references/reference-snapshot.json` |
+| 参考数据 | A+ | 28 个真实站的浏览器实测 + 17 份单站蒸馏 + **17 站结构层证据**（地标 / 标题层级 / DOM 深度 / `alt` 覆盖）+ **带日期的冻结快照**；`references/` 共 34 份参考 + 3 份机器可读数据 | `wc -l references/*.md`、`jq . references/reference-snapshot.json` |
 | 自检闭环 | A+ | **23 门**：参数语义 / 递归语法 / 生成 15 页 / 对比度 645 组 / **审计 306 组（4 路并发，2m47s）** / 设计体系正反例 / **流程 4 条**（12 + 6 + 42 + 45 步）/ **令牌导出** / 框架栈 / 11 个 Agent 入口 / 文档计数与链接 / 参考库快照 / **常驻层体积** / **基线漂移** / **反模式指针** / 历史日期与版本一致性 / **插件清单** / **红旗分级** / **RTL 探针** / **DESIGN.md 导入** | `npm run selfcheck` |
 | 文档可操作性 | A | 精简入口 + 按需参考库 + 分类手册，每个脚本都有参数 / 退出码 / 产物 | `SKILL.md`、`docs/scripts.md` |
 | 边界诚实度 | A+ | 明写不做什么（测试框架 / Figma 导入 / 小程序原生 / 默认视觉回归门禁）；红旗清单 **13 条**，其中可机械判定的已沉成 `audit.mjs --red-flags` 的 13 个退出码检查 | 本文「适用与不适用」、[`review-rubric.md`](references/review-rubric.md) §十 |
@@ -104,7 +104,7 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 
 没有权威榜单可依据，所以这里**不写「国内第 N」**——任何具体名次都无法核实，写进 README 就是假数据。
 
-能给的是可核对的量级：公开可见的 Agent skill 绝大多数是「一份 `SKILL.md` + 若干 markdown」，自带 3 个以上可执行脚本的都少见。本项目是 21 个脚本 + 33 份参考 + 17 站结构证据 + 可执行自检，按这个量级，在国内公开的前端 / UI 类 skill 里属于第一梯队。
+能给的是可核对的量级：公开可见的 Agent skill 绝大多数是「一份 `SKILL.md` + 若干 markdown」，自带 3 个以上可执行脚本的都少见。本项目是 21 个脚本 + 34 份参考 + 17 站结构证据 + 可执行自检，按这个量级，在国内公开的前端 / UI 类 skill 里属于第一梯队。
 
 真正少见的是三件事同时成立：
 
@@ -116,7 +116,7 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 
 ## 该抄哪份参考
 
-先看这张表：**按你手上的页面类型选一份，别从头读三十三份。**
+先看这张表：**按你手上的页面类型选一份，别从头读三十四份。**
 
 | 你在做什么 | 抄这份 | 从这里拿走什么 |
 | --- | --- | --- |
@@ -126,7 +126,7 @@ git clone --depth 1 https://gitee.com/liu-everything_impossble/skill-frontend-fi
 | 作品墙 / 内容列表：要"疏"，有报头、有定版 | [`references/zcool-design.md`](references/zcool-design.md) + [css-recipes §15](references/css-recipes.md) | 4 列列距 24 行距 36、两级分类用形状区分、`0.8px` 发丝、直角分页、顶栏 sticky |
 | 目录 / 陈列页：一屏陈列一批**彼此不同**的东西 | [`references/stylekit-design.md`](references/stylekit-design.md) + [css-recipes §16](references/css-recipes.md) | 卡片即预览（真 CSS 不是截图）、6px 四段色板条、通体直角、hover 只两笔 |
 | 灵感库 / 截图站：素材本身就是成品，界面要隐形 | [`references/uinotes-design.md`](references/uinotes-design.md) + [css-recipes §17](references/css-recipes.md) | 不画壳的截图墙、裁切露 1.8 张、48px 数字当标题、2/4/6/16/20/24 线性圆角阶梯 |
-| 后台 / 管理端：列表、表单、详情、空态、权限墙 | [`references/page-patterns.md`](references/page-patterns.md) + [`component-spec.md`](references/component-spec.md) + [`design-tokens.md`](references/design-tokens.md) | 八类页面骨架 + 11 类组件规格 + 五套人格令牌；单站样本没有后台，横向数据看 `design-evidence.md` B 组 |
+| 后台 / 管理端：列表、表单、详情、空态、权限墙 | [`references/page-patterns.md`](references/page-patterns.md) + [`component-spec.md`](references/component-spec.md) + [`design-tokens.md`](references/design-tokens.md)；已有 `antd` 时加 [`antd-integration.md`](references/antd-integration.md) | 八类页面骨架 + 11 类组件规格 + 五套人格令牌；已有 Ant Design 项目按版本、令牌层级、组件复用与页面级验收接入 |
 | 登录 / 注册 / 多步表单：一屏装完、按钮一列 | [`references/vercel-auth.md`](references/vercel-auth.md) | 390px 表单列（移动撑满减 32）、按钮 40 高配 16px/500、圆角 8/6/4/2/12、间距 8/16/24/32 |
 | 电商商品详情：价格分层、SKU 选择、加购 | [`references/applestore-commerce.md`](references/applestore-commerce.md) | 三层价格（17/600 主价不放大）、36px 圆点 SKU + 文字档位、44 高 CTA、控件高五档 |
 | 奖项目录 / 榜单 / 每日一作：作品当主角 | [`references/awwwards-design.md`](references/awwwards-design.md) + [css-recipes §23](references/css-recipes.md) | `#f8f8f8` 画布 + `#fff` 表面 + `#222` 文字、126.7px 一行标题、近满宽封面留 10px 缝、2 列 658 卡不画壳 |
@@ -216,7 +216,7 @@ node scripts/scaffold.mjs --design-md path/to/DESIGN.md --out ui --pages app,for
 
 ## 这是什么
 
-一个**把前端做对**的技能包，两条路都走：**先把已有界面整改/还原到位**，**也能从 0 生成一套能验收的骨架**。内含一份给 agent 读的操作手册（`SKILL.md`）+ 三十三份参考数据（17 份单站蒸馏 + 12 份通用规格 + 1 份跨站实测 + 2 份外部规则集 + 1 份工作流，`references/`）+ 二十一个能直接跑的脚本（`scripts/`）。同时是一个符合 **OpenDesign Plugin Spec v1** 的插件包（清单见 `open-design.json`，可校验、可打包、可进社区 registry）。
+一个**把前端做对**的技能包，两条路都走：**先把已有界面整改/还原到位**，**也能从 0 生成一套能验收的骨架**。内含一份给 agent 读的操作手册（`SKILL.md`）+ 三十四份参考数据（17 份单站蒸馏 + 13 份通用规格 + 1 份跨站实测 + 2 份外部规则集 + 1 份工作流，`references/`）+ 二十一个能直接跑的脚本（`scripts/`）。同时是一个符合 **OpenDesign Plugin Spec v1** 的插件包（清单见 `open-design.json`，可校验、可打包、可进社区 registry）。
 
 它解决的是这类问题：
 
@@ -284,6 +284,7 @@ node scripts/scaffold.mjs --design-md path/to/DESIGN.md --out ui --pages app,for
 | `references/page-patterns.md` | agent | 选型表 + 十五类页面骨架 + 空/错/无权限三变体 + 内容最低量 |
 | `references/component-spec.md` | agent | 11 类组件规格与禁忌（三档密度、尺寸、对齐、状态） |
 | `references/design-tokens.md` | agent | 五套人格预设（含印刷 / 杂志）、深度语言三派、色阶生成数学、字阶、圆角阴影配对、暗色推导 |
+| `references/antd-integration.md` | agent | 已有 Ant Design 项目：版本与 Provider 勘察、Seed/Map/Alias/Component 令牌层级、组件复用矩阵、页面级验收与导出边界 |
 | `references/copy-and-content.md` | 双方 | 标题公式、按钮动词表、空/错/载文案、`{{TODO}}` 占位规范 |
 | `references/css-recipes.md` | 双方 | 可直接复制的设计令牌、表格、骨架屏、空态、深色片段 |
 | `references/review-rubric.md` | 双方 | 交付前逐项勾的验收清单（九节，含红旗） |
@@ -352,7 +353,7 @@ git clone https://gitee.com/liu-everything_impossble/skill-frontend-fidelity.git
 
 从 [Releases](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest) 下载 `frontend-fidelity.zip`，解压到同名目录即可，内容与 git 版本一致。
 包由 `git archive` 从 tag 生成，不含 `__pycache__`、截图目录与本地缓存。
-当前是 [v1.31.1](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest)。
+当前是 [v1.32.0](https://gitee.com/liu-everything_impossble/skill-frontend-fidelity/releases/latest)。
 
 ### 方式三：只取脚本
 
@@ -433,6 +434,7 @@ frontend-fidelity/
 │   ├── page-patterns.md          # 从 0 生成：选型表 + 十五类页面骨架 + 三变体 + 内容最低量
 │   ├── component-spec.md         # 11 类组件规格：三档密度、尺寸、对齐、禁忌
 │   ├── design-tokens.md          # 五套人格预设、深度三派、色阶生成算法、字阶、圆角阴影配对、暗色推导
+│   ├── antd-integration.md       # 已有 Ant Design 项目：v4/v5/v6 勘察、Seed/Map/Alias/Component 令牌层级、组件复用矩阵、页面级验收、--export antd 边界
 │   ├── copy-and-content.md       # 文案规格：标题公式、按钮动词、空/错/载公式、占位写法
 │   ├── css-recipes.md            # 设计令牌 / 表格 / 骨架屏 / 空态 / 深色 / 九个站的风味片段（第 12–22 节）
 │   ├── motion-spec.md            # 动效规格：四条底线 + 时长五档 + 四条缓动 + 编排 + 三档降级 + 自测

@@ -46,7 +46,7 @@ node scripts/scaffold.mjs --name "南风工单" --out src --pages app,form
 | 目标 | 产物 | 覆盖范围 | 没做的 |
 | --- | --- | --- | --- |
 | Tailwind | `tokens.tailwind.js` | `theme.extend` 六段：colors（brand / neutral 各 11 档 + 语义色）、fontSize、borderRadius、spacing、boxShadow、transitionDuration | 不产出 `tailwind.config` 全文、不装插件、不生成组件类 |
-| Ant Design v5 | `tokens.antd.json` | `ConfigProvider theme.token` 形状的 **16 个全局 token**（colorPrimary / colorBgContainer / borderRadius / controlHeight …） | **没有 `components` 段**——组件级 token 一个都不导；AntD v5 全局 token 有 100+，这里只覆盖常用主题变量 |
+| Ant Design v5 / v6 | `tokens.antd.json` | `ConfigProvider theme.token` 形状的 **16 个全局 token**（colorPrimary / colorBgContainer / borderRadius / controlHeight …） | **没有 `components` 段**——组件级 token 一个都不导；AntD 全局 token 有 100+，这里只覆盖常用主题变量。接入与验收见 `references/antd-integration.md` |
 | Element Plus | `tokens.element.scss` | 官方覆盖写法 `@forward 'element-plus/theme-chalk/src/common/var.scss' with (...)`：colors / border-radius / font-size / component-size | 不产出组件级变量（如 `$button-*`）、不做业务逻辑封装 |
 
 **结论**：能让组件库「换皮对齐主题」，不能让组件库「改成你的业务组件」。组件级整改与定制仍需二次开发——

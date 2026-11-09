@@ -19,7 +19,7 @@ license: MIT
 三条不可妥协：
 
 1. **先看再改**。没跑过 `screenshot.mjs`、没看过现状截图，不要动一个像素。凭想象重写是大面积回归的主要来源。
-2. **不引入新体系**。已用 Tailwind 就别插 CSS-in-JS，已有组件库就扩展它。
+2. **不引入新体系**。已用 Tailwind 就别插 CSS-in-JS，已有组件库（含 Ant Design）就扩展它。
    换设计体系要单独提案，不能夹在「美化一下」里偷偷做。
 3. **改完自证**。截图 + 审计 + 构建必须全绿才算完成；「应该没问题」不是完成。
 
@@ -59,7 +59,7 @@ node scripts/scaffold.mjs --design-md path/to/DESIGN.md --out ui --pages app,for
 
 | 要做的东西 | `--persona` | `--pages` | 先读的参考 |
 | --- | --- | --- | --- |
-| 后台 / B 端 / 管理端 | `rational` | `app,form,states`（按需加 `auth`） | `mastergo-b2b.md` |
+| 后台 / B 端 / 管理端 | `rational` | `app,form,states`（按需加 `auth`） | 已有 `antd` 先读 `antd-integration.md`；视觉样板读 `mastergo-b2b.md` |
 | 登录 / 注册 / 多步表单 | `rational` | `auth,form` | `vercel-auth.md` |
 | 落地页 / 营销站 | `editorial`（冷）或 `warm`（亲和） | `landing` | `wegic-design.md` / `jsdesign-design.md` |
 | 图墙 / 灵感库 / 作品陈列 | `magazine` | `catalog` | `muzli-gallery.md` / `uishijie-design.md` / `uinotes-design.md` |
@@ -83,7 +83,7 @@ node scripts/scaffold.mjs --design-md path/to/DESIGN.md --out ui --pages app,for
 node scripts/scaffold.mjs --persona <人格> --pages <页面> --out ui --verify
 # 常用追加：
 #   --ref-url <URL> / --ref-json <path>   探针实测值覆盖人格字段（逼近 80%，剩下改 tokens.css）
-#   --export tailwind,antd,element        同一份令牌导出到 Tailwind / Ant Design v5 / Element Plus（只到令牌层，无组件封装）
+#   --export tailwind,antd,element        同一份令牌导出到 Tailwind / Ant Design v5、v6 / Element Plus（只到令牌层，无组件封装）
 #   --stack react|vue|all                 额外生成框架工程（真路由 + useAsync 三态）
 #   --accent <hue 0-360>                  只换品牌色相；--no-dark 关掉深色令牌
 ```
@@ -125,14 +125,14 @@ node scripts/scaffold.mjs --persona <人格> --pages <页面> --out ui --verify
 
 ## 参考文件指针（按需查，不要一次背完）
 
-**读法：先索引，再读节。** 33 份参考合计约 640KB，整读会吃掉小上下文窗口的全部预算。
+**读法：先索引，再读节。** 34 份参考合计约 650KB，整读会吃掉小上下文窗口的全部预算。
 每份超过 40KB 的文件（`css-recipes.md` 84KB、`design-evidence.md` 69KB）开头都有「## 索引」，
 先看那张表定位到节号，再用 `grep -n "^## 24\." 文件` 找行号，只读那一段。
 `selfcheck` 有「参考库索引」门盯着这件事：大文件没索引、或索引行数盖不住正文节数，直接判失败。
 
 - **工作流与选型**：`references/workflow.md`（模式 A 五步 / 模式 B 六步 / 交付模板）、`references/page-patterns.md`（十五类页面骨架表，含目录陈列 / 电商三页 / 订单状态机 / 三种移动形态）、`references/design-tokens.md`（五套人格完整令牌）
 - **数值证据**：`references/baseline.json`（32 条冻结数值的结构化基线，用 `scripts/lookup.mjs <关键词>` 查询，别读原始 JSON）、`references/design-evidence.md`（28 个真实站实测，「哪些能抄、哪些不能」；查数值读 §二、查结构读 §七）、`scripts/probe-ref.mjs`（量任意站）
-- **规格**：`references/component-spec.md`（15 类组件规格卡）、`references/component-absorption.md`（四个开源组件库/索引里吸出来的：retina 1px / 两级令牌 / 移动端控件阶梯 / 组件覆盖矩阵）、`references/motion-spec.md`（动效）、`references/copy-and-content.md`（文案）、`references/state-coverage.md`（五态与加载/错误阈值）、`references/form-rules.md`（表单状态机与校验时机）、`references/rtl-and-bidi.md`（RTL，证据分级）、`references/visual-system.md`（视觉细则全本：中文排版 / 色彩 / 层级五派 / 页面结构 / 控件 8 状态 / 响应式 / 深色 / 可访问性 / AI tell）
+- **规格**：`references/component-spec.md`（15 类组件规格卡）、`references/component-absorption.md`（四个开源组件库/索引里吸出来的：retina 1px / 两级令牌 / 移动端控件阶梯 / 组件覆盖矩阵）、`references/antd-integration.md`（已有 Ant Design 项目：版本勘察 / 令牌分层 / 组件复用 / 页面级验收）、`references/motion-spec.md`（动效）、`references/copy-and-content.md`（文案）、`references/state-coverage.md`（五态与加载/错误阈值）、`references/form-rules.md`（表单状态机与校验时机）、`references/rtl-and-bidi.md`（RTL，证据分级）、`references/visual-system.md`（视觉细则全本：中文排版 / 色彩 / 层级五派 / 页面结构 / 控件 8 状态 / 响应式 / 深色 / 可访问性 / AI tell）
 - **单站蒸馏**：营销工具站 `wegic-design.md`、`jsdesign-design.md`；SaaS 首页 `yuque-design.md`；编辑内容首页 `sspai-design.md`；技术社区 feed `juejin-design.md`；品牌产品舞台 `apple-design.md`；内容图墙 `uishijie-design.md`、`zcool-design.md`、`uinotes-design.md`；杂志目录 `muzli-gallery.md`；风格库 `luckymaomi-catalog.md`、`stylekit-design.md`；B 端工具 `mastergo-b2b.md`；认证注册 `vercel-auth.md`；电商商品配置 `applestore-commerce.md`；动效案例 `holynova-motion.md`；奖项目录 `awwwards-design.md`
 - **手册与摘要（`docs/`）**：`docs/scripts.md`（每个脚本的参数 / 退出码 / 产物）、`docs/reference-sites.md`（各站实测与重采命令）、`docs/visual-summary.md`（视觉细则速查）——要查用法先看 `docs/`，`references/` 只放判据与配方
 - **工艺与验收**：`references/craft-floor.md`（工艺底线九条）、`references/anti-slop.md`（反模板清单 + 38 条 pre-flight；其中 13 项已机械化为 `audit.mjs --red-flags`，先跑命令再人工过剩下的）、`references/review-rubric.md`（交付前逐项勾）、`references/css-recipes.md`（可复制片段；**别整份读**，§12–23 是各站风味，§24 是移动端保真三件套，按索引挑一节）

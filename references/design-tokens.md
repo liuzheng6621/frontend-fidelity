@@ -18,6 +18,8 @@
 三个决定其实是三个客户类型：**管理端＝冷中性+compact+小圆角**；**内容/品牌＝中性+regular+极小圆角**；
 **消费/亲和＝暖中性+comfortable+大圆角**。选错这一层，后面所有细节都救不回来。
 
+**已有设计系统优先**：项目已用 Ant Design 时，先读 `antd-integration.md`，改它的 Seed / Algorithm / Component Token，再用本文件的色阶与密度表做校准。不要把 `tokens.css` 和 `ConfigProvider` 各维护一套真相；本文件负责从 0 定值，不负责覆盖成熟组件库的官方层级。
+
 ## 二、五套人格预设（可直接抄，也可 `scaffold.mjs --persona` 生成）
 
 数字来自实测：`rational` 对齐 shadcn/linear/cal.com；`editorial` 对齐 stripe（H1 48px/1.15/**字重 400**）；
