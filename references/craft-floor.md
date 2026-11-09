@@ -2,7 +2,7 @@
 
 **这份文件回答一个问题：一套界面「做完了」还是「做好了」。**
 
-它来自两处外部工艺规则集的蒸馏（来源见文末），只保留**可判定**的条款，并按本站实测语料做了裁决——凡与实测冲突的，第八节写明怎么处理，不要盲抄。
+它来自两处外部工艺规则集的蒸馏（来源见文末），只保留**可判定**的条款，并按本站实测语料做了裁决——凡与实测冲突的，第八节写明怎么处理，不要盲抄。**明确 brief、既有视觉世界与真实使用约束优先于本文的默认建议；只有标为禁令、平台红线或可访问性硬要求的条款不可由 brief 豁免。**
 
 分工：
 - 本文 = **底线与判据**（做完之前必须过，含着色规范、阴影判据、浏览器表面）。
@@ -24,7 +24,7 @@
 | 2 | 深度 | 阴影必须有**偏移 + 柔和模糊**；零偏移的彩色 halo 是装饰，不是阴影 | 看 computed `box-shadow`；`0 0 Npx <color>` 一律视为光晕 |
 | 3 | 间距节奏 | 组内紧、组间松；**标题上方的留白 > 下方** | 读 computed `margin`/`padding`，不要靠眼看 |
 | 4 | 排版 | 行宽 65–75ch；展示字号上限 6rem（96px）；字距下限 −0.04em；标题平衡（不让末行只剩一个词）；字阶与字重有明显台阶 | 在**每个断点**上跑真实文案，看溢出 |
-| 5 | 动效 | **一个有作者意识的时刻**，不是满页效果、也不是每节同一个入场；缓动用指数型 ease-out（`cubic-bezier(.16,1,.3,1)` 一类），默认状态已可见再入场 | 数 `animation`/`transition` 的归属；同一 entrance 复用到 3 节以上即扣分 |
+| 5 | 动效 | **一个有作者意识的时刻**，不是满页效果、也不是每节同一个入场；缓动用指数型 ease-out（`cubic-bezier(.16,1,.3,1)` 一类），默认状态已可见再入场。`transform` / `opacity` 是可靠基础，不是唯一材质；blur、backdrop-filter、clip-path、mask、shadow 只要表达意义、范围受控且不掉帧就可以用。`prefers-reduced-motion` 下移除非必要位移与循环，但保留颜色、透明度、层级和状态反馈，不写全局 `0.01ms` 一刀切 | 数 `animation`/`transition` 的归属；同一 entrance 复用到 3 节以上即扣分；开 reduce 后看任务反馈是否仍成立 |
 | 6 | 状态 | hover / disabled / loading / error / empty 五态，加上真实内容、可用控件、响应式、键盘焦点 | `scripts/audit.mjs` + 手动 Tab 一遍 |
 | 7 | 浏览器原生表面 | 选区 `::selection`、光标色 `caret-color`、滚动条、焦点环、下划线偏移 `text-underline-offset`、表格数字 `font-variant-numeric: tabular-nums` —— **你没画的部分也在承载设计** | grep 上面六个属性是否存在 |
 | 8 | 文案 | 控件名说动作；错误说清问题与出口；占位不是假数据 | `references/copy-and-content.md` |
@@ -92,7 +92,18 @@ a { text-underline-offset: .22em; text-decoration-thickness: 1px; }
 
 ---
 
-## 六、材质诚实
+## 六、材质诚实与实现完整性
+
+### 实现完整性
+
+实现完整性不是代码风格，而是**构建结果是否像一个真实产品**：结构、文案、控件、状态和视觉系统要彼此支撑，不能被原样换到另一个不相干产品上。
+
+- 控件要真的可用，状态要真的切换；死开关、假按钮、装饰性设置项和只存在于截图里的交互都算失实。
+- 复用既有令牌、组件和布局约定；同一问题在十几处用内联值各修一遍，是系统性漂移，不是十几个小问题。
+- 不把检测器命中直接当结论；确定性发现要和视觉判断分开记录，并核实 false positive。
+- 审计只诊断，不顺手修。报告先写证据与影响，再给建议。
+
+### 材质诚实
 
 - 主张与配置**只能来自提供的真值**；示例数据要明确标成示例（`{{TODO:}}` 或 `<!-- 示例 -->`）。
 - 不许编造工程精度（`92%`、`4.1×`、`5.8mm`）——除非品牌真的这么宣称。
@@ -156,7 +167,7 @@ a { text-underline-offset: .22em; text-decoration-thickness: 1px; }
 
 ## 十、来源
 
-- **impeccable**（`E:\impeccable-main\impeccable-main`，Apache-2.0）：`skill/reference/craft-floor.md`（九条 verify + refuse 清单 + codex 细则）、`skill/SKILL.src.md`（四种模式 Persuade / Operate / Read / Experience、brief 优先、refinement 保身份 vs redesign 换世界）。**只蒸馏判据，未复制原文与脚本。**
+- **impeccable**（[pbakaus/impeccable](https://github.com/pbakaus/impeccable)，commit `cf7ea4a8fe56f3e186e9ffaca3124937e36e6430`，核对于 2026-11-09，Apache-2.0）：`skill/reference/craft-floor.md`（九条 verify + refuse 清单 + codex 细则）、`skill/reference/audit.md`（五维技术审计、P0–P3 与证据格式）、`skill/reference/animate.md`（动效材质与 reduced-motion 替代）、`skill/SKILL.src.md`（四种模式 Persuade / Operate / Read / Experience、brief 优先、refinement 保身份 vs redesign 换世界）。**只蒸馏判据，未复制原文与脚本。**
 - **design-taste-frontend**（`...\.claude\skills\design-taste-frontend\SKILL.md`，1206 行，原文件未声明许可证）：反模板部分单独蒸馏到 `references/anti-slop.md`，此处只取与"底线"重叠的条款。
 - 本站语料：`references/design-evidence.md`（28 站实测）+ 十七份单站蒸馏文档。
-- 裁决日期：2026-10-31。
+- 裁决日期：2026-11-09。

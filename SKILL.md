@@ -135,7 +135,7 @@ node scripts/scaffold.mjs --persona <人格> --pages <页面> --out ui --verify
 - **规格**：`references/component-spec.md`（15 类组件规格卡）、`references/component-absorption.md`（四个开源组件库/索引里吸出来的：retina 1px / 两级令牌 / 移动端控件阶梯 / 组件覆盖矩阵）、`references/antd-integration.md`（已有 Ant Design 项目：版本勘察 / 令牌分层 / 组件复用 / 页面级验收）、`references/motion-spec.md`（动效）、`references/copy-and-content.md`（文案）、`references/state-coverage.md`（五态与加载/错误阈值）、`references/form-rules.md`（表单状态机与校验时机）、`references/rtl-and-bidi.md`（RTL，证据分级）、`references/visual-system.md`（视觉细则全本：中文排版 / 色彩 / 层级五派 / 页面结构 / 控件 8 状态 / 响应式 / 深色 / 可访问性 / AI tell）
 - **单站蒸馏**：营销工具站 `wegic-design.md`、`jsdesign-design.md`；SaaS 首页 `yuque-design.md`；编辑内容首页 `sspai-design.md`；技术社区 feed `juejin-design.md`；品牌产品舞台 `apple-design.md`；内容图墙 `uishijie-design.md`、`zcool-design.md`、`uinotes-design.md`；杂志目录 `muzli-gallery.md`；风格库 `luckymaomi-catalog.md`、`stylekit-design.md`；B 端工具 `mastergo-b2b.md`；认证注册 `vercel-auth.md`；电商商品配置 `applestore-commerce.md`；动效案例 `holynova-motion.md`；奖项目录 `awwwards-design.md`
 - **手册与摘要（`docs/`）**：`docs/scripts.md`（每个脚本的参数 / 退出码 / 产物）、`docs/reference-sites.md`（各站实测与重采命令）、`docs/visual-summary.md`（视觉细则速查）——要查用法先看 `docs/`，`references/` 只放判据与配方
-- **工艺与验收**：`references/craft-floor.md`（工艺底线九条）、`references/anti-slop.md`（反模板清单 + 38 条 pre-flight；其中 13 项已机械化为 `audit.mjs --red-flags`，先跑命令再人工过剩下的）、`references/review-rubric.md`（交付前逐项勾）、`references/css-recipes.md`（可复制片段；**别整份读**，§12–23 是各站风味，§24 是移动端保真三件套，按索引挑一节）
+- **工艺与验收**：`references/craft-floor.md`（工艺底线九条 + 实现完整性）、`references/anti-slop.md`（反模板清单 + 38 条 pre-flight；检测器命中先复核，其中 13 项已机械化为 `audit.mjs --red-flags`）、`references/review-rubric.md`（交付前逐项勾；需要评分时按 §8.1 输出五维审计报告）、`references/css-recipes.md`（可复制片段；**别整份读**，§12–23 是各站风味，§24 是移动端保真三件套，按索引挑一节）
 
 ## 许可
 

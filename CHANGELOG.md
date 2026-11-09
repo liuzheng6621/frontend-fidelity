@@ -8,6 +8,37 @@
 各版本条目首次引入的对应提交日期校正；这些日期是**提交日期，不据此宣称发行日期**。
 v1.0.0 保留初始化提交 `6da84f5`（2026-10-22）支持的日期；其余已一致的标题日期不改。
 
+## v1.33.0 - 2026-11-09
+
+把「判据」和「定罪」分开。此前几份参考把默认建议写成了绝对禁令：`prefers-reduced-motion` 一律压 `0.01ms`、动画只许动 `transform`/`opacity`、检测器一命中就当问题。这一版给它们加上优先级与例外，并把「评分 / 正式审计」这件事单独成节——不评分时仍用原来的四段说明，不强制套报告。
+
+### 新增
+
+- **`references/review-rubric.md` §8.1 技术审计报告协议**（+64 行）：用户明确要求「审计 / 评分 / 正式评审」时才展开。
+  - 证据口径：至少 1440 / 768 / 390 三个视口 × 浅色深色 × 有数据/空/加载/错误代表状态，同一轮批量截图；脚本结果是**确定性证据**，视觉与产品判断是**解释性证据**，两者分开记录。
+  - 五维评分 0–4（Accessibility / Performance / Theming / Responsive / Implementation Integrity），总分 20：18–20 Excellent、14–17 Good、10–13 Acceptable、6–9 Poor、0–5 Critical。**分数不抵消第三节必跑脚本、退出码、红旗与质量门**，20 分也不能抵消一次失败的构建。
+  - 审计问题严重度 P0–P3（Blocking / Major / Minor / Polish），并写明**这不是** `audit.mjs --red-flags` 的 P0/P1/P2 执行等级，二者不机械映射。
+  - 每条发现固定六项：严重度与标题、位置（路由 | 选择器 | 源码行 | 视口 | 主题）、维度、影响、标准、证据、建议。报告顺序固定：五维分数 → 实现完整性结论 → P0/P1/P2 → 系统性问题 → 已做对 → 误报与未验证 → 下一步。
+  - 规则：检测器命中先当候选，结合真实渲染与业务语境复核，确认误报要写原因；不得用分数掩盖退出码失败，不得把风格偏好升成 P0，不得报没有复现路径的问题；无发现时写「未发现已核实问题」并列出剩余测试缺口。
+
+### 改
+
+- **判据优先级写进三处入口**（`references/anti-slop.md` 开篇、`references/craft-floor.md` 开篇、`SKILL.md` 工艺与验收行）：**法规 / 可访问性红线 > 明确 brief 与既有产品身份 > 本文通用默认 > 模型个人习惯**；只有标为禁令、平台红线或可访问性硬要求的条款不可由 brief 豁免，其余默认建议可被清楚具体的 brief 覆盖。检测器命中、清单条目、截图直觉都只是**待核实候选**。
+- **`prefers-reduced-motion` 从「一刀切」改为「有减法」**（`references/motion-spec.md` §一/§七、`references/design-tokens.md` §七、`references/anti-slop.md`、`references/visual-system.md`、`references/css-recipes.md` 三处片段）：
+  - 旧写法 `*, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important }` 会让 `transitionend` 仍触发但视觉闪一下，且**没有减法**——该消失的还是消失，用户看到的是抖动。
+  - 新写法：`html { scroll-behavior: auto }` + 只对真正的装饰 / 入场选择器 `animation: none; transition: none`，并给入场元素 `opacity: 1; transform: none` 兜住；保留颜色、透明度、层级与必要的状态反馈（按下、焦点、加载），**不能把反馈一起杀掉**。
+  - `css-recipes.md` 的三处片段（通用基础层 §…、spotlight 卡 §…、compact 列表 §…）同步换掉全局 `0.01ms`，改成按项目选择器的减法写法。
+- **动效材质从「只许 transform/opacity」放宽为「避开布局属性」**（`motion-spec.md` 四条底线 1、`anti-slop.md` 动效段与 pre-flight 两条、`design-tokens.md`、`visual-system.md`、`workflow.md` 两条）：`top/left/width/height/margin/padding` 仍属重排禁区，但 blur、filter、backdrop-filter、clip-path、mask、shadow **不是禁区**——只要动机明确、范围受控、在目标设备实测不掉帧。对应 pre-flight 措辞从「只用 transform/opacity」改成「没有直接改布局属性」。
+- **`references/craft-floor.md` §六 扩为「材质诚实与实现完整性」**：新增实现完整性四条——控件要真能用（死开关、假按钮、装饰性设置项、只存在于截图里的交互都算失实）；复用既有令牌与组件（同一问题内联各修一遍是系统性漂移，不是十几个小问题）；不把检测器命中当结论（确定性发现与视觉判断分开记录并核实误报）；审计只诊断不顺手修（先证据与影响，再建议）。
+- **`references/review-rubric.md` 两条清单条目重写**：动效「`reduce` 下全部塌缩」→「移除非必要位移与循环，保留层级、状态变化与操作反馈」；动效四问「只动 transform/opacity」→「避开布局属性、以其为基础，其他效果有动机且受控」。
+- **`references/workflow.md` 参考库指针**：`review-rubric.md` 一行补「§8.1 五维审计报告协议」，`motion-spec.md` 四条底线首条同步改词。
+- **`SKILL.md` 工艺与验收行**：`craft-floor.md` 补「+ 实现完整性」、`anti-slop.md` 补「检测器命中先复核」、`review-rubric.md` 补「需要评分时按 §8.1 输出五维审计报告」。
+
+### 自检
+
+- `node scripts/selfcheck.mjs --skip-audit` 23 门全绿（文档数字 34 份 / 版本号 v1.33.0 / 插件清单 5 stage 9 atom / 常驻层 399 est tokens）。
+- `node scripts/plugin-validate.mjs --root .` 通过，SKILL.md 145 行。
+
 ## v1.32.0 - 2026-11-09
 
 补上 **Ant Design 项目**这条路。此前 skill 说「已有组件库就扩展它」，但没写清 antd 具体怎么勘察、改哪一层令牌、哪些交互不许自己重造、`--export antd` 到底导出了什么。现在有第 34 份参考把这件事讲完，并把边界写进选型表、工作流与令牌导出三处。

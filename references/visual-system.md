@@ -83,7 +83,7 @@
 
 动效不是装饰，是**状态变化的证据**。四条底线 + 一张时长表，全部细节在 [`references/motion-spec.md`](motion-spec.md)。
 
-- **只动 `transform` 和 `opacity`**；`top/left/width/height/margin` 会重排，`backdrop-filter` 大面积动会掉帧。
+- **避开 `top/left/width/height/margin/padding` 等布局属性**；`transform` / `opacity` 是基础。blur、filter、backdrop-filter、clip-path、mask 在动机明确、范围受控且实测不掉帧时可用。
 - **每个动画要能一句话说出动机**（层级 / 叙事 / 反馈 / 状态变化）。说不出就删。
 - **可打断**：hover、快速连点、往回滚时不能"排队演完"；不要用 `animation-delay` 堆队列。
 - **三档降级**：完整 / 减弱（`prefers-reduced-motion`）/ 关闭（低端机或用户手动，`--motion: 0`）。
@@ -239,7 +239,7 @@
 1. Tab 从头走一遍：焦点顺序符合阅读顺序、焦点永远可见、弹层有焦点陷阱、Esc 能关。
 2. 所有图标按钮有 `aria-label` 或 `title`。
 3. 表单控件都有关联的 `<label for>` 或 `aria-label`；错误用 `aria-describedby` 关联。
-4. 尊重「减少动效」：`@media (prefers-reduced-motion: reduce)` 里把过渡/动画降为 `0.01ms`。
+4. 尊重「减少动效」：`@media (prefers-reduced-motion: reduce)` 里去掉非必要位移与循环，保留必要的状态反馈；不要全局压成 `0.01ms`。
    `audit.mjs --reduced-motion` 会抓仍然无限循环的装饰动画。
 
 ## 避免（这些是「像 AI 生成的」信号）

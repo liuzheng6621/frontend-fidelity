@@ -32,3 +32,7 @@ Thumbs.db
 
 # 本地推广物料（视频帧 / 配音 / 浏览器 profile，数百 MB，不进仓库）
 promo/
+
+# 临时发布工具
+.tmp-gh-pin-proxy.mjs
+.tmp-*.log

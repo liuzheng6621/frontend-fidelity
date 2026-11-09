@@ -160,9 +160,9 @@ scaffold.mjs 已把这一层做成 persona 字段（hairline / soft / hard），
 --dur-slow: 280ms;   /* 抽屉、弹窗 */
 ```
 
-- 只动 `transform` 与 `opacity`；动 `height` 用 `grid-template-rows` 技巧，别动 `height`。
+- 避开 `top/left/width/height/margin/padding` 等布局属性；`transform` / `opacity` 是基础。动 `height` 用 `grid-template-rows` 技巧；blur、filter、clip-path、mask 等只在有意义、范围受控且实测流畅时用。
 - 入场动画只给首屏一次，滚动逐块淡入很容易过量（而且移动端往往全被浏览器特性关掉）。
-- 必须有 `@media (prefers-reduced-motion: reduce)` 降级（`0.01ms`）。
+- 必须有 `@media (prefers-reduced-motion: reduce)` 降级：去掉非必要位移与循环，保留颜色、透明度、层级和状态反馈，不要全局 `0.01ms` 一刀切。见 `motion-spec.md` §七。
 
 ## 八、命名约定（和 Tailwind / 组件库对接）
 

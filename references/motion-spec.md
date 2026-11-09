@@ -9,7 +9,7 @@
 
 ## 一、四条底线（违反任一条，动效就别做）
 
-1. **只动 `transform` 和 `opacity`**。`top/left/width/height/margin/padding` 会触发重排，60fps 保不住；`filter` / `backdrop-filter` 大面积动会掉帧。
+1. **避开会触发布局的属性**。`top/left/width/height/margin/padding` 会重排，优先用 `transform` / `opacity`；blur、filter、backdrop-filter、clip-path、mask、shadow 不是禁区，但必须解释意义、限制影响范围并在目标设备实测不掉帧。
 2. **每个动画都要能一句话说出动机**：层级（谁盖谁）、叙事（先说后说）、反馈（我按到了）、状态变化（正在发生）。说不出就删。
 3. **可打断**：用户用鼠标划过、快速点两下、向上滚回去时，动画不能"排队演完"。过渡在 `:hover` → `:focus` → `:active` 之间要能互相接管，不要用 `animation-delay` 堆队列。
 4. **必须有三档降级**：完整 / 减弱（`prefers-reduced-motion`）/ 关闭（低端机、省电、用户手动关）。见第七节。
@@ -248,10 +248,10 @@ React Spring 的 `default` 是 ζ = 0.997（临界阻尼，几乎不弹）。
 三档的判定：
 
 - **完整**：默认。
-- **减弱**：系统 `prefers-reduced-motion: reduce` → 位移与缩放全部去掉，只留颜色与不透明度；无限循环全部停。
+- **减弱**：系统 `prefers-reduced-motion: reduce` → 位移、缩放、非必要视差与无限循环去掉；保留颜色、不透明度、层级和必要的状态反馈，不能把反馈一起杀掉。
 - **关闭**：低速网络 / 低端机 / `navigator.deviceMemory < 4` / 用户手动切（记住 `localStorage`）→ `--motion: 0`。
 
-> 常见错法：只在 `@media` 里写 `animation-duration: .01ms !important`。这会让 `transitionend` 事件仍然触发但视觉上闪一下，而且**没有减法**——元素该消失还是消失、该淡入还是瞬间出现，用户看到的是"抖动"。正确做法是**在 `reduce` 里把位移和循环直接去掉**，只保留透明度。
+> 常见错法：只在 `@media` 里写 `animation-duration: .01ms !important`。这会让 `transitionend` 事件仍然触发但视觉上闪一下，而且**没有减法**——元素该消失还是消失、该淡入还是瞬间出现，用户看到的是"抖动"。正确做法是**在 `reduce` 里把位移和循环直接去掉**，保留颜色、透明度与必要的状态反馈。
 
 ---
 
@@ -268,7 +268,7 @@ React Spring 的 `default` 是 ζ = 0.997（临界阻尼，几乎不弹）。
 自测四步（每步都能失败）：
 
 1. DevTools → Performance，**6× CPU 节流**下录 5 秒，看是否掉到 60fps 以下、有没有长任务。
-2. Rendering 面板勾 Paint flashing：**动画区域不应整块重绘**（重绘 = 你没用 transform）。
+2. Rendering 面板勾 Paint flashing：**重绘应限制在动效自身的小范围**；整块无边界重绘说明效果范围失控，布局反复重算说明你动了布局属性。
 3. 系统开「减少动态效果」（Windows 设置 → 辅助功能 → 视觉效果 → 动画效果关），刷新页面：**不该有任何位移与循环**。
 4. `node scripts/audit.mjs --url … --reduced-motion` 抓仍然无限循环的装饰动画（脚本会报出来自哪个选择器）。
 

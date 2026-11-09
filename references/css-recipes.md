@@ -160,12 +160,13 @@ td.num,
 :focus:not(:focus-visible) { outline: none; }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: .01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: .01ms !important;
-    scroll-behavior: auto !important;
+  html { scroll-behavior: auto; }
+  /* 换成项目里真正的装饰 / 入场选择器；不要用 * 杀掉所有反馈 */
+  .marquee__track, .skeleton, .pulse, .reveal > * {
+    animation: none !important;
+    transition: none !important;
   }
+  .reveal > * { opacity: 1; transform: none; }
 }
 
 /* 触屏 hover 会粘住 */
@@ -1468,11 +1469,10 @@ document.querySelectorAll('.reveal').forEach((el, i) => {
 /* ---------- 5) 降级：连装饰层一起关 ---------- */
 @media (hover:none){ .spotlight-card{ --spotlight-opacity:0; } }   /* 触屏没有指针 */
 @media (prefers-reduced-motion:reduce){
-  *,::before,::after{
-    scroll-behavior:auto !important;
-    animation-duration:.01ms !important;            /* 不要写 0ms */
-    animation-iteration-count:1 !important;
-    transition-duration:.01ms !important;
+  html{ scroll-behavior:auto; }
+  .spotlight-card,.spotlight-card::before,.spotlight-card::after{
+    animation:none !important;                      /* 只关装饰，不用全局 0.01ms */
+    transition:none !important;
   }
   .spotlight-card::before,.spotlight-card::after{ opacity:0 !important; }
   .spotlight-card__actions{ opacity:1; transform:none; pointer-events:auto; }
@@ -1634,11 +1634,11 @@ grid?.addEventListener('pointermove', (e) => {
 }
 
 @media (prefers-reduced-motion: reduce){
-  *, ::before, ::after{
-    scroll-behavior: auto !important;
-    transition-duration: .001ms !important;
-    animation-duration: .001ms !important;
-    animation-iteration-count: 1 !important;
+  html{ scroll-behavior:auto; }
+  .compact-item,.compact-item::before,.compact-item::after,
+  .animation-stage,.animation-replay{
+    animation:none !important;
+    transition:none !important;
   }
 }
 @media (hover: none){              /* 触屏：hover 才出现的操作必须常显 */

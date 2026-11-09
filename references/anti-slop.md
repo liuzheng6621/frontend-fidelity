@@ -7,7 +7,10 @@
 边界（先读）：
 - **适用于**：落地页、产品营销页、作品集、重设计、单页展示。
 - **不适用于**：后台与数据密集产品 UI（那走 `page-patterns.md` 的管理端骨架 + 官方设计系统）、数据表格、多步表单、代码编辑器、原生 App。
-- 每条规则都是**有条件**的：先读需求，再决定哪条开火。没有一条是"永远这么做"。
+
+**判据优先级**：法规 / 可访问性红线 > 明确 brief 与既有产品身份 > 本文的通用反模板默认 > 模型个人习惯。检测器命中、清单条目和截图直觉都只是**待核实候选**，不是自动定罪；必须结合真实渲染、上下文和例外复核，并记录误报。
+
+- 每条规则都是**有条件**的：先读需求，再决定哪条开火。P0、可访问性硬要求和明确禁令不可覆写，其余默认建议可被清楚、具体的 brief 覆盖。
 
 ---
 
@@ -228,7 +231,7 @@
 - 不能一句话说清"这个动画在传达什么"（层级 / 叙事 / 反馈 / 状态变化）的，删掉。
 - 跑马灯整页最多一处。
 - 反对 `window.addEventListener('scroll')`：它每帧都跑、易卡顿。用 `IntersectionObserver` / CSS `animation-timeline` / 库的 scroll hook。
-- 只动 `transform` 和 `opacity`；别动 `top/left/width/height`。`will-change` 只给真会动的元素。
+- 避开 `top/left/width/height/margin/padding` 等会重排的属性；`transform` / `opacity` 是基础，但 blur、filter、clip-path、mask、shadow 在动机明确、范围受控且实测流畅时可用。`will-change` 只给真会动的元素。
 - **`MOTION_INTENSITY > 3` 必须尊重 `prefers-reduced-motion`**：无限循环、视差、滚动劫持、磁性物理都要塌缩成静态。
 - **别把 GSAP/Three 和别的动效库混在同一个组件树里**（抢同一批帧）。
 
@@ -257,13 +260,13 @@
 **级别是判据的一部分，不是配置项。** 改级别等于改规范，要同步改 `audit.mjs` 的
 `RED_FLAG_ENFORCEMENT` 与本节标注：
 
-| 级别 | 含义 | 退出码 |
+| 机械红旗级别 | 含义 | 退出码 |
 | --- | --- | --- |
 | `P0` 强制 | 可访问性 / 性能 / 结构硬伤，误判率低 | 违反即 error，退出码 1 |
 | `P1` 建议 | 应当修，个别是启发式判断 | 默认 warn，`--strict-red-flags` 升级 error |
 | `P2` 可关 | 风格取向，取决于项目气质 | 永远只警告 |
 
-标了「机械」的 13 条已沉进 `audit.mjs --red-flags`，不用人眼对；其余靠人。
+这组 P0/P1/P2 是**执行等级**，不是审计报告里的 P0–P3 问题严重度。标了「机械」的 13 条已沉进 `audit.mjs --red-flags`，命中后仍需结合语境确认；其余靠人。
 
 **需求与方向**
 - [ ] `P0` Design Read 一句话写出来了？
@@ -308,9 +311,9 @@
 - [ ] `P1` 声称的动效做出来了（旋钮 > 4 时页面真的动）？
 - [ ] `P1` 每个动画能一句话说明动机？
 - [ ] `P1` 跑马灯 ≤ 1 处，无限循环没有铺满？（机械：`red-flag-infinite-flood`）
-- [ ] `P0` 尊重 `prefers-reduced-motion`？（机械：`red-flag-no-reduced-motion`）
+- [ ] `P0` 有 `prefers-reduced-motion` 路径；reduce 下移除非必要位移/循环，但保留状态反馈，没有全局 `0.01ms` 一刀切？（机械：`red-flag-no-reduced-motion` 只查缺失；替代方案仍要人工核实）
 - [ ] `P0` 没有 `window.addEventListener('scroll')` 驱动的布局？（机械：`red-flag-scroll-listener`）
-- [ ] `P0` 只用 `transform` / `opacity` 做动效？（机械：`red-flag-animated-layout-props`）
+- [ ] `P0` 动画没有直接改布局属性？`transform` / `opacity` 为基础，其他效果是否受控而不是被机械禁止？（机械：`red-flag-animated-layout-props`）
 - [ ] `P0` 多列布局显式声明了 < 768px 塌缩？
 - [ ] `P0` 空 / 载入 / 错误三态都有？（判据见 `state-coverage.md`）
 - [ ] `P1` 一个项目只用一个设计系统？
@@ -333,4 +336,4 @@
 - 原始来源：`E:\实验室打卡预约系统-交接包-20260910\实验室打卡预约系统\.claude\skills\design-taste-frontend\SKILL.md`（1,206 行 / 88,459B，单文件技能，原文件未声明许可证；本文是**规则重写**，未复制原文段落，也未 vendored 其 appendices 里的安装命令与官方文档链接）。
 - 蒸馏取舍：保留全部**可判定**条款（硬规则、tell 清单、pre-flight），删掉框架特定实现（React Server Components 约束、`next/font`、`motion/react` 的 API 用法、GSAP 两个骨架代码、Block Library 的 schema、各设计系统的安装命令与文档链接表）。框架相关的内容按项目实际技术栈处理，本文不指定栈。
 - 另一路来源 `impeccable` 的工艺底线单独蒸馏在 `references/craft-floor.md`。
-- 裁决日期：2026-10-31。
+- 裁决日期：2026-10-31；2026-11-09 补入 Impeccable 的候选复核与优先级口径。

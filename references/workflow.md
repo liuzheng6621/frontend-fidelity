@@ -194,7 +194,7 @@ node scripts/scaffold.mjs --persona rational --export tailwind,antd,element  # �
 - 间距基数 4，常用 8 / 12 / 16 / 24 / 32 / 48 / 64 / 96；区块上下留白不等（上 < 下更常见）。
 - 阴影选一派用到底：靠边框 / 发丝圈+内阴影 / 负扩散 / 全站零阴影 / 零阴影零边框；同屏不混。
 - 图墙选一派：密（5 列 gap 0）/ 疏（4 列列距 24）/ 活预览（3 列 gap 32）；同屏不混。
-- 动效 120 / 180 / 240 / 400 / 600，上限 800（**印刷派例外：状态切换 100ms linear、按钮 160ms**，见 `motion-spec.md` 二·补），只动 `transform` 与 `opacity`；卡片 hover 要四件套一起变（位移 + 边框 + 阴影 + 媒体压暗），只变一样会显得“抖了一下”。
+- 动效 120 / 180 / 240 / 400 / 600，上限 800（**印刷派例外：状态切换 100ms linear、按钮 160ms**，见 `motion-spec.md` 二·补），避开布局属性并以 `transform` / `opacity` 为基础；卡片 hover 要四件套一起变（位移 + 边框 + 阴影 + 媒体压暗），只变一样会显得“抖了一下”。
 - 移动端 390 宽：无横向滚动、点击区 ≥44×44、底部避开安全区。
 
 ---
@@ -303,7 +303,7 @@ node scripts/scaffold.mjs --persona rational --export tailwind,antd,element  # �
   长度预算、中文标点与空格、三种人格语气、`{{TODO}}` 占位写法。**交付前用它清一遍假文案。**
 - `references/css-recipes.md` — 设计令牌、表格、骨架屏、空状态、深色模式的可复制片段；
   第 12–17 节是六个参考站的可粘贴风味（塑料按钮+发丝圈 / 浅灰蓝+彩纸卡 / 零 gutter 图墙 / 报头+等宽图版 / 风格卡+色板条 / 隐形界面+截图带）。
-- `references/motion-spec.md` — **动效规格**：四条底线（只动 transform/opacity、有动机、可打断、三档降级）、
+- `references/motion-spec.md` — **动效规格**：四条底线（避开布局属性、有动机、可打断、三档降级）、
   时长五档（120/180/240/400/600，上限 800）与四条缓动（进入 ease-out / 离开 ease-in / 双向 in-out / 回弹只给直接操作）、
   位移与缩放允许量、编排（交错 40–60ms、≤ 8 个、只演一次）、滚动驱动（IntersectionObserver / `animation-timeline` /
   禁 scroll 事件 / 禁劫持）、六类交互配方、三档降级写法、性能预算（同屏 ≤ 12 元素动、will-change ≤ 3）、
@@ -320,5 +320,5 @@ node scripts/scaffold.mjs --persona rational --export tailwind,antd,element  # �
   hero 四条硬规则、布局族与 Z 字上限、**三把锁**（主题·色·形状）、图片优先级、**8 组 AI tell**（编号 eyebrow /
   装饰状态点 / 斜体降部 / 假预览 / 长列表评分条 / 动效）、中文站改写条款、**38 条 pre-flight**。
   **从 0 生成时，第 2 步（生成骨架）之后、第 6 步（验收）之前都要过一遍。**
-- `references/review-rubric.md` — 交付前逐项勾的验收清单（含脚本命令与判定标准）。
+- `references/review-rubric.md` — 交付前逐项勾的验收清单（含脚本命令、判定标准与 §8.1 五维审计报告协议）。
 - `README.md` — 脚本全部参数与常见问题。
